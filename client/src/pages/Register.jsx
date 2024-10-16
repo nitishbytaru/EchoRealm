@@ -1,96 +1,95 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import appname from "../temp/appname";
-import { useNavigate } from "react-router-dom";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import GoogleIcon from "@mui/icons-material/Google";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
 
-function Register() {
-  const navigate = useNavigate();
+const Register = () => {
+  const [isSignUp, setIsSignUp] = useState(false);
 
-  const [formTypeLogin, setFormTypeLogin] = useState(true);
-  const handleFormTypeToggle = () => setFormTypeLogin((prev) => !prev);
+  const inputClass = "bg-base-200 w-full mb-3 p-2 rounded";
 
-  // Reusable input component for form
-  const InputField = ({ label, type, placeholder, required }) => (
-    <div className="form-control">
-      <label className="label">
-        <span className="label-text">{label}</span>
-      </label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        className="input input-bordered"
-        required={required}
-        aria-label={label}
-      />
+  const Form = ({ isSignUp }) => (
+    <div className="absolute top-0 h-full w-full sm:w-1/2 p-8 flex flex-col items-center justify-center">
+      <h1 className="text-xl font-bold mb-4">
+        {isSignUp ? "Create Account" : "LogIn"}
+      </h1>
+      <div className="flex space-x-3 mb-4">
+        <div className="social bg-base-300 p-3 rounded-full">
+          <FacebookIcon />
+        </div>
+        <div className="social bg-base-300 p-3 rounded-full">
+          <GoogleIcon />
+        </div>
+        <div className="social bg-base-300 p-3 rounded-full">
+          <LinkedInIcon />
+        </div>
+      </div>
+      <span className="text-sm mb-4">
+        {isSignUp
+          ? "or use your email for registration"
+          : "or use your account"}
+      </span>
+      {isSignUp && (
+        <input type="text" placeholder="Name" className={inputClass} />
+      )}
+      <input type="email" placeholder="Email" className={inputClass} />
+      <input type="password" placeholder="Password" className={inputClass} />
+      {!isSignUp && (
+        <button className=" mb-4 text-sm">Forgot your password?</button>
+      )}
+      <button className="bg-base-300 py-2 px-6 rounded-full">
+        {isSignUp ? "Register" : "Login"}
+      </button>
     </div>
+  );
+
+  const Overlay = ({ isSignUp }) => (
+    <>
+      {/* Visible on larger screens */}
+      <div className="absolute top-0 left-1/2 w-1/2 h-full bg-base-300 justify-center items-center hidden md:flex">
+        <div className="flex flex-col items-center justify-center space-y-4 p-8 text-center">
+          <h1 className="text-2xl font-bold">
+            {isSignUp ? "Welcome Back!" : "Hello, Friend!"}
+          </h1>
+          <p className="text-sm mb-4">
+            {isSignUp
+              ? "To keep connected with us please login with your personal info"
+              : "Enter your personal details and start your journey with us"}
+          </p>
+          <button
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="border border-white py-2 px-6 rounded-full"
+          >
+            {isSignUp ? "Login" : "Register"}
+          </button>
+        </div>
+      </div>
+
+      {/* Toggle Button for mobile view (320px or smaller) */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-full md:hidden flex justify-center">
+        <button
+          onClick={() => setIsSignUp(!isSignUp)}
+          className="border border-base-300 text-base-300 bg-white py-2 px-6 rounded-full"
+        >
+          {isSignUp ? "Already have account? Log In" : "Create an account"}
+        </button>
+      </div>
+    </>
   );
 
   return (
-    <div className="hero bg-base-200 h-full">
-      <div className="hero-content flex-col lg:flex-row-reverse">
-        <div className="text-center lg:text-left">
-          <h1 className="text-5xl font-bold">
-            {formTypeLogin ? "Login now!" : "Register now!"}
-          </h1>
-          <p className="py-6">
-            {appname} is more than just messaging — it's where the magic
-            happens! Dive into our Anonymous Room, where you can send messages
-            and mention others, all while staying completely anonymous. Let the
-            mystery unfold!
-          </p>
-        </div>
-        <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-          <form className="card-body">
-            <InputField
-              label="Username"
-              type="text"
-              placeholder="Username"
-              required
-            />
-            {!formTypeLogin && (
-              <InputField
-                label="Email"
-                type="email"
-                placeholder="Email"
-                required
-              />
-            )}
-            <InputField
-              label="Password"
-              type="password"
-              placeholder="Password"
-              required
-            />
-
-            <label className="label">
-              <button
-                type="button"
-                className="label-text-alt link link-hover"
-                onClick={handleFormTypeToggle}
-              >
-                {formTypeLogin
-                  ? "New here? Register now!"
-                  : "Already have an account? Login here!"}
-              </button>
-            </label>
-
-            <div className="form-control mt-6">
-              <button
-                onClick={() => {
-                  localStorage.setItem("userId", 1);
-                  navigate("home");
-                }}
-                className="btn btn-primary"
-                type="submit"
-              >
-                {formTypeLogin ? "Login" : "Register"}
-              </button>
-            </div>
-          </form>
-        </div>
+    <div className="flex flex-col items-center justify-center h-full bg-base-200 rounded-xl px-3">
+      <h2 className="sm:text-2xl font-bold sm:mb-8 mb-2">
+        Welcome to {appname}
+      </h2>
+      <div className="container relative bg-base-100 shadow-2xl rounded-lg w-full max-w-3xl min-h-[480px]">
+        <Form isSignUp={isSignUp} />
+        <Form isSignUp={isSignUp} />
+        <Overlay isSignUp={isSignUp} />
       </div>
     </div>
   );
-}
+};
 
 export default Register;

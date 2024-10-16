@@ -16,35 +16,37 @@ function WhisperIcon({ position }) {
         <div>EchoWhisper</div>
       </button>
       <dialog id="my_modal_1" className="modal">
-        <div className="modal-box">
-          <div className="flex">
+        <div className="modal-box max-w-xs sm:max-w-md">
+          <div className="flex flex-col sm:flex-row gap-2">
             {localStorage.getItem("userId") === "1" ? (
-              <div className="w-full mt-4 flex">
+              <div className="w-full mt-2 sm:mt-4 flex">
                 <Link
                   to="/listen-whisper"
-                  className="btn bg-base-300 rounded-lg text-sm"
+                  className="btn btn-sm sm:btn-lg bg-base-300 rounded-lg w-full text-xs sm:text-sm"
                   onClick={() => document.getElementById("my_modal_1").close()}
                 >
-                  <MailOutlineIcon />
-                  Checkout my Whispers
+                  <MailOutlineIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                  <span>Checkout Whispers</span>
                 </Link>
               </div>
             ) : null}
-            <div className="w-full mt-4">
+            <div className="w-full mt-2 sm:mt-4 flex">
               <Link
                 to="/create-whisper"
-                className="btn bg-base-300 rounded-lg text-sm"
+                className="btn btn-sm sm:btn-lg bg-base-300 rounded-lg w-full text-xs sm:text-sm"
                 onClick={() => document.getElementById("my_modal_1").close()}
               >
-                <SendIcon />
-                Whisper to someone
+                <SendIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                <span>Whisper to someone</span>
               </Link>
             </div>
           </div>
           <div className="modal-action">
             <form method="dialog">
               {/* if there is a button in form, it will close the modal */}
-              <button className="btn bg-base-300">Close</button>
+              <button className="btn btn-sm sm:btn-md bg-base-300 w-full">
+                Close
+              </button>
             </form>
           </div>
         </div>

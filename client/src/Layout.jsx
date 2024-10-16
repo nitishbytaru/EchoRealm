@@ -8,7 +8,7 @@ function Layout() {
       <div className="flex-none">
         <NavBar />
       </div>
-      <div className="flex-grow overflow-auto">
+      <div className="flex-grow overflow-auto sm:p-4">
         <Outlet />
       </div>
     </div>

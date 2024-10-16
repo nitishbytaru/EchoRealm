@@ -2,8 +2,9 @@ import React from "react";
 import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 import ChatHistory from "./ChatHistory";
 import MessageBar from "../../ui/MessageBar";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
-function ChatBox({ selectedUser }) {
+function ChatBox({ selectedUser, handleBackClick }) {
   if (selectedUser !== null) {
     localStorage.setItem("sendId", selectedUser.id);
   }
@@ -21,6 +22,13 @@ function ChatBox({ selectedUser }) {
           <div className="navbar bg-base-100 rounded-xl flex-none">
             <div className="flex-1">
               <div className="avatar flex items-center">
+                {/* Back Button */}
+                <button
+                  className="p-0 sm:hidden btn btn-sm z-10"
+                  onClick={handleBackClick}
+                >
+                  <ArrowBackIosIcon />
+                </button>
                 <div className="w-10 rounded-full">
                   <img src={selectedUser.image} alt="User avatar" />
                 </div>

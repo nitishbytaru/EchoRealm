@@ -5,9 +5,10 @@ const ListenWhisper = memo(() => {
   return (
     <div className="flex flex-col bg-base-200 h-full p-4 rounded-xl">
       <div className="overflow-y-auto">
-        <div className="grid grid-cols-2 gap-4">
+        {/* Responsive grid layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {messages.map((message, index) => (
-            <div key={index} className="card bg-base-100 w-96 shadow-xl">
+            <div key={index} className="card bg-base-100 w-full sm:w-96 shadow-xl">
               <div className="card-body">
                 <div className="card-actions justify-between">
                   <h2 className="card-title">@Username</h2>
