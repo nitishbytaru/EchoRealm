@@ -31,7 +31,7 @@ function CreateWhisper() {
             <p className="text-3xl">@Username</p>
           </div>
         </div>
-        <div className="flex-none px-2">
+        <div className="flex-none px-2 mb-2">
           <MessageBar position={"whisper"} />
         </div>
       </div>
