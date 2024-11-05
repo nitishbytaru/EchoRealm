@@ -1,6 +1,12 @@
 import { Router } from "express";
-import { loginUser, registerUser } from "../controllers/user.controller.js";
+import {
+  getProfile,
+  loginUser,
+  logoutUser,
+  registerUser,
+} from "../controllers/user.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
+import { isAuthenticated } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -15,5 +21,11 @@ router.route("/signin").post(
 );
 
 router.route("/login").post(loginUser);
+
+//authentication middleware
+router.use(isAuthenticated);
+
+router.route("/get-profile").get(getProfile);
+router.route("/logout").get(logoutUser);
 
 export default router;

@@ -11,6 +11,11 @@ import { useEffect, useState, lazy, Suspense } from "react";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import ChatIcon from "@mui/icons-material/Chat";
 import appname from "../../temp/appname";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../api/userApi";
+import { setIsLoggedIn, setTheme, setUser } from "../../app/slices/authSlice";
+import toast from "react-hot-toast";
+
 //lazy loading
 const WhisperIcon = lazy(() => import("../EchoWhisper/WhisperIcon"));
 const NavDrawer = lazy(() => import("./NavDrawer"));
@@ -18,44 +23,37 @@ const ThemeToggle = lazy(() => import("./ThemeToggle"));
 
 function NavBar() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const [userId, setUserId] = useState(localStorage.getItem("userId") || "0");
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "retro");
+  const { user } = useSelector((state) => state.auth);
+  const { theme } = useSelector((state) => state.auth);
+
   const [isChecked, setIsChecked] = useState(theme === "dracula");
 
   useEffect(() => {
-    localStorage.setItem("theme", theme);
+    dispatch(setTheme(theme));
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
-  // Effect to auto-render based on userId changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const storedUserId = localStorage.getItem("userId");
-      setUserId(storedUserId || "0"); // Default to "0" if null
-    };
-
-    // Add event listener for storage changes
-    window.addEventListener("storage", handleStorageChange);
-
-    // Cleanup function
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
-
   const handleLogout = () => {
-    localStorage.setItem("userId", "0");
-    setUserId("0");
+    logout()
+      .then((response) => {
+        toast.success(response?.data?.message);
+        dispatch(setUser(null));
+        dispatch(setIsLoggedIn(false));
+      })
+      .catch((error) => console.log(error));
     navigate("/");
   };
 
   const handleToggle = (e) => {
     if (e.target.checked) {
-      setTheme("dracula");
+      dispatch(setTheme("dracula"));
+      localStorage.setItem("theme", "dracula");
       setIsChecked(true);
     } else {
-      setTheme("retro");
+      dispatch(setTheme("retro"));
+      localStorage.setItem("theme", "retro");
       setIsChecked(false);
     }
   };
@@ -69,7 +67,7 @@ function NavBar() {
       </div>
 
       <div className="flex-none sm:mr-8">
-        {userId === "1" ? (
+        {user ? (
           <>
             <div tabIndex={0} role="button" className="btn btn-ghost">
               <Link to="echo-link">

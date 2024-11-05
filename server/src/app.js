@@ -6,8 +6,7 @@ const app = express();
 
 app.use(
   cors({
-    //origin: "https://expense-nd-trackers.netlify.app",
-    origin: "http://localhost:3000",
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
   })
 );
@@ -20,8 +19,10 @@ app.use(cookieParser());
 
 //importing routes
 import userRoute from "./routes/user.route.js";
+import echoShoutRoute from "./routes/echoShout.route.js";
 
 //routes
 app.use("/api/user", userRoute);
+app.use("/api/echoShout", echoShoutRoute);
 
 export { app };

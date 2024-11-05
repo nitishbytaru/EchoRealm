@@ -1,10 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+
 import SendIcon from "@mui/icons-material/Send";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
 
 function WhisperIcon({ position }) {
+  const { isLoggedIn } = useSelector((state) => state.auth);
   return (
     <>
       {/* Open the modal using document.getElementById('ID').showModal() method */}
@@ -18,7 +21,7 @@ function WhisperIcon({ position }) {
       <dialog id="my_modal_1" className="modal">
         <div className="modal-box max-w-xs sm:max-w-md">
           <div className="flex flex-col sm:flex-row gap-2">
-            {localStorage.getItem("userId") === "1" ? (
+            {isLoggedIn ? (
               <div className="w-full mt-2 sm:mt-4 flex">
                 <Link
                   to="/listen-whisper"

@@ -1,14 +1,14 @@
 import { User } from "../models/user.model.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
+import { cookieOptions, sendToken } from "../utils/features.js";
 
+//To register a new user
 export const registerUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
 
   if ([email, username, password].some((field) => field?.trim() === "")) {
-    throw new ApiError(400, "All fields are required");
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   const existedUser = await User.findOne({
@@ -16,25 +16,22 @@ export const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (existedUser) {
-    throw new ApiError(409, "User with email or username already exists");
+    return res
+      .status(409)
+      .json({ message: "User with email or username already exists" });
   }
 
   const avatarLocalPath = req.files?.avatar[0]?.path;
 
   if (!avatarLocalPath) {
-    throw new ApiError(400, "Avatar file is required");
+    return res.status(400).json({ message: "Avatar file is required" });
   }
 
   const avatar = await uploadToCloudinary(avatarLocalPath);
 
   if (!avatar) {
-    throw new ApiError(400, "Avatar file is required");
+    return res.status(400).json({ message: "Avatar file is required" });
   }
-
-  // console.log(email);
-  // console.log(password);
-  // console.log(username);
-  // console.log(avatar);
 
   const user = await User.create({
     avatar: { url: avatar.url, publicId: avatar.public_id },
@@ -46,15 +43,55 @@ export const registerUser = asyncHandler(async (req, res) => {
   const createdUser = await User.findById(user._id).select("-password");
 
   if (!createdUser) {
-    throw new ApiError(500, "Something went wrong while registering the user");
+    return res
+      .status(500)
+      .json({ message: "Something went wrong while registering the user" });
   }
 
-  return res
-    .status(201)
-    .json(new ApiResponse(200, createdUser, "User registered Successfully"));
-  // res.send("hello");
+  sendToken(res, user, 201, "User registered Successfully");
 });
 
-export const loginUser = (req, res) => {
-  console.log("loggedin");
-};
+//To login
+export const loginUser = asyncHandler(async (req, res) => {
+  const { email, username, password } = req.body;
+
+  if (!username && !email) {
+    return res.status(400).json({ message: "username or email is required" });
+  }
+
+  const user = await User.findOne({
+    $or: [{ username }, { email }],
+  });
+
+  if (!user) {
+    return res.status(403).json({ message: "User does not exist" });
+  }
+
+  const isPasswordValid = user?.password === password;
+
+  if (!isPasswordValid) {
+    return res.status(401).json({ message: "Invalid user credentials" });
+  }
+
+  sendToken(res, user, 201, "Login Success");
+});
+
+//view profile
+export const getProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user).select("-password");
+
+  if (!user) return res.status(402).json({ message: "User not found" });
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+//To logout
+export const logoutUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .cookie("echo-token", "", { ...cookieOptions, maxAge: 0 })
+    .json({ success: true, message: "Logged out successfully" });
+});

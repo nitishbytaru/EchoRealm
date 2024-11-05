@@ -4,9 +4,11 @@ import CampaignIcon from "@mui/icons-material/Campaign";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
+import { useSelector } from "react-redux";
 
 function NavDrawer({ handleLogout, handleToggle, isChecked }) {
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
 
   return (
     <div className="drawer drawer-end z-10">
@@ -17,10 +19,7 @@ function NavDrawer({ handleLogout, handleToggle, isChecked }) {
           className="drawer-button btn btn-circle avatar"
         >
           <div className="w-12 rounded-full">
-            <img
-              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-              alt="User Avatar"
-            />
+            <img src={user.avatar.url} alt="User Avatar" />
           </div>
         </label>
       </div>

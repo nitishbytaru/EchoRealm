@@ -1,7 +1,10 @@
-import { useState, lazy, Suspense, memo, useCallback } from "react";
-import { useInputValidation } from "6pp";
+import { useState, lazy, Suspense, useCallback } from "react";
+import { useDispatch } from "react-redux";
+import { useFileHandler, useInputValidation } from "6pp";
 import appname from "../temp/appname";
 import toast from "react-hot-toast";
+import { login, register } from "../api/userApi";
+import { setIsLoggedIn, setLoading, setUser } from "../app/slices/authSlice";
 
 // Lazy loading icons
 const FacebookIcon = lazy(() => import("@mui/icons-material/Facebook"));
@@ -11,24 +14,28 @@ const LinkedInIcon = lazy(() => import("@mui/icons-material/LinkedIn"));
 const Register = () => {
   const [isSignUp, setIsSignUp] = useState(false);
 
-  //using 6pp package for the input data handling
+  const dispatch = useDispatch();
+
+  // Using 6pp package for input data handling
+  const avatar = useFileHandler("single");
   const email = useInputValidation("");
   const username = useInputValidation("");
   const password = useInputValidation("");
 
   const toggleSignUp = useCallback(() => setIsSignUp((prev) => !prev), []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    localStorage.setItem("userId", "1");
 
     const formData = new FormData();
+    //------------------------------------------//
     if (isSignUp) {
-      if (!email.value || !username.value || !password.value) {
+      if (!email.value || !username.value || !password.value || !avatar.file) {
         toast.error("All fields are required for registration.");
         return;
       }
       formData.append("email", email.value);
+      formData.append("avatar", avatar.file);
     } else {
       if (!username.value || !password.value) {
         toast.error("Username and Password are required for login.");
@@ -38,11 +45,31 @@ const Register = () => {
     formData.append("username", username.value);
     formData.append("password", password.value);
 
-    console.log("Form submitted:", Object.fromEntries(formData));
+    //need major changes here removing the redudent code
+    if (isSignUp) {
+      dispatch(setLoading(true));
+      const response = await register(formData); //register api
+      if (response.data) {
+        dispatch(setLoading(false));
+        dispatch(setIsLoggedIn(true));
+        dispatch(setUser(response?.data?.user));
+        toast.success("Registration successful");
+      }
+    } else {
+      const response = await login(formData); //login api
+      toast.success(response?.data?.message);
+      if (response.data) {
+        dispatch(setIsLoggedIn(true));
+        dispatch(setUser(response?.data?.user));
+      }
+    }
+
+    //-------------------------------------------//
 
     email.clear();
     username.clear();
     password.clear();
+    avatar.clear();
   };
 
   return (
@@ -74,15 +101,26 @@ const Register = () => {
               : "or use your account"}
           </span>
           {isSignUp && (
-            <input
-              type="email"
-              placeholder="Email"
-              value={email.value}
-              onChange={email.changeHandler}
-              name="email"
-              className="bg-base-200 w-full mb-3 p-2 rounded"
-              required={isSignUp}
-            />
+            <>
+              <label htmlFor="avatar">Choose Profile Picture</label>
+              <input
+                name="avatar"
+                type="file"
+                accept="image/*"
+                onChange={avatar.changeHandler}
+                className="file-input file-input-bordered file-input-md bg-base-200 w-full mb-3 p-2 rounded border border-base-300
+                           text-base-700 placeholder-base-500 hover:bg-base-300 hover:border-base-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-base-500"
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={email.value}
+                onChange={email.changeHandler}
+                name="email"
+                className="bg-base-200 w-full mb-3 p-2 rounded"
+                required={isSignUp}
+              />
+            </>
           )}
           <input
             type="text"
@@ -112,39 +150,36 @@ const Register = () => {
             {isSignUp ? "Register" : "Login"}
           </button>
         </div>
-        <>
-          {/* Visible on larger screens */}
-          <div className="absolute top-0 left-1/2 w-1/2 h-full bg-base-300 justify-center items-center hidden md:flex">
-            <div className="flex flex-col items-center justify-center space-y-4 p-8 text-center">
-              <h1 className="text-2xl font-bold">
-                {isSignUp ? "Welcome Back!" : "Hello, Friend!"}
-              </h1>
-              <p className="text-sm mb-4">
-                {isSignUp
-                  ? "To keep connected with us, please login with your personal info"
-                  : "Enter your personal details and start your journey with us"}
-              </p>
-              <button
-                onClick={toggleSignUp}
-                className="border border-white btn-ghost py-2 px-6 rounded-full"
-              >
-                {isSignUp ? "Login" : "Register"}
-              </button>
-            </div>
-          </div>
 
-          {/* Toggle Button for mobile view (320px or smaller) */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-full md:hidden flex justify-center">
+        {/* Overlay and mobile toggle elements */}
+        <div className="absolute top-0 left-1/2 w-1/2 h-full bg-base-300 justify-center items-center hidden md:flex">
+          <div className="flex flex-col items-center justify-center space-y-4 p-8 text-center">
+            <h1 className="text-2xl font-bold">
+              {isSignUp ? "Welcome Back!" : "Hello, Friend!"}
+            </h1>
+            <p className="text-sm mb-4">
+              {isSignUp
+                ? "To keep connected with us, please login with your personal info"
+                : "Enter your personal details and start your journey with us"}
+            </p>
             <button
               onClick={toggleSignUp}
-              className="border border-base-300 text-base-300 bg-white py-2 px-6 rounded-full"
+              className="border border-white btn-ghost py-2 px-6 rounded-full"
             >
-              {isSignUp
-                ? "Already have an account? Log In"
-                : "Create an account"}
+              {isSignUp ? "Login" : "Register"}
             </button>
           </div>
-        </>
+        </div>
+
+        {/* Mobile toggle button */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-full md:hidden flex justify-center">
+          <button
+            onClick={toggleSignUp}
+            className="border border-base-300 text-base-300 bg-white py-2 px-6 rounded-full"
+          >
+            {isSignUp ? "Already have an account? Log In" : "Create an account"}
+          </button>
+        </div>
       </div>
     </div>
   );
