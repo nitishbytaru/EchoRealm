@@ -1,8 +1,10 @@
 import React from "react";
-import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 import ChatHistory from "./ChatHistory";
 import MessageBar from "../../ui/MessageBar";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import {
+  MoreVertSharpIcon,
+  ArrowBackIosIcon,
+} from "../../../heplerFunc/exportIcons.js";
 
 function ChatBox({ selectedUser, handleBackClick }) {
   if (selectedUser !== null) {

@@ -7,11 +7,11 @@ const socket = io("http://localhost:3000", {
 
 // Add connection event listeners
 socket.on("connect", () => {
-  console.log("Connected to socket server");
+  // console.log("Connected to socket server");
 });
 
 socket.on("disconnect", () => {
-  console.log("Disconnected from socket server");
+  // console.log("Disconnected from socket server");
 });
 
 export default socket;

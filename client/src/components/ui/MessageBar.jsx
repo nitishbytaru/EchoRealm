@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 import { useFileHandler, useInputValidation } from "6pp";
-import SendSharpIcon from "@mui/icons-material/SendSharp";
-import AttachFileSharpIcon from "@mui/icons-material/AttachFileSharp";
-import CloseIcon from "@mui/icons-material/Close";
 import toast from "react-hot-toast";
 import { sendMessage } from "../../api/echoShoutApi";
 import socket from "../../sockets/socket.js";
+import {
+  handleKeyPress,
+  removeAttachment,
+} from "../../heplerFunc/microFuncs.js";
 
-export default function MessageBar({ position }) {
+import {
+  SendSharpIcon,
+  AttachFileSharpIcon,
+  CloseIcon,
+} from "../../heplerFunc/exportIcons.js";
+
+export default function MessageBar() {
   const [isUploading, setIsUploading] = useState(false);
   const attachments = useFileHandler("single");
   const message = useInputValidation("");
@@ -38,59 +45,43 @@ export default function MessageBar({ position }) {
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendCurrentMessage();
-    }
-  };
-
-
-  const removeAttachment = () => {
-    attachments.clear();
-  };
-
   return (
-    <div
-      className={`${
-        position === "whisper" ? "bg-base-300" : "bg-base-100"
-      } pt-2 sm:p-4 flex-none`}
-    >
+    <div className="bg-base-100 pt-2 sm:p-4 flex-none">
       <div className="flex items-center gap-1 sm:gap-2">
-        {position === "whisper" ? null : (
-          <div className="relative">
-            <button className="btn btn-sm sm:btn-md flex-shrink-0">
-              <label
-                htmlFor="attachments"
-                className="cursor-pointer flex items-center"
-              >
-                <AttachFileSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
-              </label>
-              <input
-                id="attachments"
-                name="attachments"
-                type="file"
-                accept="image/*"
-                onChange={attachments.changeHandler}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-            </button>
-            {attachments.file && (
-              <span className="absolute -top-2 -right-2 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
-                1
-              </span>
-            )}
-          </div>
-        )}
+        <div className="relative">
+          <button className="btn btn-sm sm:btn-md flex-shrink-0">
+            <label
+              htmlFor="attachments"
+              className="cursor-pointer flex items-center"
+            >
+              <AttachFileSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+            </label>
+            <input
+              id="attachments"
+              name="attachments"
+              type="file"
+              accept="image/*"
+              onChange={attachments.changeHandler}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </button>
+          {attachments.file && (
+            <span className="absolute -top-2 -right-2 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
+              1
+            </span>
+          )}
+        </div>
 
         <div className="grow relative">
           <input
             type="text"
             className="w-full input input-sm sm:input-md input-bordered pr-10"
-            placeholder={attachments.file ? "File selected" : "Type a message..."}
+            placeholder={
+              attachments.file ? "File selected" : "Type a message..."
+            }
             onChange={message.changeHandler}
             value={message.value}
-            onKeyDown={handleKeyPress}
+            onKeyDown={() => handleKeyPress(sendCurrentMessage)}
           />
           {attachments.file && (
             <button
@@ -103,7 +94,9 @@ export default function MessageBar({ position }) {
         </div>
 
         <button
-          className={`btn btn-sm sm:btn-md flex-shrink-0 ${isUploading ? 'loading' : ''}`}
+          className={`btn btn-sm sm:btn-md flex-shrink-0 ${
+            isUploading ? "loading" : ""
+          }`}
           onClick={sendCurrentMessage}
           disabled={isUploading}
         >

@@ -8,18 +8,23 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState, lazy, Suspense } from "react";
 
 //importing the components
-import CampaignIcon from "@mui/icons-material/Campaign";
-import ChatIcon from "@mui/icons-material/Chat";
 import appname from "../../temp/appname";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../api/userApi";
-import { setIsLoggedIn, setTheme, setUser } from "../../app/slices/authSlice";
+import {
+  setIsLoggedIn,
+  setTheme,
+  setUser,
+} from "../../app/slices/authSlice.js";
 import toast from "react-hot-toast";
+import { CampaignIcon, ChatIcon } from "../../heplerFunc/exportIcons.js";
+
 
 //lazy loading
 const WhisperIcon = lazy(() => import("../EchoWhisper/WhisperIcon"));
 const NavDrawer = lazy(() => import("./NavDrawer"));
 const ThemeToggle = lazy(() => import("./ThemeToggle"));
+
 
 function NavBar() {
   const navigate = useNavigate();

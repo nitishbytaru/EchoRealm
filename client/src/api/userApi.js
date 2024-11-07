@@ -1,22 +1,7 @@
 import axios from "axios";
+import { apiConfigFORM, apiConfigJSON } from "./exportAPICONFIG.js";
 
 const API_URL = "http://localhost:3000/api/user";
-
-const apiConfigJSON = {
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  credentials: "include",
-};
-
-const apiConfigFORM = {
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/form-data",
-  },
-  credentials: "include",
-};
 
 export const register = async (Data) => {
   try {

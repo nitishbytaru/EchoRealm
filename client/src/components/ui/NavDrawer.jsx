@@ -1,10 +1,11 @@
-import React from "react";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import CampaignIcon from "@mui/icons-material/Campaign";
-import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import { useSelector } from "react-redux";
+import {
+  EditOutlinedIcon,
+  CampaignIcon,
+  LogoutOutlinedIcon,
+} from "../../heplerFunc/exportIcons";
 
 function NavDrawer({ handleLogout, handleToggle, isChecked }) {
   const navigate = useNavigate();

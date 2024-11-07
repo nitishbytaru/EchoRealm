@@ -1,14 +1,7 @@
 import axios from "axios";
+import { apiConfigFORM } from "./exportAPICONFIG.js";
 
 const API_URL = "http://localhost:3000/api/echoShout";
-
-const apiConfigFORM = {
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/form-data",
-  },
-  credentials: "include",
-};
 
 export const sendMessage = async (Data) => {
   try {

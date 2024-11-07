@@ -2,9 +2,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import SendIcon from "@mui/icons-material/Send";
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
-import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
+import {
+  SendIcon,
+  MailOutlineIcon,
+  ForumOutlinedIcon,
+} from "../../heplerFunc/exportIcons";
 
 function WhisperIcon({ position }) {
   const { isLoggedIn } = useSelector((state) => state.auth);
