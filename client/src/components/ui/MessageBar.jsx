@@ -1,29 +1,52 @@
+import React, { useState } from "react";
 import { useFileHandler, useInputValidation } from "6pp";
 import SendSharpIcon from "@mui/icons-material/SendSharp";
 import AttachFileSharpIcon from "@mui/icons-material/AttachFileSharp";
+import CloseIcon from "@mui/icons-material/Close";
 import toast from "react-hot-toast";
 import { sendMessage } from "../../api/echoShoutApi";
+import socket from "../../sockets/socket.js";
 
 export default function MessageBar({ position }) {
-  // Using 6pp package for input data handling
+  const [isUploading, setIsUploading] = useState(false);
   const attachments = useFileHandler("single");
   const message = useInputValidation("");
 
   const sendCurrentMessage = async () => {
-    if (!message.value) {
-      return toast.error("enter a message");
+    if (!message.value && !attachments.file) {
+      return toast.error("Please enter a message or select a file");
     }
 
+    setIsUploading(true);
     const formData = new FormData();
     formData.append("message", message.value);
     if (attachments.file) {
       formData.append("attachments", attachments.file);
     }
 
-    const response = await sendMessage(formData);
-    console.log(response);
+    try {
+      const response = await sendMessage(formData);
+      socket.emit("send_message", response?.data?.createdMessage);
 
-    message.clear();
+      message.clear();
+      attachments.clear();
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendCurrentMessage();
+    }
+  };
+
+
+  const removeAttachment = () => {
     attachments.clear();
   };
 
@@ -35,37 +58,60 @@ export default function MessageBar({ position }) {
     >
       <div className="flex items-center gap-1 sm:gap-2">
         {position === "whisper" ? null : (
-          <button className="btn btn-sm sm:btn-md flex-shrink-0 relative">
-            <label
-              htmlFor="attachments"
-              className="cursor-pointer flex items-center"
-            >
-              <AttachFileSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
-            </label>
-            <input
-              id="attachments"
-              name="attachments"
-              type="file"
-              accept="image/*"
-              onChange={attachments.changeHandler}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-          </button>
+          <div className="relative">
+            <button className="btn btn-sm sm:btn-md flex-shrink-0">
+              <label
+                htmlFor="attachments"
+                className="cursor-pointer flex items-center"
+              >
+                <AttachFileSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+              </label>
+              <input
+                id="attachments"
+                name="attachments"
+                type="file"
+                accept="image/*"
+                onChange={attachments.changeHandler}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </button>
+            {attachments.file && (
+              <span className="absolute -top-2 -right-2 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
+                1
+              </span>
+            )}
+          </div>
         )}
 
-        <input
-          type="text"
-          className="grow input input-sm sm:input-md input-bordered"
-          placeholder="Type a message..."
-          onChange={message.changeHandler}
-          value={message.value}
-        />
-        {/* Send button taking only the required width */}
+        <div className="grow relative">
+          <input
+            type="text"
+            className="w-full input input-sm sm:input-md input-bordered pr-10"
+            placeholder={attachments.file ? "File selected" : "Type a message..."}
+            onChange={message.changeHandler}
+            value={message.value}
+            onKeyDown={handleKeyPress}
+          />
+          {attachments.file && (
+            <button
+              className="absolute right-2 top-1/2 transform -translate-y-1/2"
+              onClick={removeAttachment}
+            >
+              <CloseIcon sx={{ fontSize: 20 }} />
+            </button>
+          )}
+        </div>
+
         <button
-          className="btn btn-sm sm:btn-md flex-shrink-0"
+          className={`btn btn-sm sm:btn-md flex-shrink-0 ${isUploading ? 'loading' : ''}`}
           onClick={sendCurrentMessage}
+          disabled={isUploading}
         >
-          <SendSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+          {isUploading ? (
+            <span className="loading loading-spinner loading-lg"></span>
+          ) : (
+            <SendSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+          )}
         </button>
       </div>
     </div>

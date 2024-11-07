@@ -53,6 +53,7 @@ const Register = () => {
         dispatch(setLoading(false));
         dispatch(setIsLoggedIn(true));
         dispatch(setUser(response?.data?.user));
+        localStorage.setItem("allowFetch", true);
         toast.success("Registration successful");
       }
     } else {
@@ -60,6 +61,7 @@ const Register = () => {
       toast.success(response?.data?.message);
       if (response.data) {
         dispatch(setIsLoggedIn(true));
+        localStorage.setItem("allowFetch", true);
         dispatch(setUser(response?.data?.user));
       }
     }

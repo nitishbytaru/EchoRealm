@@ -30,14 +30,16 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    getProfile()
-      .then((response) => {
-        if (response) {
-          dispatch(setUser(response?.data?.user));
-          dispatch(setIsLoggedIn(true));
-        }
-      })
-      .catch((err) => console.log(err));
+    if (JSON.parse(localStorage.getItem("allowFetch"))) {
+      getProfile()
+        .then((response) => {
+          if (response) {
+            dispatch(setUser(response?.data?.user));
+            dispatch(setIsLoggedIn(true));
+          }
+        })
+        .catch((err) => console.log(err));
+    }
   }, [dispatch]);
 
   return (

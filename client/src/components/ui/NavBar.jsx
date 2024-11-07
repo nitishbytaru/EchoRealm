@@ -41,6 +41,7 @@ function NavBar() {
         toast.success(response?.data?.message);
         dispatch(setUser(null));
         dispatch(setIsLoggedIn(false));
+        localStorage.setItem("allowFetch", false);
       })
       .catch((error) => console.log(error));
     navigate("/");

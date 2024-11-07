@@ -1,3 +1,6 @@
+// echoShout.controller.js
+
+import { io } from "../index.js";
 import { EchoShout } from "../models/echoShout.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
@@ -31,9 +34,15 @@ export const sendMessage = asyncHandler(async (req, res) => {
     sender,
   });
 
+  const populatedMessage = await EchoShout.findById(
+    createdMessage._id
+  ).populate("sender", "username");
+
+  io.emit("receive_message", populatedMessage);
+
   return res
     .status(202)
-    .json({ message: "message sent succesfully", createdMessage });
+    .json({ message: "message sent succesfully", populatedMessage });
 });
 
 export const getMessages = asyncHandler(async (req, res) => {

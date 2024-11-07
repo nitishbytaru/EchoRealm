@@ -16,6 +16,8 @@ const messageSlice = createSlice({
     },
   },
 });
-
+addMessage: (state, action) => {
+  state.messages.unshift(action.payload); // Add to beginning of array
+}
 export const { addMessage, setMessages } = messageSlice.actions;
 export default messageSlice.reducer;
