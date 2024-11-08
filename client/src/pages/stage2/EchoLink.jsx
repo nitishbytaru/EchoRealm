@@ -1,17 +1,40 @@
-import React, { useState, useCallback } from "react";
+import { useCallback } from "react";
 import UserList from "../../components/EchoLink/UserList";
 import ChatBox from "../../components/EchoLink/chat/ChatBox";
+import { useDispatch, useSelector } from "react-redux";
+import socket from "../../sockets/socket";
+import {
+  setEchoLinkMessages,
+  setSelectedUser,
+} from "../../app/slices/echoLinkSlice";
+import { getPrivateMessages } from "../../api/echoLinkApi";
+
+// There is a lot of redundency in this components there are alot of unnecessary ccomponents
+// need to refactor the entire code
+//ALSO TAKE CARE OF THE REGISTER.jsx file
 
 export default function EchoLink() {
-  const [selectedUser, setSelectedUser] = useState(null);
+  const dispatch = useDispatch();
 
-  const handleUserSelect = useCallback((user) => {
-    setSelectedUser(user);
-  }, []);
+  const { user } = useSelector((state) => state.auth);
+  const { selectedUser } = useSelector((state) => state.echoLink);
 
-  const handleBackClick = () => {
-    setSelectedUser(null);
-  };
+  const handleUserSelect = useCallback(
+    async (currentSelecteduser) => {
+      dispatch(setSelectedUser(currentSelecteduser));
+
+      //this functions is also in the backend if possible remove from one place
+      const uniqueRoomId = [currentSelecteduser?._id, user?._id]
+        .sort()
+        .join("-");
+
+      socket.emit("joinEchoLink", uniqueRoomId);
+
+      const response = await getPrivateMessages(uniqueRoomId);
+      dispatch(setEchoLinkMessages(response?.data?.privateMessages?.messages));
+    },
+    [dispatch, user?._id]
+  );
 
   return (
     <div className="h-full flex flex-col w-full">
@@ -27,10 +50,7 @@ export default function EchoLink() {
           <div className="w-full h-full relative">
             {/* ChatBox */}
             <div className="h-full bg-base-200 p-4 overflow-auto rounded-box">
-              <ChatBox
-                selectedUser={selectedUser}
-                handleBackClick={handleBackClick}
-              />
+              <ChatBox />
             </div>
           </div>
         )}
@@ -42,7 +62,7 @@ export default function EchoLink() {
           <UserList onUserSelect={handleUserSelect} />
         </div>
         <div className="col-span-9 bg-base-200 rounded-box p-2 flex-grow overflow-auto">
-          <ChatBox selectedUser={selectedUser} />
+          <ChatBox />
         </div>
       </div>
     </div>

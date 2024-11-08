@@ -1,11 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import socket from "../../sockets/socket.js";
 import moment from "moment";
 import MessageBar from "../../components/ui/MessageBar";
-import { getMessages } from "../../api/echoShoutApi";
+import { getEchoShouts, sendEchoShout } from "../../api/echoShoutApi";
 import { setLoading } from "../../app/slices/authSlice.js";
-import { addMessage, setMessages } from "../../app/slices/echoShoutSlice.js";
+import {
+  addEchoShoutMessage,
+  setEchoShoutMessages,
+} from "../../app/slices/echoShoutSlice.js";
 
 function EchoShout() {
   const messagesEndRef = useRef(null);
@@ -16,8 +19,9 @@ function EchoShout() {
 
   useEffect(() => {
     // Listen for new messages
-    socket.on("receive_message", (newMessage) => {
-      dispatch(addMessage(newMessage));
+    console.log("hello");
+    socket.on("send_latest_echoShout_message", (latestEchoShoutMessage) => {
+      dispatch(addEchoShoutMessage(latestEchoShoutMessage));
     });
 
     // Cleanup on component unmount
@@ -29,8 +33,8 @@ function EchoShout() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await getMessages();
-        dispatch(setMessages(response?.data?.messages || []));
+        const response = await getEchoShouts();
+        dispatch(setEchoShoutMessages(response?.data?.messages || []));
       } catch (error) {
         console.log(error);
       } finally {
@@ -39,7 +43,7 @@ function EchoShout() {
     };
 
     fetchMessages();
-  }, []);
+  });
 
   //these are used to scroll down automatically
   const scrollToBottom = () => {
@@ -88,7 +92,7 @@ function EchoShout() {
       <div>
         {isLoggedIn && (
           <div className="flex-none bg-base-100 sm:p-4">
-            <MessageBar />
+            <MessageBar sendDataToApi={sendEchoShout} />
           </div>
         )}
       </div>

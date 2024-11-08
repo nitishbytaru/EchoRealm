@@ -1,15 +1,53 @@
-import React from "react";
-import ChatHistory from "./ChatHistory";
+import moment from "moment";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useRef } from "react";
 import MessageBar from "../../ui/MessageBar";
 import {
   MoreVertSharpIcon,
   ArrowBackIosIcon,
 } from "../../../heplerFunc/exportIcons.js";
+import { sendEchoLinkMessage } from "../../../api/echoLinkApi.js";
+import {
+  addEchoLinkMessage,
+  setSelectedUser,
+} from "../../../app/slices/echoLinkSlice.js";
+import socket from "../../../sockets/socket.js";
 
-function ChatBox({ selectedUser, handleBackClick }) {
-  if (selectedUser !== null) {
-    localStorage.setItem("sendId", selectedUser.id);
-  }
+function ChatBox() {
+  const dispatch = useDispatch();
+  const messagesEndRef = useRef(null);
+
+  const { user } = useSelector((state) => state.auth);
+  const { selectedUser, privateMessages } = useSelector(
+    (state) => state.echoLink
+  );
+
+  useEffect(() => {
+    // Listen for new messages
+    socket.on("send_latest_echoLink_message", (latestEchoLinkMessage) => {
+      dispatch(addEchoLinkMessage(latestEchoLinkMessage));
+    });
+
+    // Cleanup on component unmount
+    return () => {
+      socket.off("send_latest_echoLink_message");
+    };
+  }, [dispatch]);
+
+  // Function to scroll to the bottom of the messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Scroll to bottom whenever privateMessages changes
+  useEffect(() => {
+    scrollToBottom();
+  }, [privateMessages]);
+
+  const handleBackClick = () => {
+    dispatch(setSelectedUser(null));
+  };
+
   return (
     <>
       {!selectedUser ? (
@@ -20,7 +58,7 @@ function ChatBox({ selectedUser, handleBackClick }) {
         </div>
       ) : (
         <div className="h-full flex flex-col">
-          {/* this is the navbar with the dropdown menu  */}
+          {/* Navbar with dropdown menu */}
           <div className="navbar bg-base-100 rounded-xl flex-none">
             <div className="flex-1">
               <div className="avatar flex items-center">
@@ -32,9 +70,11 @@ function ChatBox({ selectedUser, handleBackClick }) {
                   <ArrowBackIosIcon />
                 </button>
                 <div className="w-10 rounded-full">
-                  <img src={selectedUser.image} alt="User avatar" />
+                  <img src={selectedUser?.avatar?.url} alt="User avatar" />
                 </div>
-                <p className="ml-2 flex items-center">{selectedUser.name}</p>
+                <p className="ml-2 flex items-center">
+                  {selectedUser?.username}
+                </p>
               </div>
             </div>
             <div className="flex-none">
@@ -44,26 +84,58 @@ function ChatBox({ selectedUser, handleBackClick }) {
                 </summary>
                 <ul className="menu dropdown-content bg-base-200 rounded-box z-[1] p-2 w-56 shadow mt-2">
                   <li>
-                    <a> clear chat </a>
+                    <p>Clear chat</p>
                   </li>
                   <li>
-                    <a>delete friend</a>
+                    <p>Delete friend</p>
                   </li>
                 </ul>
               </details>
             </div>
           </div>
 
-          {/* Chat area (takes up the rest of the space) */}
+          {/* Chat area */}
           <div className="flex-1 overflow-y-auto bg-base-100 mt-2 p-2 rounded-xl">
             <div className="h-full">
-              {/* here when i refresh the chat is closing so when ever the user opens the chat then store it in the loacl storage and when ever we refresh it should return to that user only */}
-              <ChatHistory />
+              <div className="flex-1 overflow-y-auto">
+                {privateMessages?.map((messages, index) => (
+                  <div
+                    key={index}
+                    className={`chat ${
+                      messages?.sender !== user?._id ? "chat-start" : "chat-end"
+                    }`}
+                  >
+                    <div className="chat-bubble">
+                      {messages?.attachments?.url ? null : (
+                        <img
+                          src={messages?.attachments[0]?.url}
+                          alt=""
+                          className={`${
+                            messages?.attachments[0]?.url
+                              ? "w-72 h-40 object-cover rounded-lg mb-2"
+                              : ""
+                          }`}
+                        />
+                      )}
+                      {messages?.message}
+                    </div>
+                    <div className="chat-footer opacity-50 mt-1">
+                      <time className="text-xs opacity-50">
+                        {moment(messages?.createdAt).fromNow()}
+                      </time>
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} /> {/* Reference for auto-scroll */}
+              </div>
             </div>
           </div>
 
-          {/* this component is for the message bar */}
-          <MessageBar />
+          {/* Message bar at the bottom */}
+          <MessageBar
+            sendDataToApi={sendEchoLinkMessage}
+            receiver={selectedUser?._id}
+          />
         </div>
       )}
     </>

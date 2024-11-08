@@ -34,15 +34,15 @@ export const sendMessage = asyncHandler(async (req, res) => {
     sender,
   });
 
-  const populatedMessage = await EchoShout.findById(
+  const latestEchoShoutMessage = await EchoShout.findById(
     createdMessage._id
   ).populate("sender", "username");
 
-  io.emit("receive_message", populatedMessage);
+  io.emit("send_latest_echoShout_message", latestEchoShoutMessage);
 
   return res
     .status(202)
-    .json({ message: "message sent succesfully", populatedMessage });
+    .json({ message: "message sent succesfully", latestEchoShoutMessage });
 });
 
 export const getMessages = asyncHandler(async (req, res) => {

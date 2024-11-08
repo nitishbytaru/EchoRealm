@@ -1,7 +1,18 @@
-import React from "react";
-import users from "../../temp/data/sampleUsers";
+import { useEffect, useState } from "react";
+import { getMyFriends } from "../../api/echoLinkApi";
 
 function UserList({ onUserSelect }) {
+  const [firends, setFirends] = useState([]);
+
+  useEffect(() => {
+    const func = async () => {
+      const response = await getMyFriends();
+      setFirends(response?.data?.myFriends);
+    };
+
+    func();
+  }, []);
+
   return (
     <div className="h-full flex flex-col">
       {/* Search bar fixed at the top */}
@@ -25,19 +36,19 @@ function UserList({ onUserSelect }) {
 
       {/* Scrollable user list */}
       <ul className="menu  flex-1 p-2">
-        {users.map((user) => (
+        {firends.map((user, index) => (
           <li
             className="py-2 cursor-pointer"
-            key={user.id}
+            key={index}
             onClick={() => {
               onUserSelect(user);
             }}
           >
             <div className="avatar flex items-stretch">
               <div className="w-12 rounded-full">
-                <img src={user.image} alt="user avatar" />
+                <img src={user?.avatar?.url} alt="user avatar" />
               </div>
-              <p className="">{user.name}</p>
+              <p className="">{user?.username}</p>
             </div>
           </li>
         ))}

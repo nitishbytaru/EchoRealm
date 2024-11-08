@@ -4,20 +4,19 @@ const initialState = {
   messages: [],
 };
 
-const messageSlice = createSlice({
+const echoShoutSlice = createSlice({
   name: "echoShout",
   initialState,
   reducers: {
-    addMessage(state, action) {
+    addEchoShoutMessage(state, action) {
       state.messages.push(action.payload);
     },
-    setMessages(state, action) {
+    setEchoShoutMessages(state, action) {
       state.messages = action.payload;
     },
   },
 });
-addMessage: (state, action) => {
-  state.messages.unshift(action.payload); // Add to beginning of array
-}
-export const { addMessage, setMessages } = messageSlice.actions;
-export default messageSlice.reducer;
+
+export const { addEchoShoutMessage, setEchoShoutMessages } =
+  echoShoutSlice.actions;
+export default echoShoutSlice.reducer;

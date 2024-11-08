@@ -1,7 +1,6 @@
 import { useState, lazy, Suspense, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
-import appname from "../temp/appname";
 import toast from "react-hot-toast";
 import { login, register } from "../api/userApi";
 import { setIsLoggedIn, setLoading, setUser } from "../app/slices/authSlice";
@@ -77,7 +76,7 @@ const Register = () => {
   return (
     <div className="flex flex-col items-center justify-center h-full bg-base-200 rounded-xl px-3">
       <h2 className="sm:text-2xl font-bold sm:mb-8 mb-2">
-        Welcome to {appname}
+        Welcome to EchoRealm
       </h2>
       <div className="container relative bg-base-100 shadow-2xl rounded-lg w-full max-w-3xl min-h-[480px]">
         <div className="absolute top-0 h-full w-full sm:w-1/2 p-8 flex flex-col items-center justify-center">

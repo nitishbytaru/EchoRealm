@@ -1,20 +1,17 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useFileHandler, useInputValidation } from "6pp";
 import toast from "react-hot-toast";
-import { sendMessage } from "../../api/echoShoutApi";
-import socket from "../../sockets/socket.js";
 import {
   handleKeyPress,
   removeAttachment,
 } from "../../heplerFunc/microFuncs.js";
-
 import {
   SendSharpIcon,
   AttachFileSharpIcon,
   CloseIcon,
 } from "../../heplerFunc/exportIcons.js";
 
-export default function MessageBar() {
+export default function MessageBar({ sendDataToApi, receiver }) {
   const [isUploading, setIsUploading] = useState(false);
   const attachments = useFileHandler("single");
   const message = useInputValidation("");
@@ -31,17 +28,20 @@ export default function MessageBar() {
       formData.append("attachments", attachments.file);
     }
 
-    try {
-      const response = await sendMessage(formData);
-      socket.emit("send_message", response?.data?.createdMessage);
+    if (receiver) {
+      formData.append("receiver", receiver);
+    }
 
-      message.clear();
-      attachments.clear();
+    try {
+      await sendDataToApi(formData);
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Failed to send message. Please try again.");
+      return error;
     } finally {
       setIsUploading(false);
+      message.clear();
+      attachments.clear();
     }
   };
 

@@ -3,10 +3,10 @@ import { apiConfigFORM } from "./exportAPICONFIG.js";
 
 const API_URL = "http://localhost:3000/api/echoShout";
 
-export const sendMessage = async (Data) => {
+export const sendEchoShout = async (Data) => {
   try {
     const response = await axios.post(
-      `${API_URL}/send-message`,
+      `${API_URL}/send-echoShoutMessage`,
       Data,
       apiConfigFORM
     );
@@ -17,9 +17,9 @@ export const sendMessage = async (Data) => {
   }
 };
 
-export const getMessages = async () => {
+export const getEchoShouts = async () => {
   try {
-    return await axios.get(`${API_URL}/get-messages`, {
+    return await axios.get(`${API_URL}/get-echoShoutMessages`, {
       withCredentials: true,
     });
   } catch (error) {

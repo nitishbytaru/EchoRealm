@@ -17,7 +17,10 @@ export const io = new Server(httpServer, {
 
 // Socket connections
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  //This is the soket connections for the ECHOLINK
+  socket.on("joinEchoLink", (uniqueRoomId) => {
+    socket.join(uniqueRoomId);
+  });
 
   socket.on("disconnect", () => {
     console.log("User disconnected");
