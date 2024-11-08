@@ -5,6 +5,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const searchUsers = asyncHandler(async (req, res) => {
   const { query } = req.query;
+ 
   if (!query) {
     return res.status(400).json({ message: "Search query is required" });
   }
@@ -35,4 +36,21 @@ export const sendWhisper = asyncHandler(async (req, res) => {
   });
 
   res.status(200).json({ message: "whisper sent successfully", whisper });
+});
+
+export const getWhispers = asyncHandler(async (req, res) => {
+  const whispers = await EchoWhisper.find();
+  res.status(200).json({ whispers });
+});
+
+export const deleteWhisper = asyncHandler(async (req, res) => {
+  const { whisperId } = req.query;
+
+  if (!whisperId) {
+    res.status(404).json({ message: "Id is needed to delete the whisper" });
+  }
+
+  const response = await EchoWhisper.findByIdAndDelete(whisperId);
+
+  res.status(207).json({ message: "whisper is deleted successfully" });
 });

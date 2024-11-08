@@ -16,14 +16,36 @@ export const searchUsers = async (searchTerm) => {
   }
 };
 
-export const sendWhisper = async (Data) => {
+export const sendWhisper = async (whiperData) => {
   try {
-    const response = await axios.post(
+    return await axios.post(
       `${API_URL}/send-whisper`,
-      Data,
+      whiperData,
       apiConfigJSON
     );
-    return response;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const getWhispers = async () => {
+  try {
+    return await axios.get(`${API_URL}/get-whispers`, {
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const deleteWhisper = async (whisperId) => {
+  try {
+    return await axios.delete(`${API_URL}/delete-whisper`, {
+      ...apiConfigJSON,
+      params: { whisperId },
+    });
   } catch (error) {
     console.log(error);
     return error;
