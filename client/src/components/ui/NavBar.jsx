@@ -1,15 +1,8 @@
-//Todo
-// here when ever the logout is triggred then the components
-// are rendering correctly but then loggingin then it is not
-// rendering to takel this issuse we must use REDUX-TOOL-KIT
-// for state management of the userId fro rendering the components in the navbar
-
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState, lazy, Suspense } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 //importing the components
-import appname from "../../temp/appname";
-import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../api/userApi";
 import {
   setIsLoggedIn,
@@ -68,7 +61,7 @@ function NavBar() {
     <div className="navbar bg-base-100 w-full">
       <div className="flex-1">
         <Link to="/" className="btn text-sm sm:ml-2 sm:text-xl sm:btn-ghost">
-          {appname}
+         EchoRealm
         </Link>
       </div>
 
