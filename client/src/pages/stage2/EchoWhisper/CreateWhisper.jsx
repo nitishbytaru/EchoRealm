@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { searchUsers, sendWhisper } from "../../../api/echoWhisperApi.js";
+import moment from "moment";
 import toast from "react-hot-toast";
 import { useInputValidation } from "6pp";
 import { handleKeyPress } from "../../../heplerFunc/microFuncs.js";
@@ -31,16 +32,57 @@ function CreateWhisper() {
     // This helps make sure only the latest input triggers the search, effectively debouncing it.
   }, [search.value]);
 
+  //utility functions
   const handleUserSelect = (whisperTo) => {
     setSelectedUser(whisperTo);
     setSearchResults([]);
     search.clear();
   };
 
-  const sendCurrentMessage = async () => {
-    if (!selectedUser) return toast.error("select a user to send whisper");
+  function getCookie(cookieName) {
+    const cookies = document.cookie.split("; ");
+    for (const cookie of cookies) {
+      const [key, value] = cookie.split("=");
+      if (key === cookieName) return value;
+    }
+    return null;
+  }
 
-    if (!message.value) return toast.error("enter a message to send whisper");
+  function setCookie() {
+    const date = new Date();
+    date.setTime(date.getTime() + 2 * 60 * 60 * 1000);
+    document.cookie = `whisperCooldown=${date}; expires=${date.toUTCString()}; path=/`;
+  }
+
+  const sendCurrentWhisper = async () => {
+    const lastWhisperTime = getCookie("whisperCooldown");
+
+    if (lastWhisperTime) {
+      const timeLeft = moment.duration(moment(lastWhisperTime).diff(moment()));
+      return toast.error(
+        `Please wait ${timeLeft.hours()} hours ${timeLeft.minutes()} mins ${timeLeft.seconds()} sec before sending another whisper`,
+        {
+          autoClose: 5000,
+          icon: "⏳",
+        }
+      );
+    }
+
+    if (!selectedUser) {
+      return toast.error("Please select a user to send a whisper", {
+        autoClose: 5000,
+        icon: "🚫",
+      });
+    }
+
+    if (!message.value) {
+      return toast.error("Enter a message to send a whisper", {
+        autoClose: 5000,
+        icon: "✉️",
+      });
+    }
+
+    setCookie();
 
     const data = {
       message: message.value,
@@ -115,11 +157,13 @@ function CreateWhisper() {
           ) : (
             <div className="flex justify-center items-center h-full">
               <p className="text-xl text-gray-500">
-                Search for a user to send a whisper
+                Search for a User to send a whisper
               </p>
             </div>
           )}
         </div>
+
+        {/* this is the message bar for creating a whisper */}
         <div className="flex-none px-2 mb-2">
           <div className={"bg-base-300 pt-2 sm:p-4 flex-none"}>
             <div className="flex items-center gap-1 sm:gap-2">
@@ -130,13 +174,13 @@ function CreateWhisper() {
                   placeholder="Type a message..."
                   onChange={message.changeHandler}
                   value={message.value}
-                  onKeyDown={() => handleKeyPress(sendCurrentMessage)}
+                  onKeyDown={(e) => handleKeyPress(e, sendCurrentWhisper)}
                 />
               </div>
 
               <button
                 className="btn btn-sm sm:btn-md flex-shrink-0"
-                onClick={sendCurrentMessage}
+                onClick={sendCurrentWhisper}
               >
                 <SendSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
               </button>
