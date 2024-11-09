@@ -3,9 +3,9 @@ import { apiConfigFORM, apiConfigJSON } from "./exportAPICONFIG.js";
 
 const API_URL = "http://localhost:3000/api/echoLink";
 
-export const getMyFriends = async () => {
+export const getMyPrivateFriends = async () => {
   try {
-    return await axios.get(`${API_URL}/get-MyFriends`, {
+    return await axios.get(`${API_URL}/get-myPrivateFriends`, {
       withCredentials: true,
     });
   } catch (error) {

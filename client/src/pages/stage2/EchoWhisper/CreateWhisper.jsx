@@ -15,6 +15,7 @@ function CreateWhisper() {
   const search = useInputValidation("");
   const message = useInputValidation("");
 
+  //this hook is used twice so we can put it in some other folder take care of it
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (search.value) {
@@ -39,6 +40,8 @@ function CreateWhisper() {
     search.clear();
   };
 
+  //this cookie thing will not work it is
+  //lack of security put this data directly into the database
   function getCookie(cookieName) {
     const cookies = document.cookie.split("; ");
     for (const cookie of cookies) {

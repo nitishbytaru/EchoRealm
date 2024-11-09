@@ -1,6 +1,6 @@
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import MessageBar from "../../ui/MessageBar";
 import {
   MoreVertSharpIcon,
@@ -17,6 +17,8 @@ import { scrollToBottom } from "../../../heplerFunc/microFuncs.js";
 function ChatBox() {
   const dispatch = useDispatch();
   const messagesEndRef = useRef(null);
+
+  const [echoLinkMessageData,setEchoLinkMessageData]  = useState(null)
 
   const { user } = useSelector((state) => state.auth);
   const { selectedUser, privateMessages } = useSelector(

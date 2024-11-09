@@ -11,6 +11,7 @@ import {
   CloseIcon,
 } from "../../heplerFunc/exportIcons.js";
 
+// eslint-disable-next-line react/prop-types
 export default function MessageBar({ sendDataToApi, receiver }) {
   const [isUploading, setIsUploading] = useState(false);
   const attachments = useFileHandler("single");

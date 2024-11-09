@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  getMyFriends,
+  getMyPrivateFriends,
   getPrivateMessages,
   sendEchoLinkMessage,
 } from "../controllers/echoLink.controller.js";
@@ -13,7 +13,7 @@ const router = Router();
 
 router.use(isAuthenticated);
 //protected routes
-router.route("/get-myFriends").get(getMyFriends);
+router.route("/get-myPrivateFriends").get(getMyPrivateFriends);
 router.route("/send-echoLinkMessage").post(
   upload.fields([
     {

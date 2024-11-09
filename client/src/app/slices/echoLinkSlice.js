@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   privateMessages: [],
   selectedUser: null,
+  myPrivateFriends: [],
 };
 
 const echoLinkSlice = createSlice({
@@ -10,6 +11,9 @@ const echoLinkSlice = createSlice({
   initialState,
   reducers: {
     addEchoLinkMessage(state, action) {
+      if (!state.privateMessages) {
+        state.privateMessages = [];
+      }
       state.privateMessages.push(action.payload);
     },
     setEchoLinkMessages(state, action) {
@@ -18,8 +22,19 @@ const echoLinkSlice = createSlice({
     setSelectedUser(state, action) {
       state.selectedUser = action.payload;
     },
+    setMyPrivateFriends(state, action) {
+      state.myPrivateFriends = action.payload;
+    },
+    addMyPrivateFriends(state, action) {
+      state.myPrivateFriends.push(action.payload);
+    },
   },
 });
-export const { addEchoLinkMessage, setEchoLinkMessages, setSelectedUser } =
-  echoLinkSlice.actions;
+export const {
+  addEchoLinkMessage,
+  setEchoLinkMessages,
+  setSelectedUser,
+  setMyPrivateFriends,
+  addMyPrivateFriends,
+} = echoLinkSlice.actions;
 export default echoLinkSlice.reducer;

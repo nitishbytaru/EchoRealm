@@ -1,9 +1,9 @@
 import { useState, lazy, Suspense, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
-import toast from "react-hot-toast";
 import { login, register } from "../api/userApi";
 import { setIsLoggedIn, setLoading, setUser } from "../app/slices/authSlice";
+import toast from "react-hot-toast";
 
 // Lazy loading icons
 const FacebookIcon = lazy(() => import("@mui/icons-material/Facebook"));
@@ -57,7 +57,7 @@ const Register = () => {
       }
     } else {
       const response = await login(formData); //login api
-      toast.success(response?.data?.message);
+      toast(response?.response?.data?.message);
       if (response.data) {
         dispatch(setIsLoggedIn(true));
         localStorage.setItem("allowFetch", true);
