@@ -26,7 +26,14 @@ const echoLinkSlice = createSlice({
       state.myPrivateFriends = action.payload;
     },
     addMyPrivateFriends(state, action) {
-      state.myPrivateFriends.push(action.payload);
+      const existingFriend = state.myPrivateFriends.find(
+        (friend) => friend._id === action.payload._id
+      );
+      if (existingFriend) {
+        existingFriend.latestMessage = action.payload.latestMessage;
+      } else {
+        state.myPrivateFriends.push(action.payload);
+      }
     },
   },
 });

@@ -12,7 +12,7 @@ import {
 } from "../../heplerFunc/exportIcons.js";
 
 // eslint-disable-next-line react/prop-types
-export default function MessageBar({ sendDataToApi, receiver }) {
+export default function MessageBar( {setMessageData }) {
   const [isUploading, setIsUploading] = useState(false);
   const attachments = useFileHandler("single");
   const message = useInputValidation("");
@@ -29,12 +29,8 @@ export default function MessageBar({ sendDataToApi, receiver }) {
       formData.append("attachments", attachments.file);
     }
 
-    if (receiver) {
-      formData.append("receiver", receiver);
-    }
-
     try {
-      await sendDataToApi(formData);
+      setMessageData(formData);
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Failed to send message. Please try again.");

@@ -9,6 +9,7 @@ import {
 import { sendEchoLinkMessage } from "../../../api/echoLinkApi.js";
 import {
   addEchoLinkMessage,
+  addMyPrivateFriends,
   setSelectedUser,
 } from "../../../app/slices/echoLinkSlice.js";
 import socket from "../../../sockets/socket.js";
@@ -18,7 +19,7 @@ function ChatBox() {
   const dispatch = useDispatch();
   const messagesEndRef = useRef(null);
 
-  const [echoLinkMessageData,setEchoLinkMessageData]  = useState(null)
+  const [echoLinkMessageData, setEchoLinkMessageData] = useState(null);
 
   const { user } = useSelector((state) => state.auth);
   const { selectedUser, privateMessages } = useSelector(
@@ -45,6 +46,27 @@ function ChatBox() {
   const handleBackClick = () => {
     dispatch(setSelectedUser(null));
   };
+
+  useEffect(() => {
+    echoLinkMessageData?.append("receiver", selectedUser?._id);
+
+    const func = async () => {
+      try {
+        if (echoLinkMessageData) {
+          const response = await sendEchoLinkMessage(echoLinkMessageData);
+          const newPrivateMessageFriend = { ...selectedUser };
+          newPrivateMessageFriend["latestMessage"] =
+            response?.data?.latestEchoLinkMessage;
+
+          dispatch(addMyPrivateFriends(newPrivateMessageFriend));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    func();
+  }, [dispatch, echoLinkMessageData, selectedUser, selectedUser?._id]);
 
   return (
     <>
@@ -130,10 +152,7 @@ function ChatBox() {
           </div>
 
           {/* Message bar at the bottom */}
-          <MessageBar
-            sendDataToApi={sendEchoLinkMessage}
-            receiver={selectedUser?._id}
-          />
+          <MessageBar setMessageData={setEchoLinkMessageData} />
         </div>
       )}
     </>

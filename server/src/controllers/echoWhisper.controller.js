@@ -13,7 +13,7 @@ export const searchUsers = asyncHandler(async (req, res) => {
   const searchedUsers = await User.find({
     username: { $regex: query, $options: "i" },
   })
-    .select("username avatar")
+    .select("-password")
     .limit(5);
 
   // $regex: query: Uses a regular expression (regex) to search within the username field for a pattern matching the query value. This means it will find usernames that partially match query rather than an exact match.

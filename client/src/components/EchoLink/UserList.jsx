@@ -3,7 +3,7 @@ import { getMyPrivateFriends } from "../../api/echoLinkApi";
 import { useInputValidation } from "6pp";
 import { useDispatch, useSelector } from "react-redux";
 import { searchUsers } from "../../api/echoWhisperApi";
-import {  setMyPrivateFriends } from "../../app/slices/echoLinkSlice";
+import { setMyPrivateFriends } from "../../app/slices/echoLinkSlice";
 
 // eslint-disable-next-line react/prop-types
 function UserList({ onUserSelect }) {
@@ -40,7 +40,10 @@ function UserList({ onUserSelect }) {
   useEffect(() => {
     const func = async () => {
       const response = await getMyPrivateFriends();
-      dispatch(setMyPrivateFriends(response?.data?.myPrivateFriendsWithMessages));
+
+      dispatch(
+        setMyPrivateFriends(response?.data?.myPrivateFriendsWithMessages)
+      );
     };
 
     func();
@@ -52,8 +55,6 @@ function UserList({ onUserSelect }) {
       ? message.slice(0, maxLength) + "..."
       : message;
   };
-
-  console.log(myPrivateFriends);
 
   return (
     <div className="h-full flex flex-col">

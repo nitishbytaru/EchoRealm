@@ -43,6 +43,8 @@ export const getMyPrivateFriends = asyncHandler(async (req, res) => {
     })
   );
 
+  console.log(myPrivateFriendsWithMessages);
+
   return res
     .status(202)
     .json({ message: "Fetched your friends", myPrivateFriendsWithMessages });
@@ -97,7 +99,6 @@ export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
   const latestEchoLinkMessage = updatedEchoLinkMessage?.messages?.at(-1);
 
   io.emit("send_latest_echoLink_message", latestEchoLinkMessage);
-
 
   return res
     .status(202)
