@@ -12,6 +12,7 @@ import {
   setSelectedUser,
 } from "../../../app/slices/echoLinkSlice.js";
 import socket from "../../../sockets/socket.js";
+import { scrollToBottom } from "../../../heplerFunc/microFuncs.js";
 
 function ChatBox() {
   const dispatch = useDispatch();
@@ -34,14 +35,9 @@ function ChatBox() {
     };
   }, [dispatch]);
 
-  // Function to scroll to the bottom of the messages
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   // Scroll to bottom whenever privateMessages changes
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom(messagesEndRef);
   }, [privateMessages]);
 
   const handleBackClick = () => {

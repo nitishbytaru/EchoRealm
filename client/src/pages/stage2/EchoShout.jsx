@@ -9,6 +9,7 @@ import {
   addEchoShoutMessage,
   setEchoShoutMessages,
 } from "../../app/slices/echoShoutSlice.js";
+import { scrollToBottom } from "../../heplerFunc/microFuncs.js";
 
 function EchoShout() {
   const messagesEndRef = useRef(null);
@@ -19,14 +20,13 @@ function EchoShout() {
 
   useEffect(() => {
     // Listen for new messages
-    console.log("hello");
     socket.on("send_latest_echoShout_message", (latestEchoShoutMessage) => {
       dispatch(addEchoShoutMessage(latestEchoShoutMessage));
     });
 
     // Cleanup on component unmount
     return () => {
-      socket.off("receive_message");
+      socket.off("send_latest_echoShout_message");
     };
   }, [dispatch]);
 
@@ -43,15 +43,10 @@ function EchoShout() {
     };
 
     fetchMessages();
-  });
-
-  //these are used to scroll down automatically
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom(messagesEndRef);
   }, [messages]);
 
   return (

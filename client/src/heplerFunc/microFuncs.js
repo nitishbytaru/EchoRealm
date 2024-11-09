@@ -5,6 +5,11 @@ export const handleKeyPress = (e, executableFunction) => {
   }
 };
 
-export const removeAttachment = () => {
+export const removeAttachment = (attachments) => {
   attachments.clear();
+};
+
+//these are used to scroll down automatically
+export const scrollToBottom = (messagesEndRef) => {
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 };
