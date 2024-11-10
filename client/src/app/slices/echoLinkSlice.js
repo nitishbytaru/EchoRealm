@@ -26,15 +26,13 @@ const echoLinkSlice = createSlice({
       state.myPrivateChatRooms = action.payload;
     },
     addToMyPrivateChatRooms(state, action) {
-      const existingChatRoom = state.myPrivateChatRooms.find(
-        (friend) => friend.uniqueChatId === action.payload.uniqueChatId
-      );
+      const existingChatRoom = state.myPrivateChatRooms.find((friend) => {
+        return friend.uniqueChatId === action.payload.uniqueChatId;
+      });
       if (existingChatRoom) {
         existingChatRoom.latestMessage = action.payload.latestMessage;
       } else {
-        console.log(action.payload)
-        console.log(action.payload.latestMessage)
-        state.myPrivateChatRooms.push(action.payload.latestMessage);
+        state.myPrivateChatRooms.push(action.payload);
       }
     },
   },

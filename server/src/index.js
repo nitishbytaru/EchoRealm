@@ -22,6 +22,12 @@ io.on("connection", (socket) => {
     socket.join(uniqueRoomId);
   });
 
+  socket.on("new_privte_message_received", (receiverData) => {
+    const { uniqueChatId } = receiverData; // Ensure this is properly set
+    // Emit to the intended receiver
+    io.to(uniqueChatId).emit("send_latest_echoLink_message", receiverData);
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected");
   });

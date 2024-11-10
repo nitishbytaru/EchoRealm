@@ -11,7 +11,7 @@ export const scrollToBottom = (messagesEndRef) => {
 };
 
 // Helper function to truncate message with ellipsis if it exceeds max length
-export const truncateMessage = (message, maxLength = 40) => {
+export const truncateMessage = (message, maxLength = 30) => {
   return message?.length > maxLength
     ? message.slice(0, maxLength) + "..."
     : message;

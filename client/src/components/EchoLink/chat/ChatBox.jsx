@@ -1,6 +1,6 @@
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import MessageBar from "../../ui/MessageBar";
 import {
   MoreVertSharpIcon,
@@ -13,63 +13,58 @@ import {
   setSelectedUser,
 } from "../../../app/slices/echoLinkSlice.js";
 import socket from "../../../sockets/socket.js";
-import { scrollToBottom } from "../../../heplerFunc/microFuncs.js";
+import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
 
 function ChatBox() {
   const dispatch = useDispatch();
-  const messagesEndRef = useRef(null);
-
-  const [echoLinkMessageData, setEchoLinkMessageData] = useState(null);
 
   const { user } = useSelector((state) => state.auth);
   const { selectedUser, privateMessages } = useSelector(
     (state) => state.echoLink
   );
 
+  const messagesEndRef = useAutoScroll(privateMessages);
+
+  const [echoLinkMessageData, setEchoLinkMessageData] = useState(null);
+
   useEffect(() => {
-    // Listen for new messages
+    // Listen for both socket events in one useEffect
     socket.on("send_latest_echoLink_message", (latestEchoLinkMessage) => {
       dispatch(addToMyPrivateChatRooms(latestEchoLinkMessage));
       dispatch(addPrivateMessage(latestEchoLinkMessage.latestMessage));
     });
 
+    socket.on("new_privte_message_received", (message) => {
+      dispatch(addToMyPrivateChatRooms(message));
+    });
+
     // Cleanup on component unmount
     return () => {
       socket.off("send_latest_echoLink_message");
+      socket.off("new_privte_message_received");
     };
   }, [dispatch]);
 
-  // Scroll to bottom whenever privateMessages changes
   useEffect(() => {
-    scrollToBottom(messagesEndRef);
-  }, [privateMessages]);
+    if (echoLinkMessageData && !echoLinkMessageData.has("receiver")) {
+      echoLinkMessageData.append("receiver", selectedUser?._id);
+    }
 
-  const handleBackClick = () => {
-    dispatch(setSelectedUser(null));
-  };
-
-  useEffect(() => {
-    echoLinkMessageData?.append("receiver", selectedUser?._id);
-
-    const func = async () => {
+    const sendMessage = async () => {
       try {
         if (echoLinkMessageData) {
           const response = await sendEchoLinkMessage(echoLinkMessageData);
-
-          socket.emit(
-            "new_privte_message_received",
-            response?.data?.receiverData
-          );
-
           dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        setEchoLinkMessageData(null);
       }
     };
 
-    func();
-  }, [dispatch, echoLinkMessageData, selectedUser, selectedUser?._id]);
+    sendMessage();
+  }, [dispatch, echoLinkMessageData, selectedUser?._id]);
 
   return (
     <>
@@ -88,7 +83,7 @@ function ChatBox() {
                 {/* Back Button */}
                 <button
                   className="p-0 sm:hidden btn btn-sm z-10"
-                  onClick={handleBackClick}
+                  onClick={() => dispatch(setSelectedUser(null))}
                 >
                   <ArrowBackIosIcon />
                 </button>

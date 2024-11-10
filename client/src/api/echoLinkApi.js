@@ -16,12 +16,11 @@ export const getMyPrivateFriends = async () => {
 
 export const sendEchoLinkMessage = async (echoLinkMessage) => {
   try {
-    const response = await axios.post(
+    return await axios.post(
       `${API_URL}/send-echoLinkMessage`,
       echoLinkMessage,
       apiConfigFORM
     );
-    return response;
   } catch (error) {
     console.log(error);
     return error;

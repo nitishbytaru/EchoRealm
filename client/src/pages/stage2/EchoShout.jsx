@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import socket from "../../sockets/socket.js";
 import moment from "moment";
@@ -9,16 +9,17 @@ import {
   addEchoShoutMessage,
   setEchoShoutMessages,
 } from "../../app/slices/echoShoutSlice.js";
-import { scrollToBottom } from "../../heplerFunc/microFuncs.js";
+import { useAutoScroll } from "../../hooks/useAutoScroll.js";
 
 function EchoShout() {
   const dispatch = useDispatch();
 
-  const [echoShoutMessageData, setEchoShoutMessageData] = useState("");
-
-  const messagesEndRef = useRef(null);
   const { isLoggedIn, user } = useSelector((state) => state.auth);
   const { messages } = useSelector((state) => state.echoShout);
+
+  const [echoShoutMessageData, setEchoShoutMessageData] = useState("");
+
+  const messagesEndRef = useAutoScroll(messages);
 
   useEffect(() => {
     // Listen for new messages
@@ -45,11 +46,7 @@ function EchoShout() {
     };
 
     fetchMessages();
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom(messagesEndRef);
-  }, [messages]);
+  }, [dispatch]);
 
   useEffect(() => {
     const sendEchoShoutMessage = async () => {
