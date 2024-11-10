@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import socket from "../../sockets/socket.js";
 import moment from "moment";
@@ -12,11 +12,13 @@ import {
 import { scrollToBottom } from "../../heplerFunc/microFuncs.js";
 
 function EchoShout() {
+  const dispatch = useDispatch();
+
+  const [echoShoutMessageData, setEchoShoutMessageData] = useState("");
+
   const messagesEndRef = useRef(null);
   const { isLoggedIn, user } = useSelector((state) => state.auth);
   const { messages } = useSelector((state) => state.echoShout);
-
-  const dispatch = useDispatch();
 
   useEffect(() => {
     // Listen for new messages
@@ -48,6 +50,21 @@ function EchoShout() {
   useEffect(() => {
     scrollToBottom(messagesEndRef);
   }, [messages]);
+
+  useEffect(() => {
+    const sendEchoShoutMessage = async () => {
+      try {
+        await sendEchoShout(echoShoutMessageData);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setEchoShoutMessageData("");
+      }
+    };
+    if (echoShoutMessageData) {
+      sendEchoShoutMessage();
+    }
+  }, [echoShoutMessageData]);
 
   return (
     <div className="h-full flex flex-col bg-base-100">
@@ -87,7 +104,7 @@ function EchoShout() {
       <div>
         {isLoggedIn && (
           <div className="flex-none bg-base-100 sm:p-4">
-            <MessageBar sendDataToApi={sendEchoShout} />
+            <MessageBar setMessageData={setEchoShoutMessageData} />
           </div>
         )}
       </div>
