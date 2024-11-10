@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   getMyPrivateFriends,
   getPrivateMessages,
+  markLatestMessageAsRead,
 } from "../../api/echoLinkApi.js";
 import { useInputValidation } from "6pp";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,6 +11,7 @@ import {
   setPrivateMessages,
   setMyPrivateChatRooms,
   setSelectedUser,
+  setLatestMessageAsRead,
 } from "../../app/slices/echoLinkSlice.js";
 import socket from "../../sockets/socket.js";
 import { truncateMessage } from "../../heplerFunc/microFuncs.js";
@@ -68,11 +70,28 @@ function ChatRooms() {
 
       socket.emit("joinEchoLink", uniqueRoomId);
 
+      //____________________________________________________________//
+      // this functions is almost being called for more than 4
+      // time which also hitting the database TAKE CARE of it
+
       const response = await getPrivateMessages(uniqueRoomId);
+      console.log(response);
       dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
     },
     [dispatch, user?._id]
   );
+
+  const markAsRead = async (currUser) => {
+    dispatch(setLatestMessageAsRead(currUser));
+
+    try {
+      const response = await markLatestMessageAsRead(currUser?.uniqueChatId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  console.log(myPrivateChatRooms);
 
   return (
     <div className="h-full flex flex-col">
@@ -119,29 +138,47 @@ function ChatRooms() {
 
       {/* Scrollable user list */}
       <ul className="menu flex-1 p-2 overflow-y-auto">
-        {myPrivateChatRooms.map((user, index) => (
+        {myPrivateChatRooms.map((currUser, index) => (
           <li
             className="py-2 cursor-pointer"
             key={index}
             onClick={() => {
-              handleRoomSelect(user);
+              handleRoomSelect(currUser);
+              markAsRead(currUser);
             }}
           >
             <div className="flex items-center gap-3">
+              {/* User Avatar */}
               <div className="avatar">
                 <div className="w-12 rounded-full">
-                  <img src={user?.avatar?.url} alt="user avatar" />
+                  <img src={currUser?.avatar?.url} alt="user avatar" />
                 </div>
               </div>
+
+              {/* Username and Latest Message */}
               <div className="flex-1">
-                <p className="font-semibold">{user?.username}</p>
+                <p className="font-semibold">{currUser?.username}</p>
+                <p>{currUser?.latestMessage?.messageStatus}</p>
                 <p
-                  className="text-sm text-gray-500 truncate"
+                  className={`text-sm ${
+                    currUser?.latestMessage?.messageStatus === "sent" &&
+                    currUser?.latestMessage?.sender != user._id
+                      ? "text-white"
+                      : "text-gray-500"
+                  }`}
                   style={{ maxWidth: "15rem" }}
                 >
-                  {truncateMessage(user?.latestMessage?.message)}
+                  {truncateMessage(currUser?.latestMessage?.message)}
                 </p>
               </div>
+
+              {/* Notification Dot */}
+              {currUser?.latestMessage?.messageStatus === "sent" &&
+                currUser?.latestMessage?.sender != user._id && (
+                  <div className="text-white text-4xl">
+                    <p>•</p>
+                  </div>
+                )}
             </div>
           </li>
         ))}

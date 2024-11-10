@@ -38,3 +38,16 @@ export const getPrivateMessages = async (uniqueChatId) => {
     return error;
   }
 };
+
+export const markLatestMessageAsRead = async (uniqueChatId) => {
+  try {
+    const response = await axios.get(`${API_URL}/set-latestMessageAsRead`, {
+      params: { uniqueChatId },
+      ...apiConfigJSON,
+    });
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};

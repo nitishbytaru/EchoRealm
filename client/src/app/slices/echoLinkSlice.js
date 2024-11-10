@@ -35,6 +35,23 @@ const echoLinkSlice = createSlice({
         state.myPrivateChatRooms.push(action.payload);
       }
     },
+    setLatestMessageAsRead(state, action) {
+      const chatId = action.payload?._id;
+
+      state.myPrivateChatRooms = state.myPrivateChatRooms.map((chatRoom) => {
+        if (chatRoom._id === chatId) {
+          // Update the messageStatus to "read" in the latestMessage field
+          return {
+            ...chatRoom,
+            latestMessage: {
+              ...chatRoom.latestMessage,
+              messageStatus: "read",
+            },
+          };
+        }
+        return chatRoom;
+      });
+    },
   },
 });
 export const {
@@ -43,5 +60,6 @@ export const {
   setSelectedUser,
   setMyPrivateChatRooms,
   addToMyPrivateChatRooms,
+  setLatestMessageAsRead,
 } = echoLinkSlice.actions;
 export default echoLinkSlice.reducer;

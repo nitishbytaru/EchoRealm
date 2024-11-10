@@ -3,6 +3,7 @@ import {
   getMyPrivateFriends,
   getPrivateMessages,
   sendEchoLinkMessage,
+  markLatestMessageAsRead,
 } from "../controllers/echoLink.controller.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -24,5 +25,6 @@ router.route("/send-echoLinkMessage").post(
   sendEchoLinkMessage
 );
 router.route("/get-privateMessages").get(getPrivateMessages);
+router.route("/set-latestMessageAsRead").get(markLatestMessageAsRead);
 
 export default router;

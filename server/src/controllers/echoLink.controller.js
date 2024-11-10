@@ -44,6 +44,8 @@ export const getMyPrivateFriends = asyncHandler(async (req, res) => {
     })
   );
 
+  console.log(myPrivateFriendsWithMessages);
+
   return res
     .status(202)
     .json({ message: "Fetched your friends", myPrivateFriendsWithMessages });
@@ -54,7 +56,6 @@ export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
   const { receiver, message } = req.body;
   const sender = req.user;
 
-  //take this unique chat id from the frontend later
   const uniqueChatId = [sender, receiver].sort().join("-");
 
   if (!message) return res.status(405).json({ message: "enter a message" });
@@ -91,7 +92,7 @@ export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
     {
       $setOnInsert: { uniqueChatId },
       $push: { messages: newMessage },
-      latestMessage: newMessage,
+      $set: { latestMessage: newMessage },
     },
     { new: true, upsert: true }
   ).select("latestMessage uniqueChatId");
@@ -128,8 +129,31 @@ export const getPrivateMessages = asyncHandler(async (req, res) => {
 
   const privateMessages = await EchoLink.findOne({ uniqueChatId });
 
+  console.log(privateMessages);
+
   res.status(203).json({
     message: "Private messages retrieved successfully",
+    privateMessages,
+  });
+});
+
+export const markLatestMessageAsRead = asyncHandler(async (req, res) => {
+  const { uniqueChatId } = req.query;
+
+  if (!uniqueChatId) {
+    return res
+      .status(403)
+      .json({ message: "uniqueChatId is required to retrieve your messages" });
+  }
+
+  const privateMessages = await EchoLink.findOneAndUpdate(
+    { uniqueChatId },
+    { $set: { "latestMessage.messageStatus": "read" } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    message: "Latest message status updated to 'read' successfully",
     privateMessages,
   });
 });

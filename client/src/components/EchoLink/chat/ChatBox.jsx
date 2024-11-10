@@ -128,8 +128,8 @@ function ChatBox() {
                       messages?.sender !== user?._id ? "chat-start" : "chat-end"
                     }`}
                   >
-                    <div className="chat-bubble">
-                      {/* {messages?.attachments?.url ? null : (
+                    <div className="chat-bubble ">
+                      {messages?.attachments?.url ? null : (
                         <img
                           src={messages?.attachments[0]?.url}
                           alt=""
@@ -139,7 +139,7 @@ function ChatBox() {
                               : ""
                           }`}
                         />
-                      )} */}
+                      )}
                       {messages?.message}
                     </div>
                     <div className="chat-footer opacity-50 mt-1">
