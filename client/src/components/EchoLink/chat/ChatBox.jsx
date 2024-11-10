@@ -8,8 +8,8 @@ import {
 } from "../../../heplerFunc/exportIcons.js";
 import { sendEchoLinkMessage } from "../../../api/echoLinkApi.js";
 import {
-  addEchoLinkMessage,
-  addMyPrivateFriends,
+  addPrivateMessage,
+  addToMyPrivateChatRooms,
   setSelectedUser,
 } from "../../../app/slices/echoLinkSlice.js";
 import socket from "../../../sockets/socket.js";
@@ -29,7 +29,8 @@ function ChatBox() {
   useEffect(() => {
     // Listen for new messages
     socket.on("send_latest_echoLink_message", (latestEchoLinkMessage) => {
-      dispatch(addEchoLinkMessage(latestEchoLinkMessage));
+      dispatch(addToMyPrivateChatRooms(latestEchoLinkMessage));
+      dispatch(addPrivateMessage(latestEchoLinkMessage.latestMessage));
     });
 
     // Cleanup on component unmount
@@ -54,11 +55,13 @@ function ChatBox() {
       try {
         if (echoLinkMessageData) {
           const response = await sendEchoLinkMessage(echoLinkMessageData);
-          const newPrivateMessageFriend = { ...selectedUser };
-          newPrivateMessageFriend["latestMessage"] =
-            response?.data?.latestEchoLinkMessage;
 
-          dispatch(addMyPrivateFriends(newPrivateMessageFriend));
+          socket.emit(
+            "new_privte_message_received",
+            response?.data?.receiverData
+          );
+
+          dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
         }
       } catch (error) {
         console.log(error);
@@ -126,7 +129,7 @@ function ChatBox() {
                     }`}
                   >
                     <div className="chat-bubble">
-                      {messages?.attachments?.url ? null : (
+                      {/* {messages?.attachments?.url ? null : (
                         <img
                           src={messages?.attachments[0]?.url}
                           alt=""
@@ -136,7 +139,7 @@ function ChatBox() {
                               : ""
                           }`}
                         />
-                      )}
+                      )} */}
                       {messages?.message}
                     </div>
                     <div className="chat-footer opacity-50 mt-1">

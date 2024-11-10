@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useFileHandler, useInputValidation } from "6pp";
 import toast from "react-hot-toast";
-import {
-  handleKeyPress,
-  removeAttachment,
-} from "../../heplerFunc/microFuncs.js";
+import { handleKeyPress } from "../../heplerFunc/microFuncs.js";
 import {
   SendSharpIcon,
   AttachFileSharpIcon,
@@ -12,7 +9,7 @@ import {
 } from "../../heplerFunc/exportIcons.js";
 
 // eslint-disable-next-line react/prop-types
-export default function MessageBar( {setMessageData }) {
+export default function MessageBar({ setMessageData }) {
   const [isUploading, setIsUploading] = useState(false);
   const attachments = useFileHandler("single");
   const message = useInputValidation("");
@@ -83,7 +80,7 @@ export default function MessageBar( {setMessageData }) {
           {attachments.file && (
             <button
               className="absolute right-2 top-1/2 transform -translate-y-1/2"
-              onClick={() => removeAttachment(attachments)}
+              onClick={() => attachments.clear()}
             >
               <CloseIcon sx={{ fontSize: 20 }} />
             </button>

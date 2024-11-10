@@ -1,16 +1,24 @@
-import { useEffect, useState } from "react";
-import { getMyPrivateFriends } from "../../api/echoLinkApi";
+import { useCallback, useEffect, useState } from "react";
+import {
+  getMyPrivateFriends,
+  getPrivateMessages,
+} from "../../api/echoLinkApi.js";
 import { useInputValidation } from "6pp";
 import { useDispatch, useSelector } from "react-redux";
-import { searchUsers } from "../../api/echoWhisperApi";
-import { setMyPrivateFriends } from "../../app/slices/echoLinkSlice";
+import { searchUsers } from "../../api/echoWhisperApi.js";
+import {
+  setPrivateMessages,
+  setMyPrivateChatRooms,
+  setSelectedUser,
+} from "../../app/slices/echoLinkSlice.js";
+import socket from "../../sockets/socket.js";
+import { truncateMessage } from "../../heplerFunc/microFuncs.js";
 
-// eslint-disable-next-line react/prop-types
-function UserList({ onUserSelect }) {
+function ChatRooms() {
   const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
-  const { myPrivateFriends } = useSelector((state) => state.echoLink);
+  const { myPrivateChatRooms } = useSelector((state) => state.echoLink);
 
   const search = useInputValidation("");
   const [searchResults, setSearchResults] = useState([]);
@@ -38,23 +46,33 @@ function UserList({ onUserSelect }) {
   }, [search.value, user._id]);
 
   useEffect(() => {
-    const func = async () => {
+    const fetchMyPrivateFriends = async () => {
       const response = await getMyPrivateFriends();
 
       dispatch(
-        setMyPrivateFriends(response?.data?.myPrivateFriendsWithMessages)
+        setMyPrivateChatRooms(response?.data?.myPrivateFriendsWithMessages)
       );
     };
 
-    func();
-  }, []);
+    fetchMyPrivateFriends();
+  }, [dispatch]);
 
-  // Helper function to truncate message with ellipsis if it exceeds max length
-  const truncateMessage = (message, maxLength = 40) => {
-    return message?.length > maxLength
-      ? message.slice(0, maxLength) + "..."
-      : message;
-  };
+  const handleRoomSelect = useCallback(
+    async (currentSelecteduser) => {
+      dispatch(setSelectedUser(currentSelecteduser));
+
+      //this functions is also in the backend if possible remove from one place
+      const uniqueRoomId = [currentSelecteduser?._id, user?._id]
+        .sort()
+        .join("-");
+
+      socket.emit("joinEchoLink", uniqueRoomId);
+
+      const response = await getPrivateMessages(uniqueRoomId);
+      dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
+    },
+    [dispatch, user?._id]
+  );
 
   return (
     <div className="h-full flex flex-col">
@@ -88,7 +106,7 @@ function UserList({ onUserSelect }) {
                 key={searchResultUser._id}
                 onClick={() => {
                   setSearchResults(null);
-                  onUserSelect(searchResultUser);
+                  handleRoomSelect(searchResultUser);
                   search.clear();
                 }}
               >
@@ -101,12 +119,12 @@ function UserList({ onUserSelect }) {
 
       {/* Scrollable user list */}
       <ul className="menu flex-1 p-2 overflow-y-auto">
-        {myPrivateFriends.map((user, index) => (
+        {myPrivateChatRooms.map((user, index) => (
           <li
             className="py-2 cursor-pointer"
             key={index}
             onClick={() => {
-              onUserSelect(user);
+              handleRoomSelect(user);
             }}
           >
             <div className="flex items-center gap-3">
@@ -132,4 +150,4 @@ function UserList({ onUserSelect }) {
   );
 }
 
-export default UserList;
+export default ChatRooms;

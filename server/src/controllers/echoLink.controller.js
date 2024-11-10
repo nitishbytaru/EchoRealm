@@ -25,7 +25,7 @@ export const getMyPrivateFriends = asyncHandler(async (req, res) => {
   const myPrivateFriends = await User.find({
     _id: { $in: myPrivateFriendsIds },
   })
-    .select("-password")
+    .select("_id username avatar")
     .lean();
 
   // For each friend, fetch the latest message asynchronously
@@ -38,12 +38,11 @@ export const getMyPrivateFriends = asyncHandler(async (req, res) => {
       // Attach the latest message to the friend document, if found
       return {
         ...friend,
+        uniqueChatId: [friend._id, req.user].sort().join("-"),
         latestMessage: latestMessage?.messages?.at(-1) || null,
       };
     })
   );
-
-  console.log(myPrivateFriendsWithMessages);
 
   return res
     .status(202)
@@ -87,22 +86,28 @@ export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
     },
   };
 
-  const updatedEchoLinkMessage = await EchoLink.findOneAndUpdate(
+  const latestEchoLinkMessage = await EchoLink.findOneAndUpdate(
     { uniqueChatId },
     {
       $setOnInsert: { uniqueChatId },
       $push: { messages: newMessage },
+      latestMessage: newMessage,
     },
     { new: true, upsert: true }
-  );
+  ).select("latestMessage uniqueChatId");
 
-  const latestEchoLinkMessage = updatedEchoLinkMessage?.messages?.at(-1);
+  const receiverData = await User.findById(receiver)
+    .select("_id avatar")
+    .lean();
 
-  io.emit("send_latest_echoLink_message", latestEchoLinkMessage);
+  receiverData["latestMessage"] = latestEchoLinkMessage.latestMessage;
+  receiverData["uniqueChatId"] = latestEchoLinkMessage.uniqueChatId;
+
+  io.to(uniqueChatId).emit("send_latest_echoLink_message", receiverData);
 
   return res
     .status(202)
-    .json({ message: "message sent succesfully", latestEchoLinkMessage });
+    .json({ message: "message sent succesfully", receiverData });
 });
 
 export const getPrivateMessages = asyncHandler(async (req, res) => {

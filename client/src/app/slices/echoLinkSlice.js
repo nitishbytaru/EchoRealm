@@ -3,45 +3,47 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   privateMessages: [],
   selectedUser: null,
-  myPrivateFriends: [],
+  myPrivateChatRooms: [],
 };
 
 const echoLinkSlice = createSlice({
   name: "echoLink",
   initialState,
   reducers: {
-    addEchoLinkMessage(state, action) {
+    addPrivateMessage(state, action) {
       if (!state.privateMessages) {
         state.privateMessages = [];
       }
       state.privateMessages.push(action.payload);
     },
-    setEchoLinkMessages(state, action) {
+    setPrivateMessages(state, action) {
       state.privateMessages = action.payload;
     },
     setSelectedUser(state, action) {
       state.selectedUser = action.payload;
     },
-    setMyPrivateFriends(state, action) {
-      state.myPrivateFriends = action.payload;
+    setMyPrivateChatRooms(state, action) {
+      state.myPrivateChatRooms = action.payload;
     },
-    addMyPrivateFriends(state, action) {
-      const existingFriend = state.myPrivateFriends.find(
-        (friend) => friend._id === action.payload._id
+    addToMyPrivateChatRooms(state, action) {
+      const existingChatRoom = state.myPrivateChatRooms.find(
+        (friend) => friend.uniqueChatId === action.payload.uniqueChatId
       );
-      if (existingFriend) {
-        existingFriend.latestMessage = action.payload.latestMessage;
+      if (existingChatRoom) {
+        existingChatRoom.latestMessage = action.payload.latestMessage;
       } else {
-        state.myPrivateFriends.push(action.payload);
+        console.log(action.payload)
+        console.log(action.payload.latestMessage)
+        state.myPrivateChatRooms.push(action.payload.latestMessage);
       }
     },
   },
 });
 export const {
-  addEchoLinkMessage,
-  setEchoLinkMessages,
+  addPrivateMessage,
+  setPrivateMessages,
   setSelectedUser,
-  setMyPrivateFriends,
-  addMyPrivateFriends,
+  setMyPrivateChatRooms,
+  addToMyPrivateChatRooms,
 } = echoLinkSlice.actions;
 export default echoLinkSlice.reducer;
