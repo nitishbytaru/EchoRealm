@@ -100,11 +100,17 @@ export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
     .select("_id username avatar")
     .lean();
 
+  const senderData = await User.findById(sender)
+    .select("_id username avatar")
+    .lean();
+
   receiverData["latestMessage"] = latestEchoLinkMessage.latestMessage;
   receiverData["uniqueChatId"] = latestEchoLinkMessage.uniqueChatId;
+  senderData["latestMessage"] = latestEchoLinkMessage.latestMessage;
+  senderData["uniqueChatId"] = latestEchoLinkMessage.uniqueChatId;
 
   io.to(uniqueChatId).emit("send_latest_echoLink_message", receiverData);
-  io.emit("new_privte_message_received", receiverData);
+  io.emit("new_privte_message_received", senderData);
 
   return res
     .status(202)

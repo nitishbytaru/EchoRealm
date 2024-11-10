@@ -35,7 +35,12 @@ function ChatBox() {
     });
 
     socket.on("new_privte_message_received", (message) => {
-      dispatch(addToMyPrivateChatRooms(message));
+      if (
+        message?.uniqueChatId.includes(user?._id) &&
+        message?._id != user._id
+      ) {
+        dispatch(addToMyPrivateChatRooms(message));
+      }
     });
 
     // Cleanup on component unmount

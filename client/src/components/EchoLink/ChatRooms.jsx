@@ -82,7 +82,7 @@ function ChatRooms() {
           <input
             type="text"
             className="grow"
-            placeholder="Search user to whisper"
+            placeholder="Search Users"
             value={search.value}
             onChange={search.changeHandler}
           />
