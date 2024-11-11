@@ -1,7 +1,7 @@
 import axios from "axios";
 import { apiConfigFORM } from "./exportAPICONFIG.js";
 
-const API_URL = "http://localhost:3000/api/echoShout";
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoShout`;
 
 export const sendEchoShout = async (Data) => {
   try {

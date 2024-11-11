@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -8,16 +7,16 @@ import {
   ForumOutlinedIcon,
 } from "../../heplerFunc/exportIcons";
 
-function WhisperIcon({ position }) {
+function WhisperIcon() {
   const { isLoggedIn } = useSelector((state) => state.auth);
   return (
     <>
       {/* Open the modal using document.getElementById('ID').showModal() method */}
       <button
-        className={position === "left" ? "flex" : ""}
+        className="flex"
         onClick={() => document.getElementById("my_modal_1").showModal()}
       >
-        <ForumOutlinedIcon sx={position === "left" ? { fontSize: 35 } : null} />
+        <ForumOutlinedIcon sx={{ fontSize: 35 }} />
         <div>EchoWhisper</div>
       </button>
       <dialog id="my_modal_1" className="modal">

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { apiConfigFORM, apiConfigJSON } from "./exportAPICONFIG.js";
 
-const API_URL = "http://localhost:3000/api/echoLink";
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoLink`;
 
 export const getMyPrivateFriends = async () => {
   try {
@@ -41,7 +41,7 @@ export const getPrivateMessages = async (uniqueChatId) => {
 
 export const markLatestMessageAsRead = async (uniqueChatId) => {
   try {
-    const response = await axios.get(`${API_URL}/set-latestMessageAsRead`, {
+    await axios.get(`${API_URL}/set-latestMessageAsRead`, {
       params: { uniqueChatId },
       ...apiConfigJSON,
     });

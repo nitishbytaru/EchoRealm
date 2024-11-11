@@ -1,7 +1,7 @@
 import axios from "axios";
 import { apiConfigFORM, apiConfigJSON } from "./exportAPICONFIG.js";
 
-const API_URL = "http://localhost:3000/api/user";
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/user`;
 
 export const register = async (Data) => {
   try {

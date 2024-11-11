@@ -1,7 +1,7 @@
 import axios from "axios";
 import { apiConfigJSON } from "./exportAPICONFIG.js";
 
-const API_URL = "http://localhost:3000/api/echoWhisper";
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoWhisper`;
 
 export const searchUsers = async (searchTerm) => {
   try {

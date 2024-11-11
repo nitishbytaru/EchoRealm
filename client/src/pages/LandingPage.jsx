@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
-import { CampaignIcon, ChatIcon, WhisperIcon } from "../heplerFunc/exportIcons";
+import { CampaignIcon, ChatIcon } from "../heplerFunc/exportIcons";
+import WhisperIcon from "../components/EchoWhisper/WhisperIcon.jsx";
 
 // Reusable button component
+// eslint-disable-next-line react/prop-types
 const CardButton = ({ text, to, icon }) => {
   return (
     <Link

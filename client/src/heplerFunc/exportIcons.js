@@ -10,8 +10,6 @@ import CampaignIcon from "@mui/icons-material/Campaign";
 import ChatIcon from "@mui/icons-material/Chat";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import WhisperIcon from "../components/EchoWhisper/WhisperIcon";
-
 
 export {
   MoreVertSharpIcon,
@@ -26,5 +24,4 @@ export {
   ChatIcon,
   EditOutlinedIcon,
   LogoutOutlinedIcon,
-  WhisperIcon,
 };

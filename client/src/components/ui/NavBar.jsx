@@ -13,7 +13,6 @@ import toast from "react-hot-toast";
 import { CampaignIcon, ChatIcon } from "../../heplerFunc/exportIcons.js";
 
 //lazy loading
-const WhisperIcon = lazy(() => import("../EchoWhisper/WhisperIcon"));
 const NavDrawer = lazy(() => import("./NavDrawer"));
 const ThemeToggle = lazy(() => import("./ThemeToggle"));
 
@@ -103,17 +102,6 @@ function NavBar() {
                 <CampaignIcon className="text-lg" />
                 <div>EchoShout</div>
               </Link>
-            </div>
-
-            {/* Whisper Icon */}
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-ghost p-0 text-center sm:p-1"
-            >
-              <Suspense fallback={<div>Loading...</div>}>
-                <WhisperIcon className="text-lg" />
-              </Suspense>
             </div>
 
             {/* Theme Toggle (Dark/Light mode) */}
