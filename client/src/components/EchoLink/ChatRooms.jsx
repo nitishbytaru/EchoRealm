@@ -12,6 +12,9 @@ import {
   setMyPrivateChatRooms,
   setSelectedUser,
   setLatestMessageAsRead,
+  addToChatRoomsWithUnreadMessages,
+  addToMyPrivateChatRooms,
+  removeFromChatRoomsWithUnreadMessages,
 } from "../../app/slices/echoLinkSlice.js";
 import socket from "../../sockets/socket.js";
 import { truncateMessage } from "../../heplerFunc/microFuncs.js";
@@ -25,6 +28,7 @@ function ChatRooms() {
   const search = useInputValidation("");
   const [searchResults, setSearchResults] = useState([]);
 
+  //this useEffect is for searching the users
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (search.value) {
@@ -51,13 +55,38 @@ function ChatRooms() {
     const fetchMyPrivateFriends = async () => {
       const response = await getMyPrivateFriends();
 
+      response?.data?.myPrivateFriendsWithMessages.map((chatRoom) => {
+        if (
+          chatRoom?.latestMessage?.messageStatus == "sent" &&
+          chatRoom?.latestMessage?.sender != user?._id
+        ) {
+          dispatch(addToChatRoomsWithUnreadMessages(chatRoom?.uniqueChatId));
+        }
+      });
+
       dispatch(
         setMyPrivateChatRooms(response?.data?.myPrivateFriendsWithMessages)
       );
     };
 
     fetchMyPrivateFriends();
-  }, [dispatch]);
+  }, [dispatch, user?._id]);
+
+  useEffect(() => {
+    socket.on("new_privte_message_received", (message) => {
+      if (
+        message?.uniqueChatId.includes(user?._id) &&
+        message?._id != user._id
+      ) {
+        dispatch(addToChatRoomsWithUnreadMessages(message?.uniqueChatId));
+        dispatch(addToMyPrivateChatRooms(message));
+      }
+    });
+
+    return () => {
+      socket.off("new_privte_message_received");
+    };
+  }, [dispatch, user._id]);
 
   const handleRoomSelect = useCallback(
     async (currentSelecteduser) => {
@@ -69,13 +98,9 @@ function ChatRooms() {
         .join("-");
 
       socket.emit("joinEchoLink", uniqueRoomId);
-
-      //____________________________________________________________//
-      // this functions is almost being called for more than 4
-      // time which also hitting the database TAKE CARE of it
-
+      dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
+      
       const response = await getPrivateMessages(uniqueRoomId);
-      console.log(response);
       dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
     },
     [dispatch, user?._id]
@@ -85,13 +110,11 @@ function ChatRooms() {
     dispatch(setLatestMessageAsRead(currUser));
 
     try {
-      const response = await markLatestMessageAsRead(currUser?.uniqueChatId);
+      await markLatestMessageAsRead(currUser?.uniqueChatId);
     } catch (error) {
       console.log(error);
     }
   };
-
-  console.log(myPrivateChatRooms);
 
   return (
     <div className="h-full flex flex-col">
@@ -158,7 +181,6 @@ function ChatRooms() {
               {/* Username and Latest Message */}
               <div className="flex-1">
                 <p className="font-semibold">{currUser?.username}</p>
-                <p>{currUser?.latestMessage?.messageStatus}</p>
                 <p
                   className={`text-sm ${
                     currUser?.latestMessage?.messageStatus === "sent" &&

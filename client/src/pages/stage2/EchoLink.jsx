@@ -1,47 +1,62 @@
 import ChatRooms from "../../components/EchoLink/ChatRooms";
 import ChatBox from "../../components/EchoLink/chat/ChatBox";
 import { useSelector } from "react-redux";
-
-// There is a lot of redundency in this components there are alot of unnecessary ccomponents
-// need to refactor the entire code
-//ALSO TAKE CARE OF THE REGISTER.jsx file
-
-// ___________________________________________ //
-// a lot of code is written multiple times for
-// mobile view and laptop view take care of it
+import { useEffect, useState } from "react";
 
 export default function EchoLink() {
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+
   const { selectedUser } = useSelector((state) => state.echoLink);
+
+  // Update the isMobile state based on window size
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <div className="h-full flex flex-col w-full">
       {/* Mobile View (WhatsApp-like layout) */}
-      <div className="sm:hidden w-full h-full">
-        {/* Show UserList if no user is selected, otherwise show ChatBox */}
-        {!selectedUser ? (
-          <div className="w-full h-full">
-            {/* UserList */}
-            <ChatRooms />
-          </div>
-        ) : (
-          <div className="w-full h-full relative">
-            {/* ChatBox */}
+      {isMobile ? (
+        <div className="w-full h-full">
+          {selectedUser ? (
+            // Show ChatBox in mobile view if a user is selected
             <div className="h-full bg-base-200 p-4 overflow-auto rounded-box">
               <ChatBox />
             </div>
+          ) : (
+            // Show UserList in mobile view if no user is selected
+            <div className="h-full">
+              <ChatRooms />
+            </div>
+          )}
+        </div>
+      ) : (
+        // Larger screens (side-by-side layout)
+        <div className="grid grid-cols-12 w-full h-full">
+          <div className="col-span-3 overflow-auto hide-scrollBar bg-base-200 rounded-box mr-2">
+            <ChatRooms />
           </div>
-        )}
-      </div>
-
-      {/* Larger screens (unchanged) */}
-      <div className="hidden sm:grid sm:grid-cols-12 w-full h-full">
-        <div className="col-span-3 overflow-auto hide-scrollBar bg-base-200 rounded-box mr-2">
-          <ChatRooms />
+          <div className="col-span-9 bg-base-200 rounded-box p-2 flex-grow overflow-auto">
+            {selectedUser ? (
+              <ChatBox />
+            ) : (
+              <div className="h-full flex justify-center items-center text-center bg-base-100 rounded-xl">
+                <p className="text-xl font-semibold text-gray-600">
+                  Select a user to open chat
+                </p>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="col-span-9 bg-base-200 rounded-box p-2 flex-grow overflow-auto">
-          <ChatBox />
-        </div>
-      </div>
+      )}
     </div>
   );
 }

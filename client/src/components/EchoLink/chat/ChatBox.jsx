@@ -19,7 +19,7 @@ function ChatBox() {
   const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
-  const { selectedUser, privateMessages } = useSelector(
+  const { selectedUser, privateMessages, myPrivateChatRooms } = useSelector(
     (state) => state.echoLink
   );
 
@@ -34,19 +34,26 @@ function ChatBox() {
       dispatch(addPrivateMessage(latestEchoLinkMessage.latestMessage));
     });
 
-    socket.on("new_privte_message_received", (message) => {
-      if (
-        message?.uniqueChatId.includes(user?._id) &&
-        message?._id != user._id
-      ) {
-        dispatch(addToMyPrivateChatRooms(message));
-      }
-    });
+    //_____________________________________________________________//
+    // there might be a issue in the mobile view as
+    // this wont be mounted in the mobile view
+    // hence this socket may not listen to the first message
+    //____________________________________________________________//
+
+    // socket.on("new_privte_message_received", (message) => {
+
+    //   if (
+    //     message?.uniqueChatId.includes(user?._id) &&
+    //     message?._id != user._id
+    //   ) {
+    //     dispatch(addToMyPrivateChatRooms(message));
+    //   }
+    // });
 
     // Cleanup on component unmount
     return () => {
       socket.off("send_latest_echoLink_message");
-      socket.off("new_privte_message_received");
+      // socket.off("new_privte_message_received");
     };
   }, [dispatch]);
 

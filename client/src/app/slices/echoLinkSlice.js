@@ -4,6 +4,8 @@ const initialState = {
   privateMessages: [],
   selectedUser: null,
   myPrivateChatRooms: [],
+  newUnreadMessages: 0,
+  chatRoomsWithUnreadMessages: [],
 };
 
 const echoLinkSlice = createSlice({
@@ -52,6 +54,27 @@ const echoLinkSlice = createSlice({
         return chatRoom;
       });
     },
+    addToChatRoomsWithUnreadMessages(state, action) {
+      const alreadyExists = state.chatRoomsWithUnreadMessages.find((field) => {
+        return field === action.payload;
+      });
+      if (!alreadyExists) {
+        state.chatRoomsWithUnreadMessages.push(action.payload);
+        state.newUnreadMessages++;
+      }
+    },
+    removeFromChatRoomsWithUnreadMessages(state, action) {
+      const alreadyExists = state.chatRoomsWithUnreadMessages.find((field) => {
+        return field === action.payload;
+      });
+      if (alreadyExists) {
+        state.chatRoomsWithUnreadMessages =
+          state.chatRoomsWithUnreadMessages.filter(
+            (field) => field !== action.payload
+          );
+        state.newUnreadMessages--;
+      }
+    },
   },
 });
 export const {
@@ -61,5 +84,7 @@ export const {
   setMyPrivateChatRooms,
   addToMyPrivateChatRooms,
   setLatestMessageAsRead,
+  addToChatRoomsWithUnreadMessages,
+  removeFromChatRoomsWithUnreadMessages,
 } = echoLinkSlice.actions;
 export default echoLinkSlice.reducer;

@@ -12,12 +12,10 @@ import {
 import toast from "react-hot-toast";
 import { CampaignIcon, ChatIcon } from "../../heplerFunc/exportIcons.js";
 
-
 //lazy loading
 const WhisperIcon = lazy(() => import("../EchoWhisper/WhisperIcon"));
 const NavDrawer = lazy(() => import("./NavDrawer"));
 const ThemeToggle = lazy(() => import("./ThemeToggle"));
-
 
 function NavBar() {
   const navigate = useNavigate();
@@ -25,13 +23,14 @@ function NavBar() {
 
   const { user } = useSelector((state) => state.auth);
   const { theme } = useSelector((state) => state.auth);
+  const { newUnreadMessages } = useSelector((state) => state.echoLink);
 
   const [isChecked, setIsChecked] = useState(theme === "dracula");
 
   useEffect(() => {
     dispatch(setTheme(theme));
     document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
+  }, [dispatch, theme]);
 
   const handleLogout = () => {
     logout()
@@ -61,19 +60,29 @@ function NavBar() {
     <div className="navbar bg-base-100 w-full">
       <div className="flex-1">
         <Link to="/" className="btn text-sm sm:ml-2 sm:text-xl sm:btn-ghost">
-         EchoRealm
+          EchoRealm
         </Link>
       </div>
 
       <div className="flex-none sm:mr-8">
         {user ? (
           <>
-            <div tabIndex={0} role="button" className="btn btn-ghost">
-              <Link to="echo-link">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-ghost bg-base-300 relative sm:mr-2"
+            >
+              <Link to="echo-link" className="flex items-center">
                 <ChatIcon />
                 <div>EchoLink</div>
               </Link>
+              {newUnreadMessages != "0" && (
+                <span className="absolute -top-1 -left-1 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
+                  {newUnreadMessages}
+                </span>
+              )}
             </div>
+
             <Suspense fallback={<div>Loading...</div>}>
               <NavDrawer
                 handleLogout={handleLogout}

@@ -44,8 +44,6 @@ export const getMyPrivateFriends = asyncHandler(async (req, res) => {
     })
   );
 
-  console.log(myPrivateFriendsWithMessages);
-
   return res
     .status(202)
     .json({ message: "Fetched your friends", myPrivateFriendsWithMessages });
@@ -85,6 +83,7 @@ export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
       url: attachments?.url,
       publicId: attachments?.public_id,
     },
+    messageStatus: "sent",
   };
 
   const latestEchoLinkMessage = await EchoLink.findOneAndUpdate(
@@ -129,8 +128,6 @@ export const getPrivateMessages = asyncHandler(async (req, res) => {
 
   const privateMessages = await EchoLink.findOne({ uniqueChatId });
 
-  console.log(privateMessages);
-
   res.status(203).json({
     message: "Private messages retrieved successfully",
     privateMessages,
@@ -149,6 +146,12 @@ export const markLatestMessageAsRead = asyncHandler(async (req, res) => {
   const privateMessages = await EchoLink.findOneAndUpdate(
     { uniqueChatId },
     { $set: { "latestMessage.messageStatus": "read" } },
+    { new: true }
+  );
+
+  const messagesArrayUpdate = await EchoLink.findOneAndUpdate(
+    { uniqueChatId },
+    { $set: { "messages.$[].messageStatus": "read" } },
     { new: true }
   );
 

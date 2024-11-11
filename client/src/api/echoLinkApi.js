@@ -45,7 +45,6 @@ export const markLatestMessageAsRead = async (uniqueChatId) => {
       params: { uniqueChatId },
       ...apiConfigJSON,
     });
-    console.log(response);
   } catch (error) {
     console.log(error);
     return error;
