@@ -59,7 +59,7 @@ function App() {
           <Route path="*" element={<ErrorPage />} />
         </Routes>
       </Suspense>
-      <Toaster position="top-center" />
+      <Toaster position="bottom-right" />
     </Router>
   );
 }

@@ -29,7 +29,7 @@ function NavBar() {
   const { theme } = useSelector((state) => state.auth);
   const { newUnreadMessages } = useSelector((state) => state.echoLink);
 
-  const [isChecked, setIsChecked] = useState(theme === "dracula");
+  const [isChecked, setIsChecked] = useState(theme === "business");
 
   useEffect(() => {
     dispatch(setTheme(theme));
@@ -50,12 +50,12 @@ function NavBar() {
 
   const handleToggle = (e) => {
     if (e.target.checked) {
-      dispatch(setTheme("dracula"));
-      localStorage.setItem("theme", "dracula");
+      dispatch(setTheme("business"));
+      localStorage.setItem("theme", "business");
       setIsChecked(true);
     } else {
-      dispatch(setTheme("retro"));
-      localStorage.setItem("theme", "retro");
+      dispatch(setTheme("wireframe"));
+      localStorage.setItem("theme", "wireframe");
       setIsChecked(false);
     }
   };
@@ -154,32 +154,18 @@ function NavBar() {
               </Suspense>
             </>
           ) : (
-            <div className="flex items-center justify-between w-full sm:px-2 space-x-2">
-              {/* EchoShout button */}
-              <div
-                tabIndex={0}
-                role="button"
-                className="btn btn-ghost p-0 mx-1 text-center sm:p-1"
-              >
-                <Link to="echo-shout" className="flex flex-col items-center">
-                  <CampaignIcon className="text-lg" />
-                  <div>EchoShout</div>
-                </Link>
-              </div>
-
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-ghost p-0 text-center"
+            >
               {/* Theme Toggle (Dark/Light mode) */}
-              <div
-                tabIndex={0}
-                role="button"
-                className="btn btn-ghost p-0 text-center"
-              >
-                <Suspense fallback={<div>Loading...</div>}>
-                  <ThemeToggle
-                    handleToggle={handleToggle}
-                    isChecked={isChecked}
-                  />
-                </Suspense>
-              </div>
+              <Suspense fallback={<div>Loading...</div>}>
+                <ThemeToggle
+                  handleToggle={handleToggle}
+                  isChecked={isChecked}
+                />
+              </Suspense>
             </div>
           )}
         </div>
