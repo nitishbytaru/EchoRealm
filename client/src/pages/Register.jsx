@@ -64,7 +64,6 @@ const Register = () => {
         dispatch(setUser(response?.data?.user));
       }
     }
-
     //-------------------------------------------//
 
     email.clear();

@@ -1,9 +1,9 @@
-import React from "react";
 import { Outlet } from "react-router-dom";
-import LandingPage from "../pages/LandingPage";
+import EchoLink from "../pages/stage2/EchoLink";
+
 
 function LoggedOut({ user }) {
-  return !user ? <Outlet /> : <LandingPage />;
+  return !user ? <Outlet /> : <EchoLink />;
 }
 
 export default LoggedOut;

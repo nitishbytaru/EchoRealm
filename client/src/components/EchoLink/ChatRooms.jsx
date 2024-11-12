@@ -160,10 +160,10 @@ function ChatRooms() {
       </div>
 
       {/* Scrollable user list */}
-      <ul className="menu flex-1 p-2 overflow-y-auto">
+      <ul className="menu flex-row p-2 overflow-y-auto">
         {myPrivateChatRooms.map((currUser, index) => (
           <li
-            className="py-2 cursor-pointer"
+            className="w-full py-2 cursor-pointer"
             key={index}
             onClick={() => {
               handleRoomSelect(currUser);

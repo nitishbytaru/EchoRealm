@@ -13,7 +13,6 @@ import { setIsLoggedIn, setUser } from "./app/slices/authSlice.js";
 //lazy loading
 const Layout = lazy(() => import("./Layout"));
 const Register = lazy(() => import("./pages/Register"));
-const LandingPage = lazy(() => import("./pages/LandingPage"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage"));
 const EchoShout = lazy(() => import("./pages/stage2/EchoShout"));
 const EchoLink = lazy(() => import("./pages/stage2/EchoLink"));
@@ -51,8 +50,7 @@ function App() {
               <Route index element={<Register />} />
             </Route>
             <Route element={<PrivateRoutues user={user} />}>
-              <Route path="home" element={<LandingPage />} exact />
-              <Route path="echo-link" element={<EchoLink />} />
+              <Route path="echo-link" element={<EchoLink />} exact />
               <Route path="listen-whisper" element={<ListenWhisper />} />
             </Route>
             <Route path="echo-shout" element={<EchoShout />} />

@@ -16,7 +16,9 @@ function WhisperIcon() {
         className="flex"
         onClick={() => document.getElementById("my_modal_1").showModal()}
       >
-        <ForumOutlinedIcon sx={{ fontSize: 35 }} />
+        <div>
+        <ForumOutlinedIcon />
+        </div>
         <div>EchoWhisper</div>
       </button>
       <dialog id="my_modal_1" className="modal">
