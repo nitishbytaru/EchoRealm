@@ -7,6 +7,7 @@ import WhisperIcon from "../EchoWhisper/WhisperIcon.jsx";
 import { logout } from "../../api/userApi";
 import {
   setIsLoggedIn,
+  setIsMobile,
   setTheme,
   setUser,
 } from "../../app/slices/authSlice.js";
@@ -15,6 +16,7 @@ import {
   CampaignIcon,
   ChatIcon,
   EditOutlinedIcon,
+  HomeIcon,
   LogoutOutlinedIcon,
 } from "../../heplerFunc/exportIcons.js";
 
@@ -25,11 +27,22 @@ function NavBar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { user } = useSelector((state) => state.auth);
-  const { theme } = useSelector((state) => state.auth);
+  const { user, theme, isMobile } = useSelector((state) => state.auth);
   const { newUnreadMessages } = useSelector((state) => state.echoLink);
 
   const [isChecked, setIsChecked] = useState(theme === "business");
+
+  // Update the isMobile state based on window size
+  useEffect(() => {
+    const handleResize = () => {
+      dispatch(setIsMobile(window.innerWidth < 640));
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     dispatch(setTheme(theme));
@@ -64,14 +77,14 @@ function NavBar() {
     <div className="navbar bg-base-100">
       {/* first element */}
       <div className="navbar-start">
-        <Link to="/" className="btn text-sm sm:ml-2 sm:text-xl sm:btn-ghost">
-          EchoRealm
+        <Link to="/" className="btn text-sm sm:ml-r sm:text-xl sm:btn-ghost">
+          {isMobile ? <HomeIcon /> : "EchoRealm"}
         </Link>
       </div>
 
       {/* center elements */}
       <div className="navbar-center">
-        <ul className="menu menu-horizontal bg-base-200 rounded-box">
+        <ul className="menu menu-horizontal bg-base-200 rounded-box p-1">
           <li>
             <div>
               <Link to="echo-link">
@@ -79,7 +92,7 @@ function NavBar() {
                   <div>
                     <ChatIcon />
                   </div>
-                  <div>EchoLink</div>
+                  {!isMobile ? <div>EchoLink</div> : null}
                 </div>
               </Link>
               {newUnreadMessages != "0" && (
@@ -95,7 +108,7 @@ function NavBar() {
                 <div>
                   <CampaignIcon />
                 </div>
-                <div>EchoShout</div>
+                {!isMobile ? <div>EchoShout</div> : null}
               </div>
             </Link>
           </li>
@@ -109,14 +122,18 @@ function NavBar() {
 
       {/* profile element */}
       <div className="navbar-end">
-        <div className="flex-none mr-4">
+        <div className="flex-none">
           {user ? (
             <>
               <Suspense fallback={<div>Loading...</div>}>
                 <div className="dropdown dropdown-end">
                   <div tabIndex={0} role="button" className="rounded-btn">
-                    <label className="btn-circle avatar">
-                      <div className="w-12 rounded-full">
+                    <label className="btn-circle avatar items-center justify-center sm:mr-2">
+                      <div
+                        className={`${
+                          isMobile ? "w-10 h-10" : "w-12 h-12"
+                        } rounded-full `}
+                      >
                         <img src={user.avatar.url} alt="User Avatar" />
                       </div>
                     </label>

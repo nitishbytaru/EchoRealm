@@ -1,25 +1,10 @@
 import ChatRooms from "../../components/EchoLink/ChatRooms";
 import ChatBox from "../../components/EchoLink/chat/ChatBox";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
 
 export default function EchoLink() {
-
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
-
   const { selectedUser } = useSelector((state) => state.echoLink);
-
-  // Update the isMobile state based on window size
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  const { isMobile } = useSelector((state) => state.auth);
 
   return (
     <div className="h-full flex flex-col w-full">

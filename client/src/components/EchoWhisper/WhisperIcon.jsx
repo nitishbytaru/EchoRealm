@@ -8,7 +8,7 @@ import {
 } from "../../heplerFunc/exportIcons";
 
 function WhisperIcon() {
-  const { isLoggedIn } = useSelector((state) => state.auth);
+  const { isLoggedIn, isMobile } = useSelector((state) => state.auth);
   return (
     <>
       {/* Open the modal using document.getElementById('ID').showModal() method */}
@@ -17,9 +17,9 @@ function WhisperIcon() {
         onClick={() => document.getElementById("my_modal_1").showModal()}
       >
         <div>
-        <ForumOutlinedIcon />
+          <ForumOutlinedIcon />
         </div>
-        <div>EchoWhisper</div>
+        {!isMobile ? <div>EchoWhisper</div> : null}
       </button>
       <dialog id="my_modal_1" className="modal">
         <div className="modal-box max-w-xs sm:max-w-md">
