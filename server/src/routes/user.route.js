@@ -4,6 +4,7 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  blockUser,
 } from "../controllers/user.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
@@ -27,5 +28,6 @@ router.use(isAuthenticated);
 
 router.route("/get-profile").get(getProfile);
 router.route("/logout").get(logoutUser);
+router.route("/block-user").post(blockUser);
 
 export default router;

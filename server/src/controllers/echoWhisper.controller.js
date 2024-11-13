@@ -23,23 +23,27 @@ export const searchUsers = asyncHandler(async (req, res) => {
 });
 
 export const sendWhisper = asyncHandler(async (req, res) => {
-  const { sender, message, receiver } = req.body;
+  const { message, receiver } = req.body;
+  const sender = req.user;
 
   if (!message || !receiver) {
     res.status(409).json({ message: "Whisper is required" });
   }
 
+  const { username } = await User.findById(sender).select("username");
+
   const whisper = await EchoWhisper.create({
     sender,
     message,
     receiver,
+    senderUsername: username,
   });
 
   res.status(200).json({ message: "whisper sent successfully", whisper });
 });
 
 export const getWhispers = asyncHandler(async (req, res) => {
-  const whispers = await EchoWhisper.find();
+  const whispers = await EchoWhisper.find({ receiver: req.user });
   res.status(200).json({ whispers });
 });
 
@@ -53,4 +57,29 @@ export const deleteWhisper = asyncHandler(async (req, res) => {
   const response = await EchoWhisper.findByIdAndDelete(whisperId);
 
   res.status(207).json({ message: "whisper is deleted successfully" });
+});
+
+export const pinWhisper = asyncHandler(async (req, res) => {
+  const { whisperId } = req.query;
+
+  if (!whisperId) {
+    res.status(404).json({ message: "Id is needed to delete the whisper" });
+  }
+
+  // Fetch the current document
+  const currentWhisper = await EchoWhisper.findById(whisperId);
+
+  // Toggle `showOthers` based on its current value
+  const updatedWhisper = await EchoWhisper.findByIdAndUpdate(
+    whisperId,
+    { $set: { showOthers: !currentWhisper.showOthers } }, // Toggle value
+    { new: true }
+  );
+
+  res.status(207).json({
+    message: `whisper is ${
+      updatedWhisper.showOthers ? "pined" : "unpined"
+    } successfully`,
+    updatedWhisper,
+  });
 });

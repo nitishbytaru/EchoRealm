@@ -51,15 +51,15 @@ function App() {
             </Route>
             <Route element={<PrivateRoutues user={user} />}>
               <Route path="echo-link" element={<EchoLink />} exact />
+              <Route path="create-whisper" element={<CreateWhisper />} />
               <Route path="listen-whisper" element={<ListenWhisper />} />
             </Route>
             <Route path="echo-shout" element={<EchoShout />} />
-            <Route path="create-whisper" element={<CreateWhisper />} />
           </Route>
           <Route path="*" element={<ErrorPage />} />
         </Routes>
       </Suspense>
-      <Toaster position="bottom-right" />
+      <Toaster position="top-left" />
     </Router>
   );
 }

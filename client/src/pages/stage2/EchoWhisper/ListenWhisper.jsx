@@ -1,13 +1,23 @@
-import React, { memo, useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { deleteWhisper, getWhispers } from "../../../api/echoWhisperApi";
+import {
+  deleteWhisper,
+  getWhispers,
+  pinWhisperApi,
+} from "../../../api/echoWhisperApi";
+import { blockSenderApi } from "../../../api/userApi";
 import {
   removeWhisper,
   setWhispers,
+  updateWhispers,
 } from "../../../app/slices/echoWhisperSlice";
+import {
+  MoreVertSharpIcon,
+  PushPinIcon,
+} from "../../../heplerFunc/exportIcons";
 
-const ListenWhisper = memo(() => {
+function ListenWhisper() {
   const dispatch = useDispatch();
 
   const { whispers } = useSelector((state) => state.echoWhisper);
@@ -15,10 +25,13 @@ const ListenWhisper = memo(() => {
   useEffect(() => {
     const func = async () => {
       const response = await getWhispers();
-      dispatch(setWhispers(response?.data?.whispers || []));
+      const whispers = response?.data?.whispers.filter(
+        (whisper) => whisper?.blocked === false
+      );
+      dispatch(setWhispers(whispers || []));
     };
     func();
-  }, []);
+  }, [dispatch]);
 
   const callDeleteWhisper = (e, whisper) => {
     e.preventDefault();
@@ -58,6 +71,21 @@ const ListenWhisper = memo(() => {
     }
   };
 
+  const pinWhisper = async (whisperId) => {
+    const response = await pinWhisperApi(whisperId);
+    dispatch(updateWhispers(response?.data?.updatedWhisper));
+    if (response?.data) {
+      toast.success(response.data?.message);
+    }
+  };
+
+  const blockSender = async (whisperId, senderId) => {
+    const response = await blockSenderApi(whisperId, senderId);
+    if (response?.data) {
+      toast.success(response.data?.message);
+    }
+  };
+
   return (
     <div className="flex flex-col bg-base-200 h-full p-4 rounded-xl">
       <div className="overflow-y-auto">
@@ -68,17 +96,74 @@ const ListenWhisper = memo(() => {
               key={index}
               className="card bg-base-100 w-full sm:w-92 shadow-xl"
             >
+              {whisper?.showOthers && (
+                <div className="absolute m-2">
+                  <PushPinIcon />
+                </div>
+              )}
               <div className="card-body">
                 <div className="card-actions justify-between">
-                  <h2 className="card-title">
-                    @{whisper?.sender ? whisper?.sender : "anonymous"}
-                  </h2>
+                  <h2 className="card-title">@{whisper?.senderUsername}</h2>
+                  {/* Open the modal using document.getElementById('ID').showModal() method */}
                   <button
-                    className="btn btn-sm"
-                    onClick={(e) => callDeleteWhisper(e, whisper)}
+                    onClick={() =>
+                      document.getElementById("my_modal_5").showModal()
+                    }
                   >
-                    X
+                    <MoreVertSharpIcon />
                   </button>
+                  <dialog
+                    id="my_modal_5"
+                    className="modal modal-bottom sm:modal-middle"
+                  >
+                    <div className="modal-box">
+                      <div className="grid grid-cols-2">
+                        <button
+                          className="btn m-2"
+                          onClick={() => {
+                            pinWhisper(whisper);
+                            document.getElementById("my_modal_5").close();
+                          }}
+                        >
+                          {`${
+                            whisper?.showOthers
+                              ? "unpin this whisper"
+                              : "pin this whisper"
+                          }`}
+                        </button>
+                        <button
+                          className="btn m-2"
+                          onClick={(e) => {
+                            callDeleteWhisper(e, whisper);
+                            document.getElementById("my_modal_5").close();
+                          }}
+                        >
+                          delete whisper
+                        </button>
+                        <button
+                          className="btn m-2"
+                          onClick={() => console.log()}
+                        >
+                          message @ben
+                        </button>
+                        <button
+                          className="btn bg-red-700  m-2"
+                          onClick={() => {
+                            blockSender(whisper?._id, whisper?.sender);
+                            document.getElementById("my_modal_5").close();
+                          }}
+                        >
+                          block @{`${whisper?.senderUsername}`}
+                        </button>
+                      </div>
+                      <div className="modal-action">
+                        <form method="dialog">
+                          {/* if there is a button in form, it will close the modal */}
+                          <button className="btn">Close</button>
+                        </form>
+                      </div>
+                    </div>
+                  </dialog>
                 </div>
                 <p>{whisper?.message}</p>
               </div>
@@ -88,6 +173,6 @@ const ListenWhisper = memo(() => {
       </div>
     </div>
   );
-});
+}
 
 export default ListenWhisper;

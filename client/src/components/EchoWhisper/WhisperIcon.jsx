@@ -19,8 +19,9 @@ function WhisperIcon() {
         <div>
           <ForumOutlinedIcon />
         </div>
-        {!isMobile ? <div>EchoWhisper</div> : null}
+        {!isMobile ? <div className="ml-2">EchoWhisper</div> : null}
       </button>
+      
       <dialog id="my_modal_1" className="modal">
         <div className="modal-box max-w-xs sm:max-w-md">
           <div className="flex flex-col sm:flex-row gap-2">

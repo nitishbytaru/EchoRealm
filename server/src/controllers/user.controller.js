@@ -1,4 +1,5 @@
 import { User } from "../models/user.model.js";
+import { EchoWhisper } from "../models/echoWhisper.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 import { cookieOptions, sendToken } from "../utils/features.js";
@@ -94,4 +95,45 @@ export const logoutUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("echo-token", "", { ...cookieOptions, maxAge: 0 })
     .json({ success: true, message: "Logged out successfully" });
+});
+
+export const blockUser = asyncHandler(async (req, res) => {
+  const { whisperId, senderId } = req.body;
+
+  if (!senderId || !whisperId) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Sender ID is required" });
+  }
+
+  const blockedWhisper = await EchoWhisper.findByIdAndUpdate(whisperId, {
+    $set: { blocked: true },
+  });
+
+  // Find user and check if senderId is already in the blockedUsers array
+  const user = await User.findById(req.user).select("blockedUsers");
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User not found" });
+  }
+
+  // Check if senderId is already in the blockedUsers array
+  const isAlreadyBlocked = user.blockedUsers?.includes(senderId);
+
+  console.log(user);
+
+  if (isAlreadyBlocked) {
+    return res.status(204).json({ message: "User is already blocked" });
+  }
+
+  // Add senderId to the blockedUsers array
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user,
+    { $addToSet: { blockedUsers: senderId } },
+    { new: true }
+  );
+
+  return res
+    .status(200)
+    .json({ success: true, message: "User blocked successfully" });
 });

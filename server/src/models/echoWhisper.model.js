@@ -3,7 +3,9 @@ import mongoose, { Schema, model } from "mongoose";
 const echoWhisper = new Schema(
   {
     sender: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     receiver: {
       type: Schema.Types.ObjectId,
@@ -15,6 +17,14 @@ const echoWhisper = new Schema(
       required: true,
     },
     showOthers: {
+      type: Boolean,
+      default: false,
+    },
+    senderUsername: {
+      type: String,
+      default: "anonymous",
+    },
+    blocked: {
       type: Boolean,
       default: false,
     },

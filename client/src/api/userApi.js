@@ -39,3 +39,16 @@ export const logout = async () => {
     console.log(error);
   }
 };
+
+export const blockSenderApi = async (whisperId, senderId) => {
+  const data = {
+    whisperId,
+    senderId,
+  };
+  try {
+    return await axios.post(`${API_URL}/block-user`, data, apiConfigJSON);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};

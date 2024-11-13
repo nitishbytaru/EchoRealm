@@ -99,7 +99,7 @@ function ChatRooms() {
 
       socket.emit("joinEchoLink", uniqueRoomId);
       dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
-      
+
       const response = await getPrivateMessages(uniqueRoomId);
       dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
     },
@@ -119,7 +119,7 @@ function ChatRooms() {
   return (
     <div className="h-full flex flex-col">
       {/* Search bar fixed at the top */}
-      <div className="sticky top-0 z-10 p-2">
+      <div className="sticky top-0 p-2">
         <label className="input input-bordered flex items-center gap-2">
           <input
             type="text"
@@ -142,7 +142,7 @@ function ChatRooms() {
           </svg>
         </label>
         {searchResults?.length > 0 && (
-          <ul className="menu bg-base-200 w-full rounded-box mt-2">
+          <ul className="menu bg-base-300 w-full rounded-box mt-2">
             {searchResults.map((searchResultUser) => (
               <li
                 key={searchResultUser._id}
@@ -152,7 +152,18 @@ function ChatRooms() {
                   search.clear();
                 }}
               >
-                <p>{searchResultUser.username}</p>
+                <div>
+                  <div>
+                    <img
+                      src={searchResultUser?.avatar?.url}
+                      alt=""
+                      className="w-10 h-10 object-cover rounded-full"
+                    />
+                  </div>
+                  <div>
+                    <p>@{searchResultUser.username}</p>
+                  </div>
+                </div>
               </li>
             ))}
           </ul>
@@ -161,7 +172,7 @@ function ChatRooms() {
 
       {/* Scrollable user list */}
       <ul className="menu flex-row p-2 overflow-y-auto">
-        {myPrivateChatRooms.map((currUser, index) => (
+        {myPrivateChatRooms?.map((currUser, index) => (
           <li
             className="w-full py-2 cursor-pointer"
             key={index}

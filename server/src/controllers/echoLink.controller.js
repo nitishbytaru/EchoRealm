@@ -6,6 +6,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 export const getMyPrivateFriends = asyncHandler(async (req, res) => {
+  const response = await User.findById(req.user);
+
+  const blockedUsersForThisCurrentUser = response?.blockedUsers;
+
   let myPrivateFriendsIds = [];
 
   // Fetch chat rooms that contain the user's ID in uniqueChatId
@@ -23,7 +27,7 @@ export const getMyPrivateFriends = asyncHandler(async (req, res) => {
 
   // Fetch friend documents using the extracted IDs
   const myPrivateFriends = await User.find({
-    _id: { $in: myPrivateFriendsIds },
+    _id: { $in: myPrivateFriendsIds, $nin: blockedUsersForThisCurrentUser },
   })
     .select("_id username avatar")
     .lean();

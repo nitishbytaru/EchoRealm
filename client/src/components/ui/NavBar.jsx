@@ -27,7 +27,9 @@ function NavBar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { user, theme, isMobile } = useSelector((state) => state.auth);
+  const { user, theme, isMobile, isLoggedIn } = useSelector(
+    (state) => state.auth
+  );
   const { newUnreadMessages } = useSelector((state) => state.echoLink);
 
   const [isChecked, setIsChecked] = useState(theme === "business");
@@ -42,7 +44,7 @@ function NavBar() {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(setTheme(theme));
@@ -85,38 +87,40 @@ function NavBar() {
       {/* center elements */}
       <div className="navbar-center">
         <ul className="menu menu-horizontal bg-base-200 rounded-box p-1">
-          <li>
-            <div>
-              <Link to="echo-link">
-                <div className="flex">
-                  <div>
-                    <ChatIcon />
+          {isLoggedIn ? (
+            <li>
+              <div>
+                <Link to="echo-link">
+                  <div className="flex">
+                    <div>
+                      <ChatIcon />
+                    </div>
+                    {!isMobile ? <div className="ml-2">EchoLink</div> : null}
                   </div>
-                  {!isMobile ? <div>EchoLink</div> : null}
-                </div>
-              </Link>
-              {newUnreadMessages != "0" && (
-                <span className="absolute -top-1 -left-1 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
-                  {newUnreadMessages}
-                </span>
-              )}
-            </div>
-          </li>
+                </Link>
+                {newUnreadMessages != "0" && (
+                  <span className="absolute -top-1 -left-1 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
+                    {newUnreadMessages}
+                  </span>
+                )}
+              </div>
+            </li>
+          ) : null}
           <li>
             <Link to="/echo-shout">
-              <div className="flex">
-                <div>
-                  <CampaignIcon />
-                </div>
-                {!isMobile ? <div>EchoShout</div> : null}
+              <div className="flex items-center">
+                <CampaignIcon />
+                {!isMobile ? <div className="ml-2">EchoShout</div> : null}
               </div>
             </Link>
           </li>
-          <li>
-            <div>
-              <WhisperIcon />
-            </div>
-          </li>
+          {isLoggedIn ? (
+            <li>
+              <div>
+                <WhisperIcon />
+              </div>
+            </li>
+          ) : null}
         </ul>
       </div>
 

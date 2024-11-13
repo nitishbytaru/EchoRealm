@@ -51,3 +51,17 @@ export const deleteWhisper = async (whisperId) => {
     return error;
   }
 };
+
+export const pinWhisperApi = async (whisperId) => {
+  try {
+    return await axios.get(`${API_URL}/pin-whisper`, {
+      ...apiConfigJSON,
+      params: { whisperId },
+    });
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+

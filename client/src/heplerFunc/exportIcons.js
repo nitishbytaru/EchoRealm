@@ -11,6 +11,7 @@ import ChatIcon from "@mui/icons-material/Chat";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import HomeIcon from "@mui/icons-material/Home";
+import PushPinIcon from "@mui/icons-material/PushPin";
 
 export {
   MoreVertSharpIcon,
@@ -26,4 +27,5 @@ export {
   EditOutlinedIcon,
   LogoutOutlinedIcon,
   HomeIcon,
+  PushPinIcon,
 };

@@ -19,7 +19,7 @@ function ChatBox() {
   const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
-  const { selectedUser, privateMessages, myPrivateChatRooms } = useSelector(
+  const { selectedUser, privateMessages } = useSelector(
     (state) => state.echoLink
   );
 

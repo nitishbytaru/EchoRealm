@@ -34,6 +34,17 @@ const userSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    blockedUsers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+    ],
+    isAnonymous: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { searchUsers, sendWhisper } from "../../../api/echoWhisperApi.js";
-import moment from "moment";
 import toast from "react-hot-toast";
 import { useInputValidation } from "6pp";
 import { handleKeyPress } from "../../../heplerFunc/microFuncs.js";
@@ -40,37 +39,7 @@ function CreateWhisper() {
     search.clear();
   };
 
-  //this cookie thing will not work it is
-  //lack of security put this data directly into the database
-  function getCookie(cookieName) {
-    const cookies = document.cookie.split("; ");
-    for (const cookie of cookies) {
-      const [key, value] = cookie.split("=");
-      if (key === cookieName) return value;
-    }
-    return null;
-  }
-
-  function setCookie() {
-    const date = new Date();
-    date.setTime(date.getTime() + 2 * 60 * 60 * 1000);
-    document.cookie = `whisperCooldown=${date}; expires=${date.toUTCString()}; path=/`;
-  }
-
   const sendCurrentWhisper = async () => {
-    const lastWhisperTime = getCookie("whisperCooldown");
-
-    if (lastWhisperTime) {
-      const timeLeft = moment.duration(moment(lastWhisperTime).diff(moment()));
-      return toast.error(
-        `Please wait ${timeLeft.hours()} hours ${timeLeft.minutes()} mins ${timeLeft.seconds()} sec before sending another whisper`,
-        {
-          autoClose: 5000,
-          icon: "⏳",
-        }
-      );
-    }
-
     if (!selectedUser) {
       return toast.error("Please select a user to send a whisper", {
         autoClose: 5000,
@@ -84,8 +53,6 @@ function CreateWhisper() {
         icon: "✉️",
       });
     }
-
-    setCookie();
 
     const data = {
       message: message.value,
