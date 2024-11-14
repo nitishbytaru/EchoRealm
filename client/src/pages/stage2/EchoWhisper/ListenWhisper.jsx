@@ -80,6 +80,7 @@ function ListenWhisper() {
   };
 
   const blockSender = async (whisperId, senderId) => {
+    dispatch(removeWhisper(whisperId));
     const response = await blockSenderApi(whisperId, senderId);
     if (response?.data) {
       toast.success(response.data?.message);

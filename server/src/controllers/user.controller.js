@@ -137,3 +137,46 @@ export const blockUser = asyncHandler(async (req, res) => {
     .status(200)
     .json({ success: true, message: "User blocked successfully" });
 });
+
+export const getBlockedUsers = asyncHandler(async (req, res) => {
+  // Retrieve blocked user IDs for the logged-in user
+  const { blockedUsers } = await User.findById(req.user).select("blockedUsers");
+
+  if (!blockedUsers || blockedUsers.length === 0) {
+    return res
+      .status(200)
+      .json({ message: "No blocked users found", blockedUsers: [] });
+  }
+
+  // Find all users whose _id is in the blockedUsers array
+  const blockedUsersDetails = await User.find({
+    _id: { $in: blockedUsers },
+  }).select("_id username avatar");
+
+  res.status(200).json({
+    message: "Blocked users retrieved successfully",
+    blockedUsers: blockedUsersDetails,
+  });
+});
+
+export const unBlockUser = asyncHandler(async (req, res) => {
+  const { userId } = req.query;
+
+  const currUser = await User.findById(req.user);
+
+  if (!currUser) {
+    return res.status(204).json({ message: "User not found" });
+  }
+
+  if (!currUser.blockedUsers.includes(userId)) {
+    return res.status(400).json({ message: "User not in blocked list" });
+  }
+
+  currUser.blockedUsers = currUser.blockedUsers.filter(
+    (id) => id.toString() !== userId
+  );
+
+  await currUser.save();
+
+  return res.status(200).json({ message: "User unblocked successfully" });
+});

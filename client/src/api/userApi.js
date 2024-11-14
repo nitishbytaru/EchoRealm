@@ -52,3 +52,24 @@ export const blockSenderApi = async (whisperId, senderId) => {
     return error;
   }
 };
+
+export const getBlockedUsers = async () => {
+  try {
+    return await axios.get(`${API_URL}/get-blockedUsers`, apiConfigJSON);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const unBlockUser = async (userId) => {
+  try {
+    return await axios.get(`${API_URL}/un-block`, {
+      ...apiConfigJSON,
+      params: { userId },
+    });
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};

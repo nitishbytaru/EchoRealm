@@ -9,19 +9,28 @@ import LoggedOut from "./utils/LoggedOut";
 import { normalLoading } from "./components/Loaders/LoadingAnimations.jsx";
 import { getProfile } from "./api/userApi.js";
 import { setIsLoggedIn, setUser } from "./app/slices/authSlice.js";
+import MyProfile from "./pages/stage2/MyProfile.jsx";
 
 //lazy loading
 const Layout = lazy(() => import("./Layout"));
 const Register = lazy(() => import("./pages/Register"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage"));
 const EchoShout = lazy(() => import("./pages/stage2/EchoShout"));
-const MyProfile = lazy(() => import("./pages/stage2/MyProfile.jsx"));
 const EchoLink = lazy(() => import("./pages/stage2/EchoLink"));
+const FindUsers = lazy(() => import("./components/profile/FindUsers.jsx"));
+const MyAccount = lazy(() => import("./components/profile/MyAccount.jsx"));
+const MyRequests = lazy(() => import("./components/profile/MyRequests.jsx"));
+const MyProfileDetails = lazy(() =>
+  import("./components/profile/MyProfileDetails.jsx")
+);
 const ListenWhisper = lazy(() =>
   import("./pages/stage2/EchoWhisper/ListenWhisper")
 );
 const CreateWhisper = lazy(() =>
   import("./pages/stage2/EchoWhisper/CreateWhisper")
+);
+const BlockedUsers = lazy(() =>
+  import("./components/profile/BlockedUsers.jsx")
 );
 
 function App() {
@@ -54,7 +63,13 @@ function App() {
               <Route path="echo-link" element={<EchoLink />} exact />
               <Route path="create-whisper" element={<CreateWhisper />} />
               <Route path="listen-whisper" element={<ListenWhisper />} />
-              <Route path="my-profile" element={<MyProfile />} />
+              <Route path="my-profile" element={<MyProfile />}>
+                <Route path="" element={<MyProfileDetails />} />
+                <Route path="friend-request" element={<MyRequests />} />
+                <Route path="blocked-users" element={<BlockedUsers />} />
+                <Route path="find-users" element={<FindUsers />} />
+                <Route path="account" element={<MyAccount />} />
+              </Route>
             </Route>
             <Route path="echo-shout" element={<EchoShout />} />
           </Route>

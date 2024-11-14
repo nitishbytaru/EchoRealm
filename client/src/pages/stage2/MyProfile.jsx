@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { handleToggle } from "../../heplerFunc/microFuncs";
 import ThemeToggle from "../../components/ui/ThemeToggle";
 import {
@@ -42,7 +42,7 @@ function MyProfile() {
   return (
     <div className="flex bg-base-200 w-full h-full rounded-2xl">
       {/* Sidebar Section */}
-      <div className="card bg-base-300 rounded-2xl m-2 sm:w-1/5 w-3/12 flex-grow">
+      <div className="card bg-base-300 rounded-2xl sm:m-2 mr-1 sm:w-1/5 w-3/12 flex-grow">
         <div className="flex w-full h-full flex-col">
           {/* Image Container (1/10th height) */}
 
@@ -73,31 +73,31 @@ function MyProfile() {
           <div className="card bg-base-300 rounded-2xl h-[88%] sm:h-[75%] flex items-center">
             <ul className="flex flex-col">
               <li className={`${classList}`}>
-                <Link>
+                <Link to={""}>
                   <EditOutlinedIcon />
                   profile
                 </Link>
               </li>
               <li className={`${classList}`}>
-                <Link>
+                <Link to={"friend-request"}>
                   <PersonAddIcon />
                   Requests
                 </Link>
               </li>
               <li className={`${classList} mb-2 sm:mb-0`}>
-                <Link>
+                <Link to={"blocked-users"}>
                   <BlockIcon />
                   {`block ${isMobile ? "" : "users"}`}
                 </Link>
               </li>
               <li className={`${classList}`}>
-                <Link>
+                <Link to={"find-users"}>
                   <SearchIcon />
                   {`find ${isMobile ? "" : "users"}`}
                 </Link>
               </li>
               <li className={`${classList}`}>
-                <Link>
+                <Link to={"account"}>
                   <PersonIcon />
                   account
                 </Link>
@@ -126,8 +126,8 @@ function MyProfile() {
       </div>
 
       {/* Main Content Section */}
-      <div className="card bg-base-300 rounded-2xl my-2 mr-1 sm:w-4/5 w-9/12 flex-grow flex items-center justify-center">
-        Content
+      <div className="card bg-base-300 rounded-2xl mr-1 sm:w-4/5 w-9/12 flex-grow">
+        <Outlet />
       </div>
     </div>
   );
