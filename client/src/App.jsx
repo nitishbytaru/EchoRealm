@@ -19,7 +19,8 @@ const EchoShout = lazy(() => import("./pages/stage2/EchoShout"));
 const EchoLink = lazy(() => import("./pages/stage2/EchoLink"));
 const FindUsers = lazy(() => import("./components/profile/FindUsers.jsx"));
 const MyAccount = lazy(() => import("./components/profile/MyAccount.jsx"));
-const MyRequests = lazy(() => import("./components/profile/MyRequests.jsx"));
+const MyWhispers = lazy(() => import("./components/profile/MyWhispers.jsx"));
+const ViewProfile = lazy(() => import("./components/profile/ViewProfile.jsx"));
 const MyProfileDetails = lazy(() =>
   import("./components/profile/MyProfileDetails.jsx")
 );
@@ -65,10 +66,11 @@ function App() {
               <Route path="listen-whisper" element={<ListenWhisper />} />
               <Route path="my-profile" element={<MyProfile />}>
                 <Route path="" element={<MyProfileDetails />} />
-                <Route path="friend-request" element={<MyRequests />} />
+                <Route path="my-whispers" element={<MyWhispers />} />
                 <Route path="blocked-users" element={<BlockedUsers />} />
                 <Route path="find-users" element={<FindUsers />} />
                 <Route path="account" element={<MyAccount />} />
+                <Route path="view-profile" element={<ViewProfile />} />
               </Route>
             </Route>
             <Route path="echo-shout" element={<EchoShout />} />

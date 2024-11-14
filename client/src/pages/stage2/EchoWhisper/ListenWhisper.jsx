@@ -145,7 +145,7 @@ function ListenWhisper() {
                           className="btn m-2"
                           onClick={() => console.log()}
                         >
-                          message @ben
+                          send Friend request
                         </button>
                         <button
                           className="btn bg-red-700  m-2"

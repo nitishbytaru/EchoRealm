@@ -75,7 +75,7 @@ export default function MessageBar({ setMessageData }) {
             }
             onChange={message.changeHandler}
             value={message.value}
-            onKeyDown={() => handleKeyPress(sendCurrentMessage)}
+            onKeyDown={(e) => handleKeyPress(e,sendCurrentMessage)}
           />
           {attachments.file && (
             <button

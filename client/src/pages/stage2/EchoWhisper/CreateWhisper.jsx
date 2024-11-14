@@ -1,41 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
-import { searchUsers, sendWhisper } from "../../../api/echoWhisperApi.js";
+import { sendWhisper } from "../../../api/echoWhisperApi.js";
 import toast from "react-hot-toast";
 import { useInputValidation } from "6pp";
 import { handleKeyPress } from "../../../heplerFunc/microFuncs.js";
 import { SendSharpIcon } from "../../../heplerFunc/exportIcons.js";
+import { useDebouncedSearchResults } from "../../../hooks/useDebouncedSearchResults.js";
 
 function CreateWhisper() {
   const { user } = useSelector((state) => state.auth);
 
-  const [searchResults, setSearchResults] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const search = useInputValidation("");
   const message = useInputValidation("");
-
-  //this hook is used twice so we can put it in some other folder take care of it
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (search.value) {
-        searchUsers(search.value)
-          .then((users) => setSearchResults(users))
-          .catch((err) => console.error(err));
-      } else {
-        setSearchResults([]);
-      }
-    }, 400);
-
-    return () => clearTimeout(delayDebounceFn);
-    //This return function acts as a cleanup function for the useEffect.
-    // It cancels the setTimeout if search.value changes before the 300 ms delay completes, avoiding unnecessary searchUsers calls.
-    // This helps make sure only the latest input triggers the search, effectively debouncing it.
-  }, [search.value]);
+  const searchResults = useDebouncedSearchResults(search.value);
 
   //utility functions
   const handleUserSelect = (whisperTo) => {
     setSelectedUser(whisperTo);
-    setSearchResults([]);
     search.clear();
   };
 

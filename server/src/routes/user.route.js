@@ -6,7 +6,7 @@ import {
   registerUser,
   blockUser,
   getBlockedUsers,
-  unBlockUser,
+  unBlockUser
 } from "../controllers/user.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";

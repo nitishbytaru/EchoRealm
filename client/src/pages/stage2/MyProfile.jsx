@@ -12,7 +12,7 @@ import {
   LogoutOutlinedIcon,
   EditOutlinedIcon,
   BlockIcon,
-  PersonAddIcon,
+  ShieldIcon,
   SearchIcon,
   PersonIcon,
 } from "../../heplerFunc/exportIcons";
@@ -42,7 +42,7 @@ function MyProfile() {
   return (
     <div className="flex bg-base-200 w-full h-full rounded-2xl">
       {/* Sidebar Section */}
-      <div className="card bg-base-300 rounded-2xl sm:m-2 mr-1 sm:w-1/5 w-3/12 flex-grow">
+      <div className="card bg-base-300 rounded-2xl  mr-1 sm:w-1/5 w-3/12 flex-grow">
         <div className="flex w-full h-full flex-col">
           {/* Image Container (1/10th height) */}
 
@@ -79,15 +79,15 @@ function MyProfile() {
                 </Link>
               </li>
               <li className={`${classList}`}>
-                <Link to={"friend-request"}>
-                  <PersonAddIcon />
-                  Requests
+                <Link to={"my-whispers"}>
+                  <ShieldIcon />
+                  {`${isMobile ? "" : "my"} whispers`}
                 </Link>
               </li>
               <li className={`${classList} mb-2 sm:mb-0`}>
                 <Link to={"blocked-users"}>
                   <BlockIcon />
-                  {`block ${isMobile ? "" : "users"}`}
+                  {`block${isMobile ? "" : "users"}`}
                 </Link>
               </li>
               <li className={`${classList}`}>

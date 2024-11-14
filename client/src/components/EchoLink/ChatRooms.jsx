@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import {
   getMyPrivateFriends,
   getPrivateMessages,
@@ -6,7 +6,6 @@ import {
 } from "../../api/echoLinkApi.js";
 import { useInputValidation } from "6pp";
 import { useDispatch, useSelector } from "react-redux";
-import { searchUsers } from "../../api/echoWhisperApi.js";
 import {
   setPrivateMessages,
   setMyPrivateChatRooms,
@@ -18,6 +17,7 @@ import {
 } from "../../app/slices/echoLinkSlice.js";
 import socket from "../../sockets/socket.js";
 import { truncateMessage } from "../../heplerFunc/microFuncs.js";
+import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults";
 
 function ChatRooms() {
   const dispatch = useDispatch();
@@ -26,30 +26,9 @@ function ChatRooms() {
   const { myPrivateChatRooms } = useSelector((state) => state.echoLink);
 
   const search = useInputValidation("");
-  const [searchResults, setSearchResults] = useState([]);
+  let searchResults = useDebouncedSearchResults(search.value);
 
-  //this useEffect is for searching the users
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (search.value) {
-        searchUsers(search.value)
-          .then((users) => {
-            const filteredUsers = users.filter(
-              (field) => field._id != user._id
-            );
-            setSearchResults(filteredUsers);
-          })
-          .catch((err) => console.error(err));
-      } else {
-        setSearchResults([]);
-      }
-    }, 400);
-
-    return () => clearTimeout(delayDebounceFn);
-    //This return function acts as a cleanup function for the useEffect.
-    // It cancels the setTimeout if search.value changes before the 300 ms delay completes, avoiding unnecessary searchUsers calls.
-    // This helps make sure only the latest input triggers the search, effectively debouncing it.
-  }, [search.value, user._id]);
+  searchResults = searchResults.filter((field) => field._id != user._id);
 
   useEffect(() => {
     const fetchMyPrivateFriends = async () => {
@@ -147,7 +126,6 @@ function ChatRooms() {
               <li
                 key={searchResultUser._id}
                 onClick={() => {
-                  setSearchResults(null);
                   handleRoomSelect(searchResultUser);
                   search.clear();
                 }}

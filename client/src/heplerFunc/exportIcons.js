@@ -13,9 +13,9 @@ import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import HomeIcon from "@mui/icons-material/Home";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import BlockIcon from "@mui/icons-material/Block";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import PersonIcon from "@mui/icons-material/Person";
 import SearchIcon from "@mui/icons-material/Search";
+import ShieldIcon from "@mui/icons-material/Shield";
 
 export {
   MoreVertSharpIcon,
@@ -33,7 +33,7 @@ export {
   HomeIcon,
   PushPinIcon,
   BlockIcon,
-  PersonAddIcon,
   PersonIcon,
   SearchIcon,
+  ShieldIcon,
 };
