@@ -1,11 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  theme: localStorage.getItem("theme") || "dracula",
+  theme: localStorage.getItem("theme") || "business",
   isLoggedIn: false,
   user: null,
   loading: false,
   isMobile: window.innerWidth < 640,
+  isChecked: localStorage.getItem("theme") === "business",
 };
 
 const authSlice = createSlice({
@@ -27,10 +28,19 @@ const authSlice = createSlice({
     setIsMobile(state, action) {
       state.isMobile = action.payload;
     },
+    setIsChecked(state, action) {
+      state.isChecked = action.payload;
+    },
   },
 });
 
-export const { setIsLoggedIn, setLoading, setUser, setTheme, setIsMobile } =
-  authSlice.actions;
+export const {
+  setIsLoggedIn,
+  setLoading,
+  setUser,
+  setTheme,
+  setIsMobile,
+  setIsChecked,
+} = authSlice.actions;
 
 export default authSlice.reducer;

@@ -16,3 +16,15 @@ export const truncateMessage = (message, maxLength = 30) => {
     ? message.slice(0, maxLength) + "..."
     : message;
 };
+
+export const handleToggle = (e, dispatch, setTheme,setIsChecked) => {
+  if (e.target.checked) {
+    dispatch(setTheme("business"));
+    localStorage.setItem("theme", "business");
+    dispatch(setIsChecked(true));
+  } else {
+    dispatch(setTheme("wireframe"));
+    localStorage.setItem("theme", "wireframe");
+    dispatch(setIsChecked(false));
+  }
+};

@@ -1,38 +1,31 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState, lazy, Suspense } from "react";
+import { Link } from "react-router-dom";
+import { useEffect, lazy, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import WhisperIcon from "../EchoWhisper/WhisperIcon.jsx";
 
 //importing the components
-import { logout } from "../../api/userApi";
 import {
-  setIsLoggedIn,
   setIsMobile,
   setTheme,
-  setUser,
+  setIsChecked,
 } from "../../app/slices/authSlice.js";
-import toast from "react-hot-toast";
 import {
   CampaignIcon,
   ChatIcon,
-  EditOutlinedIcon,
   HomeIcon,
-  LogoutOutlinedIcon,
 } from "../../heplerFunc/exportIcons.js";
+import { handleToggle } from "../../heplerFunc/microFuncs.js";
 
 //lazy loading
 const ThemeToggle = lazy(() => import("./ThemeToggle"));
 
 function NavBar() {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { user, theme, isMobile, isLoggedIn } = useSelector(
+  const { user, theme, isMobile, isLoggedIn, isChecked } = useSelector(
     (state) => state.auth
   );
   const { newUnreadMessages } = useSelector((state) => state.echoLink);
-
-  const [isChecked, setIsChecked] = useState(theme === "business");
 
   // Update the isMobile state based on window size
   useEffect(() => {
@@ -50,30 +43,6 @@ function NavBar() {
     dispatch(setTheme(theme));
     document.documentElement.setAttribute("data-theme", theme);
   }, [dispatch, theme]);
-
-  const handleLogout = () => {
-    logout()
-      .then((response) => {
-        toast.success(response?.data?.message);
-        dispatch(setUser(null));
-        dispatch(setIsLoggedIn(false));
-        localStorage.setItem("allowFetch", false);
-      })
-      .catch((error) => console.log(error));
-    navigate("/");
-  };
-
-  const handleToggle = (e) => {
-    if (e.target.checked) {
-      dispatch(setTheme("business"));
-      localStorage.setItem("theme", "business");
-      setIsChecked(true);
-    } else {
-      dispatch(setTheme("wireframe"));
-      localStorage.setItem("theme", "wireframe");
-      setIsChecked(false);
-    }
-  };
 
   return (
     <div className="navbar bg-base-100">
@@ -130,47 +99,18 @@ function NavBar() {
           {user ? (
             <>
               <Suspense fallback={<div>Loading...</div>}>
-                <div className="dropdown dropdown-end">
-                  <div tabIndex={0} role="button" className="rounded-btn">
-                    <label className="btn-circle avatar items-center justify-center sm:mr-2">
-                      <div
-                        className={`${
-                          isMobile ? "w-10 h-10" : "w-12 h-12"
-                        } rounded-full `}
-                      >
+                <div tabIndex={0} role="button" className="rounded-btn">
+                  <label className="btn-circle avatar items-center justify-center sm:mr-2">
+                    <div
+                      className={`${
+                        isMobile ? "w-10 h-10" : "w-12 h-12"
+                      } rounded-full `}
+                    >
+                      <Link to={"my-profile"}>
                         <img src={user.avatar.url} alt="User Avatar" />
-                      </div>
-                    </label>
-                  </div>
-                  <ul
-                    tabIndex={0}
-                    className="menu dropdown-content bg-base-300 rounded-box z-[1] w-52 p-2 shadow"
-                  >
-                    <li>
-                      <button
-                        className="btn bg-base-100 rounded-lg text-xl mb-2"
-                        onClick={() => navigate("/edit-profile")}
-                      >
-                        <EditOutlinedIcon />
-                        Profile
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={handleLogout}
-                        className="btn bg-base-100 rounded-lg text-xl mb-2"
-                      >
-                        <LogoutOutlinedIcon />
-                        Logout
-                      </button>
-                    </li>
-                    <li className="w-full items-end">
-                      <ThemeToggle
-                        handleToggle={handleToggle}
-                        isChecked={isChecked}
-                      />
-                    </li>
-                  </ul>
+                      </Link>
+                    </div>
+                  </label>
                 </div>
               </Suspense>
             </>
@@ -183,7 +123,9 @@ function NavBar() {
               {/* Theme Toggle (Dark/Light mode) */}
               <Suspense fallback={<div>Loading...</div>}>
                 <ThemeToggle
-                  handleToggle={handleToggle}
+                  handleToggle={(e) =>
+                    handleToggle(e, dispatch, setTheme, setIsChecked)
+                  }
                   isChecked={isChecked}
                 />
               </Suspense>

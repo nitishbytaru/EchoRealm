@@ -15,6 +15,7 @@ const Layout = lazy(() => import("./Layout"));
 const Register = lazy(() => import("./pages/Register"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage"));
 const EchoShout = lazy(() => import("./pages/stage2/EchoShout"));
+const MyProfile = lazy(() => import("./pages/stage2/MyProfile.jsx"));
 const EchoLink = lazy(() => import("./pages/stage2/EchoLink"));
 const ListenWhisper = lazy(() =>
   import("./pages/stage2/EchoWhisper/ListenWhisper")
@@ -53,6 +54,7 @@ function App() {
               <Route path="echo-link" element={<EchoLink />} exact />
               <Route path="create-whisper" element={<CreateWhisper />} />
               <Route path="listen-whisper" element={<ListenWhisper />} />
+              <Route path="my-profile" element={<MyProfile />} />
             </Route>
             <Route path="echo-shout" element={<EchoShout />} />
           </Route>
