@@ -1,10 +1,12 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults";
 import { useInputValidation } from "6pp";
 import { useNavigate } from "react-router-dom";
+import { setSelectedViewProfileId } from "../../app/slices/echoWhisperSlice";
 
 function FindUsers() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
   const search = useInputValidation("");
@@ -12,8 +14,8 @@ function FindUsers() {
   searchResults = searchResults.filter((field) => field._id != user._id);
 
   const viewProfileFunc = async (userId) => {
+    dispatch(setSelectedViewProfileId(userId));
     navigate("/my-profile/view-profile");
-    console.log(userId);
   };
 
   const goToEchoLink = () => {};
@@ -63,9 +65,9 @@ function FindUsers() {
                       <h2 className="text-lg font-medium">
                         @{currUser?.username}
                       </h2>
-                      <div className="flex gap-3 mt-3">
+                      <div className="sm:flex gap-3 mt-3">
                         <button
-                          className="btn btn-primary btn-sm text-xs sm:text-sm"
+                          className="btn btn-primary mb-1 btn-sm text-xs sm:text-sm"
                           onClick={() => viewProfileFunc(currUser._id)}
                         >
                           View Profile

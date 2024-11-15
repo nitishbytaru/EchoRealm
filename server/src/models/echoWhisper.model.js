@@ -28,6 +28,13 @@ const echoWhisper = new Schema(
       type: Boolean,
       default: false,
     },
+    likes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+    ],
   },
   {
     timestamps: true,

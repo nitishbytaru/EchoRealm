@@ -6,7 +6,8 @@ import {
   registerUser,
   blockUser,
   getBlockedUsers,
-  unBlockUser
+  unBlockUser,
+  getSelectedUserProfileDetails,
 } from "../controllers/user.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
@@ -33,5 +34,8 @@ router.route("/logout").get(logoutUser);
 router.route("/block-user").post(blockUser);
 router.route("/get-blockedUsers").get(getBlockedUsers);
 router.route("/un-block").get(unBlockUser);
+router
+  .route("/get-selected-profile-details")
+  .get(getSelectedUserProfileDetails);
 
 export default router;

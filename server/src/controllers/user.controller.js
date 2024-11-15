@@ -180,3 +180,30 @@ export const unBlockUser = asyncHandler(async (req, res) => {
 
   return res.status(200).json({ message: "User unblocked successfully" });
 });
+
+export const getSelectedUserProfileDetails = asyncHandler(async (req, res) => {
+  const { selectedViewProfileId } = req.query;
+
+  const selectedUserProfileDetails = await User.findById(
+    selectedViewProfileId
+  ).select("_id username avatar");
+
+  const selectedUserProfileWhispers = await EchoWhisper.find({
+    receiver: selectedViewProfileId,
+    showOthers: true,
+  });
+
+  const { avatar, _id, username } = selectedUserProfileDetails;
+
+  const selectedUserProfileDetailsResponse = {
+    avatar,
+    _id,
+    username,
+    selectedUserProfileWhispers,
+  };
+
+  return res.status(200).json({
+    message: "Selected User Data Featched Successfully",
+    selectedUserProfileDetailsResponse,
+  });
+});

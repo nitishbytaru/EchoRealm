@@ -3,6 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   whispers: [],
   pinnedWhispers: [],
+  currUserDetails: [],
+  selectedViewProfileId: null,
 };
 
 const whisperSlice = createSlice({
@@ -30,6 +32,18 @@ const whisperSlice = createSlice({
         (whisper) => whisper._id !== action.payload
       );
     },
+    setSelectedViewProfileId(state, action) {
+      state.selectedViewProfileId = action.payload;
+    },
+    setCurrUserDetails(state, action) {
+      state.currUserDetails = action.payload;
+    },
+    updateCurrUserDetails(state, action) {
+      state.currUserDetails.selectedUserProfileWhispers =
+        state.currUserDetails?.selectedUserProfileWhispers?.map((whisper) =>
+          whisper?._id === action.payload?._id ? action.payload : whisper
+        );
+    },
   },
 });
 
@@ -39,5 +53,8 @@ export const {
   updateWhispers,
   removePinnedWhisper,
   setPinnedWhispers,
+  setSelectedViewProfileId,
+  setCurrUserDetails,
+  updateCurrUserDetails,
 } = whisperSlice.actions;
 export default whisperSlice.reducer;

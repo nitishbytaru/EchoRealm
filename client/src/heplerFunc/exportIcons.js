@@ -16,6 +16,8 @@ import BlockIcon from "@mui/icons-material/Block";
 import PersonIcon from "@mui/icons-material/Person";
 import SearchIcon from "@mui/icons-material/Search";
 import ShieldIcon from "@mui/icons-material/Shield";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 export {
   MoreVertSharpIcon,
@@ -36,4 +38,6 @@ export {
   PersonIcon,
   SearchIcon,
   ShieldIcon,
+  FavoriteBorderIcon,
+  FavoriteIcon,
 };

@@ -87,7 +87,7 @@ export const pinWhisper = asyncHandler(async (req, res) => {
   const userToCalcu = await User.findById(req.user);
 
   // Check if incrementing would exceed max value
-  if (incrementValue >= 1 && userToCalcu.numberOfPinnedWhispers >= 5) {
+  if (incrementValue >= 1 && userToCalcu.numberOfPinnedWhispers >= 4) {
     return res
       .status(400)
       .json({ message: "Maximum number of pinned whispers reached." });
@@ -112,4 +112,41 @@ export const pinWhisper = asyncHandler(async (req, res) => {
     } successfully`,
     updatedWhisper,
   });
+});
+
+export const likeThisWhisper = asyncHandler(async (req, res) => {
+  const { whisperId } = req.query;
+
+  if (!whisperId) {
+    res.status(404).json({ message: "Id is needed to like the whisper" });
+  }
+
+  // Fetch the current document
+  const currentWhisper = await EchoWhisper.findById(whisperId);
+
+  const alreadyLiked = currentWhisper?.likes.includes(req.user);
+
+  let updatedWhisper = [];
+
+  if (alreadyLiked) {
+    updatedWhisper = await EchoWhisper.findByIdAndUpdate(
+      whisperId,
+      {
+        $pull: { likes: req.user },
+      },
+      { new: true }
+    );
+  } else {
+    updatedWhisper = await EchoWhisper.findByIdAndUpdate(
+      whisperId,
+      {
+        $push: { likes: req.user },
+      },
+      { new: true }
+    );
+  }
+
+  res
+    .status(207)
+    .json({ message: "updated likes for this whisper", updatedWhisper });
 });

@@ -63,3 +63,15 @@ export const pinWhisperApi = async (whisperId) => {
     return error?.response;
   }
 };
+
+export const likeThisWhisperApi = async (whisperId) => {
+  try {
+    return await axios.get(`${API_URL}/like-whisper`, {
+      ...apiConfigJSON,
+      params: { whisperId },
+    });
+  } catch (error) {
+    console.log(error);
+    return error?.response;
+  }
+};

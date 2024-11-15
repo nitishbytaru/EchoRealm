@@ -74,4 +74,13 @@ export const unBlockUser = async (userId) => {
   }
 };
 
-
+export const getSelectedUserProfileDetails = async (selectedViewProfileId) => {
+  try {
+    return await axios.get(`${API_URL}/get-selected-profile-details`, {
+      ...apiConfigJSON,
+      params: { selectedViewProfileId },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
