@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWhispers, pinWhisperApi } from "../../api/echoWhisperApi";
-import { MoreVertSharpIcon, PushPinIcon } from "../../heplerFunc/exportIcons";
+import {
+  FavoriteIcon,
+  MoreVertSharpIcon,
+  PushPinIcon,
+} from "../../heplerFunc/exportIcons";
 import {
   setPinnedWhispers,
   updateWhispers,
@@ -45,7 +49,7 @@ function MyWhispers() {
             className="card bg-base-100 w-full sm:w-92 shadow-xl"
           >
             {whisper?.showOthers && (
-              <div className="absolute m-2">
+              <div className="absolute m-2 top-0 left-0">
                 <PushPinIcon />
               </div>
             )}
@@ -57,9 +61,11 @@ function MyWhispers() {
                   onClick={() =>
                     document.getElementById(whisper?._id).showModal()
                   }
+                  className="absolute top-4 right-4"
                 >
                   <MoreVertSharpIcon />
                 </button>
+
                 <dialog
                   id={whisper?._id}
                   className="modal modal-bottom sm:modal-middle"
@@ -89,7 +95,14 @@ function MyWhispers() {
                   </div>
                 </dialog>
               </div>
+
               <p>{whisper?.message}</p>
+              <div className="flex absolute bottom-4 right-4">
+                <span className="ml-2">{whisper?.likes?.length || 0}</span>
+                <div className="ml-2">
+                  <FavoriteIcon sx={{ fontSize: "28px", color: "red" }} />
+                </div>
+              </div>
             </div>
           </div>
         ))}
