@@ -75,7 +75,7 @@ function ListenWhisper() {
     const response = await pinWhisperApi(whisperId);
     dispatch(updateWhispers(response?.data?.updatedWhisper));
     if (response?.data) {
-      toast.success(response.data?.message);
+      toast.success(response?.data?.message);
     }
   };
 
@@ -108,13 +108,13 @@ function ListenWhisper() {
                   {/* Open the modal using document.getElementById('ID').showModal() method */}
                   <button
                     onClick={() =>
-                      document.getElementById("my_modal_5").showModal()
+                      document.getElementById(whisper?._id).showModal()
                     }
                   >
                     <MoreVertSharpIcon />
                   </button>
                   <dialog
-                    id="my_modal_5"
+                    id={whisper?._id}
                     className="modal modal-bottom sm:modal-middle"
                   >
                     <div className="modal-box">
@@ -123,7 +123,7 @@ function ListenWhisper() {
                           className="btn m-2"
                           onClick={() => {
                             pinWhisper(whisper);
-                            document.getElementById("my_modal_5").close();
+                            document.getElementById(whisper?._id).close();
                           }}
                         >
                           {`${
@@ -136,7 +136,7 @@ function ListenWhisper() {
                           className="btn m-2"
                           onClick={(e) => {
                             callDeleteWhisper(e, whisper);
-                            document.getElementById("my_modal_5").close();
+                            document.getElementById(whisper?._id).close();
                           }}
                         >
                           delete whisper
@@ -151,7 +151,7 @@ function ListenWhisper() {
                           className="btn bg-red-700  m-2"
                           onClick={() => {
                             blockSender(whisper?._id, whisper?.sender);
-                            document.getElementById("my_modal_5").close();
+                            document.getElementById(whisper?._id).close();
                           }}
                         >
                           block @{`${whisper?.senderUsername}`}

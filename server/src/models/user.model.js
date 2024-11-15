@@ -25,9 +25,11 @@ const userSchema = new Schema(
     avatar: {
       publicId: {
         type: String,
+        default: "",
       },
       url: {
         type: String,
+        default: "",
       },
     },
     isAcceptingWhispers: {
@@ -44,6 +46,10 @@ const userSchema = new Schema(
     isAnonymous: {
       type: Boolean,
       default: false,
+    },
+    numberOfPinnedWhispers: {
+      type: Number,
+      default: 0,
     },
   },
   {

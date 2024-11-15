@@ -60,8 +60,6 @@ export const pinWhisperApi = async (whisperId) => {
     });
   } catch (error) {
     console.log(error);
-    return error;
+    return error?.response;
   }
 };
-
-

@@ -13,7 +13,7 @@ const whisperSlice = createSlice({
     },
     updateWhispers(state, action) {
       state.whispers = state.whispers.map((whisper) =>
-        whisper._id === action.payload._id ? action.payload : whisper
+        whisper?._id === action.payload?._id ? action.payload : whisper
       );
     },
     removeWhisper(state, action) {
