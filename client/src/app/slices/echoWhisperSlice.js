@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   whispers: [],
+  pinnedWhispers: [],
 };
 
 const whisperSlice = createSlice({
@@ -20,7 +21,15 @@ const whisperSlice = createSlice({
       state.whispers = state.whispers.filter(
         (whisper) => whisper._id !== action.payload
       );
-    }
+    },
+    setPinnedWhispers(state, action) {
+      state.pinnedWhispers = action.payload;
+    },
+    removePinnedWhisper(state, action) {
+      state.pinnedWhispers = state.pinnedWhispers.filter(
+        (whisper) => whisper._id !== action.payload
+      );
+    },
   },
 });
 
@@ -28,6 +37,7 @@ export const {
   setWhispers,
   removeWhisper,
   updateWhispers,
-  
+  removePinnedWhisper,
+  setPinnedWhispers,
 } = whisperSlice.actions;
 export default whisperSlice.reducer;

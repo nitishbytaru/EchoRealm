@@ -60,16 +60,6 @@ export const deleteWhisper = asyncHandler(async (req, res) => {
 });
 
 export const pinWhisper = asyncHandler(async (req, res) => {
-  // Fetch user to check current numberOfPinnedWhispers
-  const userToCalcu = await User.findById(req.user);
-
-  // Check if incrementing would exceed max value
-  if (userToCalcu.numberOfPinnedWhispers >= 5) {
-    return res
-      .status(400)
-      .json({ message: "Maximum number of pinned whispers reached." });
-  }
-
   const { whisperId } = req.query;
 
   if (!whisperId) {
@@ -92,6 +82,16 @@ export const pinWhisper = asyncHandler(async (req, res) => {
 
   // Increment or decrement numberOfPinnedWhispers based on the new value of `showOthers`
   const incrementValue = updatedWhisper.showOthers ? 1 : -1;
+
+  // Fetch user to check current numberOfPinnedWhispers
+  const userToCalcu = await User.findById(req.user);
+
+  // Check if incrementing would exceed max value
+  if (incrementValue >= 1 && userToCalcu.numberOfPinnedWhispers >= 5) {
+    return res
+      .status(400)
+      .json({ message: "Maximum number of pinned whispers reached." });
+  }
 
   // Update the user's numberOfPinnedWhispers
   const updatedUser = await User.findByIdAndUpdate(
