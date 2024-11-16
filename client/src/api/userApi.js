@@ -30,6 +30,17 @@ export const getProfile = async () => {
   }
 };
 
+export const getSelectedUserById = async (selectedUserId) => {
+  try {
+    return await axios.get(`${API_URL}/get-selected-profile`, {
+      ...apiConfigJSON,
+      params: { selectedUserId },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const logout = async () => {
   try {
     return await axios.get(`${API_URL}/logout`, {

@@ -40,7 +40,6 @@ export const handleToggle = (e, dispatch, setTheme, setIsChecked) => {
 
 // This function handles the room select i.e., if you selecta user then it creates
 // a unique room Id and fetches the any previous messages from that room
-
 export const handleRoomSelect = async (dispatch, currentSelecteduser, user) => {
   dispatch(setSelectedUser(currentSelecteduser));
 
@@ -53,3 +52,4 @@ export const handleRoomSelect = async (dispatch, currentSelecteduser, user) => {
   const response = await getPrivateMessages(uniqueRoomId);
   dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
 };
+

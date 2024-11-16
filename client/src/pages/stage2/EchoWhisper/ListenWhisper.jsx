@@ -6,7 +6,7 @@ import {
   getWhispers,
   pinWhisperApi,
 } from "../../../api/echoWhisperApi";
-import { blockSenderApi } from "../../../api/userApi";
+import { blockSenderApi, getSelectedUserById } from "../../../api/userApi";
 import {
   removeWhisper,
   setWhispers,
@@ -16,10 +16,15 @@ import {
   MoreVertSharpIcon,
   PushPinIcon,
 } from "../../../heplerFunc/exportIcons";
+import { setSelectedUser } from "../../../app/slices/echoLinkSlice";
+import { handleRoomSelect } from "../../../heplerFunc/microFuncs";
+import { useNavigate } from "react-router-dom";
 
 function ListenWhisper() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
+  const { user } = useSelector((state) => state.auth);
   const { whispers } = useSelector((state) => state.echoWhisper);
 
   useEffect(() => {
@@ -87,6 +92,14 @@ function ListenWhisper() {
     }
   };
 
+  const goToEchoLink = async (selectedUserId) => {
+    const response = await getSelectedUserById(selectedUserId);
+
+    dispatch(setSelectedUser(response?.data?.selectedUserDetails));
+    handleRoomSelect(dispatch, response?.data?.selectedUserDetails, user);
+    navigate("/echo-link");
+  };
+
   return (
     <div className="flex flex-col bg-base-200 h-full p-4 rounded-xl">
       <div className="overflow-y-auto">
@@ -143,9 +156,9 @@ function ListenWhisper() {
                         </button>
                         <button
                           className="btn m-2"
-                          onClick={() => console.log()}
+                          onClick={() => goToEchoLink(whisper?.sender)}
                         >
-                          send Friend request
+                          Direcet Message @{whisper?.senderUsername}
                         </button>
                         <button
                           className="btn bg-red-700  m-2"
@@ -154,7 +167,7 @@ function ListenWhisper() {
                             document.getElementById(whisper?._id).close();
                           }}
                         >
-                          block @{`${whisper?.senderUsername}`}
+                          block @{whisper?.senderUsername}
                         </button>
                       </div>
                       <div className="modal-action">

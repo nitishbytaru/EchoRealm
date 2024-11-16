@@ -241,6 +241,19 @@ export const getSelectedUserProfileDetails = asyncHandler(async (req, res) => {
   });
 });
 
+export const getSelectedUserProfile = asyncHandler(async (req, res) => {
+  const { selectedUserId } = req.query;
+
+  const selectedUserDetails = await User.findById(selectedUserId).select(
+    "-password"
+  );
+
+  return res.status(200).json({
+    message: "Selected User Data Featched Successfully",
+    selectedUserDetails,
+  });
+});
+
 export const deleteMyAccount = asyncHandler(async (req, res) => {
   await EchoWhisper.deleteMany({ receiver: req.user });
   await EchoWhisper.deleteMany({ sender: req.user });

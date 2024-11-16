@@ -10,6 +10,7 @@ import {
   getSelectedUserProfileDetails,
   updateCurrUserData,
   deleteMyAccount,
+  getSelectedUserProfile,
 } from "../controllers/user.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
@@ -32,6 +33,8 @@ router.route("/login").post(loginUser);
 router.use(isAuthenticated);
 
 router.route("/get-profile").get(getProfile);
+router.route("/get-selected-profile").get(getSelectedUserProfile);
+
 router.route("/logout").get(logoutUser);
 router.route("/block-user").post(blockUser);
 router.route("/get-blockedUsers").get(getBlockedUsers);
