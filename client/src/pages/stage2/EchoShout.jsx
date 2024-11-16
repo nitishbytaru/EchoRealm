@@ -104,7 +104,7 @@ function EchoShout() {
                 )}
                 <div className="flex items-center justify-center">
                   {mentions.length > 0 ? (
-                    <span className="text-lg font-semibold bg-primary">{`@${mentions?.map(
+                    <span className="text-lg font-semibold text-blue-800">{`@${mentions?.map(
                       (mention) => mention?.username
                     )} `}</span>
                   ) : null}

@@ -131,17 +131,13 @@ export const updateCurrUserData = asyncHandler(async (req, res) => {
 
 //This is to block a particular user
 export const blockUser = asyncHandler(async (req, res) => {
-  const { whisperId, senderId } = req.body;
+  const { senderId } = req.query;
 
-  if (!senderId || !whisperId) {
+  if (!senderId) {
     return res
       .status(400)
       .json({ success: false, message: "Sender ID is required" });
   }
-
-  const blockedWhisper = await EchoWhisper.findByIdAndUpdate(whisperId, {
-    $set: { blocked: true },
-  });
 
   // Find user and check if senderId is already in the blockedUsers array
   const user = await User.findById(req.user).select("blockedUsers");
@@ -152,8 +148,6 @@ export const blockUser = asyncHandler(async (req, res) => {
 
   // Check if senderId is already in the blockedUsers array
   const isAlreadyBlocked = user.blockedUsers?.includes(senderId);
-
-  console.log(user);
 
   if (isAlreadyBlocked) {
     return res.status(204).json({ message: "User is already blocked" });

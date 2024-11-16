@@ -48,9 +48,6 @@ export const getMyPrivateFriends = asyncHandler(async (req, res) => {
     })
   );
 
-
-
-
   return res
     .status(202)
     .json({ message: "Fetched your friends", myPrivateFriendsWithMessages });
@@ -175,4 +172,33 @@ export const deleteAllMyChatRooms = asyncHandler(async (req, res) => {
   });
 
   return res.status(202).json({ message: "Deleted all your chats" });
+});
+
+export const deleteChat = asyncHandler(async (req, res) => {
+  const { uniqueChatId } = req.params;
+
+  if (!uniqueChatId) {
+    return res.status(405).json({ message: "couldent clear messages" });
+  }
+
+  const response = await EchoLink.findOneAndUpdate(
+    { uniqueChatId },
+    {
+      $set: { messages: [] },
+    }
+  );
+
+  res.status(203).json({ message: "cleared the all messages" });
+});
+
+export const deleteChatRoom = asyncHandler(async (req, res) => {
+  const { uniqueChatId } = req.params;
+
+  if (!uniqueChatId) {
+    return res.status(405).json({ message: "couldent clear messages" });
+  }
+
+  await EchoLink.findOneAndDelete({ uniqueChatId });
+
+  res.status(203).json({ message: "Deleted the chat room" });
 });

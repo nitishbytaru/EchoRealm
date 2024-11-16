@@ -64,13 +64,12 @@ export const updateRequestApi = async (userNewData) => {
   }
 };
 
-export const blockSenderApi = async (whisperId, senderId) => {
-  const data = {
-    whisperId,
-    senderId,
-  };
+export const blockSenderApi = async (senderId) => {
   try {
-    return await axios.post(`${API_URL}/block-user`, data, apiConfigJSON);
+    return await axios.get(`${API_URL}/block-user`, {
+      ...apiConfigJSON,
+      params: { senderId },
+    });
   } catch (error) {
     console.log(error);
     return error;

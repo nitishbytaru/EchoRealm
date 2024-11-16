@@ -24,10 +24,6 @@ const echoWhisper = new Schema(
       type: String,
       default: "anonymous",
     },
-    blocked: {
-      type: Boolean,
-      default: false,
-    },
     likes: [
       {
         type: Schema.Types.ObjectId,

@@ -36,7 +36,7 @@ router.route("/get-profile").get(getProfile);
 router.route("/get-selected-profile").get(getSelectedUserProfile);
 
 router.route("/logout").get(logoutUser);
-router.route("/block-user").post(blockUser);
+router.route("/block-user").get(blockUser);
 router.route("/get-blockedUsers").get(getBlockedUsers);
 router.route("/un-block").get(unBlockUser);
 router.route("/update-userdata").post(updateCurrUserData);

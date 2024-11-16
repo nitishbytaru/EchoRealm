@@ -59,3 +59,28 @@ export const handleDeleteAllEchoLinkApi = async () => {
     return error;
   }
 };
+
+export const clearChatApi = async (uniqueChatId) => {
+  console.log(uniqueChatId);
+  try {
+    return await axios.delete(
+      `${API_URL}/delete-chat/${uniqueChatId}`,
+      apiConfigJSON
+    );
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const deleteChatRoomApi = async (uniqueChatId) => {
+  try {
+    return await axios.delete(
+      `${API_URL}/delete-chat-room/${uniqueChatId}`,
+      apiConfigJSON
+    );
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};

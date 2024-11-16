@@ -44,8 +44,8 @@ function ChatRooms() {
 
       const sortedMyPrivateFriendsWithMessages =
         response?.data?.myPrivateFriendsWithMessages.sort((a, b) => {
-          const dateA = new Date(a.latestMessage.updatedAt);
-          const dateB = new Date(b.latestMessage.updatedAt);
+          const dateA = new Date(a.latestMessage?.updatedAt);
+          const dateB = new Date(b.latestMessage?.updatedAt);
           return dateB - dateA; // Sort in descending order
         });
 

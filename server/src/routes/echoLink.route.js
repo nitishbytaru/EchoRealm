@@ -3,7 +3,10 @@ import {
   getMyPrivateFriends,
   getPrivateMessages,
   sendEchoLinkMessage,
-  markLatestMessageAsRead,deleteAllMyChatRooms
+  markLatestMessageAsRead,
+  deleteAllMyChatRooms,
+  deleteChat,
+  deleteChatRoom,
 } from "../controllers/echoLink.controller.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -27,5 +30,7 @@ router.route("/get-myPrivateFriends").get(getMyPrivateFriends);
 router.route("/get-privateMessages").get(getPrivateMessages);
 router.route("/set-latestMessageAsRead").get(markLatestMessageAsRead);
 router.route("/delete-all-chat-rooms").get(deleteAllMyChatRooms);
+router.route("/delete-chat/:uniqueChatId").delete(deleteChat);
+router.route("/delete-chat-room/:uniqueChatId").delete(deleteChatRoom);
 
 export default router;

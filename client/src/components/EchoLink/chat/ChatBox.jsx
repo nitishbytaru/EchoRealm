@@ -6,14 +6,22 @@ import {
   MoreVertSharpIcon,
   ArrowBackIosIcon,
 } from "../../../heplerFunc/exportIcons.js";
-import { sendEchoLinkMessage } from "../../../api/echoLinkApi.js";
+import {
+  clearChatApi,
+  deleteChatRoomApi,
+  sendEchoLinkMessage,
+} from "../../../api/echoLinkApi.js";
 import {
   addPrivateMessage,
   addToMyPrivateChatRooms,
+  removeFromMyPrivateChatRooms,
+  setPrivateMessages,
   setSelectedUser,
 } from "../../../app/slices/echoLinkSlice.js";
 import socket from "../../../sockets/socket.js";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
+import toast from "react-hot-toast";
+import { blockSenderApi } from "../../../api/userApi.js";
 
 function ChatBox() {
   const dispatch = useDispatch();
@@ -78,6 +86,33 @@ function ChatBox() {
     sendMessage();
   }, [dispatch, echoLinkMessageData, selectedUser?._id]);
 
+  const blockSender = async () => {
+    const senderId = selectedUser?.uniqueChatId
+      .replace("-", "")
+      .replace(user?._id, "");
+
+    const response = await blockSenderApi(senderId);
+    dispatch(removeFromMyPrivateChatRooms(selectedUser?.uniqueChatId));
+    dispatch(setSelectedUser(null));
+    if (response?.data) {
+      toast.success(response.data?.message);
+    }
+  };
+
+  const clearChat = async () => {
+    const response = await clearChatApi(selectedUser?.uniqueChatId);
+    dispatch(setPrivateMessages([]));
+    console.log(response);
+    toast.success(response?.data?.message);
+  };
+
+  const deleteChatRoom = async () => {
+    const response = await deleteChatRoomApi(selectedUser?.uniqueChatId);
+    toast.success(response?.data?.message);
+    dispatch(removeFromMyPrivateChatRooms(selectedUser?.uniqueChatId));
+    dispatch(setSelectedUser(null));
+  };
+
   return (
     <>
       {!selectedUser ? (
@@ -108,19 +143,35 @@ function ChatBox() {
               </div>
             </div>
             <div className="flex-none">
-              <details className="dropdown dropdown-end">
-                <summary className="btn btn-sm bg-base-100 rounded-full">
+              <div className="dropdown dropdown-end">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className="btn btn-sm bg-base-100 rounded-full"
+                >
                   <MoreVertSharpIcon />
-                </summary>
-                <ul className="menu dropdown-content bg-base-200 rounded-box z-[1] p-2 w-56 shadow mt-2">
+                </div>
+                <ul
+                  tabIndex={0}
+                  className="menu dropdown-content bg-base-200 rounded-box z-[1] p-2 w-56 shadow mt-2"
+                >
                   <li>
-                    <p>Clear chat</p>
+                    <button className="btn" onClick={clearChat}>
+                      Clear chat
+                    </button>
                   </li>
                   <li>
-                    <p>Delete friend</p>
+                    <button className="btn" onClick={deleteChatRoom}>
+                      Delete ChatRoom
+                    </button>
+                  </li>
+                  <li className="bg-error">
+                    <button className="btn btn-error" onClick={blockSender}>
+                      Block User
+                    </button>
                   </li>
                 </ul>
-              </details>
+              </div>
             </div>
           </div>
 

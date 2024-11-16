@@ -43,6 +43,11 @@ const echoLinkSlice = createSlice({
         return dateB - dateA; // Sort in descending order
       });
     },
+    removeFromMyPrivateChatRooms(state, action) {
+      state.myPrivateChatRooms = state.myPrivateChatRooms.filter(
+        (friend) => friend.uniqueChatId !== action.payload
+      );
+    },
     setLatestMessageAsRead(state, action) {
       const chatId = action.payload?._id;
 
@@ -78,7 +83,9 @@ const echoLinkSlice = createSlice({
           state.chatRoomsWithUnreadMessages.filter(
             (field) => field !== action.payload
           );
-        state.newUnreadMessages--;
+        if (state.newUnreadMessages >= 0) {
+          state.newUnreadMessages--;
+        }
       }
     },
   },
@@ -92,5 +99,6 @@ export const {
   setLatestMessageAsRead,
   addToChatRoomsWithUnreadMessages,
   removeFromChatRoomsWithUnreadMessages,
+  removeFromMyPrivateChatRooms,
 } = echoLinkSlice.actions;
 export default echoLinkSlice.reducer;
