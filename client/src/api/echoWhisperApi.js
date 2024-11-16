@@ -75,3 +75,30 @@ export const likeThisWhisperApi = async (whisperId) => {
     return error?.response;
   }
 };
+
+// From here all the apis are used to delete the data
+export const deleteAllRecievedWhispersApi = async () => {
+  try {
+    return await axios.get(
+      `${API_URL}/delete-recieved-whispers`,
+      apiConfigJSON
+    );
+  } catch (error) {
+    console.log(error);
+    return error?.response;
+  }
+};
+
+export const deleteAllSentWhispersApi = async () => {
+  try {
+    return await axios.get(
+      `${API_URL}/delete-sent-whispers`,
+      apiConfigJSON
+    );
+  } catch (error) {
+    console.log(error);
+    return error?.response;
+  }
+};
+
+

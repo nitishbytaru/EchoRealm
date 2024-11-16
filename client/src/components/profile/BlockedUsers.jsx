@@ -1,22 +1,28 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getBlockedUsers, unBlockUser } from "../../api/userApi";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setBlockedUsers,
+  removeFromBlockedUsers,
+} from "../../app/slices/authSlice";
+import toast from "react-hot-toast";
 
 function BlockedUsers() {
-  const { isMobile } = useSelector((state) => state.auth);
-  const [blockedUsers, setBlockedUsers] = useState();
+  const dispatch = useDispatch();
+  const { blockedUsers } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const funcGetBlockedUsers = async () => {
       const response = await getBlockedUsers();
-      setBlockedUsers(response?.data?.blockedUsers);
+      dispatch(setBlockedUsers(response?.data?.blockedUsers));
     };
     funcGetBlockedUsers();
-  }, []);
+  }, [dispatch]);
 
   const unBlock = async (userId) => {
-    const respose = await unBlockUser(userId);
-    console.log(respose);
+    const response = await unBlockUser(userId);
+    toast.success(response?.data?.message);
+    dispatch(removeFromBlockedUsers(userId));
   };
 
   return (
@@ -41,15 +47,6 @@ function BlockedUsers() {
                   onClick={() => unBlock(currUser?._id)}
                 >
                   Unblock
-                </button>
-                <button className="btn btn-secondary btn-sm text-xs sm:text-sm">
-                  {isMobile ? (
-                    <>
-                      Remove <br /> Friend
-                    </>
-                  ) : (
-                    "Remove  Friend"
-                  )}
                 </button>
               </div>
             </div>

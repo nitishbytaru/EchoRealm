@@ -49,3 +49,8 @@ export const getMessages = asyncHandler(async (req, res) => {
   const messages = await EchoShout.find().populate("sender", "username");
   res.json({ messages });
 });
+
+export const deleteMyMessagesInEchoShout = asyncHandler(async (req, res) => {
+  await EchoShout.deleteMany({ sender: req.user });
+  res.status(204).json({ message: "all messages form you are deleted" });
+});

@@ -26,3 +26,14 @@ export const getEchoShouts = async () => {
     console.log(error);
   }
 };
+
+// From here all the apis are used to delete the data
+export const deleteAllMessagesInEchoShoutApi = async () => {
+  try {
+    return await axios.get(`${API_URL}/delete-my-messages`, {
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};

@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getMessages,
   sendMessage,
+  deleteMyMessagesInEchoShout,
 } from "../controllers/echoShout.controller.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -22,5 +23,6 @@ router.route("/send-echoShoutMessage").post(
   ]),
   sendMessage
 );
+router.route("/delete-my-messages").get(deleteMyMessagesInEchoShout);
 
 export default router;

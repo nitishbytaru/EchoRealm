@@ -89,7 +89,7 @@ function CreateWhisper() {
                     <img
                       src={searchResultUser?.avatar?.url}
                       alt=""
-                      className="avatar rounded-full w-10 h-10 sm:w-14 sm:h-14"
+                      className="avatar object-cover rounded-full w-10 h-10 sm:w-14 sm:h-14"
                     />
                     <p>{searchResultUser?.username}</p>
                   </div>

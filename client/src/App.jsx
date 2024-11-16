@@ -65,7 +65,7 @@ function App() {
               <Route path="create-whisper" element={<CreateWhisper />} />
               <Route path="listen-whisper" element={<ListenWhisper />} />
               <Route path="my-profile" element={<MyProfile />}>
-                <Route path="" element={<MyProfileDetails />} />
+                <Route path="edit-details" element={<MyProfileDetails />} />
                 <Route path="my-whispers" element={<MyWhispers />} />
                 <Route path="blocked-users" element={<BlockedUsers />} />
                 <Route path="find-users" element={<FindUsers />} />

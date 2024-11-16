@@ -1,22 +1,21 @@
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import {
   getMyPrivateFriends,
-  getPrivateMessages,
   markLatestMessageAsRead,
 } from "../../api/echoLinkApi.js";
 import { useInputValidation } from "6pp";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setPrivateMessages,
   setMyPrivateChatRooms,
-  setSelectedUser,
   setLatestMessageAsRead,
   addToChatRoomsWithUnreadMessages,
   addToMyPrivateChatRooms,
-  removeFromChatRoomsWithUnreadMessages,
 } from "../../app/slices/echoLinkSlice.js";
 import socket from "../../sockets/socket.js";
-import { truncateMessage } from "../../heplerFunc/microFuncs.js";
+import {
+  handleRoomSelect,
+  truncateMessage,
+} from "../../heplerFunc/microFuncs.js";
 import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults";
 
 function ChatRooms() {
@@ -67,24 +66,6 @@ function ChatRooms() {
     };
   }, [dispatch, user._id]);
 
-  const handleRoomSelect = useCallback(
-    async (currentSelecteduser) => {
-      dispatch(setSelectedUser(currentSelecteduser));
-
-      //this functions is also in the backend if possible remove from one place
-      const uniqueRoomId = [currentSelecteduser?._id, user?._id]
-        .sort()
-        .join("-");
-
-      socket.emit("joinEchoLink", uniqueRoomId);
-      dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
-
-      const response = await getPrivateMessages(uniqueRoomId);
-      dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
-    },
-    [dispatch, user?._id]
-  );
-
   const markAsRead = async (currUser) => {
     dispatch(setLatestMessageAsRead(currUser));
 
@@ -126,7 +107,7 @@ function ChatRooms() {
               <li
                 key={searchResultUser._id}
                 onClick={() => {
-                  handleRoomSelect(searchResultUser);
+                  handleRoomSelect(dispatch, searchResultUser, user);
                   search.clear();
                 }}
               >
@@ -155,7 +136,8 @@ function ChatRooms() {
             className="w-full py-2 cursor-pointer"
             key={index}
             onClick={() => {
-              handleRoomSelect(currUser);
+              handleRoomSelect(dispatch, currUser, user);
+
               markAsRead(currUser);
             }}
           >

@@ -164,3 +164,12 @@ export const markLatestMessageAsRead = asyncHandler(async (req, res) => {
     privateMessages,
   });
 });
+
+export const deleteAllMyChatRooms = asyncHandler(async (req, res) => {
+  // Fetch chat rooms that contain the user's ID in uniqueChatId
+  await EchoLink.deleteMany({
+    uniqueChatId: { $regex: req.user },
+  });
+
+  return res.status(202).json({ message: "Deleted all your chats" });
+});

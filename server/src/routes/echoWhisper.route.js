@@ -6,6 +6,8 @@ import {
   deleteWhisper,
   pinWhisper,
   likeThisWhisper,
+  deleteRecievedWhispers,
+  deletesentWhispers,
 } from "../controllers/echoWhisper.controller.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
 const router = Router();
@@ -17,6 +19,8 @@ router.route("/delete-whisper").delete(deleteWhisper);
 router.route("/send-whisper").post(sendWhisper);
 router.route("/pin-whisper").get(pinWhisper);
 router.route("/like-whisper").get(likeThisWhisper);
+router.route("/delete-recieved-whispers").get(deleteRecievedWhispers);
+router.route("/delete-sent-whispers").get(deletesentWhispers);
 router.route("/search").get(searchUsers);
 
 export default router;

@@ -1,3 +1,11 @@
+import { getPrivateMessages } from "../api/echoLinkApi";
+import {
+  removeFromChatRoomsWithUnreadMessages,
+  setPrivateMessages,
+  setSelectedUser,
+} from "../app/slices/echoLinkSlice";
+import socket from "../sockets/socket";
+
 export const handleKeyPress = (e, executableFunction) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
@@ -17,7 +25,8 @@ export const truncateMessage = (message, maxLength = 30) => {
     : message;
 };
 
-export const handleToggle = (e, dispatch, setTheme,setIsChecked) => {
+// This function handle the toggle of the themes
+export const handleToggle = (e, dispatch, setTheme, setIsChecked) => {
   if (e.target.checked) {
     dispatch(setTheme("business"));
     localStorage.setItem("theme", "business");
@@ -27,4 +36,20 @@ export const handleToggle = (e, dispatch, setTheme,setIsChecked) => {
     localStorage.setItem("theme", "wireframe");
     dispatch(setIsChecked(false));
   }
+};
+
+// This function handles the room select i.e., if you selecta user then it creates
+// a unique room Id and fetches the any previous messages from that room
+
+export const handleRoomSelect = async (dispatch, currentSelecteduser, user) => {
+  dispatch(setSelectedUser(currentSelecteduser));
+
+  //this functions is also in the backend if possible remove from one place
+  const uniqueRoomId = [currentSelecteduser?._id, user?._id].sort().join("-");
+
+  socket.emit("joinEchoLink", uniqueRoomId);
+  dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
+
+  const response = await getPrivateMessages(uniqueRoomId);
+  dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
 };

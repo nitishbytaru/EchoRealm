@@ -1,4 +1,6 @@
 import { User } from "../models/user.model.js";
+import { EchoShout } from "../models/echoShout.model.js";
+import { EchoLink } from "../models/echoLink.model.js ";
 import { EchoWhisper } from "../models/echoWhisper.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
@@ -97,6 +99,37 @@ export const logoutUser = asyncHandler(async (req, res) => {
     .json({ success: true, message: "Logged out successfully" });
 });
 
+export const updateCurrUserData = asyncHandler(async (req, res) => {
+  const {
+    updatedEmail,
+    updatedUsername,
+    updatedPassword,
+    udatedIsAcceptingWhispers,
+    updatedIsAnonymous,
+  } = req.body;
+
+  if (!updatedUsername && !updatedEmail) {
+    return res.status(400).json({ message: "username or email is required" });
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user,
+    {
+      $set: {
+        email: updatedEmail,
+        username: updatedUsername,
+        password: updatedPassword,
+        isAcceptingWhispers: udatedIsAcceptingWhispers,
+        isAnonymous: updatedIsAnonymous,
+      },
+    },
+    { new: true }
+  );
+
+  sendToken(res, user, 201, "account updated successfully");
+});
+
+//This is to block a particular user
 export const blockUser = asyncHandler(async (req, res) => {
   const { whisperId, senderId } = req.body;
 
@@ -206,4 +239,22 @@ export const getSelectedUserProfileDetails = asyncHandler(async (req, res) => {
     message: "Selected User Data Featched Successfully",
     selectedUserProfileDetailsResponse,
   });
+});
+
+export const deleteMyAccount = asyncHandler(async (req, res) => {
+  await EchoWhisper.deleteMany({ receiver: req.user });
+  await EchoWhisper.deleteMany({ sender: req.user });
+  await EchoShout.deleteMany({ sender: req.user });
+  await EchoLink.deleteMany({ uniqueChatId: { $regex: req.user } });
+  await User.updateMany(
+    { blockedUsers: { $in: [req.user] } },
+    { $pull: { blockedUsers: req.user } }
+  );
+
+  await User.findByIdAndDelete(req.user);
+
+  res
+    .status(204)
+    .cookie("echo-token", "", { ...cookieOptions, maxAge: 0 })
+    .json({ message: "account deleetd" });
 });

@@ -5,6 +5,7 @@ const initialState = {
   isLoggedIn: false,
   user: null,
   loading: false,
+  blockedUsers: [],
   isMobile: window.innerWidth < 640,
   isChecked: localStorage.getItem("theme") === "business",
 };
@@ -31,6 +32,14 @@ const authSlice = createSlice({
     setIsChecked(state, action) {
       state.isChecked = action.payload;
     },
+    setBlockedUsers(state, action) {
+      state.blockedUsers = action.payload;
+    },
+    removeFromBlockedUsers(state, action) {
+      state.blockedUsers = state.blockedUsers.filter(
+        (user) => user._id !== action.payload
+      );
+    },
   },
 });
 
@@ -41,6 +50,8 @@ export const {
   setTheme,
   setIsMobile,
   setIsChecked,
+  setBlockedUsers,
+  removeFromBlockedUsers,
 } = authSlice.actions;
 
 export default authSlice.reducer;

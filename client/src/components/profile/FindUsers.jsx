@@ -3,6 +3,8 @@ import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults
 import { useInputValidation } from "6pp";
 import { useNavigate } from "react-router-dom";
 import { setSelectedViewProfileId } from "../../app/slices/echoWhisperSlice";
+import { setSelectedUser } from "../../app/slices/echoLinkSlice";
+import { handleRoomSelect } from "../../heplerFunc/microFuncs";
 
 function FindUsers() {
   const navigate = useNavigate();
@@ -18,7 +20,11 @@ function FindUsers() {
     navigate("/my-profile/view-profile");
   };
 
-  const goToEchoLink = () => {};
+  const goToEchoLink = (selectedUser) => {
+    dispatch(setSelectedUser(selectedUser));
+    handleRoomSelect(dispatch, selectedUser, user);
+    navigate("/echo-link");
+  };
 
   return (
     <div className="bg-base-200 h-full rounded-xl">
@@ -74,7 +80,7 @@ function FindUsers() {
                         </button>
                         <button
                           className="btn btn-secondary btn-sm text-xs sm:text-sm"
-                          onClick={goToEchoLink}
+                          onClick={() => goToEchoLink(currUser)}
                         >
                           Send Message
                         </button>

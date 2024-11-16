@@ -73,7 +73,7 @@ function MyProfile() {
           <div className="card bg-base-300 rounded-2xl h-[88%] sm:h-[75%] flex items-center">
             <ul className="flex flex-col">
               <li className={`${classList}`}>
-                <Link to={""}>
+                <Link to={"edit-details"}>
                   <EditOutlinedIcon />
                   profile
                 </Link>

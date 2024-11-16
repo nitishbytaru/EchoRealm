@@ -50,3 +50,12 @@ export const markLatestMessageAsRead = async (uniqueChatId) => {
     return error;
   }
 };
+
+export const handleDeleteAllEchoLinkApi = async () => {
+  try {
+    return await axios.get(`${API_URL}/delete-all-chat-rooms`, apiConfigJSON);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};

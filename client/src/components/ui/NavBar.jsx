@@ -106,7 +106,7 @@ function NavBar() {
                         isMobile ? "w-10 h-10" : "w-12 h-12"
                       } rounded-full `}
                     >
-                      <Link to={"my-profile"}>
+                      <Link to={"my-profile/my-whispers"}>
                         <img src={user.avatar.url} alt="User Avatar" />
                       </Link>
                     </div>

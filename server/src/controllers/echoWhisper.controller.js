@@ -150,3 +150,25 @@ export const likeThisWhisper = asyncHandler(async (req, res) => {
     .status(207)
     .json({ message: "updated likes for this whisper", updatedWhisper });
 });
+
+export const deleteRecievedWhispers = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "You must login first" });
+  }
+
+  const response = await EchoWhisper.deleteMany({
+    receiver: req.user,
+  });
+  res.status(207).json({ message: "Deleted all recieved Whispers" });
+});
+
+export const deletesentWhispers = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "You must login first" });
+  }
+
+  const response = await EchoWhisper.deleteMany({
+    sender: req.user,
+  });
+  res.status(207).json({ message: "Deleted all sent Whispers" });
+});

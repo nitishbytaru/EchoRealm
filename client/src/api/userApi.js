@@ -40,6 +40,19 @@ export const logout = async () => {
   }
 };
 
+export const updateRequestApi = async (userNewData) => {
+  try {
+    return await axios.post(
+      `${API_URL}/update-userdata`,
+      userNewData,
+      apiConfigJSON
+    );
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 export const blockSenderApi = async (whisperId, senderId) => {
   const data = {
     whisperId,
@@ -79,6 +92,19 @@ export const getSelectedUserProfileDetails = async (selectedViewProfileId) => {
     return await axios.get(`${API_URL}/get-selected-profile-details`, {
       ...apiConfigJSON,
       params: { selectedViewProfileId },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// From here all the apis are used to delete the data
+export const handleDeleteAllEchoLinkApi = async () => {};
+
+export const deleteMyAccountApi = async () => {
+  try {
+    return await axios.get(`${API_URL}/delete-my-account`, {
+      withCredentials: true,
     });
   } catch (error) {
     console.log(error);

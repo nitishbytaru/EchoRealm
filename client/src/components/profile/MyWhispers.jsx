@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWhispers, pinWhisperApi } from "../../api/echoWhisperApi";
 import {
+  FavoriteBorderIcon,
   FavoriteIcon,
   MoreVertSharpIcon,
   PushPinIcon,
@@ -98,9 +99,13 @@ function MyWhispers() {
 
               <p>{whisper?.message}</p>
               <div className="flex absolute bottom-4 right-4">
-                <span className="ml-2">{whisper?.likes?.length || 0}</span>
+                <span className="ml-2">{whisper?.likes?.length}</span>
                 <div className="ml-2">
-                  <FavoriteIcon sx={{ fontSize: "28px", color: "red" }} />
+                  {whisper?.likes?.length > 0 ? (
+                    <FavoriteIcon sx={{ fontSize: "28px", color: "red" }} />
+                  ) : (
+                    <FavoriteBorderIcon sx={{ fontSize: "28px" }} />
+                  )}
                 </div>
               </div>
             </div>
