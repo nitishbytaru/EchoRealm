@@ -46,7 +46,16 @@ export const sendWhisper = asyncHandler(async (req, res) => {
 });
 
 export const getWhispers = asyncHandler(async (req, res) => {
-  const whispers = await EchoWhisper.find({ receiver: req.user });
+  let currUser = await User.findById(req.user).select("-password");
+
+  const whispers = await EchoWhisper.find({
+    receiver: req.user,
+    $or: [
+      { "sender.senderId": { $nin: [...currUser.blockedUsers, req.user] } },
+      { "sender.senderId": null },
+    ],
+  });
+
   res.status(200).json({ whispers });
 });
 

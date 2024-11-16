@@ -48,7 +48,7 @@ function ListenWhisper() {
       <div className="p-4 space-y-4">
         {/* Message content at the top */}
         <p className="text-sm text-gray-700">
-          Delete whisper by <b>@{whisper?.sender || "anonymous"}</b>
+          Delete whisper by <b>@{whisper?.sender?.username || "anonymous"}</b>
         </p>
 
         {/* Button container for Delete and Dismiss */}
@@ -72,6 +72,7 @@ function ListenWhisper() {
   };
 
   const confirmDelete = async (whisperId) => {
+    console.log(whisperId);
     dispatch(setLoading(true));
     const response = await deleteWhisper(whisperId);
     dispatch(setLoading(false));
@@ -127,8 +128,10 @@ function ListenWhisper() {
               )}
               <div className="card-body">
                 <div className="card-actions justify-between">
-                  <h2 className="card-title">@{whisper?.sender?.username}</h2>
-                  {/* Open the modal using document.getElementById('ID').showModal() method */}
+                  {/* Safely display the username */}
+                  <h2 className="card-title">
+                    @{whisper?.sender?.username || "anonymous"}
+                  </h2>
                   <button
                     onClick={() =>
                       document.getElementById(whisper?._id).showModal()
@@ -145,15 +148,13 @@ function ListenWhisper() {
                         <button
                           className="btn m-2"
                           onClick={() => {
-                            pinWhisper(whisper);
+                            pinWhisper(whisper._id);
                             document.getElementById(whisper?._id).close();
                           }}
                         >
-                          {`${
-                            whisper?.showOthers
-                              ? "unpin this whisper"
-                              : "pin this whisper"
-                          }`}
+                          {whisper?.showOthers
+                            ? "Unpin this whisper"
+                            : "Pin this whisper"}
                         </button>
                         <button
                           className="btn m-2"
@@ -162,31 +163,36 @@ function ListenWhisper() {
                             document.getElementById(whisper?._id).close();
                           }}
                         >
-                          delete whisper
+                          Delete whisper
                         </button>
                         {whisper?.sender?.senderId && (
                           <>
                             <button
                               className="btn m-2"
-                              onClick={() => goToEchoLink(whisper?.sender)}
+                              onClick={() =>
+                                goToEchoLink(whisper?.sender?.senderId)
+                              }
                             >
-                              Direcet Message @{whisper?.senderUsername}
+                              Direct Message @
+                              {whisper?.sender?.username || "anonymous"}
                             </button>
                             <button
                               className="btn bg-red-700  m-2"
                               onClick={() => {
-                                blockSender(whisper?._id, whisper?.sender);
+                                blockSender(
+                                  whisper?._id,
+                                  whisper?.sender?.senderId
+                                );
                                 document.getElementById(whisper?._id).close();
                               }}
                             >
-                              block @{whisper?.senderUsername}
+                              Block @{whisper?.sender?.username || "anonymous"}
                             </button>
                           </>
                         )}
                       </div>
                       <div className="modal-action">
                         <form method="dialog">
-                          {/* if there is a button in form, it will close the modal */}
                           <button className="btn">Close</button>
                         </form>
                       </div>
