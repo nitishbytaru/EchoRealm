@@ -31,12 +31,12 @@ function ListenWhisper() {
     const func = async () => {
       const response = await getWhispers();
       const whispers = response?.data?.whispers.filter(
-        (whisper) => whisper?.blocked === false
+        (whisper) => !user?.blockedUsers.includes(whisper?.sender)
       );
       dispatch(setWhispers(whispers || []));
     };
     func();
-  }, [dispatch]);
+  }, [dispatch, user?.blockedUsers]);
 
   const callDeleteWhisper = (e, whisper) => {
     e.preventDefault();

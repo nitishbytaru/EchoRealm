@@ -2,6 +2,7 @@
 
 import { io } from "../index.js";
 import { EchoShout } from "../models/echoShout.model.js";
+import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 
@@ -9,7 +10,14 @@ export const sendMessage = asyncHandler(async (req, res) => {
   let attachments = null;
   let { message, mentions } = req.body;
   mentions = JSON.parse(mentions);
-  const sender = req.user;
+
+  let sender = await User.findById(req.user).select("-password");
+
+  if (!sender?.isAnonymous) {
+    sender = sender.username;
+  } else {
+    sender = "anonymous";
+  }
 
   if (!message || !sender)
     return res.status(405).json({ message: "enter a message" });
@@ -51,7 +59,8 @@ export const getMessages = asyncHandler(async (req, res) => {
   const messages = await EchoShout.find()
     .populate("sender", "username")
     .populate("mentions", "username");
-  res.json({ messages });
+
+  res.status(206).json({ messages });
 });
 
 export const deleteMyMessagesInEchoShout = asyncHandler(async (req, res) => {

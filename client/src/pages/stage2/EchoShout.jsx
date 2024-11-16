@@ -74,7 +74,6 @@ function EchoShout() {
   }, [echoShoutMessageData]);
 
   function addMentionFunc(mentionedUser) {
-    console.log(mentionedUser);
     setMentions((prev) => [...prev, mentionedUser]);
     setSelectSearchBar(false);
   }
@@ -87,12 +86,12 @@ function EchoShout() {
           ({ message, sender, updatedAt, attachments, mentions }, index) => (
             <div
               className={`chat ${
-                sender?._id === user?._id ? "chat-end" : "chat-start"
+                sender === user?.username ? "chat-end" : "chat-start"
               }`}
               key={index}
             >
               <div className="chat-header text-sm sm:text-base mb-1">
-                @{sender.username}
+                @{sender}
               </div>
               <div className="chat-bubble sm:text-sm p-2">
                 {attachments[0]?.url && (

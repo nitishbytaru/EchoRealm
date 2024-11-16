@@ -3,9 +3,8 @@ import mongoose, { Schema, model } from "mongoose";
 const echoShout = new Schema(
   {
     sender: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+      type: String,
+      default: "anonymous",
     },
     attachments: [
       {

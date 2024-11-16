@@ -80,21 +80,24 @@ function CreateWhisper() {
           </label>
           {searchResults?.length > 0 && (
             <ul className="menu bg-base-200 w-full rounded-box mt-2">
-              {searchResults.map((searchResultUser) => (
-                <li
-                  key={searchResultUser?._id}
-                  onClick={() => handleUserSelect(searchResultUser)}
-                >
-                  <div className="sm:text-2xl">
-                    <img
-                      src={searchResultUser?.avatar?.url}
-                      alt=""
-                      className="avatar object-cover rounded-full w-10 h-10 sm:w-14 sm:h-14"
-                    />
-                    <p>{searchResultUser?.username}</p>
-                  </div>
-                </li>
-              ))}
+              {searchResults.map(
+                (searchResultUser) =>
+                  searchResultUser?.isAcceptingWhispers && (
+                    <li
+                      key={searchResultUser?._id}
+                      onClick={() => handleUserSelect(searchResultUser)}
+                    >
+                      <div className="sm:text-2xl">
+                        <img
+                          src={searchResultUser?.avatar?.url}
+                          alt=""
+                          className="avatar object-cover rounded-full w-10 h-10 sm:w-14 sm:h-14"
+                        />
+                        <p>{searchResultUser?.username}</p>
+                      </div>
+                    </li>
+                  )
+              )}
             </ul>
           )}
         </div>
