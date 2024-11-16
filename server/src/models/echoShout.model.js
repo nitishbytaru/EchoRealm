@@ -23,10 +23,12 @@ const echoShout = new Schema(
       type: String,
       required: true,
     },
-    mentions: {
-      type: Array,
-      default: [],
-    },
+    mentions: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     messageStatus: {
       type: String,
       enum: ["sent", "received", "read"],

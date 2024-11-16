@@ -26,6 +26,13 @@ function MyProfileDetails() {
   );
 
   const submitUpdateRequest = async () => {
+    if (
+      updatedPassword.value === "" ||
+      updatedEmail.value === "" ||
+      updatedUsername.value === ""
+    ) {
+      return toast.error("fill the all fields");
+    }
     const response = await updateRequestApi({
       updatedEmail: updatedEmail.value,
       updatedUsername: updatedUsername.value,

@@ -42,9 +42,14 @@ function ChatRooms() {
         }
       });
 
-      dispatch(
-        setMyPrivateChatRooms(response?.data?.myPrivateFriendsWithMessages)
-      );
+      const sortedMyPrivateFriendsWithMessages =
+        response?.data?.myPrivateFriendsWithMessages.sort((a, b) => {
+          const dateA = new Date(a.latestMessage.updatedAt);
+          const dateB = new Date(b.latestMessage.updatedAt);
+          return dateB - dateA; // Sort in descending order
+        });
+
+      dispatch(setMyPrivateChatRooms(sortedMyPrivateFriendsWithMessages));
     };
 
     fetchMyPrivateFriends();

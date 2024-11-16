@@ -36,6 +36,12 @@ const echoLinkSlice = createSlice({
       } else {
         state.myPrivateChatRooms.push(action.payload);
       }
+
+      state.myPrivateChatRooms = state.myPrivateChatRooms.sort((a, b) => {
+        const dateA = new Date(a.latestMessage.updatedAt);
+        const dateB = new Date(b.latestMessage.updatedAt);
+        return dateB - dateA; // Sort in descending order
+      });
     },
     setLatestMessageAsRead(state, action) {
       const chatId = action.payload?._id;

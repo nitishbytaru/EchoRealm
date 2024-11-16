@@ -7,7 +7,8 @@ import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 export const sendMessage = asyncHandler(async (req, res) => {
   let attachments = null;
-  const { message, mentions } = req.body;
+  let { message, mentions } = req.body;
+  mentions = JSON.parse(mentions);
   const sender = req.user;
 
   if (!message || !sender)
@@ -32,11 +33,12 @@ export const sendMessage = asyncHandler(async (req, res) => {
     mentions,
     attachments: { url: attachments?.url, publicId: attachments?.public_id },
     sender,
+    mentions,
   });
 
-  const latestEchoShoutMessage = await EchoShout.findById(
-    createdMessage._id
-  ).populate("sender", "username");
+  const latestEchoShoutMessage = await EchoShout.findById(createdMessage._id)
+    .populate("sender", "username")
+    .populate("mentions", "username");
 
   io.emit("send_latest_echoShout_message", latestEchoShoutMessage);
 
@@ -46,7 +48,9 @@ export const sendMessage = asyncHandler(async (req, res) => {
 });
 
 export const getMessages = asyncHandler(async (req, res) => {
-  const messages = await EchoShout.find().populate("sender", "username");
+  const messages = await EchoShout.find()
+    .populate("sender", "username")
+    .populate("mentions", "username");
   res.json({ messages });
 });
 

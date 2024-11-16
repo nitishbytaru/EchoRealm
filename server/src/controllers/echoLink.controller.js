@@ -29,11 +29,11 @@ export const getMyPrivateFriends = asyncHandler(async (req, res) => {
   const myPrivateFriends = await User.find({
     _id: { $in: myPrivateFriendsIds, $nin: blockedUsersForThisCurrentUser },
   })
-    .select("_id username avatar")
+    .select("_id username avatar updatedAt")
     .lean();
 
   // For each friend, fetch the latest message asynchronously
-  const myPrivateFriendsWithMessages = await Promise.all(
+  let myPrivateFriendsWithMessages = await Promise.all(
     myPrivateFriends.map(async (friend) => {
       const latestMessage = await EchoLink.findOne({
         uniqueChatId: [friend._id, req.user].sort().join("-"),
@@ -47,6 +47,9 @@ export const getMyPrivateFriends = asyncHandler(async (req, res) => {
       };
     })
   );
+
+
+
 
   return res
     .status(202)
