@@ -6,37 +6,48 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 export const searchUsers = asyncHandler(async (req, res) => {
   const { query } = req.query;
 
+  const currUser = await User.findById(req.user).select("-password");
+
   if (!query) {
     return res.status(400).json({ message: "Search query is required" });
   }
 
   const searchedUsers = await User.find({
     username: { $regex: query, $options: "i" },
+    _id: { $nin: currUser.blockedUsers },
+    // $regex: query: Uses a regular expression (regex) to search within the username field for a pattern matching the query value. This means it will find usernames that partially match query rather than an exact match.
+    // $options: "i": This option makes the regex search case-insensitive (e.g., "Alice" and "alice" would both match the query).
   })
     .select("-password")
     .limit(5);
-
-  // $regex: query: Uses a regular expression (regex) to search within the username field for a pattern matching the query value. This means it will find usernames that partially match query rather than an exact match.
-  // $options: "i": This option makes the regex search case-insensitive (e.g., "Alice" and "alice" would both match the query).
 
   res.status(203).json({ searchedUsers });
 });
 
 export const sendWhisper = asyncHandler(async (req, res) => {
   const { message, receiver } = req.body;
-  const sender = req.user;
+  let senderDoc = await User.findById(req.user).select("-password");
+
+  if (!senderDoc?.isAnonymous) {
+    senderDoc = {
+      senderId: senderDoc?.sender?.senderId,
+      username: senderDoc?.sender?.username,
+    };
+  } else {
+    senderDoc = {
+      senderId: null,
+      username: "anonymous",
+    };
+  }
 
   if (!message || !receiver) {
     res.status(409).json({ message: "Whisper is required" });
   }
 
-  const { username } = await User.findById(sender).select("username");
-
   const whisper = await EchoWhisper.create({
-    sender,
+    senderDoc,
     message,
     receiver,
-    senderUsername: username,
   });
 
   res.status(200).json({ message: "whisper sent successfully", whisper });

@@ -117,7 +117,7 @@ function ListenWhisper() {
               )}
               <div className="card-body">
                 <div className="card-actions justify-between">
-                  <h2 className="card-title">@{whisper?.senderUsername}</h2>
+                  <h2 className="card-title">@{whisper?.sender?.username}</h2>
                   {/* Open the modal using document.getElementById('ID').showModal() method */}
                   <button
                     onClick={() =>
@@ -154,21 +154,25 @@ function ListenWhisper() {
                         >
                           delete whisper
                         </button>
-                        <button
-                          className="btn m-2"
-                          onClick={() => goToEchoLink(whisper?.sender)}
-                        >
-                          Direcet Message @{whisper?.senderUsername}
-                        </button>
-                        <button
-                          className="btn bg-red-700  m-2"
-                          onClick={() => {
-                            blockSender(whisper?._id, whisper?.sender);
-                            document.getElementById(whisper?._id).close();
-                          }}
-                        >
-                          block @{whisper?.senderUsername}
-                        </button>
+                        {whisper?.sender?.senderId && (
+                          <>
+                            <button
+                              className="btn m-2"
+                              onClick={() => goToEchoLink(whisper?.sender)}
+                            >
+                              Direcet Message @{whisper?.senderUsername}
+                            </button>
+                            <button
+                              className="btn bg-red-700  m-2"
+                              onClick={() => {
+                                blockSender(whisper?._id, whisper?.sender);
+                                document.getElementById(whisper?._id).close();
+                              }}
+                            >
+                              block @{whisper?.senderUsername}
+                            </button>
+                          </>
+                        )}
                       </div>
                       <div className="modal-action">
                         <form method="dialog">

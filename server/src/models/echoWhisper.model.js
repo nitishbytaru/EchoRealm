@@ -3,9 +3,11 @@ import mongoose, { Schema, model } from "mongoose";
 const echoWhisper = new Schema(
   {
     sender: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+      senderId: { type: Schema.Types.ObjectId, ref: "User", default: null },
+      username: {
+        type: String,
+        default: "anonymous",
+      },
     },
     receiver: {
       type: Schema.Types.ObjectId,
@@ -19,10 +21,6 @@ const echoWhisper = new Schema(
     showOthers: {
       type: Boolean,
       default: false,
-    },
-    senderUsername: {
-      type: String,
-      default: "anonymous",
     },
     likes: [
       {

@@ -23,7 +23,7 @@ function MyWhispers() {
     const func = async () => {
       const response = await getWhispers();
       const finalResponse = response?.data?.whispers.filter(
-        (whisper) => whisper?.showOthers == true && whisper?.blocked === false
+        (whisper) => whisper?.showOthers == true
       );
       dispatch(setPinnedWhispers(finalResponse));
     };
@@ -56,7 +56,7 @@ function MyWhispers() {
             )}
             <div className="card-body">
               <div className="card-actions justify-between">
-                <h2 className="card-title">@{whisper?.senderUsername}</h2>
+                <h2 className="card-title">@{whisper?.sender?.username}</h2>
                 {/* Open the modal using document.getElementById('ID').showModal() method */}
                 <button
                   onClick={() =>
