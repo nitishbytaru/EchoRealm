@@ -50,8 +50,9 @@ function EchoShout() {
         dispatch(setLoading(false));
       }
     };
-
+    dispatch(setLoading(true));
     fetchMessages();
+    dispatch(setLoading(false));
   }, [dispatch]);
 
   useEffect(() => {
@@ -69,7 +70,9 @@ function EchoShout() {
       }
     };
     if (echoShoutMessageData) {
+      dispatch(setLoading(true));
       sendEchoShoutMessage();
+      dispatch(setLoading(false));
     }
   }, [echoShoutMessageData]);
 

@@ -38,12 +38,12 @@ const Register = () => {
     dispatch(setLoading(true));
     const response = await register(formData); //register api
     if (response.data) {
-      dispatch(setLoading(false));
       dispatch(setIsLoggedIn(true));
       dispatch(setUser(response?.data?.user));
       localStorage.setItem("allowFetch", true);
       toast.success("Registration successful");
     }
+    dispatch(setLoading(false));
 
     email.clear();
     username.clear();
@@ -63,14 +63,14 @@ const Register = () => {
     formData.append("username", username.value);
     formData.append("password", password.value);
 
+    dispatch(setIsLoggedIn(true));
     const response = await login(formData); //login api
     toast(response?.response?.data?.message);
     if (response.data) {
-      dispatch(setIsLoggedIn(true));
       localStorage.setItem("allowFetch", true);
       dispatch(setUser(response?.data?.user));
     }
-
+    dispatch(setIsLoggedIn(false));
     username.clear();
     password.clear();
   };

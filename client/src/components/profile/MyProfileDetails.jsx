@@ -3,7 +3,7 @@ import { useInputValidation } from "6pp";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
 import { updateRequestApi } from "../../api/userApi";
-import { setUser } from "../../app/slices/authSlice";
+import { setLoading, setUser } from "../../app/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 
 function MyProfileDetails() {
@@ -33,6 +33,7 @@ function MyProfileDetails() {
     ) {
       return toast.error("fill the all fields");
     }
+    dispatch(setLoading(true));
     const response = await updateRequestApi({
       updatedEmail: updatedEmail.value,
       updatedUsername: updatedUsername.value,
@@ -40,6 +41,7 @@ function MyProfileDetails() {
       udatedIsAcceptingWhispers,
       updatedIsAnonymous,
     });
+    dispatch(setLoading(false));
     dispatch(setUser(response?.data?.user));
     toast.success(response?.data?.message);
     updatedPassword.clear();

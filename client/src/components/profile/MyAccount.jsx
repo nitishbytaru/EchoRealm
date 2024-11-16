@@ -6,7 +6,7 @@ import {
   deleteAllSentWhispersApi,
   deleteAllRecievedWhispersApi,
 } from "../../api/echoWhisperApi";
-import { setIsLoggedIn, setUser } from "../../app/slices/authSlice";
+import { setIsLoggedIn, setLoading, setUser } from "../../app/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -42,35 +42,45 @@ function MyAccount() {
   };
 
   const deleteAllRecievedWhispers = async () => {
+    dispatch(setLoading(true));
     const response = await deleteAllRecievedWhispersApi();
+    dispatch(setLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
     }
   };
 
   const deleteAllEchoLink = async () => {
+    dispatch(setLoading(true));
     const response = await handleDeleteAllEchoLinkApi();
+    dispatch(setLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
     }
   };
 
   const deleteAllSentWhispers = async () => {
+    dispatch(setLoading(true));
     const response = await deleteAllSentWhispersApi();
+    dispatch(setLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
     }
   };
 
   const deleteAllMessagesInEchoShout = async () => {
+    dispatch(setLoading(true));
     const response = await deleteAllMessagesInEchoShoutApi();
+    dispatch(setLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
     }
   };
 
   const deleteMyAccount = async () => {
+    dispatch(setLoading(true));
     const response = await deleteMyAccountApi();
+    dispatch(setLoading(false));
     dispatch(setUser(null));
     dispatch(setIsLoggedIn(false));
     localStorage.setItem("allowFetch", false);

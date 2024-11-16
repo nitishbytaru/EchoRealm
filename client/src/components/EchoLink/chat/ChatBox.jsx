@@ -2,6 +2,7 @@ import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import MessageBar from "../../ui/MessageBar";
+import { setLoading } from "../../../app/slices/authSlice.js";
 import {
   MoreVertSharpIcon,
   ArrowBackIosIcon,
@@ -73,6 +74,7 @@ function ChatBox() {
     const sendMessage = async () => {
       try {
         if (echoLinkMessageData) {
+          dispatch(setLoading(true));
           const response = await sendEchoLinkMessage(echoLinkMessageData);
           dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
         }
@@ -80,6 +82,7 @@ function ChatBox() {
         console.log(error);
       } finally {
         setEchoLinkMessageData(null);
+        dispatch(setLoading(false));
       }
     };
 
@@ -91,7 +94,9 @@ function ChatBox() {
       .replace("-", "")
       .replace(user?._id, "");
 
+    dispatch(setLoading(true));
     const response = await blockSenderApi(senderId);
+    dispatch(setLoading(false));
     dispatch(removeFromMyPrivateChatRooms(selectedUser?.uniqueChatId));
     dispatch(setSelectedUser(null));
     if (response?.data) {
@@ -100,14 +105,18 @@ function ChatBox() {
   };
 
   const clearChat = async () => {
+    dispatch(setLoading(true));
     const response = await clearChatApi(selectedUser?.uniqueChatId);
+    dispatch(setLoading(false));
     dispatch(setPrivateMessages([]));
     console.log(response);
     toast.success(response?.data?.message);
   };
 
   const deleteChatRoom = async () => {
+    dispatch(setLoading(true));
     const response = await deleteChatRoomApi(selectedUser?.uniqueChatId);
+    dispatch(setLoading(false));
     toast.success(response?.data?.message);
     dispatch(removeFromMyPrivateChatRooms(selectedUser?.uniqueChatId));
     dispatch(setSelectedUser(null));

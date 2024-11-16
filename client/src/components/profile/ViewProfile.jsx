@@ -8,6 +8,7 @@ import {
   updateCurrUserDetails,
   setCurrUserDetails,
 } from "../../app/slices/echoWhisperSlice.js";
+import { setLoading } from "../../app/slices/authSlice.js";
 
 function ViewProfile() {
   const { user } = useSelector((state) => state.auth);
@@ -28,12 +29,16 @@ function ViewProfile() {
     };
 
     if (selectedViewProfileId) {
+      dispatch(setLoading(true));
       fetchData();
+      dispatch(setLoading(false));
     }
   }, [dispatch, selectedViewProfileId]);
 
   const likeThisWhisperFunc = async (whisperId) => {
+    dispatch(setLoading(true));
     const response = await likeThisWhisperApi(whisperId);
+    dispatch(setLoading(true));
     dispatch(updateCurrUserDetails(response?.data?.updatedWhisper));
   };
 

@@ -12,9 +12,9 @@ export const searchUsers = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Search query is required" });
   }
 
-  const searchedUsers = await User.find({
+  let searchedUsers = await User.find({
     username: { $regex: query, $options: "i" },
-    _id: { $nin: currUser.blockedUsers },
+    _id: { $nin: [...currUser.blockedUsers, req.user] },
     // $regex: query: Uses a regular expression (regex) to search within the username field for a pattern matching the query value. This means it will find usernames that partially match query rather than an exact match.
     // $options: "i": This option makes the regex search case-insensitive (e.g., "Alice" and "alice" would both match the query).
   })
@@ -28,24 +28,16 @@ export const sendWhisper = asyncHandler(async (req, res) => {
   const { message, receiver } = req.body;
   let senderDoc = await User.findById(req.user).select("-password");
 
-  if (!senderDoc?.isAnonymous) {
-    senderDoc = {
-      senderId: senderDoc?.sender?.senderId,
-      username: senderDoc?.sender?.username,
-    };
-  } else {
-    senderDoc = {
-      senderId: null,
-      username: "anonymous",
-    };
-  }
+  const sender = senderDoc.isAnonymous
+    ? { senderId: null, username: "anonymous" }
+    : { senderId: req.user, username: senderDoc.username };
 
   if (!message || !receiver) {
     res.status(409).json({ message: "Whisper is required" });
   }
 
   const whisper = await EchoWhisper.create({
-    senderDoc,
+    sender,
     message,
     receiver,
   });

@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
-import { sendWhisper } from "../../../api/echoWhisperApi.js";
 import toast from "react-hot-toast";
 import { useInputValidation } from "6pp";
+import { setLoading } from "../../../app/slices/authSlice.js";
+import { useDispatch, useSelector } from "react-redux";
+import { sendWhisper } from "../../../api/echoWhisperApi.js";
 import { handleKeyPress } from "../../../heplerFunc/microFuncs.js";
 import { SendSharpIcon } from "../../../heplerFunc/exportIcons.js";
 import { useDebouncedSearchResults } from "../../../hooks/useDebouncedSearchResults.js";
 
 function CreateWhisper() {
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
   const [selectedUser, setSelectedUser] = useState(null);
@@ -43,11 +45,13 @@ function CreateWhisper() {
     };
 
     try {
+      dispatch(setLoading(true));
       const response = await sendWhisper(data);
       toast.success(response?.data?.message);
     } catch (error) {
       console.log(error);
     } finally {
+      dispatch(setLoading(false));
       message.clear();
       setSelectedUser(null);
     }

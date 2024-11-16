@@ -13,6 +13,7 @@ import {
   removePinnedWhisper,
 } from "../../app/slices/echoWhisperSlice";
 import toast from "react-hot-toast";
+import { setLoading } from "../../app/slices/authSlice";
 
 function MyWhispers() {
   const dispatch = useDispatch();
@@ -27,11 +28,15 @@ function MyWhispers() {
       );
       dispatch(setPinnedWhispers(finalResponse));
     };
+    dispatch(setLoading(true));
     func();
+    dispatch(setLoading(false));
   }, [dispatch]);
 
   const pinWhisper = async (whisperId) => {
+    dispatch(setLoading(true));
     const response = await pinWhisperApi(whisperId);
+    dispatch(setLoading(false));
     dispatch(updateWhispers(response?.data?.updatedWhisper));
     dispatch(removePinnedWhisper(response?.data?.updatedWhisper?._id));
     if (response?.data) {

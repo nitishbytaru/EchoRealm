@@ -7,6 +7,7 @@ import {
   setIsChecked,
   setUser,
   setIsLoggedIn,
+  setLoading,
 } from "../../app/slices/authSlice";
 import {
   LogoutOutlinedIcon,
@@ -25,15 +26,20 @@ function MyProfile() {
 
   const { user, isMobile, isChecked } = useSelector((state) => state.auth);
 
-  const handleLogout = () => {
-    logout()
-      .then((response) => {
-        toast.success(response?.data?.message);
-        dispatch(setUser(null));
-        dispatch(setIsLoggedIn(false));
-        localStorage.setItem("allowFetch", false);
-      })
-      .catch((error) => console.log(error));
+  const handleLogout = async () => {
+    try {
+      dispatch(setLoading(true));
+      const response = await logout();
+      toast.success(response?.data?.message);
+      dispatch(setUser(null));
+      dispatch(setIsLoggedIn(false));
+      localStorage.setItem("allowFetch", false);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      dispatch(setLoading(true));
+    }
+
     navigate("/");
   };
 

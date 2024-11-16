@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setBlockedUsers,
   removeFromBlockedUsers,
+  setLoading,
 } from "../../app/slices/authSlice";
 import toast from "react-hot-toast";
 
@@ -16,11 +17,16 @@ function BlockedUsers() {
       const response = await getBlockedUsers();
       dispatch(setBlockedUsers(response?.data?.blockedUsers));
     };
+
+    dispatch(setLoading(true));
     funcGetBlockedUsers();
+    dispatch(setLoading(false));
   }, [dispatch]);
 
   const unBlock = async (userId) => {
+    dispatch(setLoading(true));
     const response = await unBlockUser(userId);
+    dispatch(setLoading(false));
     toast.success(response?.data?.message);
     dispatch(removeFromBlockedUsers(userId));
   };

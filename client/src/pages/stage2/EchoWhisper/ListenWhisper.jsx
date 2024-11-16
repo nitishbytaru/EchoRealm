@@ -19,6 +19,7 @@ import {
 import { setSelectedUser } from "../../../app/slices/echoLinkSlice";
 import { handleRoomSelect } from "../../../heplerFunc/microFuncs";
 import { useNavigate } from "react-router-dom";
+import { setLoading } from "../../../app/slices/authSlice";
 
 function ListenWhisper() {
   const dispatch = useDispatch();
@@ -35,7 +36,9 @@ function ListenWhisper() {
       );
       dispatch(setWhispers(whispers || []));
     };
+    dispatch(setLoading(true));
     func();
+    dispatch(setLoading(false));
   }, [dispatch, user?.blockedUsers]);
 
   const callDeleteWhisper = (e, whisper) => {
@@ -69,7 +72,9 @@ function ListenWhisper() {
   };
 
   const confirmDelete = async (whisperId) => {
+    dispatch(setLoading(true));
     const response = await deleteWhisper(whisperId);
+    dispatch(setLoading(false));
     if (response?.data) {
       dispatch(removeWhisper(whisperId));
       toast.success(response.data?.message);
@@ -77,7 +82,9 @@ function ListenWhisper() {
   };
 
   const pinWhisper = async (whisperId) => {
+    dispatch(setLoading(true));
     const response = await pinWhisperApi(whisperId);
+    dispatch(setLoading(false));
     dispatch(updateWhispers(response?.data?.updatedWhisper));
     if (response?.data) {
       toast.success(response?.data?.message);
@@ -86,15 +93,18 @@ function ListenWhisper() {
 
   const blockSender = async (whisperId, senderId) => {
     dispatch(removeWhisper(whisperId));
+    dispatch(setLoading(true));
     const response = await blockSenderApi(senderId);
+    dispatch(setLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
     }
   };
 
   const goToEchoLink = async (selectedUserId) => {
+    dispatch(setLoading(true));
     const response = await getSelectedUserById(selectedUserId);
-
+    dispatch(setLoading(false));
     dispatch(setSelectedUser(response?.data?.selectedUserDetails));
     handleRoomSelect(dispatch, response?.data?.selectedUserDetails, user);
     navigate("/echo-link");

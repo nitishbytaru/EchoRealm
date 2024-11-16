@@ -17,6 +17,7 @@ import {
   truncateMessage,
 } from "../../heplerFunc/microFuncs.js";
 import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults";
+import { setLoading } from "../../app/slices/authSlice.js";
 
 function ChatRooms() {
   const dispatch = useDispatch();
@@ -32,7 +33,6 @@ function ChatRooms() {
   useEffect(() => {
     const fetchMyPrivateFriends = async () => {
       const response = await getMyPrivateFriends();
-
       response?.data?.myPrivateFriendsWithMessages.map((chatRoom) => {
         if (
           chatRoom?.latestMessage?.messageStatus == "sent" &&
@@ -51,8 +51,10 @@ function ChatRooms() {
 
       dispatch(setMyPrivateChatRooms(sortedMyPrivateFriendsWithMessages));
     };
-
+    
+    dispatch(setLoading(true));
     fetchMyPrivateFriends();
+    dispatch(setLoading(false));
   }, [dispatch, user?._id]);
 
   useEffect(() => {
