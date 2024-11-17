@@ -8,14 +8,16 @@ import { cookieOptions, sendToken } from "../utils/features.js";
 
 //To register a new user
 export const registerUser = asyncHandler(async (req, res) => {
-  const { email, username, password } = req.body;
+  const { email, username, password, avatarUrl } = req.body;
 
   if ([email, username, password].some((field) => field?.trim() === "")) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
+  const updatedUsername = username.replace(" ", "_");
+
   const existedUser = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [{ updatedUsername }, { email }],
   });
 
   if (existedUser) {
@@ -24,24 +26,35 @@ export const registerUser = asyncHandler(async (req, res) => {
       .json({ message: "User with email or username already exists" });
   }
 
-  const avatarLocalPath = req.files?.avatar[0]?.path;
+  let user = null;
 
-  if (!avatarLocalPath) {
-    return res.status(400).json({ message: "Avatar file is required" });
+  if (avatarUrl) {
+    user = await User.create({
+      avatar: { url: avatarUrl, publicId: null },
+      email,
+      password,
+      updatedUsername,
+    });
+  } else {
+    const avatarLocalPath = req.files?.avatar[0]?.path;
+
+    if (!avatarLocalPath) {
+      return res.status(400).json({ message: "Avatar file is required" });
+    }
+
+    const avatar = await uploadToCloudinary(avatarLocalPath);
+
+    if (!avatar) {
+      return res.status(400).json({ message: "Avatar file is required" });
+    }
+
+    user = await User.create({
+      avatar: { url: avatar.url, publicId: avatar.public_id },
+      email,
+      password,
+      updatedUsername,
+    });
   }
-
-  const avatar = await uploadToCloudinary(avatarLocalPath);
-
-  if (!avatar) {
-    return res.status(400).json({ message: "Avatar file is required" });
-  }
-
-  const user = await User.create({
-    avatar: { url: avatar.url, publicId: avatar.public_id },
-    email,
-    password,
-    username: username.toLowerCase(),
-  });
 
   const createdUser = await User.findById(user._id).select("-password");
 
@@ -62,8 +75,10 @@ export const loginUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "username or email is required" });
   }
 
+  const updatedUsername = username.replace(" ", "_");
+
   const user = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [{ updatedUsername }, { email }],
   });
 
   if (!user) {
@@ -112,17 +127,23 @@ export const updateCurrUserData = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "username or email is required" });
   }
 
+  const updateFields = {
+    email: updatedEmail,
+    username: updatedUsername,
+    isAcceptingWhispers: udatedIsAcceptingWhispers,
+    isAnonymous: updatedIsAnonymous,
+  };
+
+  if (updatedPassword === "") {
+    const { password } = await User.findById(req.user).select("password");
+    updateFields.password = password;
+  } else {
+    updateFields.password = updatedPassword;
+  }
+
   const user = await User.findByIdAndUpdate(
     req.user,
-    {
-      $set: {
-        email: updatedEmail,
-        username: updatedUsername,
-        password: updatedPassword,
-        isAcceptingWhispers: udatedIsAcceptingWhispers,
-        isAnonymous: updatedIsAnonymous,
-      },
-    },
+    { $set: updateFields },
     { new: true }
   );
 

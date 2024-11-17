@@ -1,12 +1,11 @@
-import { useState, lazy, Suspense } from "react";
+import toast from "react-hot-toast";
+import { useState, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
 import { login, register } from "../api/userApi";
 import { setIsLoggedIn, setLoading, setUser } from "../app/slices/authSlice";
-import toast from "react-hot-toast";
-
-// Lazy loading icons
-const GoogleIcon = lazy(() => import("@mui/icons-material/Google"));
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
 const Register = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -73,6 +72,42 @@ const Register = () => {
     dispatch(setIsLoggedIn(false));
     username.clear();
     password.clear();
+  };
+
+  const responseMessage = async (response) => {
+    const decodedToken = jwtDecode(response.credential);
+    let formData = new FormData();
+
+    formData.append("username", decodedToken.given_name);
+    formData.append("password", decodedToken.sub);
+
+    if (isSignUp) {
+      formData.append("avatarUrl", decodedToken.picture);
+      formData.append("email", decodedToken.email);
+
+      dispatch(setLoading(true));
+      const response = await register(formData); //register api
+      if (response.data) {
+        dispatch(setIsLoggedIn(true));
+        dispatch(setUser(response?.data?.user));
+        localStorage.setItem("allowFetch", true);
+        toast.success("Registration successful");
+      }
+      dispatch(setLoading(false));
+    } else {
+      dispatch(setIsLoggedIn(true));
+      const response = await login(formData); //login api
+      toast(response?.response?.data?.message);
+      if (response.data) {
+        localStorage.setItem("allowFetch", true);
+        dispatch(setUser(response?.data?.user));
+      }
+      dispatch(setIsLoggedIn(false));
+    }
+  };
+
+  const errorMessage = (error) => {
+    console.log(error);
   };
 
   return (
@@ -202,15 +237,19 @@ const Register = () => {
           <hr className="w-full h-1 my-4 bg-gray-100 border-0 rounded dark:bg-gray-700"></hr>
 
           <Suspense fallback={<div>Loading icons...</div>}>
-            <label className="w-full">
+            <label>
               <div className="label">
                 <span className="label-text">Login with Google</span>
               </div>
               <div
                 name="google-icon"
-                className="w-full btn-ghost bg-base-300 py-2 px-6 rounded-full text-center flex items-center justify-center"
+                className="rounded-full text-center flex items-center justify-center"
               >
-                <GoogleIcon />
+                {/* <GoogleIcon /> */}
+                <GoogleLogin
+                  onSuccess={responseMessage}
+                  onError={errorMessage}
+                />
               </div>
             </label>
           </Suspense>

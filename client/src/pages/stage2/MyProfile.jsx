@@ -37,7 +37,7 @@ function MyProfile() {
     } catch (error) {
       console.log(error);
     } finally {
-      dispatch(setLoading(true));
+      dispatch(setLoading(false));
     }
 
     navigate("/");
