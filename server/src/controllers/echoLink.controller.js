@@ -81,7 +81,7 @@ export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
 
   const newMessage = {
     message,
-    receiver,
+    receiver: { receiverId: receiver },
     sender,
     attachments: {
       url: attachments?.url,
@@ -149,13 +149,13 @@ export const markLatestMessageAsRead = asyncHandler(async (req, res) => {
 
   const privateMessages = await EchoLink.findOneAndUpdate(
     { uniqueChatId },
-    { $set: { "latestMessage.messageStatus": "read" } },
+    { $set: { "latestMessage.receiver.messageStatus": "read" } },
     { new: true }
   );
 
   const messagesArrayUpdate = await EchoLink.findOneAndUpdate(
     { uniqueChatId },
-    { $set: { "messages.$[].messageStatus": "read" } },
+    { $set: { "messages.$[].receiver.messageStatus": "read" } },
     { new: true }
   );
 

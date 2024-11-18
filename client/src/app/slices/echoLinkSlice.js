@@ -53,14 +53,9 @@ const echoLinkSlice = createSlice({
 
       state.myPrivateChatRooms = state.myPrivateChatRooms.map((chatRoom) => {
         if (chatRoom._id === chatId) {
-          // Update the messageStatus to "read" in the latestMessage field
-          return {
-            ...chatRoom,
-            latestMessage: {
-              ...chatRoom.latestMessage,
-              messageStatus: "read",
-            },
-          };
+          const updatedChatRoom = { ...chatRoom };
+          updatedChatRoom.latestMessage.receiver.messageStatus = "read";
+          return updatedChatRoom;
         }
         return chatRoom;
       });

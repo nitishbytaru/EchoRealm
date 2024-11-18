@@ -14,10 +14,10 @@ export const registerUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  const updatedUsername = username.replace(" ", "_");
+  const updatedUsername = username.replace(" ", "_").toLowerCase();
 
   const existedUser = await User.findOne({
-    $or: [{ updatedUsername }, { email }],
+    $or: [{ username: updatedUsername }, { email }],
   });
 
   if (existedUser) {
@@ -33,7 +33,7 @@ export const registerUser = asyncHandler(async (req, res) => {
       avatar: { url: avatarUrl, publicId: null },
       email,
       password,
-      updatedUsername,
+      username: updatedUsername,
     });
   } else {
     const avatarLocalPath = req.files?.avatar[0]?.path;
@@ -52,7 +52,7 @@ export const registerUser = asyncHandler(async (req, res) => {
       avatar: { url: avatar.url, publicId: avatar.public_id },
       email,
       password,
-      updatedUsername,
+      username: updatedUsername,
     });
   }
 
@@ -78,7 +78,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   const updatedUsername = username.replace(" ", "_");
 
   const user = await User.findOne({
-    $or: [{ updatedUsername }, { email }],
+    $or: [{ username: updatedUsername }, { email }],
   });
 
   if (!user) {

@@ -25,20 +25,22 @@ const echoLinkSchema = new Schema(
             },
           },
         ],
-        messageStatus: {
-          type: String,
-          enum: ["sent", "received", "read"],
-          default: "sent",
-        },
         sender: {
           type: Schema.Types.ObjectId,
           ref: "User",
           required: true,
         },
         receiver: {
-          type: Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
+          receiverId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+          },
+          messageStatus: {
+            type: String,
+            enum: ["sent", "read"],
+            default: "sent",
+          },
         },
         createdAt: {
           type: Date,
@@ -67,20 +69,22 @@ const echoLinkSchema = new Schema(
           },
         },
       ],
-      messageStatus: {
-        type: String,
-        enum: ["sent", "received", "read"],
-        default: "sent",
-      },
       sender: {
         type: Schema.Types.ObjectId,
         ref: "User",
         required: true,
       },
       receiver: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+        receiverId: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        messageStatus: {
+          type: String,
+          enum: ["sent", "read"],
+          default: "sent",
+        },
       },
       createdAt: {
         type: Date,

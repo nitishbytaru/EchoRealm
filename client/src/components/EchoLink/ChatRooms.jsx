@@ -1,8 +1,5 @@
 import { useEffect } from "react";
-import {
-  getMyPrivateFriends,
-  markLatestMessageAsRead,
-} from "../../api/echoLinkApi.js";
+import { getMyPrivateFriends } from "../../api/echoLinkApi.js";
 import { useInputValidation } from "6pp";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -14,6 +11,7 @@ import {
 import socket from "../../sockets/socket.js";
 import {
   handleRoomSelect,
+  markAsRead,
   truncateMessage,
 } from "../../heplerFunc/microFuncs.js";
 import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults";
@@ -23,7 +21,9 @@ function ChatRooms() {
   const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
-  const { myPrivateChatRooms } = useSelector((state) => state.echoLink);
+  const { myPrivateChatRooms, selectedUser } = useSelector(
+    (state) => state.echoLink
+  );
 
   const search = useInputValidation("");
   let searchResults = useDebouncedSearchResults(search.value);
@@ -35,7 +35,7 @@ function ChatRooms() {
       const response = await getMyPrivateFriends();
       response?.data?.myPrivateFriendsWithMessages.map((chatRoom) => {
         if (
-          chatRoom?.latestMessage?.messageStatus == "sent" &&
+          chatRoom?.latestMessage?.receiver?.messageStatus == "sent" &&
           chatRoom?.latestMessage?.sender != user?._id
         ) {
           dispatch(addToChatRoomsWithUnreadMessages(chatRoom?.uniqueChatId));
@@ -46,42 +46,36 @@ function ChatRooms() {
         response?.data?.myPrivateFriendsWithMessages.sort((a, b) => {
           const dateA = new Date(a.latestMessage?.updatedAt);
           const dateB = new Date(b.latestMessage?.updatedAt);
-          return dateB - dateA; // Sort in descending order
+          return dateB - dateA;
         });
 
       dispatch(setMyPrivateChatRooms(sortedMyPrivateFriendsWithMessages));
     };
-    
+
     dispatch(setLoading(true));
     fetchMyPrivateFriends();
     dispatch(setLoading(false));
   }, [dispatch, user?._id]);
 
   useEffect(() => {
-    socket.on("new_privte_message_received", (message) => {
+    socket.on("new_privte_message_received", (senderData) => {
       if (
-        message?.uniqueChatId.includes(user?._id) &&
-        message?._id != user._id
+        senderData?.uniqueChatId.includes(user?._id) &&
+        senderData?._id != user._id
       ) {
-        dispatch(addToChatRoomsWithUnreadMessages(message?.uniqueChatId));
-        dispatch(addToMyPrivateChatRooms(message));
+        if (senderData?._id != selectedUser?._id) {
+          dispatch(addToChatRoomsWithUnreadMessages(senderData?.uniqueChatId));
+          dispatch(addToMyPrivateChatRooms(senderData));
+        } else {
+          markAsRead(dispatch, setLatestMessageAsRead, senderData);
+        }
       }
     });
 
     return () => {
       socket.off("new_privte_message_received");
     };
-  }, [dispatch, user._id]);
-
-  const markAsRead = async (currUser) => {
-    dispatch(setLatestMessageAsRead(currUser));
-
-    try {
-      await markLatestMessageAsRead(currUser?.uniqueChatId);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  }, [dispatch, selectedUser, user._id]);
 
   return (
     <div className="h-full flex flex-col">
@@ -124,6 +118,7 @@ function ChatRooms() {
                       src={searchResultUser?.avatar?.url}
                       alt=""
                       className="w-10 h-10 object-cover rounded-full"
+                      crossOrigin="anonymous"
                     />
                   </div>
                   <div>
@@ -138,43 +133,42 @@ function ChatRooms() {
 
       {/* Scrollable user list */}
       <ul className="menu flex-row p-2 overflow-y-auto">
-        {myPrivateChatRooms?.map((currUser, index) => (
+        {myPrivateChatRooms?.map((chatRoom, index) => (
           <li
             className="w-full py-2 cursor-pointer"
             key={index}
             onClick={() => {
-              handleRoomSelect(dispatch, currUser, user);
-
-              markAsRead(currUser);
+              handleRoomSelect(dispatch, chatRoom, user);
+              markAsRead(dispatch, setLatestMessageAsRead, chatRoom);
             }}
           >
             <div className="flex items-center gap-3">
               {/* User Avatar */}
               <div className="avatar">
                 <div className="w-12 rounded-full">
-                  <img src={currUser?.avatar?.url} alt="user avatar" />
+                  <img src={chatRoom?.avatar?.url} alt="user avatar" />
                 </div>
               </div>
 
               {/* Username and Latest Message */}
               <div className="flex-1">
-                <p className="font-semibold">{currUser?.username}</p>
+                <p className="font-semibold">{chatRoom?.username}</p>
                 <p
                   className={`text-sm ${
-                    currUser?.latestMessage?.messageStatus === "sent" &&
-                    currUser?.latestMessage?.sender != user._id
+                    chatRoom?.latestMessage?.receiver?.messageStatus ===
+                      "sent" && chatRoom?.latestMessage?.sender != user._id
                       ? "text-white"
                       : "text-gray-500"
                   }`}
                   style={{ maxWidth: "15rem" }}
                 >
-                  {truncateMessage(currUser?.latestMessage?.message)}
+                  {truncateMessage(chatRoom?.latestMessage?.message)}
                 </p>
               </div>
 
               {/* Notification Dot */}
-              {currUser?.latestMessage?.messageStatus === "sent" &&
-                currUser?.latestMessage?.sender != user._id && (
+              {chatRoom?.latestMessage?.receiver?.messageStatus === "sent" &&
+                chatRoom?.latestMessage?.sender != user._id && (
                   <div className="text-white text-4xl">
                     <p>•</p>
                   </div>

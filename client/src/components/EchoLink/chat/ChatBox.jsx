@@ -16,6 +16,7 @@ import {
   addPrivateMessage,
   addToMyPrivateChatRooms,
   removeFromMyPrivateChatRooms,
+  setLatestMessageAsRead,
   setPrivateMessages,
   setSelectedUser,
 } from "../../../app/slices/echoLinkSlice.js";
@@ -23,6 +24,7 @@ import socket from "../../../sockets/socket.js";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
 import toast from "react-hot-toast";
 import { blockSenderApi } from "../../../api/userApi.js";
+import { markAsRead } from "../../../heplerFunc/microFuncs.js";
 
 function ChatBox() {
   const dispatch = useDispatch();
@@ -39,6 +41,9 @@ function ChatBox() {
   useEffect(() => {
     // Listen for both socket events in one useEffect
     socket.on("send_latest_echoLink_message", (latestEchoLinkMessage) => {
+      if (selectedUser?._id === latestEchoLinkMessage?.latestMessage?.sender) {
+        markAsRead(dispatch, setLatestMessageAsRead, latestEchoLinkMessage);
+      }
       dispatch(addToMyPrivateChatRooms(latestEchoLinkMessage));
       dispatch(addPrivateMessage(latestEchoLinkMessage.latestMessage));
     });
@@ -64,7 +69,7 @@ function ChatBox() {
       socket.off("send_latest_echoLink_message");
       // socket.off("new_privte_message_received");
     };
-  }, [dispatch]);
+  }, [dispatch, selectedUser?._id, user._id]);
 
   useEffect(() => {
     if (echoLinkMessageData && !echoLinkMessageData.has("receiver")) {
@@ -74,15 +79,22 @@ function ChatBox() {
     const sendMessage = async () => {
       try {
         if (echoLinkMessageData) {
-          dispatch(setLoading(true));
           const response = await sendEchoLinkMessage(echoLinkMessageData);
+          dispatch(
+            addPrivateMessage(response?.data?.receiverData?.latestMessage)
+          );
+          // markAsRead(
+          //   dispatch,
+          //   setLatestMessageAsRead,
+          //   response?.data?.receiverData
+          // );
+
           dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
         }
       } catch (error) {
         console.log(error);
       } finally {
         setEchoLinkMessageData(null);
-        dispatch(setLoading(false));
       }
     };
 

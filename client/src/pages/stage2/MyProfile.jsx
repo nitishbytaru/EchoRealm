@@ -19,6 +19,7 @@ import {
 } from "../../heplerFunc/exportIcons";
 import { logout } from "../../api/userApi";
 import toast from "react-hot-toast";
+import { setSelectedUser } from "../../app/slices/echoLinkSlice";
 
 function MyProfile() {
   const dispatch = useDispatch();
@@ -32,6 +33,7 @@ function MyProfile() {
       const response = await logout();
       toast.success(response?.data?.message);
       dispatch(setUser(null));
+      dispatch(setSelectedUser(null))
       dispatch(setIsLoggedIn(false));
       localStorage.setItem("allowFetch", false);
     } catch (error) {

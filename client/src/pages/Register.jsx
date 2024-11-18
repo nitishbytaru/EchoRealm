@@ -64,12 +64,11 @@ const Register = () => {
 
     dispatch(setIsLoggedIn(true));
     const response = await login(formData); //login api
-    toast(response?.response?.data?.message);
+    toast.success(response?.data?.message);
     if (response.data) {
       localStorage.setItem("allowFetch", true);
       dispatch(setUser(response?.data?.user));
     }
-    dispatch(setIsLoggedIn(false));
     username.clear();
     password.clear();
   };
@@ -95,14 +94,14 @@ const Register = () => {
       }
       dispatch(setLoading(false));
     } else {
-      dispatch(setIsLoggedIn(true));
       const response = await login(formData); //login api
+
       toast(response?.response?.data?.message);
       if (response.data) {
         localStorage.setItem("allowFetch", true);
+        dispatch(setIsLoggedIn(true));
         dispatch(setUser(response?.data?.user));
       }
-      dispatch(setIsLoggedIn(false));
     }
   };
 

@@ -1,4 +1,7 @@
-import { getPrivateMessages } from "../api/echoLinkApi";
+import {
+  getPrivateMessages,
+  markLatestMessageAsRead,
+} from "../api/echoLinkApi";
 import {
   removeFromChatRoomsWithUnreadMessages,
   setPrivateMessages,
@@ -53,4 +56,17 @@ export const handleRoomSelect = async (dispatch, currentSelecteduser, user) => {
   dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
 };
 
+//this sets the message as read
+export const markAsRead = async (
+  dispatch,
+  setLatestMessageAsRead,
+  currUser
+) => {
+  dispatch(setLatestMessageAsRead(currUser));
 
+  try {
+    await markLatestMessageAsRead(currUser?.uniqueChatId);
+  } catch (error) {
+    console.log(error);
+  }
+};
