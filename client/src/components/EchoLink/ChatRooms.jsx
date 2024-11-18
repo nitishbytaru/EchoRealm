@@ -1,5 +1,8 @@
-import { useEffect } from "react";
-import { getMyPrivateFriends } from "../../api/echoLinkApi.js";
+import { useEffect, useState } from "react";
+import {
+  getMyPrivateFriends,
+  searchEchoLinkFriends,
+} from "../../api/echoLinkApi.js";
 import { useInputValidation } from "6pp";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -15,7 +18,6 @@ import {
   markAsRead,
   truncateMessage,
 } from "../../heplerFunc/microFuncs.js";
-import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults";
 import { setLoading } from "../../app/slices/authSlice.js";
 
 function ChatRooms() {
@@ -27,9 +29,7 @@ function ChatRooms() {
   );
 
   const search = useInputValidation("");
-  let searchResults = useDebouncedSearchResults(search.value);
-
-  searchResults = searchResults.filter((field) => field._id != user._id);
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const fetchMyPrivateFriends = async () => {
@@ -77,6 +77,28 @@ function ChatRooms() {
       socket.off("new_privte_message_received");
     };
   }, [dispatch, selectedUser, user._id]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (search.value) {
+        searchEchoLinkFriends(search.value)
+          .then((users) => {
+            const filteredUsers = users.filter(
+              (field) => field._id != user._id
+            );
+            setSearchResults(filteredUsers);
+          })
+          .catch((err) => console.error(err));
+      } else {
+        setSearchResults([]);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+    //This return function acts as a cleanup function for the useEffect.
+    // It cancels the setTimeout if search.value changes before the 300 ms delay completes, avoiding unnecessary searchUsers calls.
+    // This helps make sure only the latest input triggers the search, effectively debouncing it.
+  }, [search.value, user._id]);
 
   return (
     <div className="h-full flex flex-col">

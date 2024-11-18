@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { handleToggle } from "../../heplerFunc/microFuncs";
 import ThemeToggle from "../../components/ui/ThemeToggle";
 import {
@@ -81,48 +81,83 @@ function MyProfile() {
 
           {/* Options Container (9/10th height) */}
           <div className="card bg-base-300 rounded-2xl h-[88%] sm:h-[75%] flex items-center">
-            <ul className="flex flex-col">
+            <ul className="flex flex-col w-full items-center">
               <li className={`${classList}`}>
-                <Link to={"edit-details"}>
+                <NavLink
+                  to={"edit-details"}
+                  className={({ isActive }) =>
+                    isActive ? "text-slate-600" : ""
+                  }
+                >
                   <EditOutlinedIcon />
                   profile
-                </Link>
+                </NavLink>
               </li>
-              <li className={`${classList}`}>
-                <Link to={"my-whispers"}>
+              <li className={classList}>
+                <NavLink
+                  to={"my-whispers"}
+                  className={({ isActive }) =>
+                    isActive ? "text-slate-600" : ""
+                  }
+                >
                   <ShieldIcon />
                   {`${isMobile ? "" : "my"} whispers`}
-                </Link>
+                </NavLink>
               </li>
               <li className={`${classList} mb-2 sm:mb-0`}>
-                <Link to={"my-friends"}>
+                <NavLink
+                  to={"my-friends"}
+                  className={({ isActive }) =>
+                    isActive ? "text-slate-600" : ""
+                  }
+                >
                   <PeopleIcon />
                   {`${isMobile ? "" : "My"} Friends`}
-                </Link>
+                </NavLink>
               </li>
               <li className={`${classList} mb-2 sm:mb-0`}>
-                <Link to={"friend-requests"}>
+                <NavLink
+                  to={"friend-requests"}
+                  className={({ isActive }) =>
+                    isActive ? "text-slate-600" : ""
+                  }
+                >
                   <PersonAddAlt1Icon />
                   {`${isMobile ? "" : "Friend"} Requests`}
-                </Link>
+                </NavLink>
               </li>
               <li className={`${classList} mb-2 sm:mb-0`}>
-                <Link to={"blocked-users"}>
+                <NavLink
+                  to={"blocked-users"}
+                  className={({ isActive }) =>
+                    isActive ? "text-slate-600" : ""
+                  }
+                >
                   <BlockIcon />
                   {`blocked${isMobile ? "" : " users"}`}
-                </Link>
+                </NavLink>
               </li>
               <li className={`${classList}`}>
-                <Link to={"find-users"}>
+                <NavLink
+                  to={"find-users"}
+                  className={({ isActive }) =>
+                    isActive ? "text-slate-600" : ""
+                  }
+                >
                   <SearchIcon />
                   {`find ${isMobile ? "" : "users"}`}
-                </Link>
+                </NavLink>
               </li>
               <li className={`${classList}`}>
-                <Link to={"account"}>
+                <NavLink
+                  to={"account"}
+                  className={({ isActive }) =>
+                    isActive ? "text-slate-600" : ""
+                  }
+                >
                   <PersonIcon />
                   account
-                </Link>
+                </NavLink>
               </li>
               <li className={`${classList} bg-red-800 hover:bg-red-500`}>
                 <button onClick={handleLogout}>

@@ -43,6 +43,10 @@ function MyFriendRequests() {
     <div className="bg-base-200 h-full rounded-xl">
       <div className="flex flex-col bg-base-300 h-full w-full mx-auto rounded-xl">
         <div className="flex-none h-full px-4 py-2">
+          <h1 className="sm:text-2xl text-lg mb-4 text-center">
+            Your Friend requests
+          </h1>
+
           <div className="overflow-y-auto max-h-[calc(100vh-150px)] px-2">
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {myFriendRequests?.map((currUser, index) => (

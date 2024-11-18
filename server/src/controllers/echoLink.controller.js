@@ -202,3 +202,27 @@ export const deleteChatRoom = asyncHandler(async (req, res) => {
 
   res.status(203).json({ message: "Deleted the chat room" });
 });
+
+export const searchEchoLinkFriends = asyncHandler(async (req, res) => {
+  const { searchTerm } = req.query;
+
+  const currUser = await User.findById(req.user).select("-password");
+
+  if (!searchTerm) {
+    return res.status(400).json({ message: "Search query is required" });
+  }
+
+  let searchedUsers = await User.find({
+    username: { $regex: searchTerm, $options: "i" },
+    _id: {
+      $in: [...currUser.friends],
+      $nin: [...currUser.blockedUsers, req.user],
+    },
+    // $regex: query: Uses a regular expression (regex) to search within the username field for a pattern matching the query value. This means it will find usernames that partially match query rather than an exact match.
+    // $options: "i": This option makes the regex search case-insensitive (e.g., "Alice" and "alice" would both match the query).
+  })
+    .select("-password")
+    .limit(5);
+
+  res.status(203).json({ searchedUsers });
+});

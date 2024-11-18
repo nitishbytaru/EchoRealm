@@ -91,66 +91,63 @@ function MyAccount() {
   };
 
   return (
-    <>
-      <div className="w-full h-full flex flex-col items-center justify-center">
-        <div className="text-center mb-6">
-          <h2 className="text-lg sm:text-2xl font-semibold text-red-600">
-            Warning: Any deletion performed here cannot be undone!
-          </h2>
-        </div>
-        <div className="flex flex-col ">
-          <button
-            className={constantCSS}
-            onClick={() =>
-              handleWarningBeforeDelete("all chats", deleteAllEchoLink)
-            }
-          >
-            delete all chats
-          </button>
-          <button
-            className={constantCSS}
-            onClick={() =>
-              handleWarningBeforeDelete(
-                "all your recieved whispers",
-                deleteAllRecievedWhispers
-              )
-            }
-          >
-            delete all recieved whispers
-          </button>
-          <button
-            className={constantCSS}
-            onClick={() =>
-              handleWarningBeforeDelete(
-                "all sent wispers",
-                deleteAllSentWhispers
-              )
-            }
-          >
-            delete all sent Whispers
-          </button>
-          <button
-            className={constantCSS}
-            onClick={() =>
-              handleWarningBeforeDelete(
-                "all messages in EchoShout",
-                deleteAllMessagesInEchoShout
-              )
-            }
-          >
-            delete all messages in echoshout
-          </button>
-          <button
-            className={constantCSS}
-            onClick={() =>
-              handleWarningBeforeDelete("YOUR ACCOUNT", deleteMyAccount)
-            }
-          >
-            delete my account
-          </button>
-        </div>
+    <div className="w-full h-full flex flex-col items-center justify-center">
+      <div className="text-center mb-6">
+        <h1 className="sm:text-2xl text-lg mb-4 text-center">My Account</h1>
+
+        <h2 className="text-lg sm:text-2xl font-semibold text-red-600">
+          Warning: Any deletion performed here cannot be undone!
+        </h2>
       </div>
-    </>
+      <div className="flex flex-col ">
+        <button
+          className={constantCSS}
+          onClick={() =>
+            handleWarningBeforeDelete("all chats", deleteAllEchoLink)
+          }
+        >
+          delete all chats
+        </button>
+        <button
+          className={constantCSS}
+          onClick={() =>
+            handleWarningBeforeDelete(
+              "all your recieved whispers",
+              deleteAllRecievedWhispers
+            )
+          }
+        >
+          delete all recieved whispers
+        </button>
+        <button
+          className={constantCSS}
+          onClick={() =>
+            handleWarningBeforeDelete("all sent wispers", deleteAllSentWhispers)
+          }
+        >
+          delete all sent Whispers
+        </button>
+        <button
+          className={constantCSS}
+          onClick={() =>
+            handleWarningBeforeDelete(
+              "all messages in EchoShout",
+              deleteAllMessagesInEchoShout
+            )
+          }
+        >
+          delete all messages in echoshout
+        </button>
+        <button
+          className={constantCSS}
+          onClick={() =>
+            handleWarningBeforeDelete("YOUR ACCOUNT", deleteMyAccount)
+          }
+        >
+          delete my account
+        </button>
+      </div>
+    </div>
   );
 }
 

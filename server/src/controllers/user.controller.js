@@ -307,19 +307,33 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
   const { requestedUserId, willAccepct } = req.body;
 
   if (willAccepct) {
-    const response = await User.findByIdAndUpdate(
+    const response1 = await User.findByIdAndUpdate(
       req.user,
       {
         $addToSet: { friends: requestedUserId },
       },
       { new: true }
     );
+    const response2 = await User.findByIdAndUpdate(
+      requestedUserId,
+      {
+        $addToSet: { friends: req.user },
+      },
+      { new: true }
+    );
   }
 
-  const response = await User.findByIdAndUpdate(
+  const response3 = await User.findByIdAndUpdate(
     req.user,
     {
       $pull: { pendingFriendRequests: requestedUserId },
+    },
+    { new: true }
+  );
+  const response4 = await User.findByIdAndUpdate(
+    requestedUserId,
+    {
+      $pull: { pendingFriendRequests: req.user },
     },
     { new: true }
   );
@@ -333,19 +347,33 @@ export const removeOrBlockMyFriend = asyncHandler(async (req, res) => {
   const { friendId, block } = req.body;
 
   if (block) {
-    const response = await User.findByIdAndUpdate(
+    const response1 = await User.findByIdAndUpdate(
       req.user,
       {
         $addToSet: { blockedUsers: friendId },
       },
       { new: true }
     );
+    const response2 = await User.findByIdAndUpdate(
+      friendId,
+      {
+        $addToSet: { blockedUsers: req.user },
+      },
+      { new: true }
+    );
   }
 
-  const response = await User.findByIdAndUpdate(
+  const response3 = await User.findByIdAndUpdate(
     req.user,
     {
       $pull: { friends: friendId },
+    },
+    { new: true }
+  );
+  const response4 = await User.findByIdAndUpdate(
+    friendId,
+    {
+      $pull: { friends: req.user },
     },
     { new: true }
   );

@@ -60,6 +60,18 @@ export const handleDeleteAllEchoLinkApi = async () => {
   }
 };
 
+export const searchEchoLinkFriends = async (searchTerm) => {
+  try {
+    const response = await axios.get(`${API_URL}/searchEchoLinkFriends`, {
+      params: { searchTerm },
+      withCredentials: true,
+    });
+    return response?.data?.searchedUsers;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const clearChatApi = async (uniqueChatId) => {
   console.log(uniqueChatId);
   try {

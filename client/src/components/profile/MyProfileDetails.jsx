@@ -46,6 +46,7 @@ function MyProfileDetails() {
 
   return (
     <div>
+      <h1 className="sm:text-2xl text-lg sm:mb-2 text-center">My Details</h1>
       <div className="flex flex-col items-center justify-center">
         <img
           src={user?.avatar?.url}

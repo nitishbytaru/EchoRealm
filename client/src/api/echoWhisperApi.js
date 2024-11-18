@@ -100,5 +100,3 @@ export const deleteAllSentWhispersApi = async () => {
     return error?.response;
   }
 };
-
-
