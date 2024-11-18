@@ -41,6 +41,17 @@ export const getSelectedUserById = async (selectedUserId) => {
   }
 };
 
+export const sendFriendRequestApi = async (selectedUserId) => {
+  try {
+    return await axios.get(`${API_URL}/send-friend-request`, {
+      ...apiConfigJSON,
+      params: { selectedUserId },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const logout = async () => {
   try {
     return await axios.get(`${API_URL}/logout`, {
@@ -56,6 +67,41 @@ export const updateRequestApi = async (userNewData) => {
     return await axios.post(
       `${API_URL}/update-userdata`,
       userNewData,
+      apiConfigJSON
+    );
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const fetchMyFriendRequestsApi = async () => {
+  try {
+    return await axios.get(`${API_URL}/get-myFriendRequests`, apiConfigJSON);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const handleFriendRequestApi = async (Data) => {
+  try {
+    return await axios.post(
+      `${API_URL}/handle-friendRequest`,
+      Data,
+      apiConfigJSON
+    );
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const handleRemoveOrBlockMyFriendApi = async (Data) => {
+  try {
+    return await axios.post(
+      `${API_URL}/remove-block-MyFriend`,
+      Data,
       apiConfigJSON
     );
   } catch (error) {
@@ -107,9 +153,6 @@ export const getSelectedUserProfileDetails = async (selectedViewProfileId) => {
     console.log(error);
   }
 };
-
-// From here all the apis are used to delete the data
-export const handleDeleteAllEchoLinkApi = async () => {};
 
 export const deleteMyAccountApi = async () => {
   try {

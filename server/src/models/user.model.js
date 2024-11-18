@@ -43,6 +43,18 @@ const userSchema = new Schema(
         required: true,
       },
     ],
+    friends: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    pendingFriendRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     isAnonymous: {
       type: Boolean,
       default: false,

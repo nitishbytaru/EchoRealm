@@ -16,6 +16,8 @@ import {
   ShieldIcon,
   SearchIcon,
   PersonIcon,
+  PersonAddAlt1Icon,
+  PeopleIcon,
 } from "../../heplerFunc/exportIcons";
 import { logout } from "../../api/userApi";
 import toast from "react-hot-toast";
@@ -33,7 +35,7 @@ function MyProfile() {
       const response = await logout();
       toast.success(response?.data?.message);
       dispatch(setUser(null));
-      dispatch(setSelectedUser(null))
+      dispatch(setSelectedUser(null));
       dispatch(setIsLoggedIn(false));
       localStorage.setItem("allowFetch", false);
     } catch (error) {
@@ -93,9 +95,21 @@ function MyProfile() {
                 </Link>
               </li>
               <li className={`${classList} mb-2 sm:mb-0`}>
+                <Link to={"my-friends"}>
+                  <PeopleIcon />
+                  {`${isMobile ? "" : "My"} Friends`}
+                </Link>
+              </li>
+              <li className={`${classList} mb-2 sm:mb-0`}>
+                <Link to={"friend-requests"}>
+                  <PersonAddAlt1Icon />
+                  {`${isMobile ? "" : "Friend"} Requests`}
+                </Link>
+              </li>
+              <li className={`${classList} mb-2 sm:mb-0`}>
                 <Link to={"blocked-users"}>
                   <BlockIcon />
-                  {`block${isMobile ? "" : "users"}`}
+                  {`blocked${isMobile ? "" : " users"}`}
                 </Link>
               </li>
               <li className={`${classList}`}>

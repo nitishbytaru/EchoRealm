@@ -9,18 +9,22 @@ import LoggedOut from "./utils/LoggedOut";
 import { normalLoading } from "./components/Loaders/LoadingAnimations.jsx";
 import { getProfile } from "./api/userApi.js";
 import { setIsLoggedIn, setUser } from "./app/slices/authSlice.js";
-import MyProfile from "./pages/stage2/MyProfile.jsx";
 
 //lazy loading
 const Layout = lazy(() => import("./Layout"));
 const Register = lazy(() => import("./pages/Register"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage"));
+const MyProfile = lazy(() => import("./pages/stage2/MyProfile.jsx"));
 const EchoShout = lazy(() => import("./pages/stage2/EchoShout"));
 const EchoLink = lazy(() => import("./pages/stage2/EchoLink"));
 const FindUsers = lazy(() => import("./components/profile/FindUsers.jsx"));
 const MyAccount = lazy(() => import("./components/profile/MyAccount.jsx"));
 const MyWhispers = lazy(() => import("./components/profile/MyWhispers.jsx"));
 const ViewProfile = lazy(() => import("./components/profile/ViewProfile.jsx"));
+const MyFriends = lazy(() => import("./components/profile/MyFriends.jsx"));
+const MyFriendRequests = lazy(() =>
+  import("./components/profile/MyFriendRequests.jsx")
+);
 const MyProfileDetails = lazy(() =>
   import("./components/profile/MyProfileDetails.jsx")
 );
@@ -70,6 +74,8 @@ function App() {
                 <Route path="blocked-users" element={<BlockedUsers />} />
                 <Route path="find-users" element={<FindUsers />} />
                 <Route path="account" element={<MyAccount />} />
+                <Route path="friend-requests" element={<MyFriendRequests />} />
+                <Route path="my-friends" element={<MyFriends />} />
                 <Route
                   path="view-profile/:viewProfileUserId"
                   element={<ViewProfile />}

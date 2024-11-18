@@ -3,7 +3,8 @@ import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults
 import { useInputValidation } from "6pp";
 import { useNavigate } from "react-router-dom";
 import { setSelectedViewProfileId } from "../../app/slices/echoWhisperSlice";
-import { handleRoomSelect } from "../../heplerFunc/microFuncs";
+import { toast } from "react-hot-toast";
+import { sendFriendRequestApi } from "../../api/userApi";
 
 function FindUsers() {
   const navigate = useNavigate();
@@ -19,9 +20,13 @@ function FindUsers() {
     navigate(`/about/view-profile/${viewProfileUserId}`);
   };
 
-  const goToEchoLink = (selectedUser) => {
-    handleRoomSelect(dispatch, selectedUser, user);
-    navigate("/echo-link");
+  const addFriendFunc = async (selectedUser) => {
+    try {
+      const response = await sendFriendRequestApi(selectedUser?._id);
+      toast.success(response?.data?.message);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -76,12 +81,19 @@ function FindUsers() {
                         >
                           View Profile
                         </button>
-                        <button
-                          className="btn btn-secondary btn-sm text-xs sm:text-sm"
-                          onClick={() => goToEchoLink(currUser)}
-                        >
-                          Send Message
-                        </button>
+
+                        {currUser?.pendingFriendRequests.includes(user?._id) ? (
+                          <button className="btn btn-disabled btn-sm text-xs sm:text-sm">
+                            Request Sent
+                          </button>
+                        ) : (
+                          <button
+                            className="btn btn-secondary btn-sm text-xs sm:text-sm"
+                            onClick={() => addFriendFunc(currUser)}
+                          >
+                            Add Friend
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

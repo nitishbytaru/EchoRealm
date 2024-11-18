@@ -35,7 +35,7 @@ function ViewProfile() {
   const likeThisWhisperFunc = async (whisperId) => {
     dispatch(setLoading(true));
     const response = await likeThisWhisperApi(whisperId);
-    dispatch(setLoading(true));
+    dispatch(setLoading(false));
     dispatch(updateCurrUserDetails(response?.data?.updatedWhisper));
   };
 
@@ -79,7 +79,7 @@ function ViewProfile() {
                       <div className="p-4 sm:p-8 flex items-center justify-center">
                         <div className="flex-1">
                           <div className="flex justify-between items-center mb-2">
-                            <h2>@{whisper?.senderUsername}</h2>
+                            <h2>@{whisper?.sender?.username}</h2>
                             <div className="flex items-center">
                               <button
                                 onClick={() =>

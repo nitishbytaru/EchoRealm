@@ -5,6 +5,7 @@ const echoShout = new Schema(
     sender: {
       type: String,
       default: "anonymous",
+      index: true,
     },
     attachments: [
       {
@@ -26,18 +27,17 @@ const echoShout = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "User",
+        index: true,
       },
     ],
-    messageStatus: {
-      type: String,
-      enum: ["sent", "received", "read"],
-      default: "sent",
-    },
   },
   {
     timestamps: true,
   }
 );
+
+// Compound index for sorting by createdAt
+echoShout.index({ createdAt: 1 });
 
 export const EchoShout =
   mongoose.models.EchoShout || model("EchoShout", echoShout);

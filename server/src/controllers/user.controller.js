@@ -96,7 +96,9 @@ export const loginUser = asyncHandler(async (req, res) => {
 
 //view profile
 export const getProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user).select("-password");
+  const user = await User.findById(req.user)
+    .select("-password")
+    .populate("friends", "username _id avatar");
 
   if (!user) return res.status(402).json({ message: "User not found" });
 
@@ -285,4 +287,82 @@ export const deleteMyAccount = asyncHandler(async (req, res) => {
     .status(204)
     .cookie("echo-token", "", { ...cookieOptions, maxAge: 0 })
     .json({ message: "account deleetd" });
+});
+
+export const sendFriendRequest = asyncHandler(async (req, res) => {
+  const { selectedUserId } = req.query;
+
+  const response = await User.findByIdAndUpdate(
+    selectedUserId,
+    {
+      $addToSet: { pendingFriendRequests: req.user },
+    },
+    { new: true }
+  );
+
+  res.status(209).json({ message: "Friend request sent successfully" });
+});
+
+export const handleFriendRequest = asyncHandler(async (req, res) => {
+  const { requestedUserId, willAccepct } = req.body;
+
+  if (willAccepct) {
+    const response = await User.findByIdAndUpdate(
+      req.user,
+      {
+        $addToSet: { friends: requestedUserId },
+      },
+      { new: true }
+    );
+  }
+
+  const response = await User.findByIdAndUpdate(
+    req.user,
+    {
+      $pull: { pendingFriendRequests: requestedUserId },
+    },
+    { new: true }
+  );
+
+  res.status(209).json({
+    message: `Friend Request ${willAccepct ? "Accepted" : "Rejected"}`,
+  });
+});
+
+export const removeOrBlockMyFriend = asyncHandler(async (req, res) => {
+  const { friendId, block } = req.body;
+
+  if (block) {
+    const response = await User.findByIdAndUpdate(
+      req.user,
+      {
+        $addToSet: { blockedUsers: friendId },
+      },
+      { new: true }
+    );
+  }
+
+  const response = await User.findByIdAndUpdate(
+    req.user,
+    {
+      $pull: { friends: friendId },
+    },
+    { new: true }
+  );
+
+  res.status(209).json({
+    message: `Friend ${block ? "removed" : "blocked"}`,
+  });
+});
+
+export const getMyFriendRequests = asyncHandler(async (req, res) => {
+  const currUser = await User.findById(req.user).populate(
+    "pendingFriendRequests",
+    "username _id avatar"
+  );
+
+  res.status(209).json({
+    message: "fetched your friend requests",
+    myFriendRequests: currUser?.pendingFriendRequests,
+  });
 });
