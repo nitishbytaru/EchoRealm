@@ -3,7 +3,6 @@ import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults
 import { useInputValidation } from "6pp";
 import { useNavigate } from "react-router-dom";
 import { setSelectedViewProfileId } from "../../app/slices/echoWhisperSlice";
-import { setSelectedUser } from "../../app/slices/echoLinkSlice";
 import { handleRoomSelect } from "../../heplerFunc/microFuncs";
 
 function FindUsers() {
@@ -15,13 +14,12 @@ function FindUsers() {
   let searchResults = useDebouncedSearchResults(search.value);
   searchResults = searchResults.filter((field) => field._id != user._id);
 
-  const viewProfileFunc = async (userId) => {
-    dispatch(setSelectedViewProfileId(userId));
-    navigate("/my-profile/view-profile");
+  const viewProfileFunc = async (viewProfileUserId) => {
+    dispatch(setSelectedViewProfileId(viewProfileUserId));
+    navigate(`/about/view-profile/${viewProfileUserId}`);
   };
 
   const goToEchoLink = (selectedUser) => {
-    dispatch(setSelectedUser(selectedUser));
     handleRoomSelect(dispatch, selectedUser, user);
     navigate("/echo-link");
   };

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { getSelectedUserProfileDetails } from "../../api/userApi";
 import { FavoriteBorderIcon, FavoriteIcon } from "../../heplerFunc/exportIcons";
 import { likeThisWhisperApi } from "../../api/echoWhisperApi";
@@ -12,28 +12,25 @@ import { setLoading } from "../../app/slices/authSlice.js";
 
 function ViewProfile() {
   const { user } = useSelector((state) => state.auth);
+  const { viewProfileUserId } = useParams();
 
   const dispatch = useDispatch();
-  const { selectedViewProfileId, currUserDetails } = useSelector(
-    (state) => state.echoWhisper
-  );
+  const { currUserDetails } = useSelector((state) => state.echoWhisper);
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await getSelectedUserProfileDetails(
-        selectedViewProfileId
-      );
+      const response = await getSelectedUserProfileDetails(viewProfileUserId);
       dispatch(
         setCurrUserDetails(response?.data?.selectedUserProfileDetailsResponse)
       );
     };
 
-    if (selectedViewProfileId) {
+    if (viewProfileUserId) {
       dispatch(setLoading(true));
       fetchData();
       dispatch(setLoading(false));
     }
-  }, [dispatch, selectedViewProfileId]);
+  }, [dispatch, viewProfileUserId]);
 
   const likeThisWhisperFunc = async (whisperId) => {
     dispatch(setLoading(true));
@@ -44,11 +41,11 @@ function ViewProfile() {
 
   return (
     <div className="flex items-center justify-center h-full">
-      {!selectedViewProfileId ? (
+      {!viewProfileUserId ? (
         <div>
           <p>Select a user to view profile</p>
           <div className="text-center mt-4">
-            <Link to={"/my-profile/find-users"} className="btn">
+            <Link to={"/about/find-users"} className="btn">
               View Users
             </Link>
           </div>

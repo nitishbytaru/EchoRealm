@@ -39,7 +39,6 @@ function ChatBox() {
   const [echoLinkMessageData, setEchoLinkMessageData] = useState(null);
 
   useEffect(() => {
-    // Listen for both socket events in one useEffect
     socket.on("send_latest_echoLink_message", (latestEchoLinkMessage) => {
       if (selectedUser?._id === latestEchoLinkMessage?.latestMessage?.sender) {
         markAsRead(dispatch, setLatestMessageAsRead, latestEchoLinkMessage);
@@ -48,26 +47,8 @@ function ChatBox() {
       dispatch(addPrivateMessage(latestEchoLinkMessage.latestMessage));
     });
 
-    //_____________________________________________________________//
-    // there might be a issue in the mobile view as
-    // this wont be mounted in the mobile view
-    // hence this socket may not listen to the first message
-    //____________________________________________________________//
-
-    // socket.on("new_privte_message_received", (message) => {
-
-    //   if (
-    //     message?.uniqueChatId.includes(user?._id) &&
-    //     message?._id != user._id
-    //   ) {
-    //     dispatch(addToMyPrivateChatRooms(message));
-    //   }
-    // });
-
-    // Cleanup on component unmount
     return () => {
       socket.off("send_latest_echoLink_message");
-      // socket.off("new_privte_message_received");
     };
   }, [dispatch, selectedUser?._id, user._id]);
 
@@ -83,12 +64,6 @@ function ChatBox() {
           dispatch(
             addPrivateMessage(response?.data?.receiverData?.latestMessage)
           );
-          // markAsRead(
-          //   dispatch,
-          //   setLatestMessageAsRead,
-          //   response?.data?.receiverData
-          // );
-
           dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
         }
       } catch (error) {

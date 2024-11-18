@@ -64,13 +64,16 @@ function App() {
               <Route path="echo-link" element={<EchoLink />} exact />
               <Route path="create-whisper" element={<CreateWhisper />} />
               <Route path="listen-whisper" element={<ListenWhisper />} />
-              <Route path="my-profile" element={<MyProfile />}>
+              <Route path="about" element={<MyProfile />}>
                 <Route path="edit-details" element={<MyProfileDetails />} />
                 <Route path="my-whispers" element={<MyWhispers />} />
                 <Route path="blocked-users" element={<BlockedUsers />} />
                 <Route path="find-users" element={<FindUsers />} />
                 <Route path="account" element={<MyAccount />} />
-                <Route path="view-profile" element={<ViewProfile />} />
+                <Route
+                  path="view-profile/:viewProfileUserId"
+                  element={<ViewProfile />}
+                />
               </Route>
             </Route>
             <Route path="echo-shout" element={<EchoShout />} />
