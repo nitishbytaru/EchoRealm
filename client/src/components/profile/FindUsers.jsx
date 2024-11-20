@@ -97,9 +97,13 @@ function FindUsers() {
                                 View Profile
                               </button>
 
-                              {currUser?.pendingFriendRequests.includes(
-                                user?._id
-                              ) ? (
+                              {currUser?.friends.includes(user?._id) ? (
+                                <button className="btn btn-disabled btn-sm text-xs sm:text-sm">
+                                  Already Friends
+                                </button>
+                              ) : currUser?.pendingFriendRequests.includes(
+                                  user?._id
+                                ) ? (
                                 <button className="btn btn-disabled btn-sm text-xs sm:text-sm">
                                   Request Sent
                                 </button>

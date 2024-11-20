@@ -1,29 +1,34 @@
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   fetchMyFriendRequestsApi,
   handleFriendRequestApi,
 } from "../../api/userApi";
-import { useNavigate } from "react-router-dom";
-import { setSelectedViewProfileId } from "../../app/slices/userSlice";
-import { toast } from "react-hot-toast";
+import {
+  setMyFriendRequests,
+  setSelectedViewProfileId,
+  removeFromMyFriendRequests,
+} from "../../app/slices/userSlice";
 
 function MyFriendRequests() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [myFriendRequests, setMyFriendRequests] = useState([]);
+
+  const { myFriendRequests } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchMyFriendRequestsFunc = async () => {
       try {
         const response = await fetchMyFriendRequestsApi();
-        setMyFriendRequests(response?.data?.myFriendRequests);
+        dispatch(setMyFriendRequests(response?.data?.myFriendRequests));
       } catch (error) {
         console.log(error);
       }
     };
     fetchMyFriendRequestsFunc();
-  }, []);
+  }, [dispatch]);
 
   const viewProfileFunc = async (viewProfileUserId) => {
     dispatch(setSelectedViewProfileId(viewProfileUserId));
@@ -36,6 +41,9 @@ function MyFriendRequests() {
       willAccepct,
     });
 
+    dispatch(
+      removeFromMyFriendRequests(response?.data?.updatedMyFriendRequests)
+    );
     toast.success(response?.data?.message);
   };
 

@@ -5,6 +5,7 @@ const initialState = {
   currUserDetails: [],
   selectedViewProfileId: null,
   resultOfSearchedUsers: [],
+  myFriendRequests: [],
 };
 
 const userSlice = createSlice({
@@ -39,6 +40,14 @@ const userSlice = createSlice({
         user._id === action.payload._id ? action.payload : user
       );
     },
+    setMyFriendRequests(state, action) {
+      state.myFriendRequests = action.payload;
+    },
+    removeFromMyFriendRequests(state, action) {
+      state.myFriendRequests = state.myFriendRequests.filter(
+        (user) => user._id !== action.payload._id
+      );
+    },
   },
 });
 
@@ -50,6 +59,8 @@ export const {
   removeFromBlockedUsers,
   setResultOfSearchedUsers,
   updateResultOfSearchedUsers,
+  setMyFriendRequests,
+  removeFromMyFriendRequests,
 } = userSlice.actions;
 
 export default userSlice.reducer;

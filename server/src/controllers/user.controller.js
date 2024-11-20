@@ -189,16 +189,16 @@ export const sendFriendRequest = asyncHandler(async (req, res) => {
     { new: true }
   );
 
-  res
-    .status(209)
-    .json({
-      message: "Friend request sent successfully",
-      friendRequestSentToUser,
-    });
+  res.status(209).json({
+    message: "Friend request sent successfully",
+    friendRequestSentToUser,
+  });
 });
 
 export const handleFriendRequest = asyncHandler(async (req, res) => {
   const { requestedUserId, willAccepct } = req.body;
+
+  let updatedMyFriendRequests = [];
 
   if (willAccepct) {
     const response1 = await User.findByIdAndUpdate(
@@ -208,7 +208,7 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
       },
       { new: true }
     );
-    const updatedOtherUserFriendRequests = await User.findByIdAndUpdate(
+    const response2 = await User.findByIdAndUpdate(
       requestedUserId,
       {
         $addToSet: { friends: req.user },
@@ -224,7 +224,7 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
     },
     { new: true }
   );
-  const response4 = await User.findByIdAndUpdate(
+   updatedMyFriendRequests = await User.findByIdAndUpdate(
     requestedUserId,
     {
       $pull: { pendingFriendRequests: req.user },
@@ -234,7 +234,7 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
 
   res.status(209).json({
     message: `Friend Request ${willAccepct ? "Accepted" : "Rejected"}`,
-    updatedOtherUserFriendRequests,
+    updatedMyFriendRequests,
   });
 });
 
