@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import {
   setResultOfSearchedUsers,
   setSelectedViewProfileId,
+  updateResultOfSearchedUsers,
 } from "../../app/slices/userSlice";
 import { toast } from "react-hot-toast";
 import { sendFriendRequestApi } from "../../api/userApi";
@@ -17,15 +18,11 @@ function FindUsers() {
   const { resultOfSearchedUsers } = useSelector((state) => state.user);
 
   const search = useInputValidation("");
-  let searchResults = useDebouncedSearchResults(search.value);
-  searchResults = searchResults.filter((field) => field._id != user._id);
-//__________________________________________________________//
-// whe a friend request is sent it is not immediatly updated into the ui 
-// use the redux state management to update the ui immediatly
+  const searchResults = useDebouncedSearchResults(search.value);
 
   useEffect(() => {
     dispatch(setResultOfSearchedUsers(searchResults));
-  }, [searchResults, dispatch]);
+  }, [dispatch, searchResults, user._id]);
 
   const viewProfileFunc = async (viewProfileUserId) => {
     dispatch(setSelectedViewProfileId(viewProfileUserId));
@@ -35,14 +32,14 @@ function FindUsers() {
   const addFriendFunc = async (selectedUser) => {
     try {
       const response = await sendFriendRequestApi(selectedUser?._id);
+      dispatch(
+        updateResultOfSearchedUsers(response?.data?.friendRequestSentToUser)
+      );
       toast.success(response?.data?.message);
     } catch (error) {
       console.log(error);
     }
   };
-
-  // console.log(searchResults);
-  // console.log(resultOfSearchedUsers);
 
   return (
     <div className="bg-base-200 h-full rounded-xl">
@@ -71,12 +68,12 @@ function FindUsers() {
           </label>
 
           {search.value &&
-            (searchResults?.length > 0 ? (
+            (resultOfSearchedUsers?.length > 0 ? (
               <div className="menu bg-base-300 w-full rounded-box mt-2">
-                {searchResults?.length > 0 && (
+                {resultOfSearchedUsers?.length > 0 && (
                   <div className="overflow-y-auto max-h-[calc(100vh-150px)] px-2">
                     <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                      {searchResults.map((currUser, index) => (
+                      {resultOfSearchedUsers.map((currUser, index) => (
                         <div
                           key={index}
                           className="card bg-base-100 shadow-lg rounded-xl"

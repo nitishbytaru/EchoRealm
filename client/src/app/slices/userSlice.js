@@ -34,7 +34,11 @@ const userSlice = createSlice({
     setResultOfSearchedUsers(state, action) {
       state.resultOfSearchedUsers = action.payload;
     },
-    updateSearchResults(state, action) {},
+    updateResultOfSearchedUsers(state, action) {
+      state.resultOfSearchedUsers = state.resultOfSearchedUsers.map((user) =>
+        user._id === action.payload._id ? action.payload : user
+      );
+    },
   },
 });
 
@@ -45,6 +49,7 @@ export const {
   updateCurrUserDetails,
   removeFromBlockedUsers,
   setResultOfSearchedUsers,
+  updateResultOfSearchedUsers,
 } = userSlice.actions;
 
 export default userSlice.reducer;

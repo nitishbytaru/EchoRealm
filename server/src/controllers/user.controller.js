@@ -181,7 +181,7 @@ export const deleteMyAccount = asyncHandler(async (req, res) => {
 export const sendFriendRequest = asyncHandler(async (req, res) => {
   const { selectedUserId } = req.query;
 
-  const response = await User.findByIdAndUpdate(
+  const friendRequestSentToUser = await User.findByIdAndUpdate(
     selectedUserId,
     {
       $addToSet: { pendingFriendRequests: req.user },
@@ -189,7 +189,12 @@ export const sendFriendRequest = asyncHandler(async (req, res) => {
     { new: true }
   );
 
-  res.status(209).json({ message: "Friend request sent successfully" });
+  res
+    .status(209)
+    .json({
+      message: "Friend request sent successfully",
+      friendRequestSentToUser,
+    });
 });
 
 export const handleFriendRequest = asyncHandler(async (req, res) => {
@@ -203,7 +208,7 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
       },
       { new: true }
     );
-    const response2 = await User.findByIdAndUpdate(
+    const updatedOtherUserFriendRequests = await User.findByIdAndUpdate(
       requestedUserId,
       {
         $addToSet: { friends: req.user },
@@ -229,6 +234,7 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
 
   res.status(209).json({
     message: `Friend Request ${willAccepct ? "Accepted" : "Rejected"}`,
+    updatedOtherUserFriendRequests,
   });
 });
 
