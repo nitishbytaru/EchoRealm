@@ -2,16 +2,18 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import {
-  deleteWhisper,
-  getWhispers,
-  pinWhisperApi,
-} from "../../../api/echoWhisperApi";
-import { blockSenderApi, getSelectedUserById } from "../../../api/userApi";
+  deleteMumbleApi,
+  getMumblesApi,
+  pinMumbleApi,
+} from "../../../api/echoMumbleApi";
+import { blockSenderApi, getSelectedUserByIdApi } from "../../../api/userApi";
 import {
-  removeWhisper,
-  setWhispers,
-  updateWhispers,
-} from "../../../app/slices/echoWhisperSlice";
+  increaseNumberOfPinnedMumbles,
+  removeMumble,
+  setMumbles,
+  setNumberOfPinnedMumbles,
+  updateMumbles,
+} from "../../../app/slices/echoMumbleSlice";
 import {
   MoreVertSharpIcon,
   PushPinIcon,
@@ -21,41 +23,49 @@ import { useNavigate } from "react-router-dom";
 import { setLoading } from "../../../app/slices/authSlice";
 import { handleRoomSelect } from "../../../heplerFunc/microFuncs";
 
-function ListenWhisper() {
+function ListenMumble() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.auth);
-  const { whispers } = useSelector((state) => state.echoWhisper);
+  const { Mumbles, numberOfPinnedMumbles } = useSelector(
+    (state) => state.echoMumble
+  );
 
   useEffect(() => {
     const func = async () => {
-      const response = await getWhispers();
-      const whispers = response?.data?.whispers.filter(
-        (whisper) => !user?.blockedUsers.includes(whisper?.sender)
+      const response = await getMumblesApi();
+      const responseMumbles = response?.data?.Mumbles.filter(
+        (mumble) => !user?.blockedUsers.includes(mumble?.sender)
       );
-      dispatch(setWhispers(whispers || []));
+      const numberOfPinnedMumblesInResponse = response?.data?.Mumbles.filter(
+        (mumble) => mumble?.pinned
+      );
+      dispatch(
+        setNumberOfPinnedMumbles(numberOfPinnedMumblesInResponse.length)
+      );
+      dispatch(setMumbles(responseMumbles || []));
     };
     dispatch(setLoading(true));
     func();
     dispatch(setLoading(false));
   }, [dispatch, user?.blockedUsers]);
 
-  const callDeleteWhisper = (e, whisper) => {
+  const callDeleteMumbleFunc = (e, Mumble) => {
     e.preventDefault();
 
     toast((t) => (
       <div className="p-4 space-y-4">
         {/* Message content at the top */}
         <p className="text-sm text-gray-700">
-          Delete whisper by <b>@{whisper?.sender?.username || "anonymous"}</b>
+          Delete Mumble by <b>@{Mumble?.sender?.username || "anonymous"}</b>
         </p>
 
         {/* Button container for Delete and Dismiss */}
         <div className="flex justify-between pt-4 border-t border-gray-200">
           <button
             onClick={() => {
-              confirmDelete(whisper._id);
+              confirmDeleteMumbleApiFunc(Mumble._id);
               toast.dismiss(t.id);
             }}
             className="btn btn-sm bg-red-500 hover:bg-red-600"
@@ -71,29 +81,33 @@ function ListenWhisper() {
     ));
   };
 
-  const confirmDelete = async (whisperId) => {
-    console.log(whisperId);
+  const confirmDeleteMumbleApiFunc = async (MumbleId) => {
+    console.log(MumbleId);
     dispatch(setLoading(true));
-    const response = await deleteWhisper(whisperId);
+    const response = await deleteMumbleApi(MumbleId);
     dispatch(setLoading(false));
     if (response?.data) {
-      dispatch(removeWhisper(whisperId));
+      dispatch(removeMumble(MumbleId));
       toast.success(response.data?.message);
     }
   };
 
-  const pinWhisper = async (whisperId) => {
+  const pinMumbleApiFunc = async (Mumble) => {
+    if (!Mumble?.pinned && numberOfPinnedMumbles >= 4) {
+      return toast.error("Only 5 mumbles can be Pinned");
+    }
     dispatch(setLoading(true));
-    const response = await pinWhisperApi(whisperId);
+    const response = await pinMumbleApi(Mumble._id);
     dispatch(setLoading(false));
-    dispatch(updateWhispers(response?.data?.updatedWhisper));
+    dispatch(updateMumbles(response?.data?.updatedMumble));
+    dispatch(increaseNumberOfPinnedMumbles());
     if (response?.data) {
       toast.success(response?.data?.message);
     }
   };
 
-  const blockSender = async (whisperId, senderId) => {
-    dispatch(removeWhisper(whisperId));
+  const blockSenderApiFunc = async (MumbleId, senderId) => {
+    dispatch(removeMumble(MumbleId));
     dispatch(setLoading(true));
     const response = await blockSenderApi(senderId);
     dispatch(setLoading(false));
@@ -102,9 +116,9 @@ function ListenWhisper() {
     }
   };
 
-  const goToEchoLink = async (selectedUserId) => {
+  const goToEchoLinkApiFunc = async (selectedUserId) => {
     dispatch(setLoading(true));
-    const response = await getSelectedUserById(selectedUserId);
+    const response = await getSelectedUserByIdApi(selectedUserId);
     dispatch(setLoading(false));
     dispatch(setSelectedUser(response?.data?.selectedUserDetails));
     handleRoomSelect(dispatch, response?.data?.selectedUserDetails, user);
@@ -116,12 +130,12 @@ function ListenWhisper() {
       <div className="overflow-y-auto">
         {/* Responsive grid layout */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {whispers.map((whisper, index) => (
+          {Mumbles.map((Mumble, index) => (
             <div
               key={index}
               className="card bg-base-100 w-full sm:w-92 shadow-xl"
             >
-              {whisper?.showOthers && (
+              {Mumble?.pinned && (
                 <div className="absolute m-2">
                   <PushPinIcon />
                 </div>
@@ -130,17 +144,17 @@ function ListenWhisper() {
                 <div className="card-actions justify-between">
                   {/* Safely display the username */}
                   <h2 className="card-title">
-                    @{whisper?.sender?.username || "anonymous"}
+                    @{Mumble?.sender?.username || "anonymous"}
                   </h2>
                   <button
                     onClick={() =>
-                      document.getElementById(whisper?._id).showModal()
+                      document.getElementById(Mumble?._id).showModal()
                     }
                   >
                     <MoreVertSharpIcon />
                   </button>
                   <dialog
-                    id={whisper?._id}
+                    id={Mumble?._id}
                     className="modal modal-bottom sm:modal-middle"
                   >
                     <div className="modal-box">
@@ -148,45 +162,45 @@ function ListenWhisper() {
                         <button
                           className="btn m-2"
                           onClick={() => {
-                            pinWhisper(whisper._id);
-                            document.getElementById(whisper?._id).close();
+                            pinMumbleApiFunc(Mumble);
+                            document.getElementById(Mumble?._id).close();
                           }}
                         >
-                          {whisper?.showOthers
-                            ? "Unpin this whisper"
-                            : "Pin this whisper"}
+                          {Mumble?.pinned
+                            ? "Unpin this Mumble"
+                            : "Pin this Mumble"}
                         </button>
                         <button
                           className="btn m-2"
                           onClick={(e) => {
-                            callDeleteWhisper(e, whisper);
-                            document.getElementById(whisper?._id).close();
+                            callDeleteMumbleFunc(e, Mumble);
+                            document.getElementById(Mumble?._id).close();
                           }}
                         >
-                          Delete whisper
+                          Delete Mumble
                         </button>
-                        {whisper?.sender?.senderId && (
+                        {Mumble?.sender?.senderId && (
                           <>
                             <button
                               className="btn m-2"
                               onClick={() =>
-                                goToEchoLink(whisper?.sender?.senderId)
+                                goToEchoLinkApiFunc(Mumble?.sender?.senderId)
                               }
                             >
                               Direct Message @
-                              {whisper?.sender?.username || "anonymous"}
+                              {Mumble?.sender?.username || "anonymous"}
                             </button>
                             <button
                               className="btn bg-red-700  m-2"
                               onClick={() => {
-                                blockSender(
-                                  whisper?._id,
-                                  whisper?.sender?.senderId
+                                blockSenderApiFunc(
+                                  Mumble?._id,
+                                  Mumble?.sender?.senderId
                                 );
-                                document.getElementById(whisper?._id).close();
+                                document.getElementById(Mumble?._id).close();
                               }}
                             >
-                              Block @{whisper?.sender?.username || "anonymous"}
+                              Block @{Mumble?.sender?.username || "anonymous"}
                             </button>
                           </>
                         )}
@@ -199,7 +213,7 @@ function ListenWhisper() {
                     </div>
                   </dialog>
                 </div>
-                <p>{whisper?.message}</p>
+                <p>{Mumble?.message}</p>
               </div>
             </div>
           ))}
@@ -209,4 +223,4 @@ function ListenWhisper() {
   );
 }
 
-export default ListenWhisper;
+export default ListenMumble;

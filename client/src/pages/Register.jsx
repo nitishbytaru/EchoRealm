@@ -2,7 +2,7 @@ import toast from "react-hot-toast";
 import { useState, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
-import { login, register } from "../api/userApi";
+import { loginApi, registerApi } from "../api/authApi";
 import { setIsLoggedIn, setLoading, setUser } from "../app/slices/authSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
@@ -20,7 +20,7 @@ const Register = () => {
   const username = useInputValidation("");
   const password = useInputValidation("");
 
-  const Register = async (e) => {
+  const registerApiFunc = async (e) => {
     e.preventDefault();
     if (!email.value || !username.value || !password.value || !avatar.file) {
       toast.error("All fields are required for registration.");
@@ -35,7 +35,7 @@ const Register = () => {
     formData.append("avatar", avatar.file);
 
     dispatch(setLoading(true));
-    const response = await register(formData); //register api
+    const response = await registerApi(formData); //register api
     if (response.data) {
       dispatch(setIsLoggedIn(true));
       dispatch(setUser(response?.data?.user));
@@ -50,7 +50,7 @@ const Register = () => {
     avatar.clear();
   };
 
-  const Login = async (e) => {
+  const loginApiFunc = async (e) => {
     e.preventDefault();
     if (!username.value || !password.value) {
       toast.error("All fields are required for registration.");
@@ -63,7 +63,7 @@ const Register = () => {
     formData.append("password", password.value);
 
     dispatch(setIsLoggedIn(true));
-    const response = await login(formData); //login api
+    const response = await loginApi(formData);
     toast.success(response?.data?.message);
     if (response.data) {
       localStorage.setItem("allowFetch", true);
@@ -85,7 +85,7 @@ const Register = () => {
       formData.append("email", decodedToken.email);
 
       dispatch(setLoading(true));
-      const response = await register(formData); //register api
+      const response = await registerApi(formData); //register api
       if (response.data) {
         dispatch(setIsLoggedIn(true));
         dispatch(setUser(response?.data?.user));
@@ -94,7 +94,7 @@ const Register = () => {
       }
       dispatch(setLoading(false));
     } else {
-      const response = await login(formData); //login api
+      const response = await loginApi(formData); //login api
 
       toast(response?.response?.data?.message);
       if (response.data) {
@@ -220,14 +220,14 @@ const Register = () => {
           {isSignUp ? (
             <button
               className="btn-ghost bg-base-300 py-2 px-6 rounded-full mb-1"
-              onClick={Register}
+              onClick={registerApiFunc}
             >
               Register
             </button>
           ) : (
             <button
               className="btn-ghost bg-base-300 py-2 px-6 rounded-full mb-1"
-              onClick={Login}
+              onClick={loginApiFunc}
             >
               Login
             </button>

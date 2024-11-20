@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { getSelectedUserProfileDetails } from "../../api/userApi";
+import { getSelectedUserProfileDetailsApi } from "../../api/userApi";
 import { FavoriteBorderIcon, FavoriteIcon } from "../../heplerFunc/exportIcons";
-import { likeThisWhisperApi } from "../../api/echoWhisperApi";
+import { likeThisMumbleApi } from "../../api/echoMumbleApi";
 import {
   updateCurrUserDetails,
   setCurrUserDetails,
-} from "../../app/slices/echoWhisperSlice.js";
+} from "../../app/slices/userSlice.js";
+
 import { setLoading } from "../../app/slices/authSlice.js";
 
 function ViewProfile() {
@@ -15,11 +16,13 @@ function ViewProfile() {
   const { viewProfileUserId } = useParams();
 
   const dispatch = useDispatch();
-  const { currUserDetails } = useSelector((state) => state.echoWhisper);
+  const { currUserDetails } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await getSelectedUserProfileDetails(viewProfileUserId);
+      const response = await getSelectedUserProfileDetailsApi(
+        viewProfileUserId
+      );
       dispatch(
         setCurrUserDetails(response?.data?.selectedUserProfileDetailsResponse)
       );
@@ -32,11 +35,11 @@ function ViewProfile() {
     }
   }, [dispatch, viewProfileUserId]);
 
-  const likeThisWhisperFunc = async (whisperId) => {
+  const likeThisMumbleFunc = async (MumbleId) => {
     dispatch(setLoading(true));
-    const response = await likeThisWhisperApi(whisperId);
+    const response = await likeThisMumbleApi(MumbleId);
     dispatch(setLoading(false));
-    dispatch(updateCurrUserDetails(response?.data?.updatedWhisper));
+    dispatch(updateCurrUserDetails(response?.data?.updatedMumble));
   };
 
   return (
@@ -58,7 +61,7 @@ function ViewProfile() {
               alt="avatar"
               className="avatar rounded-full w-24 h-24 mt-3 sm:w-48 sm:h-48 sm:mt-2 object-cover"
             />
-            <p>@{currUserDetails?.username}</p>
+            <p className="sm:text-xl">@{currUserDetails?.username}</p>
           </div>
 
           <div className="divider w-full my-1"></div>
@@ -66,12 +69,11 @@ function ViewProfile() {
           <div className="h-4/6 sm:h-auto overflow-y-auto">
             <div className="px-4">
               <h1 className="sm:text-2xl text-lg mb-4 text-center">
-                My Whispers
+                My Mumbles
               </h1>
-
               <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                {currUserDetails?.selectedUserProfileWhispers?.map(
-                  (whisper, index) => (
+                {currUserDetails?.selectedUserProfileMumbles?.map(
+                  (Mumble, index) => (
                     <div
                       key={index}
                       className="bg-base-100 w-full shadow-xl rounded-lg"
@@ -79,14 +81,12 @@ function ViewProfile() {
                       <div className="p-4 sm:p-8 flex items-center justify-center">
                         <div className="flex-1">
                           <div className="flex justify-between items-center mb-2">
-                            <h2>@{whisper?.sender?.username}</h2>
+                            <h2>@{Mumble?.sender?.username}</h2>
                             <div className="flex items-center">
                               <button
-                                onClick={() =>
-                                  likeThisWhisperFunc(whisper?._id)
-                                }
+                                onClick={() => likeThisMumbleFunc(Mumble?._id)}
                               >
-                                {whisper?.likes?.includes(user?._id) ? (
+                                {Mumble?.likes?.includes(user?._id) ? (
                                   <FavoriteIcon
                                     sx={{ fontSize: "28px", color: "red" }}
                                   />
@@ -97,13 +97,11 @@ function ViewProfile() {
                                 )}
                               </button>
                               <span className="ml-2">
-                                {whisper?.likes?.length || 0}
+                                {Mumble?.likes?.length || 0}
                               </span>
                             </div>
                           </div>
-                          <p className="text-lg font-bold">
-                            {whisper?.message}
-                          </p>
+                          <p className="text-lg font-bold">{Mumble?.message}</p>
                         </div>
                       </div>
                     </div>

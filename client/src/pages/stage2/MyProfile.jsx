@@ -19,7 +19,7 @@ import {
   PersonAddAlt1Icon,
   PeopleIcon,
 } from "../../heplerFunc/exportIcons";
-import { logout } from "../../api/userApi";
+import { logoutApi } from "../../api/authApi";
 import toast from "react-hot-toast";
 import { setSelectedUser } from "../../app/slices/echoLinkSlice";
 
@@ -29,10 +29,10 @@ function MyProfile() {
 
   const { user, isMobile, isChecked } = useSelector((state) => state.auth);
 
-  const handleLogout = async () => {
+  const logoutApiFunc = async () => {
     try {
       dispatch(setLoading(true));
-      const response = await logout();
+      const response = await logoutApi();
       toast.success(response?.data?.message);
       dispatch(setUser(null));
       dispatch(setSelectedUser(null));
@@ -47,7 +47,7 @@ function MyProfile() {
     navigate("/");
   };
 
-  const classList = "btn w-20 sm:w-full btn-ghost sm:text-xl";
+  const classList = "btn w-20 sm:w-full btn-ghost sm:text-xl justify-start";
 
   return (
     <div className="flex bg-base-200 w-full h-full rounded-2xl">
@@ -86,7 +86,7 @@ function MyProfile() {
                 <NavLink
                   to={"edit-details"}
                   className={({ isActive }) =>
-                    isActive ? "text-slate-600" : ""
+                    isActive ? "" : "text-slate-500"
                   }
                 >
                   <EditOutlinedIcon />
@@ -95,20 +95,20 @@ function MyProfile() {
               </li>
               <li className={classList}>
                 <NavLink
-                  to={"my-whispers"}
+                  to={"my-Mumbles"}
                   className={({ isActive }) =>
-                    isActive ? "text-slate-600" : ""
+                    isActive ? "" : "text-slate-500"
                   }
                 >
                   <ShieldIcon />
-                  {`${isMobile ? "" : "my"} whispers`}
+                  {`${isMobile ? "" : "my"} Mumbles`}
                 </NavLink>
               </li>
               <li className={`${classList} mb-2 sm:mb-0`}>
                 <NavLink
                   to={"my-friends"}
                   className={({ isActive }) =>
-                    isActive ? "text-slate-600" : ""
+                    isActive ? "" : "text-slate-500"
                   }
                 >
                   <PeopleIcon />
@@ -119,7 +119,7 @@ function MyProfile() {
                 <NavLink
                   to={"friend-requests"}
                   className={({ isActive }) =>
-                    isActive ? "text-slate-600" : ""
+                    isActive ? "" : "text-slate-500"
                   }
                 >
                   <PersonAddAlt1Icon />
@@ -130,7 +130,7 @@ function MyProfile() {
                 <NavLink
                   to={"blocked-users"}
                   className={({ isActive }) =>
-                    isActive ? "text-slate-600" : ""
+                    isActive ? "" : "text-slate-500"
                   }
                 >
                   <BlockIcon />
@@ -141,7 +141,7 @@ function MyProfile() {
                 <NavLink
                   to={"find-users"}
                   className={({ isActive }) =>
-                    isActive ? "text-slate-600" : ""
+                    isActive ? "" : "text-slate-500"
                   }
                 >
                   <SearchIcon />
@@ -152,7 +152,7 @@ function MyProfile() {
                 <NavLink
                   to={"account"}
                   className={({ isActive }) =>
-                    isActive ? "text-slate-600" : ""
+                    isActive ? "" : "text-slate-500"
                   }
                 >
                   <PersonIcon />
@@ -160,7 +160,7 @@ function MyProfile() {
                 </NavLink>
               </li>
               <li className={`${classList} bg-red-800 hover:bg-red-500`}>
-                <button onClick={handleLogout}>
+                <button onClick={logoutApiFunc}>
                   <LogoutOutlinedIcon />
                   {!isMobile && "Logout"}
                 </button>
@@ -183,7 +183,7 @@ function MyProfile() {
       </div>
 
       {/* Main Content Section */}
-      <div className="card bg-base-300 rounded-2xl mr-1 sm:w-4/5 w-9/12 flex-grow">
+      <div className="card bg-base-300 rounded-2xl sm:w-4/5 w-9/12 flex-grow">
         <Outlet />
       </div>
     </div>

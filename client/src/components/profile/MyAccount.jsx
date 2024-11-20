@@ -3,9 +3,9 @@ import { deleteMyAccountApi } from "../../api/userApi";
 import { deleteAllMessagesInEchoShoutApi } from "../../api/echoShoutApi";
 import { handleDeleteAllEchoLinkApi } from "../../api/echoLinkApi";
 import {
-  deleteAllSentWhispersApi,
-  deleteAllRecievedWhispersApi,
-} from "../../api/echoWhisperApi";
+  deleteAllSentMumblesApi,
+  deleteAllRecievedMumblesApi,
+} from "../../api/echoMumbleApi";
 import { setIsLoggedIn, setLoading, setUser } from "../../app/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -41,9 +41,9 @@ function MyAccount() {
     ));
   };
 
-  const deleteAllRecievedWhispers = async () => {
+  const deleteAllRecievedMumbles = async () => {
     dispatch(setLoading(true));
-    const response = await deleteAllRecievedWhispersApi();
+    const response = await deleteAllRecievedMumblesApi();
     dispatch(setLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
@@ -59,9 +59,9 @@ function MyAccount() {
     }
   };
 
-  const deleteAllSentWhispers = async () => {
+  const deleteAllSentMumbles = async () => {
     dispatch(setLoading(true));
-    const response = await deleteAllSentWhispersApi();
+    const response = await deleteAllSentMumblesApi();
     dispatch(setLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
@@ -112,20 +112,20 @@ function MyAccount() {
           className={constantCSS}
           onClick={() =>
             handleWarningBeforeDelete(
-              "all your recieved whispers",
-              deleteAllRecievedWhispers
+              "all your recieved Mumbles",
+              deleteAllRecievedMumbles
             )
           }
         >
-          delete all recieved whispers
+          delete all recieved Mumbles
         </button>
         <button
           className={constantCSS}
           onClick={() =>
-            handleWarningBeforeDelete("all sent wispers", deleteAllSentWhispers)
+            handleWarningBeforeDelete("all sent wispers", deleteAllSentMumbles)
           }
         >
-          delete all sent Whispers
+          delete all sent Mumbles
         </button>
         <button
           className={constantCSS}

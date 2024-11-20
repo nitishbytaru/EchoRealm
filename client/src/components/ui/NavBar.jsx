@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import WhisperIcon from "../EchoWhisper/WhisperIcon.jsx";
+import MumbleIcon from "../EchoMumble/MumbleIcon.jsx";
 
 //importing the components
 import {
@@ -86,7 +86,7 @@ function NavBar() {
           {isLoggedIn ? (
             <li>
               <div>
-                <WhisperIcon />
+                <MumbleIcon />
               </div>
             </li>
           ) : null}
@@ -106,7 +106,7 @@ function NavBar() {
                         isMobile ? "w-10 h-10" : "w-12 h-12"
                       } rounded-full `}
                     >
-                      <Link to={"about/my-whispers"}>
+                      <Link to={"about/my-Mumbles"}>
                         <img src={user.avatar.url} alt="User Avatar" />
                       </Link>
                     </div>

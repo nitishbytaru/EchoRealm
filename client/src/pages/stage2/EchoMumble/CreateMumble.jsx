@@ -3,12 +3,12 @@ import toast from "react-hot-toast";
 import { useInputValidation } from "6pp";
 import { setLoading } from "../../../app/slices/authSlice.js";
 import { useDispatch, useSelector } from "react-redux";
-import { sendWhisper } from "../../../api/echoWhisperApi.js";
+import { sendMumbleApi } from "../../../api/echoMumbleApi.js";
 import { handleKeyPress } from "../../../heplerFunc/microFuncs.js";
 import { SendSharpIcon } from "../../../heplerFunc/exportIcons.js";
 import { useDebouncedSearchResults } from "../../../hooks/useDebouncedSearchResults.js";
 
-function CreateWhisper() {
+function CreateMumble() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
@@ -18,21 +18,21 @@ function CreateWhisper() {
   const searchResults = useDebouncedSearchResults(search.value);
 
   //utility functions
-  const handleUserSelect = (whisperTo) => {
-    setSelectedUser(whisperTo);
+  const handleUserSelect = (MumbleTo) => {
+    setSelectedUser(MumbleTo);
     search.clear();
   };
 
-  const sendCurrentWhisper = async () => {
+  const sendCurrentMumble = async () => {
     if (!selectedUser) {
-      return toast.error("Please select a user to send a whisper", {
+      return toast.error("Please select a user to send a Mumble", {
         autoClose: 5000,
         icon: "🚫",
       });
     }
 
     if (!message.value) {
-      return toast.error("Enter a message to send a whisper", {
+      return toast.error("Enter a message to send a Mumble", {
         autoClose: 5000,
         icon: "✉️",
       });
@@ -46,7 +46,7 @@ function CreateWhisper() {
 
     try {
       dispatch(setLoading(true));
-      const response = await sendWhisper(data);
+      const response = await sendMumbleApi(data);
       toast.success(response?.data?.message);
     } catch (error) {
       console.log(error);
@@ -65,7 +65,7 @@ function CreateWhisper() {
             <input
               type="text"
               className="grow"
-              placeholder="Search user to whisper"
+              placeholder="Search user to Mumble"
               value={search.value}
               onChange={search.changeHandler}
             />
@@ -82,28 +82,36 @@ function CreateWhisper() {
               />
             </svg>
           </label>
-          {searchResults?.length > 0 && (
-            <ul className="menu bg-base-200 w-full rounded-box mt-2">
-              {searchResults.map(
-                (searchResultUser) =>
-                  searchResultUser?.isAcceptingWhispers && (
-                    <li
-                      key={searchResultUser?._id}
-                      onClick={() => handleUserSelect(searchResultUser)}
-                    >
-                      <div className="sm:text-2xl">
-                        <img
-                          src={searchResultUser?.avatar?.url}
-                          alt=""
-                          className="avatar object-cover rounded-full w-10 h-10 sm:w-14 sm:h-14"
-                        />
-                        <p>{searchResultUser?.username}</p>
-                      </div>
-                    </li>
-                  )
-              )}
-            </ul>
-          )}
+
+          {search.value &&
+            (searchResults?.length > 0 ? (
+              <ul className="menu bg-base-200 w-full rounded-box mt-2">
+                {searchResults.map(
+                  (searchResultUser) =>
+                    searchResultUser?.isAcceptingMumbles && (
+                      <li
+                        key={searchResultUser?._id}
+                        onClick={() => handleUserSelect(searchResultUser)}
+                      >
+                        <div className="sm:text-2xl">
+                          <img
+                            src={searchResultUser?.avatar?.url}
+                            alt=""
+                            className="avatar object-cover rounded-full w-10 h-10 sm:w-14 sm:h-14"
+                          />
+                          <p>{searchResultUser?.username}</p>
+                        </div>
+                      </li>
+                    )
+                )}
+              </ul>
+            ) : (
+              <div className="menu bg-base-300 w-full rounded-box mt-2">
+                <div className="flex justify-between items-center">
+                  <p>No user with this username</p>
+                </div>
+              </div>
+            ))}
         </div>
         <div className="flex-grow">
           {selectedUser ? (
@@ -123,13 +131,13 @@ function CreateWhisper() {
           ) : (
             <div className="flex justify-center items-center h-full">
               <p className="text-xl text-gray-500 text-center">
-                Search for a User to send a whisper
+                Search for a User to send a Mumble
               </p>
             </div>
           )}
         </div>
 
-        {/* this is the message bar for creating a whisper */}
+        {/* this is the message bar for creating a Mumble */}
         <div className="flex-none px-2 mb-2">
           <div className={"bg-base-300 pt-2 sm:p-4 flex-none"}>
             <div className="flex items-center gap-1 sm:gap-2">
@@ -140,13 +148,13 @@ function CreateWhisper() {
                   placeholder="Type a message..."
                   onChange={message.changeHandler}
                   value={message.value}
-                  onKeyDown={(e) => handleKeyPress(e, sendCurrentWhisper)}
+                  onKeyDown={(e) => handleKeyPress(e, sendCurrentMumble)}
                 />
               </div>
 
               <button
                 className="btn btn-sm sm:btn-md flex-shrink-0"
-                onClick={sendCurrentWhisper}
+                onClick={sendCurrentMumble}
               >
                 <SendSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
               </button>
@@ -158,4 +166,4 @@ function CreateWhisper() {
   );
 }
 
-export default CreateWhisper;
+export default CreateMumble;

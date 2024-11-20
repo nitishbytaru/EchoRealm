@@ -3,7 +3,7 @@ import { apiConfigFORM } from "./exportAPICONFIG.js";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoShout`;
 
-export const sendEchoShout = async (Data) => {
+export const sendEchoShoutApi = async (Data) => {
   try {
     const response = await axios.post(
       `${API_URL}/send-echoShoutMessage`,
@@ -17,7 +17,7 @@ export const sendEchoShout = async (Data) => {
   }
 };
 
-export const getEchoShouts = async () => {
+export const getEchoShoutsApi = async () => {
   try {
     return await axios.get(`${API_URL}/get-echoShoutMessages`, {
       withCredentials: true,

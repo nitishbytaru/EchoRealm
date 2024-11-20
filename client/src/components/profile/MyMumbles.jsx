@@ -1,44 +1,43 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getWhispers, pinWhisperApi } from "../../api/echoWhisperApi";
+import { getMumblesApi, pinMumbleApi } from "../../api/echoMumbleApi";
 import {
   FavoriteBorderIcon,
   FavoriteIcon,
   MoreVertSharpIcon,
-  PushPinIcon,
 } from "../../heplerFunc/exportIcons";
 import {
-  setPinnedWhispers,
-  updateWhispers,
-  removePinnedWhisper,
-} from "../../app/slices/echoWhisperSlice";
+  setPinnedMumbles,
+  updateMumbles,
+  removePinnedMumble,
+} from "../../app/slices/echoMumbleSlice";
 import toast from "react-hot-toast";
 import { setLoading } from "../../app/slices/authSlice";
 
-function MyWhispers() {
+function MyMumbles() {
   const dispatch = useDispatch();
 
-  const { pinnedWhispers } = useSelector((state) => state.echoWhisper);
+  const { pinnedMumblesInMyProfile } = useSelector((state) => state.echoMumble);
 
   useEffect(() => {
     const func = async () => {
-      const response = await getWhispers();
-      const finalResponse = response?.data?.whispers.filter(
-        (whisper) => whisper?.showOthers == true
+      const response = await getMumblesApi();
+      const finalResponse = response?.data?.Mumbles.filter(
+        (Mumble) => Mumble?.pinned == true
       );
-      dispatch(setPinnedWhispers(finalResponse));
+      dispatch(setPinnedMumbles(finalResponse));
     };
     dispatch(setLoading(true));
     func();
     dispatch(setLoading(false));
   }, [dispatch]);
 
-  const pinWhisper = async (whisperId) => {
+  const pinMumble = async (MumbleId) => {
     dispatch(setLoading(true));
-    const response = await pinWhisperApi(whisperId);
+    const response = await pinMumbleApi(MumbleId);
     dispatch(setLoading(false));
-    dispatch(updateWhispers(response?.data?.updatedWhisper));
-    dispatch(removePinnedWhisper(response?.data?.updatedWhisper?._id));
+    dispatch(updateMumbles(response?.data?.updatedMumble));
+    dispatch(removePinnedMumble(response?.data?.updatedMumble?._id));
     if (response?.data) {
       toast.success(response?.data?.message);
     }
@@ -46,26 +45,21 @@ function MyWhispers() {
 
   return (
     <div className="px-4 overflow-y-auto">
-      <h1 className="sm:text-2xl text-lg mb-4 text-center">My Whispers</h1>
+      <h1 className="sm:text-2xl text-lg mb-4 text-center">My Mumbles</h1>
 
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {pinnedWhispers?.map((whisper, index) => (
+        {pinnedMumblesInMyProfile?.map((Mumble, index) => (
           <div
             key={index}
             className="card bg-base-100 w-full sm:w-92 shadow-xl"
           >
-            {whisper?.showOthers && (
-              <div className="absolute m-2 top-0 left-0">
-                <PushPinIcon />
-              </div>
-            )}
             <div className="card-body">
               <div className="card-actions justify-between">
-                <h2 className="card-title">@{whisper?.sender?.username}</h2>
+                <h2 className="card-title">@{Mumble?.sender?.username}</h2>
                 {/* Open the modal using document.getElementById('ID').showModal() method */}
                 <button
                   onClick={() =>
-                    document.getElementById(whisper?._id).showModal()
+                    document.getElementById(Mumble?._id).showModal()
                   }
                   className="absolute top-4 right-4"
                 >
@@ -73,7 +67,7 @@ function MyWhispers() {
                 </button>
 
                 <dialog
-                  id={whisper?._id}
+                  id={Mumble?._id}
                   className="modal modal-bottom sm:modal-middle"
                 >
                   <div className="modal-box">
@@ -81,15 +75,11 @@ function MyWhispers() {
                       <button
                         className="btn m-2"
                         onClick={() => {
-                          pinWhisper(whisper);
-                          document.getElementById(whisper?._id).close();
+                          pinMumble(Mumble);
+                          document.getElementById(Mumble?._id).close();
                         }}
                       >
-                        {`${
-                          whisper?.showOthers
-                            ? "unpin this whisper"
-                            : "pin this whisper"
-                        }`}
+                        unpin this mumble
                       </button>
                     </div>
                     <div className="modal-action">
@@ -102,11 +92,11 @@ function MyWhispers() {
                 </dialog>
               </div>
 
-              <p>{whisper?.message}</p>
+              <p>{Mumble?.message}</p>
               <div className="flex absolute bottom-4 right-4">
-                <span className="ml-2">{whisper?.likes?.length}</span>
+                <span className="ml-2">{Mumble?.likes?.length}</span>
                 <div className="ml-2">
-                  {whisper?.likes?.length > 0 ? (
+                  {Mumble?.likes?.length > 0 ? (
                     <FavoriteIcon sx={{ fontSize: "28px", color: "red" }} />
                   ) : (
                     <FavoriteBorderIcon sx={{ fontSize: "28px" }} />
@@ -121,4 +111,4 @@ function MyWhispers() {
   );
 }
 
-export default MyWhispers;
+export default MyMumbles;

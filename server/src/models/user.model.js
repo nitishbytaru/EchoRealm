@@ -32,7 +32,7 @@ const userSchema = new Schema(
         default: "",
       },
     },
-    isAcceptingWhispers: {
+    isAcceptingMumbles: {
       type: Boolean,
       default: true,
     },
@@ -58,10 +58,6 @@ const userSchema = new Schema(
     isAnonymous: {
       type: Boolean,
       default: false,
-    },
-    numberOfPinnedWhispers: {
-      type: Number,
-      default: 0,
     },
   },
   {

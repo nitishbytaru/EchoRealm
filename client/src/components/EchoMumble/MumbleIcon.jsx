@@ -7,7 +7,7 @@ import {
   ForumOutlinedIcon,
 } from "../../heplerFunc/exportIcons";
 
-function WhisperIcon() {
+function MumbleIcon() {
   const { isLoggedIn, isMobile } = useSelector((state) => state.auth);
   return (
     <>
@@ -19,7 +19,7 @@ function WhisperIcon() {
         <div>
           <ForumOutlinedIcon />
         </div>
-        {!isMobile ? <div className="ml-2">EchoWhisper</div> : null}
+        {!isMobile ? <div className="ml-2">EchoMumble</div> : null}
       </button>
       
       <dialog id="my_modal_1" className="modal">
@@ -28,23 +28,23 @@ function WhisperIcon() {
             {isLoggedIn ? (
               <div className="w-full mt-2 sm:mt-4 flex">
                 <Link
-                  to="/listen-whisper"
+                  to="/listen-Mumble"
                   className="btn btn-sm sm:btn-lg bg-base-300 rounded-lg w-full text-xs sm:text-sm"
                   onClick={() => document.getElementById("my_modal_1").close()}
                 >
                   <MailOutlineIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
-                  <span>Checkout Whispers</span>
+                  <span>Checkout Mumbles</span>
                 </Link>
               </div>
             ) : null}
             <div className="w-full mt-2 sm:mt-4 flex">
               <Link
-                to="/create-whisper"
+                to="/create-Mumble"
                 className="btn btn-sm sm:btn-lg bg-base-300 rounded-lg w-full text-xs sm:text-sm"
                 onClick={() => document.getElementById("my_modal_1").close()}
               >
                 <SendIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
-                <span>Whisper to someone</span>
+                <span>Mumble to someone</span>
               </Link>
             </div>
           </div>
@@ -62,4 +62,4 @@ function WhisperIcon() {
   );
 }
 
-export default WhisperIcon;
+export default MumbleIcon;

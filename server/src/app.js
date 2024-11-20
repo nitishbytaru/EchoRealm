@@ -18,15 +18,17 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 //importing routes
+import authRoute from "./routes/auth.route.js";
 import userRoute from "./routes/user.route.js";
 import echoShoutRoute from "./routes/echoShout.route.js";
-import echoWhisperRoute from "./routes/echoWhisper.route.js";
+import echoMumbleRoute from "./routes/echoMumble.route.js";
 import echoLinkRoute from "./routes/echoLink.route.js";
 
 //routes
+app.use("/api/auth", authRoute);
 app.use("/api/user", userRoute);
 app.use("/api/echoShout", echoShoutRoute);
-app.use("/api/echoWhisper", echoWhisperRoute);
+app.use("/api/echoMumble", echoMumbleRoute);
 app.use("/api/echoLink", echoLinkRoute);
 
 export { app };

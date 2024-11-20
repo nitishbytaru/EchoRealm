@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
-  getMyPrivateFriends,
-  searchEchoLinkFriends,
+  getMyPrivateFriendsApi,
+  searchEchoLinkFriendsApi,
 } from "../../api/echoLinkApi.js";
 import { useInputValidation } from "6pp";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,11 +30,11 @@ function ChatRooms() {
   );
 
   const search = useInputValidation("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState(null);
 
   useEffect(() => {
     const fetchMyPrivateFriends = async () => {
-      const response = await getMyPrivateFriends();
+      const response = await getMyPrivateFriendsApi();
       response?.data?.myPrivateFriendsWithMessages.map((chatRoom) => {
         if (
           chatRoom?.latestMessage?.receiver?.messageStatus == "sent" &&
@@ -81,7 +82,7 @@ function ChatRooms() {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (search.value) {
-        searchEchoLinkFriends(search.value)
+        searchEchoLinkFriendsApi(search.value)
           .then((users) => {
             const filteredUsers = users.filter(
               (field) => field._id != user._id
@@ -125,33 +126,42 @@ function ChatRooms() {
             />
           </svg>
         </label>
-        {searchResults?.length > 0 && (
-          <ul className="menu bg-base-300 w-full rounded-box mt-2">
-            {searchResults.map((searchResultUser) => (
-              <li
-                key={searchResultUser._id}
-                onClick={() => {
-                  handleRoomSelect(dispatch, searchResultUser, user);
-                  search.clear();
-                }}
-              >
-                <div>
-                  <div>
+
+        {search.value &&
+          (searchResults?.length > 0 ? (
+            <ul className="menu bg-base-300 w-full rounded-box mt-2">
+              {searchResults?.map((searchResultUser) => (
+                <li
+                  key={searchResultUser._id}
+                  onClick={() => {
+                    handleRoomSelect(dispatch, searchResultUser, user);
+                    search.clear();
+                  }}
+                >
+                  <div className="flex items-center gap-2">
                     <img
                       src={searchResultUser?.avatar?.url}
                       alt=""
                       className="w-10 h-10 object-cover rounded-full"
                       crossOrigin="anonymous"
                     />
-                  </div>
-                  <div>
                     <p>@{searchResultUser.username}</p>
                   </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="menu bg-base-300 w-full rounded-box mt-2">
+              <div className="flex justify-between items-center">
+                <p>No User Found</p>
+                <Link to={"/about/find-users"}>
+                  <button className="btn btn-primary btn-sm">
+                    Find Friends
+                  </button>
+                </Link>
+              </div>
+            </div>
+          ))}
       </div>
 
       {/* Scrollable user list */}

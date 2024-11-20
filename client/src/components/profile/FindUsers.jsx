@@ -2,18 +2,30 @@ import { useDispatch, useSelector } from "react-redux";
 import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults";
 import { useInputValidation } from "6pp";
 import { useNavigate } from "react-router-dom";
-import { setSelectedViewProfileId } from "../../app/slices/echoWhisperSlice";
+import {
+  setResultOfSearchedUsers,
+  setSelectedViewProfileId,
+} from "../../app/slices/userSlice";
 import { toast } from "react-hot-toast";
 import { sendFriendRequestApi } from "../../api/userApi";
+import { useEffect } from "react";
 
 function FindUsers() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const { resultOfSearchedUsers } = useSelector((state) => state.user);
 
   const search = useInputValidation("");
   let searchResults = useDebouncedSearchResults(search.value);
   searchResults = searchResults.filter((field) => field._id != user._id);
+//__________________________________________________________//
+// whe a friend request is sent it is not immediatly updated into the ui 
+// use the redux state management to update the ui immediatly
+
+  useEffect(() => {
+    dispatch(setResultOfSearchedUsers(searchResults));
+  }, [searchResults, dispatch]);
 
   const viewProfileFunc = async (viewProfileUserId) => {
     dispatch(setSelectedViewProfileId(viewProfileUserId));
@@ -29,11 +41,14 @@ function FindUsers() {
     }
   };
 
+  // console.log(searchResults);
+  // console.log(resultOfSearchedUsers);
+
   return (
     <div className="bg-base-200 h-full rounded-xl">
-      <div className="flex flex-col bg-base-300 h-full w-full mx-auto rounded-xl">
-        <div className="flex-none h-full px-4 py-2">
-          <label className="input input-bordered flex items-center gap-2 mb-2">
+      <div className="flex flex-col bg-base-300 h-full w-full rounded-xl">
+        <div className="flex-none h-full py-2">
+          <label className="input input-bordered sm:input-md input-sm flex items-center mb-2 mx-1">
             <input
               type="text"
               className="grow"
@@ -55,52 +70,65 @@ function FindUsers() {
             </svg>
           </label>
 
-          {searchResults?.length > 0 && (
-            <div className="overflow-y-auto max-h-[calc(100vh-150px)] px-2">
-              <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {searchResults.map((currUser, index) => (
-                  <div
-                    key={index}
-                    className="card bg-base-100 shadow-lg rounded-xl"
-                  >
-                    <figure className="flex justify-center mt-6">
-                      <img
-                        src={currUser?.avatar?.url}
-                        alt="Blocked User"
-                        className="rounded-full w-20 h-20 sm:w-24 sm:h-24 object-cover"
-                      />
-                    </figure>
-                    <div className="card-body p-4 items-center text-center">
-                      <h2 className="text-lg font-medium">
-                        @{currUser?.username}
-                      </h2>
-                      <div className="sm:flex gap-3 mt-3">
-                        <button
-                          className="btn btn-primary mb-1 btn-sm text-xs sm:text-sm"
-                          onClick={() => viewProfileFunc(currUser._id)}
+          {search.value &&
+            (searchResults?.length > 0 ? (
+              <div className="menu bg-base-300 w-full rounded-box mt-2">
+                {searchResults?.length > 0 && (
+                  <div className="overflow-y-auto max-h-[calc(100vh-150px)] px-2">
+                    <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                      {searchResults.map((currUser, index) => (
+                        <div
+                          key={index}
+                          className="card bg-base-100 shadow-lg rounded-xl"
                         >
-                          View Profile
-                        </button>
+                          <figure className="flex justify-center mt-6">
+                            <img
+                              src={currUser?.avatar?.url}
+                              alt="Blocked User"
+                              className="rounded-full w-20 h-20 sm:w-24 sm:h-24 object-cover"
+                            />
+                          </figure>
+                          <div className="card-body p-4 items-center text-center">
+                            <h2 className="text-lg font-medium">
+                              @{currUser?.username}
+                            </h2>
+                            <div className="sm:flex gap-3 mt-3">
+                              <button
+                                className="btn btn-primary mb-1 btn-sm text-xs sm:text-sm"
+                                onClick={() => viewProfileFunc(currUser._id)}
+                              >
+                                View Profile
+                              </button>
 
-                        {currUser?.pendingFriendRequests.includes(user?._id) ? (
-                          <button className="btn btn-disabled btn-sm text-xs sm:text-sm">
-                            Request Sent
-                          </button>
-                        ) : (
-                          <button
-                            className="btn btn-secondary btn-sm text-xs sm:text-sm"
-                            onClick={() => addFriendFunc(currUser)}
-                          >
-                            Add Friend
-                          </button>
-                        )}
-                      </div>
+                              {currUser?.pendingFriendRequests.includes(
+                                user?._id
+                              ) ? (
+                                <button className="btn btn-disabled btn-sm text-xs sm:text-sm">
+                                  Request Sent
+                                </button>
+                              ) : (
+                                <button
+                                  className="btn btn-secondary btn-sm text-xs sm:text-sm"
+                                  onClick={() => addFriendFunc(currUser)}
+                                >
+                                  Add Friend
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
+                )}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="menu bg-base-300 w-full rounded-box mt-2">
+                <div className="flex justify-between items-center">
+                  <p>No user with this username</p>
+                </div>
+              </div>
+            ))}
         </div>
       </div>
     </div>

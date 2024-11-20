@@ -5,7 +5,7 @@ import {
   handleFriendRequestApi,
 } from "../../api/userApi";
 import { useNavigate } from "react-router-dom";
-import { setSelectedViewProfileId } from "../../app/slices/echoWhisperSlice";
+import { setSelectedViewProfileId } from "../../app/slices/userSlice";
 import { toast } from "react-hot-toast";
 
 function MyFriendRequests() {

@@ -10,7 +10,7 @@ import {
 import {
   clearChatApi,
   deleteChatRoomApi,
-  sendEchoLinkMessage,
+  sendEchoLinkMessageApi,
 } from "../../../api/echoLinkApi.js";
 import {
   addPrivateMessage,
@@ -60,7 +60,7 @@ function ChatBox() {
     const sendMessage = async () => {
       try {
         if (echoLinkMessageData) {
-          const response = await sendEchoLinkMessage(echoLinkMessageData);
+          const response = await sendEchoLinkMessageApi(echoLinkMessageData);
           dispatch(
             addPrivateMessage(response?.data?.receiverData?.latestMessage)
           );

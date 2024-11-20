@@ -1,6 +1,6 @@
 import {
-  getPrivateMessages,
-  markLatestMessageAsRead,
+  getPrivateMessagesApi,
+  markLatestMessageAsReadApi,
 } from "../api/echoLinkApi";
 import {
   removeFromChatRoomsWithUnreadMessages,
@@ -52,7 +52,7 @@ export const handleRoomSelect = async (dispatch, currentSelecteduser, user) => {
   socket.emit("joinEchoLink", uniqueRoomId);
   dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
 
-  const response = await getPrivateMessages(uniqueRoomId);
+  const response = await getPrivateMessagesApi(uniqueRoomId);
   dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
 };
 
@@ -65,7 +65,7 @@ export const markAsRead = async (
   dispatch(setLatestMessageAsRead(currUser));
 
   try {
-    await markLatestMessageAsRead(currUser?.uniqueChatId);
+    await markLatestMessageAsReadApi(currUser?.uniqueChatId);
   } catch (error) {
     console.log(error);
   }

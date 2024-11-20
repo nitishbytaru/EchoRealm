@@ -1,6 +1,6 @@
 import mongoose, { Schema, model } from "mongoose";
 
-const echoWhisper = new Schema(
+const echoMumble = new Schema(
   {
     sender: {
       senderId: { type: Schema.Types.ObjectId, ref: "User", default: null },
@@ -18,7 +18,7 @@ const echoWhisper = new Schema(
       type: String,
       required: true,
     },
-    showOthers: {
+    pinned: {
       type: Boolean,
       default: false,
     },
@@ -35,5 +35,5 @@ const echoWhisper = new Schema(
   }
 );
 
-export const EchoWhisper =
-  mongoose.models.EchoWhisper || model("EchoWhisper", echoWhisper);
+export const EchoMumble =
+  mongoose.models.EchoMumble || model("EchoMumble", echoMumble);

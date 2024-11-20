@@ -7,7 +7,7 @@ import { Toaster } from "react-hot-toast";
 import PrivateRoutues from "./utils/PrivateRoutues";
 import LoggedOut from "./utils/LoggedOut";
 import { normalLoading } from "./components/Loaders/LoadingAnimations.jsx";
-import { getProfile } from "./api/userApi.js";
+import { getProfileApi } from "./api/authApi.js";
 import { setIsLoggedIn, setUser } from "./app/slices/authSlice.js";
 
 //lazy loading
@@ -19,7 +19,7 @@ const EchoShout = lazy(() => import("./pages/stage2/EchoShout"));
 const EchoLink = lazy(() => import("./pages/stage2/EchoLink"));
 const FindUsers = lazy(() => import("./components/profile/FindUsers.jsx"));
 const MyAccount = lazy(() => import("./components/profile/MyAccount.jsx"));
-const MyWhispers = lazy(() => import("./components/profile/MyWhispers.jsx"));
+const MyMumbles = lazy(() => import("./components/profile/MyMumbles.jsx"));
 const ViewProfile = lazy(() => import("./components/profile/ViewProfile.jsx"));
 const MyFriends = lazy(() => import("./components/profile/MyFriends.jsx"));
 const MyFriendRequests = lazy(() =>
@@ -28,11 +28,11 @@ const MyFriendRequests = lazy(() =>
 const MyProfileDetails = lazy(() =>
   import("./components/profile/MyProfileDetails.jsx")
 );
-const ListenWhisper = lazy(() =>
-  import("./pages/stage2/EchoWhisper/ListenWhisper")
+const ListenMumble = lazy(() =>
+  import("./pages/stage2/EchoMumble/ListenMumble")
 );
-const CreateWhisper = lazy(() =>
-  import("./pages/stage2/EchoWhisper/CreateWhisper")
+const CreateMumble = lazy(() =>
+  import("./pages/stage2/EchoMumble/CreateMumble")
 );
 const BlockedUsers = lazy(() =>
   import("./components/profile/BlockedUsers.jsx")
@@ -45,7 +45,7 @@ function App() {
 
   useEffect(() => {
     if (JSON.parse(localStorage.getItem("allowFetch"))) {
-      getProfile()
+      getProfileApi()
         .then((response) => {
           if (response) {
             dispatch(setUser(response?.data?.user));
@@ -66,11 +66,11 @@ function App() {
             </Route>
             <Route element={<PrivateRoutues user={user} />}>
               <Route path="echo-link" element={<EchoLink />} exact />
-              <Route path="create-whisper" element={<CreateWhisper />} />
-              <Route path="listen-whisper" element={<ListenWhisper />} />
+              <Route path="create-Mumble" element={<CreateMumble />} />
+              <Route path="listen-Mumble" element={<ListenMumble />} />
               <Route path="about" element={<MyProfile />}>
                 <Route path="edit-details" element={<MyProfileDetails />} />
-                <Route path="my-whispers" element={<MyWhispers />} />
+                <Route path="my-Mumbles" element={<MyMumbles />} />
                 <Route path="blocked-users" element={<BlockedUsers />} />
                 <Route path="find-users" element={<FindUsers />} />
                 <Route path="account" element={<MyAccount />} />

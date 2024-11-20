@@ -1,9 +1,9 @@
 import axios from "axios";
 import { apiConfigJSON } from "./exportAPICONFIG.js";
 
-const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoWhisper`;
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoMumble`;
 
-export const searchUsers = async (searchTerm) => {
+export const searchUsersApi = async (searchTerm) => {
   try {
     const response = await axios.get(`${API_URL}/search`, {
       params: { query: searchTerm },
@@ -16,10 +16,10 @@ export const searchUsers = async (searchTerm) => {
   }
 };
 
-export const sendWhisper = async (whiperData) => {
+export const sendMumbleApi = async (whiperData) => {
   try {
     return await axios.post(
-      `${API_URL}/send-whisper`,
+      `${API_URL}/send-Mumble`,
       whiperData,
       apiConfigJSON
     );
@@ -29,9 +29,9 @@ export const sendWhisper = async (whiperData) => {
   }
 };
 
-export const getWhispers = async () => {
+export const getMumblesApi = async () => {
   try {
-    return await axios.get(`${API_URL}/get-whispers`, {
+    return await axios.get(`${API_URL}/get-Mumbles`, {
       withCredentials: true,
     });
   } catch (error) {
@@ -40,11 +40,11 @@ export const getWhispers = async () => {
   }
 };
 
-export const deleteWhisper = async (whisperId) => {
+export const deleteMumbleApi = async (MumbleId) => {
   try {
-    return await axios.delete(`${API_URL}/delete-whisper`, {
+    return await axios.delete(`${API_URL}/delete-Mumble`, {
       ...apiConfigJSON,
-      params: { whisperId },
+      params: { MumbleId },
     });
   } catch (error) {
     console.log(error);
@@ -52,11 +52,11 @@ export const deleteWhisper = async (whisperId) => {
   }
 };
 
-export const pinWhisperApi = async (whisperId) => {
+export const pinMumbleApi = async (MumbleId) => {
   try {
-    return await axios.get(`${API_URL}/pin-whisper`, {
+    return await axios.get(`${API_URL}/pin-Mumble`, {
       ...apiConfigJSON,
-      params: { whisperId },
+      params: { MumbleId },
     });
   } catch (error) {
     console.log(error);
@@ -64,11 +64,11 @@ export const pinWhisperApi = async (whisperId) => {
   }
 };
 
-export const likeThisWhisperApi = async (whisperId) => {
+export const likeThisMumbleApi = async (MumbleId) => {
   try {
-    return await axios.get(`${API_URL}/like-whisper`, {
+    return await axios.get(`${API_URL}/like-Mumble`, {
       ...apiConfigJSON,
-      params: { whisperId },
+      params: { MumbleId },
     });
   } catch (error) {
     console.log(error);
@@ -77,10 +77,10 @@ export const likeThisWhisperApi = async (whisperId) => {
 };
 
 // From here all the apis are used to delete the data
-export const deleteAllRecievedWhispersApi = async () => {
+export const deleteAllRecievedMumblesApi = async () => {
   try {
     return await axios.get(
-      `${API_URL}/delete-recieved-whispers`,
+      `${API_URL}/delete-recieved-Mumbles`,
       apiConfigJSON
     );
   } catch (error) {
@@ -89,10 +89,10 @@ export const deleteAllRecievedWhispersApi = async () => {
   }
 };
 
-export const deleteAllSentWhispersApi = async () => {
+export const deleteAllSentMumblesApi = async () => {
   try {
     return await axios.get(
-      `${API_URL}/delete-sent-whispers`,
+      `${API_URL}/delete-sent-Mumbles`,
       apiConfigJSON
     );
   } catch (error) {

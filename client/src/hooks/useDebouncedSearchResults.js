@@ -1,6 +1,6 @@
 // hooks/useDebouncedSearchResults.js
 import { useState, useEffect } from "react";
-import { searchUsers } from "../api/echoWhisperApi";
+import { searchUsersApi } from "../api/echoMumbleApi";
 
 export function useDebouncedSearchResults(query) {
   const [searchResults, setSearchResults] = useState([]);
@@ -8,7 +8,7 @@ export function useDebouncedSearchResults(query) {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (query) {
-        searchUsers(query)
+        searchUsersApi(query)
           .then((users) => setSearchResults(users))
           .catch((err) => console.error(err));
       } else {

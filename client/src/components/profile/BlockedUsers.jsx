@@ -1,20 +1,20 @@
 import { useEffect } from "react";
-import { getBlockedUsers, unBlockUser } from "../../api/userApi";
+import { getBlockedUsersApi, unBlockUserApi } from "../../api/userApi";
 import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "../../app/slices/authSlice";
 import {
   setBlockedUsers,
   removeFromBlockedUsers,
-  setLoading,
-} from "../../app/slices/authSlice";
+} from "../../app/slices/userSlice";
 import toast from "react-hot-toast";
 
 function BlockedUsers() {
   const dispatch = useDispatch();
-  const { blockedUsers } = useSelector((state) => state.auth);
+  const { blockedUsers } = useSelector((state) => state.user);
 
   useEffect(() => {
     const funcGetBlockedUsers = async () => {
-      const response = await getBlockedUsers();
+      const response = await getBlockedUsersApi();
       dispatch(setBlockedUsers(response?.data?.blockedUsers));
     };
 
@@ -23,9 +23,9 @@ function BlockedUsers() {
     dispatch(setLoading(false));
   }, [dispatch]);
 
-  const unBlock = async (userId) => {
+  const unBlockApiFunc = async (userId) => {
     dispatch(setLoading(true));
-    const response = await unBlockUser(userId);
+    const response = await unBlockUserApi(userId);
     dispatch(setLoading(false));
     toast.success(response?.data?.message);
     dispatch(removeFromBlockedUsers(userId));
@@ -50,7 +50,7 @@ function BlockedUsers() {
               <div className="flex gap-3 mt-3">
                 <button
                   className="btn btn-primary btn-sm text-xs sm:text-sm"
-                  onClick={() => unBlock(currUser?._id)}
+                  onClick={() => unBlockApiFunc(currUser?._id)}
                 >
                   Unblock
                 </button>

@@ -3,7 +3,7 @@ import { apiConfigFORM, apiConfigJSON } from "./exportAPICONFIG.js";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoLink`;
 
-export const getMyPrivateFriends = async () => {
+export const getMyPrivateFriendsApi = async () => {
   try {
     return await axios.get(`${API_URL}/get-myPrivateFriends`, {
       withCredentials: true,
@@ -14,7 +14,7 @@ export const getMyPrivateFriends = async () => {
   }
 };
 
-export const sendEchoLinkMessage = async (echoLinkMessage) => {
+export const sendEchoLinkMessageApi = async (echoLinkMessage) => {
   try {
     return await axios.post(
       `${API_URL}/send-echoLinkMessage`,
@@ -27,7 +27,7 @@ export const sendEchoLinkMessage = async (echoLinkMessage) => {
   }
 };
 
-export const getPrivateMessages = async (uniqueChatId) => {
+export const getPrivateMessagesApi = async (uniqueChatId) => {
   try {
     return await axios.get(`${API_URL}/get-privateMessages`, {
       params: { uniqueChatId },
@@ -39,7 +39,7 @@ export const getPrivateMessages = async (uniqueChatId) => {
   }
 };
 
-export const markLatestMessageAsRead = async (uniqueChatId) => {
+export const markLatestMessageAsReadApi = async (uniqueChatId) => {
   try {
     await axios.get(`${API_URL}/set-latestMessageAsRead`, {
       params: { uniqueChatId },
@@ -60,7 +60,7 @@ export const handleDeleteAllEchoLinkApi = async () => {
   }
 };
 
-export const searchEchoLinkFriends = async (searchTerm) => {
+export const searchEchoLinkFriendsApi = async (searchTerm) => {
   try {
     const response = await axios.get(`${API_URL}/searchEchoLinkFriends`, {
       params: { searchTerm },

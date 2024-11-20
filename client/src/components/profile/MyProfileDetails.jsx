@@ -18,8 +18,8 @@ function MyProfileDetails() {
   const updatedUsername = useInputValidation(user?.username);
   const updatedPassword = useInputValidation("");
 
-  const [udatedIsAcceptingWhispers, setUpdatedIsAcceptingWhispers] = useState(
-    user?.isAcceptingWhispers
+  const [udatedIsAcceptingMumbles, setUpdatedIsAcceptingMumbles] = useState(
+    user?.isAcceptingMumbles
   );
   const [updatedIsAnonymous, setUpdatedIsAnonymous] = useState(
     user?.isAnonymous
@@ -34,7 +34,7 @@ function MyProfileDetails() {
       updatedEmail: updatedEmail.value,
       updatedUsername: updatedUsername.value,
       updatedPassword: updatedPassword.value,
-      udatedIsAcceptingWhispers,
+      udatedIsAcceptingMumbles,
       updatedIsAnonymous,
     });
     dispatch(setLoading(false));
@@ -130,13 +130,13 @@ function MyProfileDetails() {
             </div>
             <div className="form-control">
               <label className="label cursor-pointer">
-                <span className="label-text">Accept Whispers</span>
+                <span className="label-text">Accept Mumbles</span>
                 <input
                   type="checkbox"
                   className="toggle sm:toggle-md toggle-sm"
-                  checked={udatedIsAcceptingWhispers}
+                  checked={udatedIsAcceptingMumbles}
                   onChange={(e) =>
-                    setUpdatedIsAcceptingWhispers(e.target.checked)
+                    setUpdatedIsAcceptingMumbles(e.target.checked)
                   }
                 />
               </label>

@@ -1,36 +1,9 @@
 import axios from "axios";
-import { apiConfigFORM, apiConfigJSON } from "./exportAPICONFIG.js";
+import { apiConfigJSON } from "./exportAPICONFIG.js";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/user`;
 
-export const register = async (Data) => {
-  try {
-    return await axios.post(`${API_URL}/signin`, Data, apiConfigFORM);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const login = async (Data) => {
-  try {
-    return await axios.post(`${API_URL}/login`, Data, apiConfigJSON);
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-};
-
-export const getProfile = async () => {
-  try {
-    return await axios.get(`${API_URL}/get-profile`, {
-      withCredentials: true,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const getSelectedUserById = async (selectedUserId) => {
+export const getSelectedUserByIdApi = async (selectedUserId) => {
   try {
     return await axios.get(`${API_URL}/get-selected-profile`, {
       ...apiConfigJSON,
@@ -46,16 +19,6 @@ export const sendFriendRequestApi = async (selectedUserId) => {
     return await axios.get(`${API_URL}/send-friend-request`, {
       ...apiConfigJSON,
       params: { selectedUserId },
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const logout = async () => {
-  try {
-    return await axios.get(`${API_URL}/logout`, {
-      withCredentials: true,
     });
   } catch (error) {
     console.log(error);
@@ -122,7 +85,7 @@ export const blockSenderApi = async (senderId) => {
   }
 };
 
-export const getBlockedUsers = async () => {
+export const getBlockedUsersApi = async () => {
   try {
     return await axios.get(`${API_URL}/get-blockedUsers`, apiConfigJSON);
   } catch (error) {
@@ -131,7 +94,7 @@ export const getBlockedUsers = async () => {
   }
 };
 
-export const unBlockUser = async (userId) => {
+export const unBlockUserApi = async (userId) => {
   try {
     return await axios.get(`${API_URL}/un-block`, {
       ...apiConfigJSON,
@@ -143,7 +106,9 @@ export const unBlockUser = async (userId) => {
   }
 };
 
-export const getSelectedUserProfileDetails = async (selectedViewProfileId) => {
+export const getSelectedUserProfileDetailsApi = async (
+  selectedViewProfileId
+) => {
   try {
     return await axios.get(`${API_URL}/get-selected-profile-details`, {
       ...apiConfigJSON,

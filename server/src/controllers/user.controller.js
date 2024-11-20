@@ -1,127 +1,16 @@
 import { User } from "../models/user.model.js";
 import { EchoShout } from "../models/echoShout.model.js";
 import { EchoLink } from "../models/echoLink.model.js ";
-import { EchoWhisper } from "../models/echoWhisper.model.js";
+import { EchoMumble } from "../models/echoMumble.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { uploadToCloudinary } from "../utils/cloudinary.js";
 import { cookieOptions, sendToken } from "../utils/features.js";
-
-//To register a new user
-export const registerUser = asyncHandler(async (req, res) => {
-  const { email, username, password, avatarUrl } = req.body;
-
-  if ([email, username, password].some((field) => field?.trim() === "")) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
-
-  const updatedUsername = username.replace(" ", "_").toLowerCase();
-
-  const existedUser = await User.findOne({
-    $or: [{ username: updatedUsername }, { email }],
-  });
-
-  if (existedUser) {
-    return res
-      .status(409)
-      .json({ message: "User with email or username already exists" });
-  }
-
-  let user = null;
-
-  if (avatarUrl) {
-    user = await User.create({
-      avatar: { url: avatarUrl, publicId: null },
-      email,
-      password,
-      username: updatedUsername,
-    });
-  } else {
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-
-    if (!avatarLocalPath) {
-      return res.status(400).json({ message: "Avatar file is required" });
-    }
-
-    const avatar = await uploadToCloudinary(avatarLocalPath);
-
-    if (!avatar) {
-      return res.status(400).json({ message: "Avatar file is required" });
-    }
-
-    user = await User.create({
-      avatar: { url: avatar.url, publicId: avatar.public_id },
-      email,
-      password,
-      username: updatedUsername,
-    });
-  }
-
-  const createdUser = await User.findById(user._id).select("-password");
-
-  if (!createdUser) {
-    return res
-      .status(500)
-      .json({ message: "Something went wrong while registering the user" });
-  }
-
-  sendToken(res, user, 201, "User registered Successfully");
-});
-
-//To login
-export const loginUser = asyncHandler(async (req, res) => {
-  const { email, username, password } = req.body;
-
-  if (!username && !email) {
-    return res.status(400).json({ message: "username or email is required" });
-  }
-
-  const updatedUsername = username.replace(" ", "_");
-
-  const user = await User.findOne({
-    $or: [{ username: updatedUsername }, { email }],
-  });
-
-  if (!user) {
-    return res.status(403).json({ message: "User does not exist" });
-  }
-
-  const isPasswordValid = user?.password === password;
-
-  if (!isPasswordValid) {
-    return res.status(401).json({ message: "Invalid user credentials" });
-  }
-
-  sendToken(res, user, 201, "Login Success");
-});
-
-//view profile
-export const getProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user)
-    .select("-password")
-    .populate("friends", "username _id avatar");
-
-  if (!user) return res.status(402).json({ message: "User not found" });
-
-  res.status(200).json({
-    success: true,
-    user,
-  });
-});
-
-//To logout
-export const logoutUser = asyncHandler(async (req, res) => {
-  return res
-    .status(200)
-    .cookie("echo-token", "", { ...cookieOptions, maxAge: 0 })
-    .json({ success: true, message: "Logged out successfully" });
-});
 
 export const updateCurrUserData = asyncHandler(async (req, res) => {
   const {
     updatedEmail,
     updatedUsername,
     updatedPassword,
-    udatedIsAcceptingWhispers,
+    udatedIsAcceptingMumbles,
     updatedIsAnonymous,
   } = req.body;
 
@@ -132,7 +21,7 @@ export const updateCurrUserData = asyncHandler(async (req, res) => {
   const updateFields = {
     email: updatedEmail,
     username: updatedUsername,
-    isAcceptingWhispers: udatedIsAcceptingWhispers,
+    isAcceptingMumbles: udatedIsAcceptingMumbles,
     isAnonymous: updatedIsAnonymous,
   };
 
@@ -238,9 +127,9 @@ export const getSelectedUserProfileDetails = asyncHandler(async (req, res) => {
     selectedViewProfileId
   ).select("_id username avatar");
 
-  const selectedUserProfileWhispers = await EchoWhisper.find({
+  const selectedUserProfileMumbles = await EchoMumble.find({
     receiver: selectedViewProfileId,
-    showOthers: true,
+    pinned: true,
   });
 
   const { avatar, _id, username } = selectedUserProfileDetails;
@@ -249,7 +138,7 @@ export const getSelectedUserProfileDetails = asyncHandler(async (req, res) => {
     avatar,
     _id,
     username,
-    selectedUserProfileWhispers,
+    selectedUserProfileMumbles,
   };
 
   return res.status(200).json({
@@ -272,8 +161,8 @@ export const getSelectedUserProfile = asyncHandler(async (req, res) => {
 });
 
 export const deleteMyAccount = asyncHandler(async (req, res) => {
-  await EchoWhisper.deleteMany({ receiver: req.user });
-  await EchoWhisper.deleteMany({ sender: req.user });
+  await EchoMumble.deleteMany({ receiver: req.user });
+  await EchoMumble.deleteMany({ sender: req.user });
   await EchoShout.deleteMany({ sender: req.user });
   await EchoLink.deleteMany({ uniqueChatId: { $regex: req.user } });
   await User.updateMany(
