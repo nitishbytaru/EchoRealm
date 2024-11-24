@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useInputValidation } from "6pp";
-import { setLoading } from "../../../app/slices/authSlice.js";
+import { setIsLoading } from "../../../app/slices/authSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import { sendMumbleApi } from "../../../api/echoMumbleApi.js";
 import { handleKeyPress } from "../../../heplerFunc/microFuncs.js";
@@ -18,8 +18,8 @@ function CreateMumble() {
   const searchResults = useDebouncedSearchResults(search.value);
 
   //utility functions
-  const handleUserSelect = (MumbleTo) => {
-    setSelectedUser(MumbleTo);
+  const handleUserSelect = (mumbleTo) => {
+    setSelectedUser(mumbleTo);
     search.clear();
   };
 
@@ -40,18 +40,18 @@ function CreateMumble() {
 
     const data = {
       message: message.value,
-      receiver: selectedUser._id,
+      receiver: selectedUser.user._id,
       sender: user?.username || null,
     };
 
     try {
-      dispatch(setLoading(true));
+      dispatch(setIsLoading(true));
       const response = await sendMumbleApi(data);
       toast.success(response?.data?.message);
     } catch (error) {
       console.log(error);
     } finally {
-      dispatch(setLoading(false));
+      dispatch(setIsLoading(false));
       message.clear();
       setSelectedUser(null);
     }
@@ -88,18 +88,18 @@ function CreateMumble() {
               <ul className="menu bg-base-200 w-full rounded-box mt-2">
                 {searchResults.map(
                   (searchResultUser) =>
-                    searchResultUser?.isAcceptingMumbles && (
+                    searchResultUser?.user?.isAcceptingMumbles && (
                       <li
-                        key={searchResultUser?._id}
+                        key={searchResultUser?.user?._id}
                         onClick={() => handleUserSelect(searchResultUser)}
                       >
                         <div className="sm:text-2xl">
                           <img
-                            src={searchResultUser?.avatar?.url}
+                            src={searchResultUser?.user?.avatar?.url}
                             alt=""
                             className="avatar object-cover rounded-full w-10 h-10 sm:w-14 sm:h-14"
                           />
-                          <p>{searchResultUser?.username}</p>
+                          <p>{searchResultUser?.user?.username}</p>
                         </div>
                       </li>
                     )
@@ -119,13 +119,13 @@ function CreateMumble() {
               <div className="flex avatar justify-center">
                 <div className="w-2/5 sm:w-1/4 rounded-full">
                   <img
-                    src={selectedUser?.avatar?.url}
+                    src={selectedUser?.user?.avatar?.url}
                     alt={selectedUser.username}
                   />
                 </div>
               </div>
               <div className="flex justify-center items-center">
-                <p className="text-3xl">@{selectedUser.username}</p>
+                <p className="text-3xl">@{selectedUser.user.username}</p>
               </div>
             </>
           ) : (

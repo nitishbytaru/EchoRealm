@@ -6,7 +6,11 @@ import {
   getMumblesApi,
   pinMumbleApi,
 } from "../../../api/echoMumbleApi";
-import { blockSenderApi, getSelectedUserByIdApi } from "../../../api/userApi";
+import {
+  getBlockedUsersApi,
+  handleRemoveOrBlockMyFriendApi,
+} from "../../../api/friendsApi";
+import { getSelectedUserByIdApi } from "../../../api/userApi";
 import {
   increaseNumberOfPinnedMumbles,
   removeMumble,
@@ -20,7 +24,7 @@ import {
 } from "../../../heplerFunc/exportIcons";
 import { setSelectedUser } from "../../../app/slices/echoLinkSlice";
 import { useNavigate } from "react-router-dom";
-import { setLoading } from "../../../app/slices/authSlice";
+import { setIsLoading } from "../../../app/slices/authSlice";
 import { handleRoomSelect } from "../../../heplerFunc/microFuncs";
 
 function ListenMumble() {
@@ -35,21 +39,29 @@ function ListenMumble() {
   useEffect(() => {
     const func = async () => {
       const response = await getMumblesApi();
-      const responseMumbles = response?.data?.Mumbles.filter(
-        (mumble) => !user?.blockedUsers.includes(mumble?.sender)
+      const blockedUsersApiResponse = await getBlockedUsersApi();
+
+      const myMumbles = response?.data?.mumbles.filter((mumble) => {
+        return mumble.receiver.toString() === user._id.toString();
+      });
+
+      const responseMumbles = myMumbles?.filter(
+        (mumble) =>
+          !blockedUsersApiResponse?.data?.blockedUsers.includes(mumble?.sender)
       );
-      const numberOfPinnedMumblesInResponse = response?.data?.Mumbles.filter(
+      const numberOfPinnedMumblesInResponse = response?.data?.Mumbles?.filter(
         (mumble) => mumble?.pinned
       );
       dispatch(
-        setNumberOfPinnedMumbles(numberOfPinnedMumblesInResponse.length)
+        setNumberOfPinnedMumbles(numberOfPinnedMumblesInResponse?.length)
       );
+
       dispatch(setMumbles(responseMumbles || []));
     };
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     func();
-    dispatch(setLoading(false));
-  }, [dispatch, user?.blockedUsers]);
+    dispatch(setIsLoading(false));
+  }, [dispatch, user._id, user.blockedUsers]);
 
   const callDeleteMumbleFunc = (e, Mumble) => {
     e.preventDefault();
@@ -83,9 +95,9 @@ function ListenMumble() {
 
   const confirmDeleteMumbleApiFunc = async (MumbleId) => {
     console.log(MumbleId);
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await deleteMumbleApi(MumbleId);
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     if (response?.data) {
       dispatch(removeMumble(MumbleId));
       toast.success(response.data?.message);
@@ -96,9 +108,9 @@ function ListenMumble() {
     if (!Mumble?.pinned && numberOfPinnedMumbles >= 4) {
       return toast.error("Only 5 mumbles can be Pinned");
     }
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await pinMumbleApi(Mumble._id);
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     dispatch(updateMumbles(response?.data?.updatedMumble));
     dispatch(increaseNumberOfPinnedMumbles());
     if (response?.data) {
@@ -108,18 +120,21 @@ function ListenMumble() {
 
   const blockSenderApiFunc = async (MumbleId, senderId) => {
     dispatch(removeMumble(MumbleId));
-    dispatch(setLoading(true));
-    const response = await blockSenderApi(senderId);
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(true));
+    const response = await handleRemoveOrBlockMyFriendApi({
+      senderId,
+      block: true,
+    });
+    dispatch(setIsLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
     }
   };
 
   const goToEchoLinkApiFunc = async (selectedUserId) => {
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await getSelectedUserByIdApi(selectedUserId);
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     dispatch(setSelectedUser(response?.data?.selectedUserDetails));
     handleRoomSelect(dispatch, response?.data?.selectedUserDetails, user);
     navigate("/echo-link");

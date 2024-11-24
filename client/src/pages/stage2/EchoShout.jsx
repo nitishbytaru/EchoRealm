@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import socket from "../../sockets/socket.js";
 import moment from "moment";
 import MessageBar from "../../components/ui/MessageBar";
-import { getEchoShouts, sendEchoShout } from "../../api/echoShoutApi";
-import { setLoading } from "../../app/slices/authSlice.js";
+import { getEchoShoutsApi, sendEchoShoutApi } from "../../api/echoShoutApi";
+import { setIsLoading } from "../../app/slices/authSlice.js";
 import {
   addEchoShoutMessage,
   setEchoShoutMessages,
@@ -42,17 +42,17 @@ function EchoShout() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await getEchoShouts();
+        const response = await getEchoShoutsApi();
         dispatch(setEchoShoutMessages(response?.data?.messages || []));
       } catch (error) {
         console.log(error);
       } finally {
-        dispatch(setLoading(false));
+        dispatch(setIsLoading(false));
       }
     };
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     fetchMessages();
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
   }, [dispatch]);
 
   useEffect(() => {
@@ -62,7 +62,7 @@ function EchoShout() {
       echoShoutMessageData.append("mentions", JSON.stringify(mentions));
 
       try {
-        await sendEchoShout(echoShoutMessageData);
+        await sendEchoShoutApi(echoShoutMessageData);
       } catch (error) {
         console.log(error);
       } finally {
@@ -70,11 +70,11 @@ function EchoShout() {
       }
     };
     if (echoShoutMessageData) {
-      dispatch(setLoading(true));
+      dispatch(setIsLoading(true));
       sendEchoShoutMessage();
-      dispatch(setLoading(false));
+      dispatch(setIsLoading(false));
     }
-  }, [echoShoutMessageData]);
+  }, [dispatch, echoShoutMessageData, mentions]);
 
   function addMentionFunc(mentionedUser) {
     setMentions((prev) => [...prev, mentionedUser]);
