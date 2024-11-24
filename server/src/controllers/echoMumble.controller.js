@@ -111,7 +111,7 @@ export const pinMumble = asyncHandler(async (req, res) => {
 
   res.status(207).json({
     message: `Mumble is ${
-      updatedMumble.showOthers ? "pined" : "unpined"
+      updatedMumble.pinned ? "pined" : "unpined"
     } successfully`,
     updatedMumble,
   });

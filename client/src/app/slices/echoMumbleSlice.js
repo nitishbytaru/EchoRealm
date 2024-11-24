@@ -15,14 +15,9 @@ const MumbleSlice = createSlice({
       state.Mumbles = action.payload;
     },
     updateMumbles(state, action) {
-      if (
-        state.numberOfPinnedMumbles <= 5 ||
-        state.numberOfPinnedMumbles >= 1
-      ) {
-        state.Mumbles = state.Mumbles.map((Mumble) =>
-          Mumble?._id === action.payload?._id ? action.payload : Mumble
-        );
-      }
+      state.Mumbles = state.Mumbles.map((Mumble) =>
+        Mumble?._id === action.payload?._id ? action.payload : Mumble
+      );
     },
     removeMumble(state, action) {
       state.Mumbles = state.Mumbles.filter(

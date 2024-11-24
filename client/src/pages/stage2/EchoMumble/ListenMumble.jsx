@@ -104,12 +104,12 @@ function ListenMumble() {
     }
   };
 
-  const pinMumbleApiFunc = async (Mumble) => {
-    if (!Mumble?.pinned && numberOfPinnedMumbles >= 4) {
+  const pinMumbleApiFunc = async (mumble) => {
+    if (!mumble?.pinned && numberOfPinnedMumbles >= 4) {
       return toast.error("Only 5 mumbles can be Pinned");
     }
     dispatch(setIsLoading(true));
-    const response = await pinMumbleApi(Mumble._id);
+    const response = await pinMumbleApi(mumble._id);
     dispatch(setIsLoading(false));
     dispatch(updateMumbles(response?.data?.updatedMumble));
     dispatch(increaseNumberOfPinnedMumbles());
