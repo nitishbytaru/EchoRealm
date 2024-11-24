@@ -36,25 +36,6 @@ const userSchema = new Schema(
       type: Boolean,
       default: true,
     },
-    blockedUsers: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-    ],
-    friends: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    pendingFriendRequests: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
     isAnonymous: {
       type: Boolean,
       default: false,

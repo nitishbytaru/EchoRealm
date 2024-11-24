@@ -6,7 +6,11 @@ import {
   deleteAllSentMumblesApi,
   deleteAllRecievedMumblesApi,
 } from "../../api/echoMumbleApi";
-import { setIsLoggedIn, setLoading, setUser } from "../../app/slices/authSlice";
+import {
+  setIsLoggedIn,
+  setIsLoading,
+  setUser,
+} from "../../app/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -42,45 +46,45 @@ function MyAccount() {
   };
 
   const deleteAllRecievedMumbles = async () => {
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await deleteAllRecievedMumblesApi();
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
     }
   };
 
   const deleteAllEchoLink = async () => {
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await handleDeleteAllEchoLinkApi();
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
     }
   };
 
   const deleteAllSentMumbles = async () => {
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await deleteAllSentMumblesApi();
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
     }
   };
 
   const deleteAllMessagesInEchoShout = async () => {
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await deleteAllMessagesInEchoShoutApi();
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     if (response?.data) {
       toast.success(response.data?.message);
     }
   };
 
   const deleteMyAccount = async () => {
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await deleteMyAccountApi();
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     dispatch(setUser(null));
     dispatch(setIsLoggedIn(false));
     localStorage.setItem("allowFetch", false);

@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  blockedUsers: [],
-  currUserDetails: [],
-  selectedViewProfileId: null,
-  resultOfSearchedUsers: [],
-  myFriendRequests: [],
+  blockedUsers: [], // users blocked by current user
+  selectedViewProfileId: null, // selected user to view his profile
+  resultOfSearchedUsers: [], // result of users after searched by his username
+  myFriendRequests: [], // list of friend requests of the current user
+  myFriendsList: [], // list of friends of the current users
 };
 
 const userSlice = createSlice({
@@ -18,15 +18,6 @@ const userSlice = createSlice({
     setSelectedViewProfileId(state, action) {
       state.selectedViewProfileId = action.payload;
     },
-    setCurrUserDetails(state, action) {
-      state.currUserDetails = action.payload;
-    },
-    updateCurrUserDetails(state, action) {
-      state.currUserDetails.selectedUserProfileMumbles =
-        state.currUserDetails?.selectedUserProfileMumbles?.map((Mumble) =>
-          Mumble?._id === action.payload?._id ? action.payload : Mumble
-        );
-    },
     removeFromBlockedUsers(state, action) {
       state.blockedUsers = state.blockedUsers.filter(
         (user) => user._id !== action.payload
@@ -36,16 +27,32 @@ const userSlice = createSlice({
       state.resultOfSearchedUsers = action.payload;
     },
     updateResultOfSearchedUsers(state, action) {
-      state.resultOfSearchedUsers = state.resultOfSearchedUsers.map((user) =>
-        user._id === action.payload._id ? action.payload : user
-      );
+      state.resultOfSearchedUsers = state.resultOfSearchedUsers.map((user) => {
+        if (user.userFriendData._id === action.payload._id) {
+          user.userFriendData = action.payload;
+        }
+        return user; // Return the user as-is if it doesn't match the condition
+      });
     },
     setMyFriendRequests(state, action) {
       state.myFriendRequests = action.payload;
     },
     removeFromMyFriendRequests(state, action) {
       state.myFriendRequests = state.myFriendRequests.filter(
-        (user) => user._id !== action.payload._id
+        (user) => user.requestSender._id !== action.payload._id
+      );
+    },
+    setToMyFriendsList(state, action) {
+      state.myFriendsList = action.payload;
+    },
+    addToMyFriendsList(state, action) {
+      if (!state.myFriendsList.includes(action.payload)) {
+        state.myFriendsList.push(action.payload);
+      }
+    },
+    removeFromMyFriendsList(state, action) {
+      state.myFriendsList = state.myFriendsList.filter(
+        (friend) => friend._id !== action.payload
       );
     },
   },
@@ -54,13 +61,14 @@ const userSlice = createSlice({
 export const {
   setBlockedUsers,
   setSelectedViewProfileId,
-  setCurrUserDetails,
-  updateCurrUserDetails,
   removeFromBlockedUsers,
   setResultOfSearchedUsers,
   updateResultOfSearchedUsers,
   setMyFriendRequests,
   removeFromMyFriendRequests,
+  addToMyFriendsList,
+  setToMyFriendsList,
+  removeFromMyFriendsList,
 } = userSlice.actions;
 
 export default userSlice.reducer;

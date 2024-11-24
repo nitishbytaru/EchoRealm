@@ -12,7 +12,7 @@ import {
   removePinnedMumble,
 } from "../../app/slices/echoMumbleSlice";
 import toast from "react-hot-toast";
-import { setLoading } from "../../app/slices/authSlice";
+import { setIsLoading } from "../../app/slices/authSlice";
 
 function MyMumbles() {
   const dispatch = useDispatch();
@@ -22,20 +22,20 @@ function MyMumbles() {
   useEffect(() => {
     const func = async () => {
       const response = await getMumblesApi();
-      const finalResponse = response?.data?.Mumbles.filter(
-        (Mumble) => Mumble?.pinned == true
+      const finalResponse = response?.data?.mumbles?.filter(
+        (mumble) => mumble?.pinned === true
       );
       dispatch(setPinnedMumbles(finalResponse));
     };
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     func();
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
   }, [dispatch]);
 
-  const pinMumble = async (MumbleId) => {
-    dispatch(setLoading(true));
-    const response = await pinMumbleApi(MumbleId);
-    dispatch(setLoading(false));
+  const pinMumble = async (mumbleId) => {
+    dispatch(setIsLoading(true));
+    const response = await pinMumbleApi(mumbleId);
+    dispatch(setIsLoading(false));
     dispatch(updateMumbles(response?.data?.updatedMumble));
     dispatch(removePinnedMumble(response?.data?.updatedMumble?._id));
     if (response?.data) {

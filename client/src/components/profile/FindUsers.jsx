@@ -1,15 +1,16 @@
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults";
 import { useInputValidation } from "6pp";
 import { useNavigate } from "react-router-dom";
+import socket from "../../sockets/socket";
 import {
   setResultOfSearchedUsers,
   setSelectedViewProfileId,
   updateResultOfSearchedUsers,
 } from "../../app/slices/userSlice";
 import { toast } from "react-hot-toast";
-import { sendFriendRequestApi } from "../../api/userApi";
-import { useEffect } from "react";
+import { sendFriendRequestApi } from "../../api/friendsApi.js";
 
 function FindUsers() {
   const navigate = useNavigate();
@@ -24,21 +25,34 @@ function FindUsers() {
     dispatch(setResultOfSearchedUsers(searchResults));
   }, [dispatch, searchResults, user._id]);
 
-  const viewProfileFunc = async (viewProfileUserId) => {
-    dispatch(setSelectedViewProfileId(viewProfileUserId));
-    navigate(`/about/view-profile/${viewProfileUserId}`);
-  };
-
   const addFriendFunc = async (selectedUser) => {
     try {
       const response = await sendFriendRequestApi(selectedUser?._id);
-      dispatch(
-        updateResultOfSearchedUsers(response?.data?.friendRequestSentToUser)
-      );
+
+      if (response?.data?.myFriendRequests) {
+        dispatch(updateResultOfSearchedUsers(response?.data?.myFriendRequests));
+
+        socket.emit("friendRequestSent", {
+          senderDetails: {
+            // sender data is sent to the reciever bby the sockets
+            senderId: user._id,
+            senderAvatar: user.avatar,
+            senderUsername: user.username,
+            requestSeen: false,
+          },
+          recipientId: selectedUser._id,
+        });
+      }
+
       toast.success(response?.data?.message);
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const viewProfileFunc = async (viewProfileUserId) => {
+    dispatch(setSelectedViewProfileId(viewProfileUserId));
+    navigate(`/about/view-profile/${viewProfileUserId}`);
   };
 
   return (
@@ -73,36 +87,41 @@ function FindUsers() {
                 {resultOfSearchedUsers?.length > 0 && (
                   <div className="overflow-y-auto max-h-[calc(100vh-150px)] px-2">
                     <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                      {resultOfSearchedUsers.map((currUser, index) => (
+                      {resultOfSearchedUsers?.map((currUser, index) => (
                         <div
                           key={index}
                           className="card bg-base-100 shadow-lg rounded-xl"
                         >
                           <figure className="flex justify-center mt-6">
                             <img
-                              src={currUser?.avatar?.url}
+                              src={currUser?.user?.avatar?.url}
                               alt="Blocked User"
                               className="rounded-full w-20 h-20 sm:w-24 sm:h-24 object-cover"
                             />
                           </figure>
                           <div className="card-body p-4 items-center text-center">
                             <h2 className="text-lg font-medium">
-                              @{currUser?.username}
+                              @{currUser?.user?.username}
                             </h2>
                             <div className="sm:flex gap-3 mt-3">
                               <button
                                 className="btn btn-primary mb-1 btn-sm text-xs sm:text-sm"
-                                onClick={() => viewProfileFunc(currUser._id)}
+                                onClick={() =>
+                                  viewProfileFunc(currUser.user._id)
+                                }
                               >
                                 View Profile
                               </button>
-
-                              {currUser?.friends.includes(user?._id) ? (
+                              {currUser?.userFriendData?.friends?.includes(
+                                user?._id
+                              ) ? (
                                 <button className="btn btn-disabled btn-sm text-xs sm:text-sm">
                                   Already Friends
                                 </button>
-                              ) : currUser?.pendingFriendRequests.includes(
-                                  user?._id
+                              ) : currUser?.userFriendData?.pendingFriendRequests?.some(
+                                  (request) => {
+                                    return request.requestSender === user?._id;
+                                  }
                                 ) ? (
                                 <button className="btn btn-disabled btn-sm text-xs sm:text-sm">
                                   Request Sent
@@ -110,7 +129,7 @@ function FindUsers() {
                               ) : (
                                 <button
                                   className="btn btn-secondary btn-sm text-xs sm:text-sm"
-                                  onClick={() => addFriendFunc(currUser)}
+                                  onClick={() => addFriendFunc(currUser.user)}
                                 >
                                   Add Friend
                                 </button>

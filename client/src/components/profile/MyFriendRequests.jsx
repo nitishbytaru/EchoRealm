@@ -5,12 +5,14 @@ import { useNavigate } from "react-router-dom";
 import {
   fetchMyFriendRequestsApi,
   handleFriendRequestApi,
-} from "../../api/userApi";
+} from "../../api/friendsApi.js";
 import {
   setMyFriendRequests,
   setSelectedViewProfileId,
   removeFromMyFriendRequests,
+  addToMyFriendsList,
 } from "../../app/slices/userSlice";
+import socket from "../../sockets/socket";
 
 function MyFriendRequests() {
   const dispatch = useDispatch();
@@ -30,6 +32,18 @@ function MyFriendRequests() {
     fetchMyFriendRequestsFunc();
   }, [dispatch]);
 
+  useEffect(() => {
+    // Listen for incoming friend requests
+    socket.on("friendRequestReceived", (newRequest) => {
+      dispatch(setMyFriendRequests(newRequest));
+    });
+
+    // Cleanup listener on component unmount
+    return () => {
+      socket.off("friendRequestReceived");
+    };
+  }, [dispatch]);
+
   const viewProfileFunc = async (viewProfileUserId) => {
     dispatch(setSelectedViewProfileId(viewProfileUserId));
     navigate(`/about/view-profile/${viewProfileUserId}`);
@@ -40,6 +54,10 @@ function MyFriendRequests() {
       requestedUserId,
       willAccepct,
     });
+
+    if (willAccepct) {
+      dispatch(addToMyFriendsList(response?.data?.updatedMyFriendRequests));
+    }
 
     dispatch(
       removeFromMyFriendRequests(response?.data?.updatedMyFriendRequests)
@@ -64,33 +82,42 @@ function MyFriendRequests() {
                 >
                   <figure className="flex justify-center mt-6">
                     <img
-                      src={currUser?.avatar?.url}
+                      src={currUser?.requestSender?.avatar?.url}
                       alt="Blocked User"
                       className="rounded-full w-20 h-20 sm:w-24 sm:h-24 object-cover"
                     />
                   </figure>
                   <div className="card-body p-4 items-center text-center">
                     <h2 className="text-lg font-medium">
-                      @{currUser?.username}
+                      @{currUser?.requestSender?.username}
                     </h2>
                     <div className="sm:flex gap-3 mt-3">
                       <button
                         className="btn btn-secondary mb-1 btn-sm text-xs sm:text-sm"
-                        onClick={() => viewProfileFunc(currUser._id)}
+                        onClick={() =>
+                          viewProfileFunc(currUser?.requestSender._id)
+                        }
                       >
                         View Profile
                       </button>
 
                       <button
                         className="btn btn-primary mb-1 btn-sm text-xs sm:text-sm mr-2 sm:mr-0"
-                        onClick={() => handleFriendRequest(currUser._id, true)}
+                        onClick={() =>
+                          handleFriendRequest(currUser?.requestSender._id, true)
+                        }
                       >
                         Accepct
                       </button>
 
                       <button
                         className="btn btn-error btn-sm text-xs sm:text-sm"
-                        onClick={() => handleFriendRequest(currUser._id, false)}
+                        onClick={() =>
+                          handleFriendRequest(
+                            currUser?.requestSender._id,
+                            false
+                          )
+                        }
                       >
                         Reject
                       </button>

@@ -15,11 +15,10 @@ import {
 import socket from "../../sockets/socket.js";
 import {
   handleRoomSelect,
-  // handleRoomSelect,
   markAsRead,
   truncateMessage,
 } from "../../heplerFunc/microFuncs.js";
-import { setLoading } from "../../app/slices/authSlice.js";
+import { setIsLoading } from "../../app/slices/authSlice.js";
 
 function ChatRooms() {
   const dispatch = useDispatch();
@@ -54,9 +53,9 @@ function ChatRooms() {
       dispatch(setMyPrivateChatRooms(sortedMyPrivateFriendsWithMessages));
     };
 
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     fetchMyPrivateFriends();
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
   }, [dispatch, user?._id]);
 
   useEffect(() => {

@@ -1,16 +1,15 @@
 // hooks/useDebouncedSearchResults.js
 import { useState, useEffect } from "react";
-import { searchUsersApi } from "../api/echoMumbleApi";
+import { searchUsersApi } from "../api/userApi.js";
 
 export function useDebouncedSearchResults(query) {
   const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
+    const delayDebounceFn = setTimeout(async () => {
       if (query) {
-        searchUsersApi(query)
-          .then((users) => setSearchResults(users))
-          .catch((err) => console.error(err));
+        const response = await searchUsersApi(query);
+        setSearchResults(response?.data?.searchedUsersWithFriends || []);
       } else {
         setSearchResults([]);
       }

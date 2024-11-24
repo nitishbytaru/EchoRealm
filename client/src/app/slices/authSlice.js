@@ -3,8 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   theme: localStorage.getItem("theme") || "business",
   isLoggedIn: false,
+  isLoading: false,
   user: null,
-  loading: false,
   isMobile: window.innerWidth < 640,
   isChecked: localStorage.getItem("theme") === "business",
 };
@@ -13,16 +13,16 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setLoading: (state, action) => {
-      state.loading = action.payload;
+    setIsLoading(state, action) {
+      state.isLoading = action.payload;
     },
-    setIsLoggedIn: (state, action) => {
+    setIsLoggedIn(state, action) {
       state.isLoggedIn = action.payload;
     },
-    setUser: (state, action) => {
+    setUser(state, action) {
       state.user = action.payload;
     },
-    setTheme: (state, action) => {
+    setTheme(state, action) {
       state.theme = action.payload;
     },
     setIsMobile(state, action) {
@@ -35,8 +35,8 @@ const authSlice = createSlice({
 });
 
 export const {
+  setIsLoading,
   setIsLoggedIn,
-  setLoading,
   setUser,
   setTheme,
   setIsMobile,

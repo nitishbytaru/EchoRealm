@@ -1,7 +1,6 @@
 import { Router } from "express";
 import {
   getMumbles,
-  searchUsers,
   sendMumble,
   deleteMumble,
   pinMumble,
@@ -21,6 +20,5 @@ router.route("/pin-Mumble").get(pinMumble);
 router.route("/like-Mumble").get(likeThisMumble);
 router.route("/delete-recieved-Mumbles").get(deleteRecievedMumbles);
 router.route("/delete-sent-Mumbles").get(deletesentMumbles);
-router.route("/search").get(searchUsers);
 
 export default router;

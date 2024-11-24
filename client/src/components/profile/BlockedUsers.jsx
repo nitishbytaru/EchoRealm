@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { getBlockedUsersApi, unBlockUserApi } from "../../api/userApi";
+import { getBlockedUsersApi, unBlockUserApi } from "../../api/friendsApi.js";
 import { useDispatch, useSelector } from "react-redux";
-import { setLoading } from "../../app/slices/authSlice";
+import { setIsLoading } from "../../app/slices/authSlice";
 import {
   setBlockedUsers,
   removeFromBlockedUsers,
@@ -18,15 +18,15 @@ function BlockedUsers() {
       dispatch(setBlockedUsers(response?.data?.blockedUsers));
     };
 
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     funcGetBlockedUsers();
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
   }, [dispatch]);
 
   const unBlockApiFunc = async (userId) => {
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await unBlockUserApi(userId);
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     toast.success(response?.data?.message);
     dispatch(removeFromBlockedUsers(userId));
   };

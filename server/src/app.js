@@ -23,6 +23,7 @@ import userRoute from "./routes/user.route.js";
 import echoShoutRoute from "./routes/echoShout.route.js";
 import echoMumbleRoute from "./routes/echoMumble.route.js";
 import echoLinkRoute from "./routes/echoLink.route.js";
+import friendsRoute from "./routes/friends.route.js";
 
 //routes
 app.use("/api/auth", authRoute);
@@ -30,5 +31,6 @@ app.use("/api/user", userRoute);
 app.use("/api/echoShout", echoShoutRoute);
 app.use("/api/echoMumble", echoMumbleRoute);
 app.use("/api/echoLink", echoLinkRoute);
+app.use("/api/friends", friendsRoute);
 
 export { app };

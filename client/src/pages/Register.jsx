@@ -3,7 +3,7 @@ import { useState, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
 import { loginApi, registerApi } from "../api/authApi";
-import { setIsLoggedIn, setLoading, setUser } from "../app/slices/authSlice";
+import { setIsLoggedIn, setIsLoading, setUser } from "../app/slices/authSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 
@@ -34,7 +34,7 @@ const Register = () => {
     formData.append("email", email.value);
     formData.append("avatar", avatar.file);
 
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await registerApi(formData); //register api
     if (response.data) {
       dispatch(setIsLoggedIn(true));
@@ -42,7 +42,7 @@ const Register = () => {
       localStorage.setItem("allowFetch", true);
       toast.success("Registration successful");
     }
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
 
     email.clear();
     username.clear();
@@ -84,7 +84,7 @@ const Register = () => {
       formData.append("avatarUrl", decodedToken.picture);
       formData.append("email", decodedToken.email);
 
-      dispatch(setLoading(true));
+      dispatch(setIsLoading(true));
       const response = await registerApi(formData); //register api
       if (response.data) {
         dispatch(setIsLoggedIn(true));
@@ -92,7 +92,7 @@ const Register = () => {
         localStorage.setItem("allowFetch", true);
         toast.success("Registration successful");
       }
-      dispatch(setLoading(false));
+      dispatch(setIsLoading(false));
     } else {
       const response = await loginApi(formData); //login api
 

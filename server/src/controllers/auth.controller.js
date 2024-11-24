@@ -1,3 +1,4 @@
+import { UserFriend } from "../models/friends.model.js";
 import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
@@ -93,9 +94,13 @@ export const loginUser = asyncHandler(async (req, res) => {
 
 //view profile
 export const getProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user)
-    .select("-password")
-    .populate("friends", "username _id avatar");
+  const userId = req.user;
+
+  const user = await User.findById(req.user).select("-password");
+  user["friends"] = await UserFriend.findOne({ userId }).populate(
+    "friends",
+    "username _id avatar"
+  );
 
   if (!user) return res.status(402).json({ message: "User not found" });
 

@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MumbleIcon from "../EchoMumble/MumbleIcon.jsx";
-
 //importing the components
 import {
   setIsMobile,
@@ -13,8 +12,10 @@ import {
   CampaignIcon,
   ChatIcon,
   HomeIcon,
+  MenuIcon,
 } from "../../heplerFunc/exportIcons.js";
 import { handleToggle } from "../../heplerFunc/microFuncs.js";
+import socket from "../../sockets/socket.js";
 
 //lazy loading
 const ThemeToggle = lazy(() => import("./ThemeToggle"));
@@ -43,6 +44,18 @@ function NavBar() {
     dispatch(setTheme(theme));
     document.documentElement.setAttribute("data-theme", theme);
   }, [dispatch, theme]);
+
+  useEffect(() => {
+    //this function is to join a room to get the
+    //live updates for the new friend requests and new whispers
+    const joinRoomToGetLiveUpdates = () => {
+      if (user) {
+        socket.emit("joinMyPersonalRoom", user?._id);
+      }
+    };
+
+    joinRoomToGetLiveUpdates();
+  }, [user]);
 
   return (
     <div className="navbar bg-base-100">
@@ -101,15 +114,9 @@ function NavBar() {
               <Suspense fallback={<div>Loading...</div>}>
                 <div tabIndex={0} role="button" className="rounded-btn">
                   <label className="btn-circle avatar items-center justify-center sm:mr-2">
-                    <div
-                      className={`${
-                        isMobile ? "w-10 h-10" : "w-12 h-12"
-                      } rounded-full `}
-                    >
-                      <Link to={"about/my-Mumbles"}>
-                        <img src={user.avatar.url} alt="User Avatar" />
-                      </Link>
-                    </div>
+                    <Link to={"about/my-Mumbles"} className="btn sm:btn-ghost">
+                      <MenuIcon sx={{ fontSize: "30px" }} />
+                    </Link>
                   </label>
                 </div>
               </Suspense>

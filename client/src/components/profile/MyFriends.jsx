@@ -1,41 +1,55 @@
 import { useDispatch, useSelector } from "react-redux";
-import { setLoading } from "../../app/slices/authSlice";
+import { setIsLoading } from "../../app/slices/authSlice";
 import toast from "react-hot-toast";
 import {
   blockSenderApi,
   handleRemoveOrBlockMyFriendApi,
 } from "../../api/userApi";
+import { useEffect } from "react";
+import {
+  removeFromMyFriendsList,
+  setToMyFriendsList,
+} from "../../app/slices/userSlice";
 
 function MyFriends() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const { myFriendsList } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (myFriendsList?.length < 1) {
+      dispatch(setToMyFriendsList(user?.friends));
+    }
+  }, [dispatch, myFriendsList, user]);
 
   const blockSender = async (friendId) => {
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     await blockSenderApi(friendId);
 
-    const response2 = await handleRemoveOrBlockMyFriendApi({
+    const response = await handleRemoveOrBlockMyFriendApi({
       friendId,
       block: true,
     });
 
-    dispatch(setLoading(false));
-    if (response2?.data) {
-      toast.success(response2.data?.message);
+    dispatch(removeFromMyFriendsList(friendId));
+    dispatch(setIsLoading(false));
+    if (response?.data) {
+      toast.success(response.data?.message);
     }
   };
 
   const removeFriend = async (friendId) => {
-    dispatch(setLoading(true));
+    setIsLoading(true);
 
-    const response2 = await handleRemoveOrBlockMyFriendApi({
+    const response = await handleRemoveOrBlockMyFriendApi({
       friendId,
       block: false,
     });
 
-    dispatch(setLoading(false));
-    if (response2?.data) {
-      toast.success(response2.data?.message);
+    dispatch(removeFromMyFriendsList(friendId));
+    setIsLoading(false);
+    if (response?.data) {
+      toast.success(response.data?.message);
     }
   };
 
@@ -43,13 +57,11 @@ function MyFriends() {
     <div className="bg-base-200 h-full rounded-xl">
       <div className="flex flex-col bg-base-300 h-full w-full mx-auto rounded-xl">
         <div className="flex-none h-full px-4 py-2">
-          <h1 className="sm:text-2xl text-lg mb-4 text-center">
-            My Friends
-          </h1>
+          <h1 className="sm:text-2xl text-lg mb-4 text-center">My Friends</h1>
 
           <div className="overflow-y-auto max-h-[calc(100vh-150px)] px-2">
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {user?.friends?.map((currUser, index) => (
+              {myFriendsList?.map((currUser, index) => (
                 <div
                   key={index}
                   className="card bg-base-100 shadow-lg rounded-xl"

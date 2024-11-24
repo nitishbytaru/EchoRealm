@@ -19,13 +19,13 @@ export const io = new Server(httpServer, {
 io.on("connection", (socket) => {
   //This is the soket connections for the ECHOLINK
   socket.on("joinEchoLink", (uniqueRoomId) => {
+    console.log("joined Private chat", uniqueRoomId);
     socket.join(uniqueRoomId);
   });
 
-  socket.on("new_privte_message_received", (receiverData) => {
-    const { uniqueChatId } = receiverData; // Ensure this is properly set
-    // Emit to the intended receiver
-    io.to(uniqueChatId).emit("send_latest_echoLink_message", receiverData);
+  socket.on("joinMyPersonalRoom", (myRoomId) => {
+    console.log("joined:", myRoomId);
+    socket.join(myRoomId);
   });
 
   socket.on("disconnect", () => {

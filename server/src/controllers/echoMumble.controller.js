@@ -1,28 +1,8 @@
 // echoMumble.controller.j
 import { EchoMumble } from "../models/echoMumble.model.js";
+import { UserFriend } from "../models/friends.model.js";
 import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-
-export const searchUsers = asyncHandler(async (req, res) => {
-  const { query } = req.query;
-
-  const currUser = await User.findById(req.user).select("-password");
-
-  if (!query) {
-    return res.status(400).json({ message: "Search query is required" });
-  }
-
-  let searchedUsers = await User.find({
-    username: { $regex: query, $options: "i" },
-    _id: { $nin: [...currUser.blockedUsers, req.user] },
-    // $regex: query: Uses a regular expression (regex) to search within the username field for a pattern matching the query value. This means it will find usernames that partially match query rather than an exact match.
-    // $options: "i": This option makes the regex search case-insensitive (e.g., "Alice" and "alice" would both match the query).
-  })
-    .select("-password")
-    .limit(5);
-
-  res.status(203).json({ searchedUsers });
-});
 
 export const sendMumble = asyncHandler(async (req, res) => {
   const { message, receiver } = req.body;
@@ -46,17 +26,28 @@ export const sendMumble = asyncHandler(async (req, res) => {
 });
 
 export const getMumbles = asyncHandler(async (req, res) => {
-  let currUser = await User.findById(req.user).select("-password");
+  const userId = req.user;
 
-  const Mumbles = await EchoMumble.find({
-    receiver: req.user,
+  const blockedUsersOfCurrUser = await UserFriend.findOne({ userId }).select(
+    "blockedUsers"
+  );
+
+  const currentUserBlockedUsersList =
+    blockedUsersOfCurrUser?.blockedUsers || [];
+
+  const mumbles = await EchoMumble.find({
+    receiver: userId,
     $or: [
-      { "sender.senderId": { $nin: [...currUser.blockedUsers, req.user] } },
+      {
+        "sender.senderId": {
+          $nin: [...currentUserBlockedUsersList, userId],
+        },
+      },
       { "sender.senderId": null },
     ],
   });
 
-  res.status(200).json({ Mumbles });
+  res.status(200).json({ mumbles });
 });
 
 export const deleteMumble = asyncHandler(async (req, res) => {

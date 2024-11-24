@@ -2,7 +2,7 @@ import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import MessageBar from "../../ui/MessageBar";
-import { setLoading } from "../../../app/slices/authSlice.js";
+import { setIsLoading } from "../../../app/slices/authSlice.js";
 import {
   MoreVertSharpIcon,
   ArrowBackIosIcon,
@@ -23,7 +23,7 @@ import {
 import socket from "../../../sockets/socket.js";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
 import toast from "react-hot-toast";
-import { blockSenderApi } from "../../../api/userApi.js";
+import { blockSenderApi } from "../../../api/friendsApi.js";
 import { markAsRead } from "../../../heplerFunc/microFuncs.js";
 
 function ChatBox() {
@@ -81,9 +81,9 @@ function ChatBox() {
       .replace("-", "")
       .replace(user?._id, "");
 
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await blockSenderApi(senderId);
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     dispatch(removeFromMyPrivateChatRooms(selectedUser?.uniqueChatId));
     dispatch(setSelectedUser(null));
     if (response?.data) {
@@ -92,18 +92,18 @@ function ChatBox() {
   };
 
   const clearChat = async () => {
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await clearChatApi(selectedUser?.uniqueChatId);
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     dispatch(setPrivateMessages([]));
     console.log(response);
     toast.success(response?.data?.message);
   };
 
   const deleteChatRoom = async () => {
-    dispatch(setLoading(true));
+    dispatch(setIsLoading(true));
     const response = await deleteChatRoomApi(selectedUser?.uniqueChatId);
-    dispatch(setLoading(false));
+    dispatch(setIsLoading(false));
     toast.success(response?.data?.message);
     dispatch(removeFromMyPrivateChatRooms(selectedUser?.uniqueChatId));
     dispatch(setSelectedUser(null));

@@ -3,18 +3,6 @@ import { apiConfigJSON } from "./exportAPICONFIG.js";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoMumble`;
 
-export const searchUsersApi = async (searchTerm) => {
-  try {
-    const response = await axios.get(`${API_URL}/search`, {
-      params: { query: searchTerm },
-      withCredentials: true,
-    });
-    return response?.data?.searchedUsers;
-  } catch (error) {
-    console.error("Error searching users:", error);
-    return error;
-  }
-};
 
 export const sendMumbleApi = async (whiperData) => {
   try {

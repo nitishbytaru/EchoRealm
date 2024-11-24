@@ -20,6 +20,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import PeopleIcon from "@mui/icons-material/People";
+import MenuIcon from "@mui/icons-material/Menu";
 
 export {
   MoreVertSharpIcon,
@@ -44,4 +45,5 @@ export {
   FavoriteIcon,
   PersonAddAlt1Icon,
   PeopleIcon,
+  MenuIcon,
 };

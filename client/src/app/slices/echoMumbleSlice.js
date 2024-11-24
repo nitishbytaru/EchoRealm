@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   Mumbles: [],
+  selectedUserToMumbles: [],
   pinnedMumblesInMyProfile: [],
   numberOfPinnedMumbles: 0,
 };
@@ -55,6 +56,15 @@ const MumbleSlice = createSlice({
     setNumberOfPinnedMumbles(state, action) {
       state.numberOfPinnedMumbles = action.payload;
     },
+    setSelectedUserToMumble(state, action) {
+      state.selectedUserToMumbles = action.payload;
+    },
+    updateSelectedUserToMumbles(state, action) {
+      state.selectedUserToMumbles.selectedUserProfileMumbles =
+        state.selectedUserToMumbles?.selectedUserProfileMumbles?.map((Mumble) =>
+          Mumble?._id === action.payload?._id ? action.payload : Mumble
+        );
+    },
   },
 });
 
@@ -66,5 +76,7 @@ export const {
   setPinnedMumbles,
   increaseNumberOfPinnedMumbles,
   setNumberOfPinnedMumbles,
+  setSelectedUserToMumble,
+  updateSelectedUserToMumbles,
 } = MumbleSlice.actions;
 export default MumbleSlice.reducer;
