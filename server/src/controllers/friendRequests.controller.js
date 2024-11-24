@@ -41,11 +41,14 @@ export const getBlockedUsers = asyncHandler(async (req, res) => {
   // Retrieve blocked user IDs for the logged-in user
   const userId = req.user;
 
-  const { blockedUsers } = await UserFriend.findOne({ userId }).select(
+  const CurrUserthBlockedUsers = await UserFriend.findOne({ userId }).select(
     "blockedUsers"
   );
 
-  if (!blockedUsers || blockedUsers.length === 0) {
+  if (
+    !CurrUserthBlockedUsers?.blockedUsers ||
+    CurrUserthBlockedUsers?.blockedUsers.length === 0
+  ) {
     return res
       .status(200)
       .json({ message: "No blocked users found", blockedUsers: [] });
@@ -53,7 +56,7 @@ export const getBlockedUsers = asyncHandler(async (req, res) => {
 
   // Find all users whose _id is in the blockedUsers array
   const blockedUsersDetails = await User.find({
-    _id: { $in: blockedUsers },
+    _id: { $in: CurrUserthBlockedUsers?.blockedUsers },
   }).select("_id username avatar");
 
   res.status(200).json({

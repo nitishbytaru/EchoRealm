@@ -18,6 +18,7 @@ import {
   setMumbles,
   setNumberOfPinnedMumbles,
   updateMumbles,
+  setUnReadMumbles,
 } from "../../../app/slices/echoMumbleSlice";
 import {
   MoreVertSharpIcon,
@@ -56,10 +57,16 @@ function ListenMumble() {
       const numberOfPinnedMumblesInResponse = response?.data?.Mumbles?.filter(
         (mumble) => mumble?.pinned
       );
+
       dispatch(
         setNumberOfPinnedMumbles(numberOfPinnedMumblesInResponse?.length)
       );
 
+      const calculateUnReadMumbles = responseMumbles.filter(
+        (mumble) => mumble.mumbleStatus !== "read"
+      );
+
+      dispatch(setUnReadMumbles(calculateUnReadMumbles.length));
       dispatch(setMumbles(responseMumbles || []));
     };
     dispatch(setIsLoading(true));
@@ -67,9 +74,11 @@ function ListenMumble() {
     dispatch(setIsLoading(false));
   }, [dispatch, user._id, user.blockedUsers]);
 
+  //useEffect for marking the unread mumbles as read
   useEffect(() => {
     const setAllMumblesAsReadApiFunc = async () => {
       await setMumblesAsReadApi();
+      dispatch(setUnReadMumbles(0));
     };
 
     return () => {
@@ -82,7 +91,7 @@ function ListenMumble() {
         }
       }
     };
-  }, []);
+  }, [Mumbles, Mumbles.length, dispatch]);
 
   const callDeleteMumbleFunc = (e, Mumble) => {
     e.preventDefault();

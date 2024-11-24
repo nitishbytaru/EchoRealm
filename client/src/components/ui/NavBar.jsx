@@ -31,6 +31,7 @@ function NavBar() {
   );
   const { badgeOfPendingRequests } = useSelector((state) => state.user);
   const { newUnreadMessages } = useSelector((state) => state.echoLink);
+  const { unReadMumbles } = useSelector((state) => state.echoMumble);
 
   // Update the isMobile state based on window size
   useEffect(() => {
@@ -101,6 +102,11 @@ function NavBar() {
             <li>
               <div>
                 <MumbleIcon />
+                {unReadMumbles !== 0 && (
+                  <span className="absolute -top-1 -left-1 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
+                    {unReadMumbles}
+                  </span>
+                )}
               </div>
             </li>
           ) : null}

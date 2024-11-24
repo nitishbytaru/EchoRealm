@@ -5,6 +5,7 @@ const initialState = {
   selectedUserToMumbles: [],
   pinnedMumblesInMyProfile: [],
   numberOfPinnedMumbles: 0,
+  unReadMumbles: 0,
 };
 
 const MumbleSlice = createSlice({
@@ -23,6 +24,12 @@ const MumbleSlice = createSlice({
       state.Mumbles = state.Mumbles.filter(
         (Mumble) => Mumble._id !== action.payload
       );
+    },
+    addToMumbles(state, action) {
+      state.Mumbles.push(action.payload);
+    },
+    setUnReadMumbles(state, action) {
+      state.unReadMumbles = action.payload;
     },
     setPinnedMumbles(state, action) {
       state.pinnedMumblesInMyProfile = action.payload;
@@ -67,6 +74,8 @@ export const {
   setMumbles,
   removeMumble,
   updateMumbles,
+  addToMumbles,
+  setUnReadMumbles,
   removePinnedMumble,
   setPinnedMumbles,
   increaseNumberOfPinnedMumbles,

@@ -1,4 +1,5 @@
 // echoMumble.controller.j
+import { io } from "../index.js";
 import { EchoMumble } from "../models/echoMumble.model.js";
 import { UserFriend } from "../models/friends.model.js";
 import { User } from "../models/user.model.js";
@@ -21,6 +22,8 @@ export const sendMumble = asyncHandler(async (req, res) => {
     message,
     receiver,
   });
+
+  io.to(receiver).emit("New_mumble_sent", Mumble);
 
   res.status(200).json({ message: "Mumble sent successfully", Mumble });
 });
@@ -45,7 +48,7 @@ export const getMumbles = asyncHandler(async (req, res) => {
       },
       { "sender.senderId": null },
     ],
-  });
+  }).sort({ createdAt: -1 });
 
   res.status(200).json({ mumbles });
 });

@@ -5,11 +5,14 @@ import {
   setBadgeOfPendingRequests,
   setMyFriendRequests,
 } from "../app/slices/userSlice";
+import { setUnReadMumbles } from "../app/slices/echoMumbleSlice";
 
 export function useFriendRequests(user) {
   const dispatch = useDispatch();
   const { myFriendRequests } = useSelector((state) => state.user);
+  const { Mumbles } = useSelector((state) => state.echoMumble);
 
+  //useEffect for fetching all of my friendRequests
   useEffect(() => {
     const fetchMyFriendRequests = async () => {
       try {
@@ -23,9 +26,19 @@ export function useFriendRequests(user) {
     if (user) fetchMyFriendRequests();
   }, [dispatch, user]);
 
+  //useEffect for adding a badge for new friend requests
   useEffect(() => {
     if (myFriendRequests) {
       dispatch(setBadgeOfPendingRequests(myFriendRequests.length));
     }
   }, [dispatch, myFriendRequests]);
+
+  //useEffect for updating the badge of unread Mumbles
+  useEffect(() => {
+    const calculateUnReadMumbles = Mumbles.filter(
+      (mumble) => mumble.mumbleStatus !== "read"
+    );
+
+    dispatch(setUnReadMumbles(calculateUnReadMumbles.length));
+  }, [Mumbles, dispatch]);
 }
