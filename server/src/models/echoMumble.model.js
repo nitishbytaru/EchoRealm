@@ -29,6 +29,11 @@ const echoMumble = new Schema(
         required: true,
       },
     ],
+    mumbleStatus: {
+      type: String,
+      enum: ["sent", "read"],
+      default: "sent",
+    },
   },
   {
     timestamps: true,

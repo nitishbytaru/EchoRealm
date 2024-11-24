@@ -3,7 +3,6 @@ import { apiConfigJSON } from "./exportAPICONFIG.js";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoMumble`;
 
-
 export const sendMumbleApi = async (whiperData) => {
   try {
     return await axios.post(
@@ -14,6 +13,15 @@ export const sendMumbleApi = async (whiperData) => {
   } catch (error) {
     console.log(error);
     return error;
+  }
+};
+
+export const setMumblesAsReadApi = async () => {
+  try {
+    return await axios.get(`${API_URL}/set-mumbles-read`, apiConfigJSON);
+  } catch (error) {
+    console.log(error);
+    return error?.response;
   }
 };
 
@@ -67,10 +75,7 @@ export const likeThisMumbleApi = async (MumbleId) => {
 // From here all the apis are used to delete the data
 export const deleteAllRecievedMumblesApi = async () => {
   try {
-    return await axios.get(
-      `${API_URL}/delete-recieved-Mumbles`,
-      apiConfigJSON
-    );
+    return await axios.get(`${API_URL}/delete-recieved-Mumbles`, apiConfigJSON);
   } catch (error) {
     console.log(error);
     return error?.response;
@@ -79,10 +84,7 @@ export const deleteAllRecievedMumblesApi = async () => {
 
 export const deleteAllSentMumblesApi = async () => {
   try {
-    return await axios.get(
-      `${API_URL}/delete-sent-Mumbles`,
-      apiConfigJSON
-    );
+    return await axios.get(`${API_URL}/delete-sent-Mumbles`, apiConfigJSON);
   } catch (error) {
     console.log(error);
     return error?.response;

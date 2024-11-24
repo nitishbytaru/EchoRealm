@@ -50,6 +50,17 @@ export const getMumbles = asyncHandler(async (req, res) => {
   res.status(200).json({ mumbles });
 });
 
+export const setMumblesAsRead = asyncHandler(async (req, res) => {
+  const userId = req.user;
+
+  await EchoMumble.updateMany(
+    { receiver: userId },
+    { $set: { mumbleStatus: "read" } }
+  );
+
+  res.status(200).json({ message: "all new mumbels read" });
+});
+
 export const deleteMumble = asyncHandler(async (req, res) => {
   const { MumbleId } = req.query;
 

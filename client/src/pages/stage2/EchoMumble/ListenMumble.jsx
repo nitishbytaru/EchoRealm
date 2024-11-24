@@ -1,10 +1,11 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useRef } from "react";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteMumbleApi,
   getMumblesApi,
   pinMumbleApi,
+  setMumblesAsReadApi,
 } from "../../../api/echoMumbleApi";
 import {
   getBlockedUsersApi,
@@ -28,6 +29,8 @@ import { setIsLoading } from "../../../app/slices/authSlice";
 import { handleRoomSelect } from "../../../heplerFunc/microFuncs";
 
 function ListenMumble() {
+  // Track if the effect is running for the first time
+  const isFirstRender = useRef(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -49,6 +52,7 @@ function ListenMumble() {
         (mumble) =>
           !blockedUsersApiResponse?.data?.blockedUsers.includes(mumble?.sender)
       );
+
       const numberOfPinnedMumblesInResponse = response?.data?.Mumbles?.filter(
         (mumble) => mumble?.pinned
       );
@@ -62,6 +66,23 @@ function ListenMumble() {
     func();
     dispatch(setIsLoading(false));
   }, [dispatch, user._id, user.blockedUsers]);
+
+  useEffect(() => {
+    const setAllMumblesAsReadApiFunc = async () => {
+      await setMumblesAsReadApi();
+    };
+
+    return () => {
+      // Ensure cleanup runs only once when the component unmounts
+      if (isFirstRender.current) {
+        isFirstRender.current = false; // Flip after the first render
+      } else {
+        if (Mumbles.length > 0) {
+          setAllMumblesAsReadApiFunc();
+        }
+      }
+    };
+  }, []);
 
   const callDeleteMumbleFunc = (e, Mumble) => {
     e.preventDefault();
@@ -94,7 +115,6 @@ function ListenMumble() {
   };
 
   const confirmDeleteMumbleApiFunc = async (MumbleId) => {
-    console.log(MumbleId);
     dispatch(setIsLoading(true));
     const response = await deleteMumbleApi(MumbleId);
     dispatch(setIsLoading(false));
@@ -148,7 +168,9 @@ function ListenMumble() {
           {Mumbles.map((Mumble, index) => (
             <div
               key={index}
-              className="card bg-base-100 w-full sm:w-92 shadow-xl"
+              className={`card ${
+                Mumble.mumbleStatus === "sent" ? "bg-slate-800" : "bg-base-100"
+              } w-full sm:w-92 shadow-xl`}
             >
               {Mumble?.pinned && (
                 <div className="absolute m-2">
