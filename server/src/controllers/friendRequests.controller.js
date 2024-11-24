@@ -3,50 +3,45 @@ import { UserFriend } from "../models/friends.model.js";
 import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-//This is to block a particular user
-export const blockUser = asyncHandler(async (req, res) => {
-  const { senderId } = req.query;
+export const removeOrBlockMyFriend = asyncHandler(async (req, res) => {
+  const { friendId, block = false } = req.body;
   const userId = req.user;
 
-  if (!senderId) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Sender ID is required" });
+  if (block) {
+    const response1 = await UserFriend.findOneAndUpdate(
+      { userId },
+      {
+        $addToSet: { blockedUsers: friendId },
+      },
+      { new: true }
+    );
   }
 
-  // Find user and check if senderId is already in the blockedUsers array
-  const blockedUsersOfCurrentUser = await UserFriend.findOne({ userId }).select(
-    "blockedUsers"
-  );
-
-  if (!blockedUsersOfCurrentUser) {
-    return res.status(404).json({ success: false, message: "User not found" });
-  }
-
-  // Check if senderId is already in the blockedUsers array
-  const isAlreadyBlocked = blockedUsersOfCurrentUser.includes(senderId);
-
-  if (isAlreadyBlocked) {
-    return res.status(204).json({ message: "User is already blocked" });
-  }
-
-  // Add senderId to the blockedUsers array
-  const updatedUser = await UserFriend.findByIdAndUpdate(
+  const response3 = await UserFriend.findOneAndUpdate(
     { userId },
-    { $addToSet: { blockedUsers: senderId } },
+    {
+      $pull: { friends: friendId },
+    },
+    { new: true }
+  );
+  const response4 = await UserFriend.findOneAndUpdate(
+    { userId: friendId },
+    {
+      $pull: { friends: userId },
+    },
     { new: true }
   );
 
-  return res
-    .status(200)
-    .json({ success: true, message: "User blocked successfully" });
+  res.status(209).json({
+    message: `Friend ${block ? "removed" : "blocked"}`,
+  });
 });
 
 export const getBlockedUsers = asyncHandler(async (req, res) => {
   // Retrieve blocked user IDs for the logged-in user
   const userId = req.user;
 
-  const blockedUsers = await UserFriend.findOne({ userId }).select(
+  const { blockedUsers } = await UserFriend.findOne({ userId }).select(
     "blockedUsers"
   );
 
@@ -68,10 +63,11 @@ export const getBlockedUsers = asyncHandler(async (req, res) => {
 });
 
 export const unBlockUser = asyncHandler(async (req, res) => {
-  const { userIdToBeUnblocked } = req.query;
+  const userIdToBeUnblocked = req.query.userId;
+  console.log(req.query);
   const userId = req.user;
 
-  const currUser = await UserFriend.findById(userId);
+  const currUser = await UserFriend.findOne({ userId });
 
   if (!currUser) {
     return res.status(204).json({ message: "User not found" });
@@ -152,13 +148,13 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
     await UserFriend.findOneAndUpdate(
       { userId },
       { $addToSet: { friends: requestedUserId } },
-      { new: true }
+      { new: true, upsert: true }
     );
 
     await UserFriend.findOneAndUpdate(
       { userId: requestedUserId },
       { $addToSet: { friends: userId } },
-      { new: true }
+      { new: true, upsert: true }
     );
   }
 
@@ -170,7 +166,7 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
         pendingFriendRequests: requestedUserId,
       },
     },
-    { new: true }
+    { new: true, upsert: true }
   );
 
   // Remove the friend request from the requested user's pendingFriendRequests
@@ -181,7 +177,7 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
         pendingFriendRequests: userId,
       },
     },
-    { new: true }
+    { new: true, upsert: true }
   ).populate("pendingFriendRequests", "username _id avatar");
 
   updatedMyFriendRequests = requestingUser.pendingFriendRequests;
@@ -191,47 +187,6 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
   res.status(200).json({
     message: `Friend request ${willAccepct ? "accepted" : "rejected"}.`,
     updatedMyFriendRequests,
-  });
-});
-
-export const removeOrBlockMyFriend = asyncHandler(async (req, res) => {
-  const { friendId, block } = req.body;
-  const userId = req.user;
-
-  if (block) {
-    const response1 = await UserFriend.findOneAndUpdate(
-      { userId },
-      {
-        $addToSet: { blockedUsers: friendId },
-      },
-      { new: true }
-    );
-    const response2 = await UserFriend.findOneAndUpdate(
-      { userId: friendId },
-      {
-        $addToSet: { blockedUsers: userId },
-      },
-      { new: true }
-    );
-  }
-
-  const response3 = await UserFriend.findByIdAndUpdate(
-    { userId },
-    {
-      $pull: { friends: friendId },
-    },
-    { new: true }
-  );
-  const response4 = await UserFriend.findByIdAndUpdate(
-    { userId: friendId },
-    {
-      $pull: { friends: userId },
-    },
-    { new: true }
-  );
-
-  res.status(209).json({
-    message: `Friend ${block ? "removed" : "blocked"}`,
   });
 });
 
@@ -246,5 +201,18 @@ export const getMyFriendRequests = asyncHandler(async (req, res) => {
   res.status(209).json({
     message: "fetched your friend requests",
     myFriendRequests: currUser?.pendingFriendRequests,
+  });
+});
+
+export const getMyFriendList = asyncHandler(async (req, res) => {
+  const userId = req.user;
+  const currUserFriendList = await UserFriend.findOne({ userId }).populate({
+    path: "friends",
+    select: "username _id avatar",
+  });
+
+  res.status(209).json({
+    message: "fetched your friends",
+    myFriendList: currUserFriendList,
   });
 });

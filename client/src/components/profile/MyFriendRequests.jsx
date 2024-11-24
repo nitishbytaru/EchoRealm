@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { handleFriendRequestApi } from "../../api/friendsApi.js";
 import {
-  setSelectedViewProfileId,
+  setViewingProfileUserDetails,
   removeFromMyFriendRequests,
   addToMyFriendsList,
 } from "../../app/slices/userSlice";
@@ -15,7 +15,7 @@ function MyFriendRequests() {
   const { myFriendRequests } = useSelector((state) => state.user);
 
   const viewProfileFunc = async (viewProfileUserId) => {
-    dispatch(setSelectedViewProfileId(viewProfileUserId));
+    dispatch(setViewingProfileUserDetails(viewProfileUserId));
     navigate(`/about/view-profile/${viewProfileUserId}`);
   };
 

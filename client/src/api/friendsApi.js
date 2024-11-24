@@ -23,6 +23,15 @@ export const fetchMyFriendRequestsApi = async () => {
   }
 };
 
+export const getMyFriendsListApi = async () => {
+  try {
+    return await axios.get(`${API_URL}/get-myFriendList`, apiConfigJSON);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 export const handleFriendRequestApi = async (Data) => {
   try {
     return await axios.post(
@@ -43,18 +52,6 @@ export const handleRemoveOrBlockMyFriendApi = async (Data) => {
       Data,
       apiConfigJSON
     );
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-};
-
-export const blockSenderApi = async (senderId) => {
-  try {
-    return await axios.get(`${API_URL}/block-user`, {
-      ...apiConfigJSON,
-      params: { senderId },
-    });
   } catch (error) {
     console.log(error);
     return error;

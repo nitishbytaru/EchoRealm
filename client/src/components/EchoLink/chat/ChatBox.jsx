@@ -23,7 +23,7 @@ import {
 import socket from "../../../sockets/socket.js";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
 import toast from "react-hot-toast";
-import { blockSenderApi } from "../../../api/friendsApi.js";
+import { handleRemoveOrBlockMyFriendApi } from "../../../api/friendsApi.js";
 import { markAsRead } from "../../../heplerFunc/microFuncs.js";
 
 function ChatBox() {
@@ -82,7 +82,10 @@ function ChatBox() {
       .replace(user?._id, "");
 
     dispatch(setIsLoading(true));
-    const response = await blockSenderApi(senderId);
+    const response = await handleRemoveOrBlockMyFriendApi({
+      senderId,
+      block: true,
+    });
     dispatch(setIsLoading(false));
     dispatch(removeFromMyPrivateChatRooms(selectedUser?.uniqueChatId));
     dispatch(setSelectedUser(null));

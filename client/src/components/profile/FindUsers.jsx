@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import socket from "../../sockets/socket";
 import {
   setResultOfSearchedUsers,
-  setSelectedViewProfileId,
+  setViewingProfileUserDetails,
   updateResultOfSearchedUsers,
 } from "../../app/slices/userSlice";
 import { toast } from "react-hot-toast";
@@ -51,7 +51,7 @@ function FindUsers() {
   };
 
   const viewProfileFunc = async (viewProfileUserId) => {
-    dispatch(setSelectedViewProfileId(viewProfileUserId));
+    dispatch(setViewingProfileUserDetails(viewProfileUserId));
     navigate(`/about/view-profile/${viewProfileUserId}`);
   };
 

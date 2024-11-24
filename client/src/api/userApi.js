@@ -39,7 +39,7 @@ export const updateRequestApi = async (userNewData) => {
   }
 };
 
-export const getSelectedUserProfileDetailsApi = async (
+export const getDetailsToViewProfileApi = async (
   selectedViewProfileId
 ) => {
   try {

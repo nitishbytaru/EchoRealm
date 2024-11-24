@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   blockedUsers: [], // users blocked by current user
-  selectedViewProfileId: null, // selected user to view his profile
+  viewingProfileUserDetails: null, // details of the currently viewing user
   resultOfSearchedUsers: [], // result of users after searched by his username
   myFriendRequests: [], // list of friend requests of the current user
   myFriendsList: [], // list of friends of the current users
@@ -15,9 +15,6 @@ const userSlice = createSlice({
   reducers: {
     setBlockedUsers(state, action) {
       state.blockedUsers = action.payload;
-    },
-    setSelectedViewProfileId(state, action) {
-      state.selectedViewProfileId = action.payload;
     },
     removeFromBlockedUsers(state, action) {
       state.blockedUsers = state.blockedUsers.filter(
@@ -59,12 +56,21 @@ const userSlice = createSlice({
     setBadgeOfPendingRequests(state, action) {
       state.badgeOfPendingRequests = action.payload;
     },
+    updateViewingProfileUserDetails(state, action) {
+      state.viewingProfileUserDetails.selectedUserProfileMumbles =
+        state.viewingProfileUserDetails?.selectedUserProfileMumbles?.map(
+          (mumble) =>
+            mumble?._id === action.payload?._id ? action.payload : mumble
+        );
+    },
+    setViewingProfileUserDetails(state, action) {
+      state.viewingProfileUserDetails = action.payload;
+    },
   },
 });
 
 export const {
   setBlockedUsers,
-  setSelectedViewProfileId,
   removeFromBlockedUsers,
   setResultOfSearchedUsers,
   updateResultOfSearchedUsers,
@@ -74,6 +80,8 @@ export const {
   setToMyFriendsList,
   removeFromMyFriendsList,
   setBadgeOfPendingRequests,
+  updateViewingProfileUserDetails,
+  setViewingProfileUserDetails,
 } = userSlice.actions;
 
 export default userSlice.reducer;

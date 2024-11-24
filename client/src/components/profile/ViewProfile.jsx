@@ -1,45 +1,44 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { getSelectedUserProfileDetailsApi } from "../../api/userApi";
+import { getDetailsToViewProfileApi } from "../../api/userApi";
 import { FavoriteBorderIcon, FavoriteIcon } from "../../heplerFunc/exportIcons";
 import { likeThisMumbleApi } from "../../api/echoMumbleApi";
 import {
-  updateCurrUserDetails,
-  setCurrUserDetails,
+  updateViewingProfileUserDetails,
+  setViewingProfileUserDetails,
 } from "../../app/slices/userSlice.js";
-
-import { setLoading } from "../../app/slices/authSlice.js";
+import { setIsLoading } from "../../app/slices/authSlice.js";
 
 function ViewProfile() {
-  const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const { viewProfileUserId } = useParams();
 
-  const dispatch = useDispatch();
-  const { currUserDetails } = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.auth);
+  const { viewingProfileUserDetails } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await getSelectedUserProfileDetailsApi(
-        viewProfileUserId
-      );
+      const response = await getDetailsToViewProfileApi(viewProfileUserId);
       dispatch(
-        setCurrUserDetails(response?.data?.selectedUserProfileDetailsResponse)
+        setViewingProfileUserDetails(
+          response?.data?.selectedUserProfileDetailsResponse
+        )
       );
     };
 
     if (viewProfileUserId) {
-      dispatch(setLoading(true));
+      dispatch(setIsLoading(true));
       fetchData();
-      dispatch(setLoading(false));
+      dispatch(setIsLoading(false));
     }
   }, [dispatch, viewProfileUserId]);
 
-  const likeThisMumbleFunc = async (MumbleId) => {
-    dispatch(setLoading(true));
-    const response = await likeThisMumbleApi(MumbleId);
-    dispatch(setLoading(false));
-    dispatch(updateCurrUserDetails(response?.data?.updatedMumble));
+  const likeThisMumbleFunc = async (mumbleId) => {
+    dispatch(setIsLoading(true));
+    const response = await likeThisMumbleApi(mumbleId);
+    dispatch(setIsLoading(false));
+    dispatch(updateViewingProfileUserDetails(response?.data?.updatedMumble));
   };
 
   return (
@@ -57,11 +56,11 @@ function ViewProfile() {
         <div className="w-full h-full">
           <div className="flex flex-col items-center justify-center">
             <img
-              src={currUserDetails?.avatar?.url}
+              src={viewingProfileUserDetails?.avatar?.url}
               alt="avatar"
               className="avatar rounded-full w-24 h-24 mt-3 sm:w-48 sm:h-48 sm:mt-2 object-cover"
             />
-            <p className="sm:text-xl">@{currUserDetails?.username}</p>
+            <p className="sm:text-xl">@{viewingProfileUserDetails?.username}</p>
           </div>
 
           <div className="divider w-full my-1"></div>
@@ -72,7 +71,7 @@ function ViewProfile() {
                 My Mumbles
               </h1>
               <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                {currUserDetails?.selectedUserProfileMumbles?.map(
+                {viewingProfileUserDetails?.selectedUserProfileMumbles?.map(
                   (Mumble, index) => (
                     <div
                       key={index}

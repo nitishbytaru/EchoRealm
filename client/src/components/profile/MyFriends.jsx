@@ -1,11 +1,11 @@
+import { useEffect } from "react";
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsLoading } from "../../app/slices/authSlice";
-import toast from "react-hot-toast";
 import {
-  blockSenderApi,
   handleRemoveOrBlockMyFriendApi,
-} from "../../api/userApi";
-import { useEffect } from "react";
+  getMyFriendsListApi,
+} from "../../api/friendsApi.js";
 import {
   removeFromMyFriendsList,
   setToMyFriendsList,
@@ -13,18 +13,24 @@ import {
 
 function MyFriends() {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
   const { myFriendsList } = useSelector((state) => state.user);
 
   useEffect(() => {
-    if (myFriendsList?.length < 1) {
-      dispatch(setToMyFriendsList(user?.friends));
-    }
-  }, [dispatch, myFriendsList, user]);
+    const getMyFriendsListFunc = async () => {
+      const myFriendsListApiResponse = await getMyFriendsListApi();
+      dispatch(
+        setToMyFriendsList(
+          myFriendsListApiResponse?.data?.myFriendList?.friends
+        )
+      );
+    };
+
+    getMyFriendsListFunc();
+  }, [dispatch]);
 
   const blockSender = async (friendId) => {
     dispatch(setIsLoading(true));
-    await blockSenderApi(friendId);
+    await handleRemoveOrBlockMyFriendApi({ friendId, block: true });
 
     const response = await handleRemoveOrBlockMyFriendApi({
       friendId,
