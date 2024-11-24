@@ -1,18 +1,12 @@
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { handleFriendRequestApi } from "../../api/friendsApi.js";
 import {
-  fetchMyFriendRequestsApi,
-  handleFriendRequestApi,
-} from "../../api/friendsApi.js";
-import {
-  setMyFriendRequests,
   setSelectedViewProfileId,
   removeFromMyFriendRequests,
   addToMyFriendsList,
 } from "../../app/slices/userSlice";
-import socket from "../../sockets/socket";
 
 function MyFriendRequests() {
   const dispatch = useDispatch();
@@ -20,49 +14,27 @@ function MyFriendRequests() {
 
   const { myFriendRequests } = useSelector((state) => state.user);
 
-  useEffect(() => {
-    const fetchMyFriendRequestsFunc = async () => {
-      try {
-        const response = await fetchMyFriendRequestsApi();
-        dispatch(setMyFriendRequests(response?.data?.myFriendRequests));
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchMyFriendRequestsFunc();
-  }, [dispatch]);
-
-  useEffect(() => {
-    // Listen for incoming friend requests
-    socket.on("friendRequestReceived", (newRequest) => {
-      dispatch(setMyFriendRequests(newRequest));
-    });
-
-    // Cleanup listener on component unmount
-    return () => {
-      socket.off("friendRequestReceived");
-    };
-  }, [dispatch]);
-
   const viewProfileFunc = async (viewProfileUserId) => {
     dispatch(setSelectedViewProfileId(viewProfileUserId));
     navigate(`/about/view-profile/${viewProfileUserId}`);
   };
 
   const handleFriendRequest = async (requestedUserId, willAccepct) => {
-    const response = await handleFriendRequestApi({
-      requestedUserId,
-      willAccepct,
-    });
+    try {
+      const response = await handleFriendRequestApi({
+        requestedUserId,
+        willAccepct,
+      });
 
-    if (willAccepct) {
-      dispatch(addToMyFriendsList(response?.data?.updatedMyFriendRequests));
+      if (willAccepct) {
+        dispatch(addToMyFriendsList(response?.data?.updatedMyFriendRequests));
+      }
+
+      dispatch(removeFromMyFriendRequests(requestedUserId));
+      toast.success(response?.data?.message);
+    } catch (error) {
+      console.log(error);
     }
-
-    dispatch(
-      removeFromMyFriendRequests(response?.data?.updatedMyFriendRequests)
-    );
-    toast.success(response?.data?.message);
   };
 
   return (
@@ -82,42 +54,33 @@ function MyFriendRequests() {
                 >
                   <figure className="flex justify-center mt-6">
                     <img
-                      src={currUser?.requestSender?.avatar?.url}
+                      src={currUser?.avatar?.url}
                       alt="Blocked User"
                       className="rounded-full w-20 h-20 sm:w-24 sm:h-24 object-cover"
                     />
                   </figure>
                   <div className="card-body p-4 items-center text-center">
                     <h2 className="text-lg font-medium">
-                      @{currUser?.requestSender?.username}
+                      @{currUser?.username}
                     </h2>
                     <div className="sm:flex gap-3 mt-3">
                       <button
                         className="btn btn-secondary mb-1 btn-sm text-xs sm:text-sm"
-                        onClick={() =>
-                          viewProfileFunc(currUser?.requestSender._id)
-                        }
+                        onClick={() => viewProfileFunc(currUser._id)}
                       >
                         View Profile
                       </button>
 
                       <button
                         className="btn btn-primary mb-1 btn-sm text-xs sm:text-sm mr-2 sm:mr-0"
-                        onClick={() =>
-                          handleFriendRequest(currUser?.requestSender._id, true)
-                        }
+                        onClick={() => handleFriendRequest(currUser._id, true)}
                       >
                         Accepct
                       </button>
 
                       <button
                         className="btn btn-error btn-sm text-xs sm:text-sm"
-                        onClick={() =>
-                          handleFriendRequest(
-                            currUser?.requestSender._id,
-                            false
-                          )
-                        }
+                        onClick={() => handleFriendRequest(currUser._id, false)}
                       >
                         Reject
                       </button>

@@ -16,6 +16,9 @@ import {
 } from "../../heplerFunc/exportIcons.js";
 import { handleToggle } from "../../heplerFunc/microFuncs.js";
 import socket from "../../sockets/socket.js";
+import { useJoinRoomSocket } from "../../hooks/useJoinRoomSocket.js";
+import { useGetRequestsSocket } from "../../hooks/useGetRequestsSocket.js";
+import { useFriendRequests } from "../../hooks/useFriendRequests.js";
 
 //lazy loading
 const ThemeToggle = lazy(() => import("./ThemeToggle"));
@@ -26,6 +29,7 @@ function NavBar() {
   const { user, theme, isMobile, isLoggedIn, isChecked } = useSelector(
     (state) => state.auth
   );
+  const { badgeOfPendingRequests } = useSelector((state) => state.user);
   const { newUnreadMessages } = useSelector((state) => state.echoLink);
 
   // Update the isMobile state based on window size
@@ -45,17 +49,14 @@ function NavBar() {
     document.documentElement.setAttribute("data-theme", theme);
   }, [dispatch, theme]);
 
-  useEffect(() => {
-    //this function is to join a room to get the
-    //live updates for the new friend requests and new whispers
-    const joinRoomToGetLiveUpdates = () => {
-      if (user) {
-        socket.emit("joinMyPersonalRoom", user?._id);
-      }
-    };
+  //hook to fetch friendRequests and add new frindRequests notification badge
+  useFriendRequests(user);
 
-    joinRoomToGetLiveUpdates();
-  }, [user]);
+  //hook for socket to join room to get nitifications of new friendRequests
+  useJoinRoomSocket(socket, user);
+
+  //hook for getting the live updates like friendRequests
+  useGetRequestsSocket(socket);
 
   return (
     <div className="navbar bg-base-100">
@@ -120,6 +121,11 @@ function NavBar() {
                   </label>
                 </div>
               </Suspense>
+              {badgeOfPendingRequests != 0 && (
+                <span className="absolute top-2  bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center sm:text-sm">
+                  {badgeOfPendingRequests}
+                </span>
+              )}
             </>
           ) : (
             <div

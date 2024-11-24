@@ -21,14 +21,8 @@ const userFriendSchema = new Schema(
     ],
     pendingFriendRequests: [
       {
-        requestSender: {
-          type: Schema.Types.ObjectId,
-          ref: "User",
-        },
-        requestSeen: {
-          type: Boolean,
-          default: false,
-        },
+        type: Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
   },

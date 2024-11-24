@@ -6,6 +6,7 @@ const initialState = {
   resultOfSearchedUsers: [], // result of users after searched by his username
   myFriendRequests: [], // list of friend requests of the current user
   myFriendsList: [], // list of friends of the current users
+  badgeOfPendingRequests: 0, //number of pending request
 };
 
 const userSlice = createSlice({
@@ -39,7 +40,7 @@ const userSlice = createSlice({
     },
     removeFromMyFriendRequests(state, action) {
       state.myFriendRequests = state.myFriendRequests.filter(
-        (user) => user.requestSender._id !== action.payload._id
+        (user) => user._id !== action.payload
       );
     },
     setToMyFriendsList(state, action) {
@@ -55,6 +56,9 @@ const userSlice = createSlice({
         (friend) => friend._id !== action.payload
       );
     },
+    setBadgeOfPendingRequests(state, action) {
+      state.badgeOfPendingRequests = action.payload;
+    },
   },
 });
 
@@ -69,6 +73,7 @@ export const {
   addToMyFriendsList,
   setToMyFriendsList,
   removeFromMyFriendsList,
+  setBadgeOfPendingRequests,
 } = userSlice.actions;
 
 export default userSlice.reducer;

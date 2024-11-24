@@ -118,10 +118,8 @@ function FindUsers() {
                                 <button className="btn btn-disabled btn-sm text-xs sm:text-sm">
                                   Already Friends
                                 </button>
-                              ) : currUser?.userFriendData?.pendingFriendRequests?.some(
-                                  (request) => {
-                                    return request.requestSender === user?._id;
-                                  }
+                              ) : currUser?.userFriendData?.pendingFriendRequests?.includes(
+                                  user?._id
                                 ) ? (
                                 <button className="btn btn-disabled btn-sm text-xs sm:text-sm">
                                   Request Sent

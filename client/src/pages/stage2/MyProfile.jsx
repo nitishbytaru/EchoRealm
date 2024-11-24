@@ -31,6 +31,7 @@ function MyProfile() {
   const { user, isLoading, isMobile, isChecked } = useSelector(
     (state) => state.auth
   );
+  const { badgeOfPendingRequests } = useSelector((state) => state.user);
 
   const logoutApiFunc = async () => {
     try {
@@ -50,7 +51,8 @@ function MyProfile() {
     navigate("/");
   };
 
-  const classList = "btn w-20 sm:w-full btn-ghost sm:text-xl justify-start";
+  const classList =
+    "flex items-center justify-start btn w-20 sm:w-full btn-ghost sm:text-xl";
 
   return (
     <div className="flex bg-base-200 w-full h-full rounded-2xl">
@@ -118,7 +120,12 @@ function MyProfile() {
                   {`${isMobile ? "" : "My"} Friends`}
                 </NavLink>
               </li>
-              <li className={`${classList} mb-2 sm:mb-0`}>
+              <li className={`${classList} mb-2 sm:mb-0 relative`}>
+                {badgeOfPendingRequests != 0 && (
+                  <span className="absolute -top-1 left-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center sm:text-sm">
+                    {badgeOfPendingRequests}
+                  </span>
+                )}
                 <NavLink
                   to={"friend-requests"}
                   className={({ isActive }) =>
@@ -129,6 +136,7 @@ function MyProfile() {
                   {`${isMobile ? "" : "Friend"} Requests`}
                 </NavLink>
               </li>
+
               <li className={`${classList} mb-2 sm:mb-0`}>
                 <NavLink
                   to={"blocked-users"}

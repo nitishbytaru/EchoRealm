@@ -99,8 +99,7 @@ export const sendFriendRequest = asyncHandler(async (req, res) => {
 
   // Check if the requestSender already exists
   const isAlreadyRequested = userFriendData?.pendingFriendRequests.some(
-    (friendRequest) =>
-      friendRequest.requestSender.toString() === userId.toString()
+    (friendRequest) => friendRequest.toString() === userId.toString()
   );
 
   if (isAlreadyRequested) {
@@ -111,13 +110,13 @@ export const sendFriendRequest = asyncHandler(async (req, res) => {
   const friendRequestSentToUser = await UserFriend.findOneAndUpdate(
     { userId: selectedUserId },
     {
-      $push: {
-        pendingFriendRequests: { requestSender: userId, requestSeen: false },
+      $addToSet: {
+        pendingFriendRequests: userId,
       },
     },
     { new: true, upsert: true }
   ).populate({
-    path: "pendingFriendRequests.requestSender",
+    path: "pendingFriendRequests",
     select: "username _id avatar",
   });
 
@@ -150,7 +149,7 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
 
   if (willAccepct) {
     // Add both users to each other's friends list
-    await UserFriend.findOneIdAndUpdate(
+    await UserFriend.findOneAndUpdate(
       { userId },
       { $addToSet: { friends: requestedUserId } },
       { new: true }
@@ -168,7 +167,7 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
     { userId },
     {
       $pull: {
-        pendingFriendRequests: { requestSender: requestedUserId },
+        pendingFriendRequests: requestedUserId,
       },
     },
     { new: true }
@@ -179,13 +178,15 @@ export const handleFriendRequest = asyncHandler(async (req, res) => {
     { userId },
     {
       $pull: {
-        pendingFriendRequests: { requestSender: userId },
+        pendingFriendRequests: userId,
       },
     },
     { new: true }
-  ).populate("pendingFriendRequests.requestSender", "username _id avatar");
+  ).populate("pendingFriendRequests", "username _id avatar");
 
   updatedMyFriendRequests = requestingUser.pendingFriendRequests;
+
+  console.log(updatedMyFriendRequests);
 
   res.status(200).json({
     message: `Friend request ${willAccepct ? "accepted" : "rejected"}.`,
@@ -238,7 +239,7 @@ export const getMyFriendRequests = asyncHandler(async (req, res) => {
   const userId = req.user;
 
   const currUser = await UserFriend.findOne({ userId }).populate({
-    path: "pendingFriendRequests.requestSender",
+    path: "pendingFriendRequests",
     select: "username _id avatar",
   });
 
