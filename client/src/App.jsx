@@ -67,6 +67,10 @@ function App() {
             <Route element={<PrivateRoutues user={user} />}>
               <Route path="echo-link" element={<EchoLink />} exact />
               <Route path="create-Mumble" element={<CreateMumble />} />
+              <Route
+                path="create-Mumble/:mumbleTo"
+                element={<CreateMumble />}
+              />
               <Route path="listen-Mumble" element={<ListenMumble />} />
               <Route path="about" element={<MyProfile />}>
                 <Route path="edit-details" element={<MyProfileDetails />} />

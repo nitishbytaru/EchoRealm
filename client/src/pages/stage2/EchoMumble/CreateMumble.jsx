@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useInputValidation } from "6pp";
 import { setIsLoading } from "../../../app/slices/authSlice.js";
@@ -7,9 +8,12 @@ import { sendMumbleApi } from "../../../api/echoMumbleApi.js";
 import { handleKeyPress } from "../../../heplerFunc/microFuncs.js";
 import { SendSharpIcon } from "../../../heplerFunc/exportIcons.js";
 import { useDebouncedSearchResults } from "../../../hooks/useDebouncedSearchResults.js";
+import { searchUserByIdApi } from "../../../api/userApi.js";
 
 function CreateMumble() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { mumbleTo } = useParams();
   const { user } = useSelector((state) => state.auth);
 
   const [selectedUser, setSelectedUser] = useState(null);
@@ -17,11 +21,18 @@ function CreateMumble() {
   const message = useInputValidation("");
   const searchResults = useDebouncedSearchResults(search.value);
 
-  //utility functions
-  const handleUserSelect = (mumbleTo) => {
-    setSelectedUser(mumbleTo);
-    search.clear();
-  };
+  useEffect(() => {
+    const searchUSerByIdFunc = async () => {
+      const response = await searchUserByIdApi(mumbleTo);
+      setSelectedUser(response?.data?.searchedUser);
+      search.clear();
+    };
+    if (mumbleTo) {
+      dispatch(setIsLoading(true));
+      searchUSerByIdFunc();
+      dispatch(setIsLoading(true));
+    }
+  }, [mumbleTo]);
 
   const sendCurrentMumble = async () => {
     if (!selectedUser) {
@@ -40,7 +51,7 @@ function CreateMumble() {
 
     const data = {
       message: message.value,
-      receiver: selectedUser.user._id,
+      receiver: selectedUser._id,
       sender: user?.username || null,
     };
 
@@ -91,7 +102,11 @@ function CreateMumble() {
                     searchResultUser?.user?.isAcceptingMumbles && (
                       <li
                         key={searchResultUser?.user?._id}
-                        onClick={() => handleUserSelect(searchResultUser)}
+                        onClick={() =>
+                          navigate(
+                            `/create-Mumble/${searchResultUser?.user?._id}`
+                          )
+                        }
                       >
                         <div className="sm:text-2xl">
                           <img
@@ -119,13 +134,13 @@ function CreateMumble() {
               <div className="flex avatar justify-center">
                 <div className="w-2/5 sm:w-1/4 rounded-full">
                   <img
-                    src={selectedUser?.user?.avatar?.url}
+                    src={selectedUser?.avatar?.url}
                     alt={selectedUser.username}
                   />
                 </div>
               </div>
               <div className="flex justify-center items-center">
-                <p className="text-3xl">@{selectedUser.user.username}</p>
+                <p className="text-3xl">@{selectedUser.username}</p>
               </div>
             </>
           ) : (

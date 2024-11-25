@@ -40,5 +40,7 @@ const echoMumble = new Schema(
   }
 );
 
+echoMumble.index({ receiver: 1 });
+
 export const EchoMumble =
   mongoose.models.EchoMumble || model("EchoMumble", echoMumble);

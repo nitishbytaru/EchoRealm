@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { EchoShout } from "../models/echoShout.model.js";
 import { EchoLink } from "../models/echoLink.model.js ";
@@ -5,6 +6,59 @@ import { EchoMumble } from "../models/echoMumble.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { cookieOptions, sendToken } from "../utils/features.js";
 import { UserFriend } from "../models/friends.model.js";
+
+export const getMostLikedMumbleWithLikesAndFriends = asyncHandler(
+  async (req, res) => {
+    const { query } = req.query;
+    const receiverId = new mongoose.Types.ObjectId(query);
+
+    //TOTAL FRIENDS
+    const friendsOfUser = await UserFriend.find({
+      userId: query,
+    });
+
+    //TOTAL FRIENDS
+    const calculateLikes = await EchoMumble.aggregate([
+      { $match: { receiver: receiverId } },
+      { $project: { likeCount: { $size: "$likes" } } },
+      { $group: { _id: null, totalLikes: { $sum: "$likeCount" } } },
+    ]);
+    console.log();
+
+    //HIGHEST LIKED MUMBLE
+    const mostLikedMumble = await EchoMumble.aggregate([
+      { $match: { receiver: receiverId } }, // Match the receiver
+      { $addFields: { likeCount: { $size: "$likes" } } }, // Add a field for likes count
+      { $sort: { likeCount: -1 } }, // Sort by likes count descending
+      { $limit: 1 }, // Get the top document
+      {
+        $project: {
+          message: 1,
+          "sender.username": 1,
+          likeCount: 1, // Include likeCount for reference if needed
+        },
+      }, // Include only specific fields
+    ]);
+
+    const userRequestedProfileData = {
+      mumbleWithHighestLikes: mostLikedMumble[0] || null,
+      profileLikes: calculateLikes[0]?.totalLikes || 0,
+      friends: friendsOfUser.length || 0,
+    };
+
+    res
+      .status(202)
+      .json({ message: "searched user details", userRequestedProfileData });
+  }
+);
+
+export const searchUserById = asyncHandler(async (req, res) => {
+  const { query } = req.query;
+
+  const searchedUser = await User.findById(query).select("_id username avatar");
+
+  res.status(202).json({ message: "searched user details", searchedUser });
+});
 
 export const searchUsers = asyncHandler(async (req, res) => {
   const { query } = req.query;

@@ -3,6 +3,32 @@ import { apiConfigJSON } from "./exportAPICONFIG.js";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/user`;
 
+export const fetchMostLikedMumbleWithLikesAndFriendsApi = async (
+  searchTerm
+) => {
+  try {
+    return await axios.get(`${API_URL}/get-mumble-likes-friends`, {
+      params: { query: searchTerm },
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.error("Error searching users:", error);
+    return error;
+  }
+};
+
+export const searchUserByIdApi = async (searchTerm) => {
+  try {
+    return await axios.get(`${API_URL}/search-user-by-id`, {
+      params: { query: searchTerm },
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.error("Error searching users:", error);
+    return error;
+  }
+};
+
 export const searchUsersApi = async (searchTerm) => {
   try {
     return await axios.get(`${API_URL}/search`, {
@@ -39,9 +65,7 @@ export const updateRequestApi = async (userNewData) => {
   }
 };
 
-export const getDetailsToViewProfileApi = async (
-  selectedViewProfileId
-) => {
+export const getDetailsToViewProfileApi = async (selectedViewProfileId) => {
   try {
     return await axios.get(`${API_URL}/get-selected-profile-details`, {
       ...apiConfigJSON,

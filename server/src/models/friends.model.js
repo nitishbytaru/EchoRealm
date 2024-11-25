@@ -1,6 +1,6 @@
 import mongoose, { Schema, model } from "mongoose";
 
-const userFriendSchema = new Schema(
+const userFriend = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -31,5 +31,7 @@ const userFriendSchema = new Schema(
   }
 );
 
+userFriend.index({ userId: 1 });
+
 export const UserFriend =
-  mongoose.models.UserFriend || model("UserFriend", userFriendSchema);
+  mongoose.models.UserFriend || model("UserFriend", userFriend);
