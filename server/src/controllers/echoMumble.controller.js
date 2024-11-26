@@ -179,7 +179,7 @@ export const deleteRecievedMumbles = asyncHandler(async (req, res) => {
   res.status(207).json({ message: "Deleted all recieved Mumbles" });
 });
 
-export const deletesentMumbles = asyncHandler(async (req, res) => {
+export const deleteSentMumbles = asyncHandler(async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "You must login first" });
   }

@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useInputValidation } from "6pp";
+import { useFileHandler, useInputValidation } from "6pp";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
 import { updateRequestApi } from "../../api/userApi";
@@ -14,6 +14,7 @@ function MyProfileDetails() {
   const constantCSSClasses =
     "sm:input input-bordered input-sm  flex items-center mb-4 gap-2";
 
+  const avatar = useFileHandler("single");
   const updatedEmail = useInputValidation(user?.email);
   const updatedUsername = useInputValidation(user?.username);
   const updatedPassword = useInputValidation("");
@@ -26,17 +27,19 @@ function MyProfileDetails() {
   );
 
   const submitUpdateRequest = async () => {
+    const formData = new FormData();
     if (updatedEmail.value === "" || updatedUsername.value === "") {
       return toast.error("fill the all fields");
     }
     dispatch(setIsLoading(true));
-    const response = await updateRequestApi({
-      updatedEmail: updatedEmail.value,
-      updatedUsername: updatedUsername.value,
-      updatedPassword: updatedPassword.value,
-      udatedIsAcceptingMumbles,
-      updatedIsAnonymous,
-    });
+    formData.append("updatedEmail", updatedEmail.value);
+    formData.append("updatedUsername", updatedUsername.value);
+    formData.append("updatedPassword", updatedPassword.value);
+    formData.append("udatedIsAcceptingMumbles", udatedIsAcceptingMumbles);
+    formData.append("updatedIsAnonymous", updatedIsAnonymous);
+    formData.append("avatar", avatar.file);
+
+    const response = await updateRequestApi(formData);
     dispatch(setIsLoading(false));
     dispatch(setUser(response?.data?.user));
     toast.success(response?.data?.message);
@@ -48,13 +51,53 @@ function MyProfileDetails() {
     <div>
       <h1 className="sm:text-2xl text-lg sm:mb-2 text-center">My Details</h1>
       <div className="flex flex-col items-center justify-center">
-        <img
-          src={user?.avatar?.url}
-          alt="avatar"
-          className="avatar rounded-full w-24 h-24 mt-3 sm:w-48 sm:h-48 sm:mt-2 object-cover"
+        {/* Hidden File Input */}
+        <input
+          id="avatarUpload"
+          name="avatar"
+          type="file"
+          accept="image/*"
+          onChange={avatar.changeHandler}
+          className="hidden"
         />
+
+        {/* Profile Picture with Edit Icon */}
+        <div className="relative">
+          <label htmlFor="avatarUpload" className="cursor-pointer">
+            <img
+              src={user?.avatar?.url}
+              alt="avatar"
+              className="avatar rounded-full w-24 h-24 mt-3 sm:w-48 sm:h-48 sm:mt-2 object-cover"
+            />
+            {/* Edit Icon */}
+            <span className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-gray-800 text-white p-1 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-4 h-4 sm:w-6 sm:h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.862 3.487a2.25 2.25 0 113.182 3.182L7.06 19.653a4.5 4.5 0 01-1.697 1.04l-3.477 1.08 1.08-3.477a4.5 4.5 0 011.04-1.697L16.862 3.487z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10.5 8.25l5.25 5.25"
+                />
+              </svg>
+            </span>
+          </label>
+        </div>
+
+        {/* Username */}
         <p>@{user?.username}</p>
       </div>
+
       <div className="divider w-full my-1"></div>
       <div className="w-full flex items-center justify-center">
         <div className="sm:w-2/5">

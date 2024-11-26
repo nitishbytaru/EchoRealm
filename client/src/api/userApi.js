@@ -1,11 +1,11 @@
 import axios from "axios";
-import { apiConfigJSON } from "./exportAPICONFIG.js";
+import { apiConfigFORM } from "./exportAPICONFIG.js";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/user`;
 
 export const fetchMostLikedMumbleWithLikesAndFriendsApi = async (userId) => {
   try {
-    return await axios.get(`${API_URL}//mumble/${userId}/likes-friends`, {
+    return await axios.get(`${API_URL}/mumble/${userId}/likes-friends`, {
       withCredentials: true,
     });
   } catch (error) {
@@ -48,10 +48,10 @@ export const getUsersWithMumbles = async (userId) => {
 
 export const updateRequestApi = async (userNewData) => {
   try {
-    return await axios.patch(
+    return await axios.post(
       `${API_URL}/update-user`,
       userNewData,
-      apiConfigJSON
+      apiConfigFORM
     );
   } catch (error) {
     console.log(error);

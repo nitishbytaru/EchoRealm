@@ -12,10 +12,8 @@ export const registerUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  const updatedUsername = username.replace(" ", "_").toLowerCase();
-
   const existedUser = await User.findOne({
-    $or: [{ username: updatedUsername }, { email }],
+    $or: [{ username }, { email }],
   });
 
   if (existedUser) {
@@ -31,7 +29,7 @@ export const registerUser = asyncHandler(async (req, res) => {
       avatar: { url: avatarUrl, publicId: null },
       email,
       password,
-      username: updatedUsername,
+      username,
     });
   } else {
     const avatarLocalPath = req.files?.avatar[0]?.path;
@@ -50,7 +48,7 @@ export const registerUser = asyncHandler(async (req, res) => {
       avatar: { url: avatar.url, publicId: avatar.public_id },
       email,
       password,
-      username: updatedUsername,
+      username,
     });
   }
 

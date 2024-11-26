@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
+import {
+  deleteFromCloudinary,
+  uploadToCloudinary,
+} from "../utils/cloudinary.js";
 import { EchoShout } from "../models/echoShout.model.js";
 import { EchoLink } from "../models/echoLink.model.js ";
 import { EchoMumble } from "../models/echoMumble.model.js";
@@ -75,7 +79,7 @@ export const searchUsers = asyncHandler(async (req, res) => {
 
   const searchedUsers = await User.find({
     username: { $regex: username, $options: "i" },
-    _id: { $nin: [...currUserwithBlockedUsersList, req.user] },
+    _id: { $nin: [...currUserwithBlockedUsersList, userId] },
   })
     .select("-password")
     .limit(5);
@@ -124,34 +128,61 @@ export const getUsersWithMumbles = asyncHandler(async (req, res) => {
 });
 
 export const updateCurrUserData = asyncHandler(async (req, res) => {
+  const userId = req.user;
   const {
     updatedEmail,
     updatedUsername,
     updatedPassword,
-    udatedIsAcceptingMumbles,
+    updatedIsAcceptingMumbles,
     updatedIsAnonymous,
   } = req.body;
 
-  if (!updatedUsername && !updatedEmail) {
-    return res.status(400).json({ message: "username or email is required" });
+  let updateFields = {};
+
+  const avatarLocalPath = req.files?.avatar[0]?.path;
+
+  if (avatarLocalPath) {
+    const currUser = await User.findById(userId);
+
+    const response = await deleteFromCloudinary(currUser?.avatar?.publicId);
+
+    const updatedAvatar = await uploadToCloudinary(avatarLocalPath);
+
+
+    if (!updatedAvatar) {
+      return res.status(400).json({ message: "Avatar file is required" });
+    }
+
+    if (!updatedUsername && !updatedEmail) {
+      return res.status(400).json({ message: "username or email is required" });
+    }
+
+    updateFields.avatar = {
+      url: updatedAvatar.url,
+      publicId: updatedAvatar.public_id,
+    };
   }
 
-  const updateFields = {
-    email: updatedEmail,
-    username: updatedUsername,
-    isAcceptingMumbles: udatedIsAcceptingMumbles,
-    isAnonymous: updatedIsAnonymous,
-  };
+  if (updatedEmail) {
+    updateFields.email = updatedEmail;
+  }
+
+  if (updatedUsername) {
+    updateFields.username = updatedUsername;
+  }
+
+  updateFields.isAcceptingMumbles = updatedIsAcceptingMumbles;
+  updateFields.isAnonymous = updatedIsAnonymous;
 
   if (updatedPassword === "") {
-    const { password } = await User.findById(req.user).select("password");
+    const { password } = await User.findById(userId).select("password");
     updateFields.password = password;
   } else {
     updateFields.password = updatedPassword;
   }
 
   const user = await User.findByIdAndUpdate(
-    req.user,
+    userId,
     { $set: updateFields },
     { new: true }
   );
@@ -160,16 +191,35 @@ export const updateCurrUserData = asyncHandler(async (req, res) => {
 });
 
 export const deleteMyAccount = asyncHandler(async (req, res) => {
-  await EchoMumble.deleteMany({ receiver: req.user });
-  await EchoMumble.deleteMany({ sender: req.user });
-  await EchoShout.deleteMany({ sender: req.user });
-  await EchoLink.deleteMany({ uniqueChatId: { $regex: req.user } });
+  const userId = req.user;
+
+  const response = await User.findById(userId);
+  await deleteFromCloudinary(response?.avatar?.publicId);
+
+  await EchoMumble.deleteMany({
+    $or: [{ receiver: userId }, { sender: userId }],
+  });
+  await EchoShout.deleteMany({ sender: userId });
+  await EchoLink.deleteMany({ uniqueChatId: { $regex: userId } });
+  await UserFriend.deleteMany({ userId: userId });
   await User.updateMany(
-    { blockedUsers: { $in: [req.user] } },
-    { $pull: { blockedUsers: req.user } }
+    {
+      $or: [
+        { friends: userId },
+        { friendRequests: userId },
+        { blockedUsers: userId },
+      ],
+    },
+    {
+      $pull: {
+        friends: userId,
+        friendRequests: userId,
+        blockedUsers: userId,
+      },
+    }
   );
 
-  await User.findByIdAndDelete(req.user);
+  await User.findByIdAndDelete(userId);
 
   res
     .status(204)

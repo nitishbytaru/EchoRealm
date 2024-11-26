@@ -8,6 +8,7 @@ import {
   getMostLikedMumbleWithLikesAndFriends,
 } from "../controllers/user.controller.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
+import { upload } from "../middleware/multer.middleware.js";
 
 const router = Router();
 
@@ -19,7 +20,9 @@ router
 router.route("/search-user/:userId").get(searchUserById);
 router.route("/search-by/:username").get(searchUsers);
 router.route("/user/:userId/mumbles").get(getUsersWithMumbles);
-router.route("/update-user").patch(updateCurrUserData);
+router
+  .route("/update-user")
+  .post(upload.fields([{ name: "avatar", maxCount: 1 }]), updateCurrUserData);
 router.route("/delete-account").delete(deleteMyAccount);
 
 export default router;
