@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   getMyPrivateFriendsApi,
   searchEchoLinkFriendsApi,
@@ -21,13 +21,11 @@ import {
 import { setIsLoading } from "../../app/slices/authSlice.js";
 
 function ChatRooms() {
+  const { recieverId } = useParams();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const { user } = useSelector((state) => state.auth);
-  const { myPrivateChatRooms, selectedUser } = useSelector(
-    (state) => state.echoLink
-  );
-
+  const { myPrivateChatRooms } = useSelector((state) => state.echoLink);
   const search = useInputValidation("");
   const [searchResults, setSearchResults] = useState(null);
 
@@ -64,7 +62,7 @@ function ChatRooms() {
         senderData?.uniqueChatId.includes(user?._id) &&
         senderData?._id != user._id
       ) {
-        if (senderData?._id != selectedUser?._id) {
+        if (senderData?._id != recieverId) {
           dispatch(addToChatRoomsWithUnreadMessages(senderData?.uniqueChatId));
           dispatch(addToMyPrivateChatRooms(senderData));
         } else {
@@ -76,7 +74,7 @@ function ChatRooms() {
     return () => {
       socket.off("new_privte_message_received");
     };
-  }, [dispatch, selectedUser, user._id]);
+  }, [dispatch, recieverId, user._id]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -133,7 +131,8 @@ function ChatRooms() {
                 <li
                   key={searchResultUser._id}
                   onClick={() => {
-                    handleRoomSelect(dispatch, searchResultUser, user);
+                    navigate(`/echo-link/${searchResultUser._id}`);
+                    handleRoomSelect(dispatch, searchResultUser._id, user);
                     search.clear();
                   }}
                 >
@@ -165,42 +164,43 @@ function ChatRooms() {
 
       {/* Scrollable user list */}
       <ul className="menu flex-row p-2 overflow-y-auto">
-        {myPrivateChatRooms?.map((chatRoom, index) => (
+        {myPrivateChatRooms?.map((reviever, index) => (
           <li
             className="w-full py-2 cursor-pointer"
             key={index}
             onClick={() => {
-              handleRoomSelect(dispatch, chatRoom, user);
-              markAsRead(dispatch, setLatestMessageAsRead, chatRoom);
+              navigate(`/echo-link/${reviever._id}`);
+              handleRoomSelect(dispatch, reviever._id, user);
+              markAsRead(dispatch, setLatestMessageAsRead, reviever);
             }}
           >
             <div className="flex items-center gap-3">
               {/* User Avatar */}
               <div className="avatar">
                 <div className="w-12 rounded-full">
-                  <img src={chatRoom?.avatar?.url} alt="user avatar" />
+                  <img src={reviever?.avatar?.url} alt="user avatar" />
                 </div>
               </div>
 
               {/* Username and Latest Message */}
               <div className="flex-1">
-                <p className="font-semibold">{chatRoom?.username}</p>
+                <p className="font-semibold">{reviever?.username}</p>
                 <p
                   className={`text-sm ${
-                    chatRoom?.latestMessage?.receiver?.messageStatus ===
-                      "sent" && chatRoom?.latestMessage?.sender != user._id
+                    reviever?.latestMessage?.receiver?.messageStatus ===
+                      "sent" && reviever?.latestMessage?.sender != user._id
                       ? "text-white"
                       : "text-gray-500"
                   }`}
                   style={{ maxWidth: "15rem" }}
                 >
-                  {truncateMessage(chatRoom?.latestMessage?.message)}
+                  {truncateMessage(reviever?.latestMessage?.message)}
                 </p>
               </div>
 
               {/* Notification Dot */}
-              {chatRoom?.latestMessage?.receiver?.messageStatus === "sent" &&
-                chatRoom?.latestMessage?.sender != user._id && (
+              {reviever?.latestMessage?.receiver?.messageStatus === "sent" &&
+                reviever?.latestMessage?.sender != user._id && (
                   <div className="text-white text-4xl">
                     <p>•</p>
                   </div>

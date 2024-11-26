@@ -1,9 +1,10 @@
+import { useParams } from "react-router-dom";
 import ChatRooms from "../../components/EchoLink/ChatRooms";
 import ChatBox from "../../components/EchoLink/chat/ChatBox";
 import { useSelector } from "react-redux";
 
 export default function EchoLink() {
-  const { selectedUser } = useSelector((state) => state.echoLink);
+  const { recieverId } = useParams();
   const { isMobile } = useSelector((state) => state.auth);
 
   return (
@@ -11,7 +12,7 @@ export default function EchoLink() {
       {/* Mobile View (WhatsApp-like layout) */}
       {isMobile ? (
         <div className="w-full h-full">
-          {selectedUser ? (
+          {recieverId ? (
             // Show ChatBox in mobile view if a user is selected
             <div className="h-full bg-base-200 p-4 overflow-auto rounded-box">
               <ChatBox />
@@ -30,7 +31,7 @@ export default function EchoLink() {
             <ChatRooms />
           </div>
           <div className="col-span-9 bg-base-200 rounded-box p-2 flex-grow overflow-auto">
-            {selectedUser ? (
+            {recieverId ? (
               <ChatBox />
             ) : (
               <div className="h-full flex justify-center items-center text-center bg-base-100 rounded-xl">

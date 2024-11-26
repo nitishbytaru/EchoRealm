@@ -11,7 +11,6 @@ import {
   getBlockedUsersApi,
   handleRemoveOrBlockMyFriendApi,
 } from "../../../api/friendsApi";
-import { getSelectedUserByIdApi } from "../../../api/userApi";
 import {
   increaseNumberOfPinnedMumbles,
   removeMumble,
@@ -24,10 +23,9 @@ import {
   MoreVertSharpIcon,
   PushPinIcon,
 } from "../../../heplerFunc/exportIcons";
-import { setSelectedUser } from "../../../app/slices/echoLinkSlice";
+// import { setSelectedUser } from "../../../app/slices/echoLinkSlice";
 import { useNavigate } from "react-router-dom";
 import { setIsLoading } from "../../../app/slices/authSlice";
-import { handleRoomSelect } from "../../../heplerFunc/microFuncs";
 
 function ListenMumble() {
   // Track if the effect is running for the first time
@@ -160,15 +158,6 @@ function ListenMumble() {
     }
   };
 
-  const goToEchoLinkApiFunc = async (selectedUserId) => {
-    dispatch(setIsLoading(true));
-    const response = await getSelectedUserByIdApi(selectedUserId);
-    dispatch(setIsLoading(false));
-    dispatch(setSelectedUser(response?.data?.selectedUserDetails));
-    handleRoomSelect(dispatch, response?.data?.selectedUserDetails, user);
-    navigate("/echo-link");
-  };
-
   return (
     <div className="flex flex-col bg-base-200 h-full p-4 rounded-xl">
       <div className="overflow-y-auto">
@@ -230,7 +219,9 @@ function ListenMumble() {
                             <button
                               className="btn m-2"
                               onClick={() =>
-                                goToEchoLinkApiFunc(Mumble?.sender?.senderId)
+                                navigate(
+                                  `/echo-link/${Mumble?.sender?.senderId}`
+                                )
                               }
                             >
                               Direct Message @

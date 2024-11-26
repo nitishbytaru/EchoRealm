@@ -21,7 +21,6 @@ import {
 } from "../../heplerFunc/exportIcons";
 import { logoutApi } from "../../api/authApi";
 import toast from "react-hot-toast";
-import { setSelectedUser } from "../../app/slices/echoLinkSlice";
 import { normalLoading } from "../../components/Loaders/LoadingAnimations";
 
 function MyProfile() {
@@ -39,7 +38,6 @@ function MyProfile() {
       const response = await logoutApi();
       toast.success(response?.data?.message);
       dispatch(setUser(null));
-      dispatch(setSelectedUser(null));
       dispatch(setIsLoggedIn(false));
       localStorage.setItem("allowFetch", false);
     } catch (error) {

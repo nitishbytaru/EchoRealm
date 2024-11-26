@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   privateMessages: [],
-  selectedUser: null,
   myPrivateChatRooms: [],
   newUnreadMessages: 0,
   chatRoomsWithUnreadMessages: [],
@@ -20,9 +19,6 @@ const echoLinkSlice = createSlice({
     },
     setPrivateMessages(state, action) {
       state.privateMessages = action.payload;
-    },
-    setSelectedUser(state, action) {
-      state.selectedUser = action.payload;
     },
     setMyPrivateChatRooms(state, action) {
       state.myPrivateChatRooms = action.payload;
@@ -88,7 +84,6 @@ const echoLinkSlice = createSlice({
 export const {
   addPrivateMessage,
   setPrivateMessages,
-  setSelectedUser,
   setMyPrivateChatRooms,
   addToMyPrivateChatRooms,
   setLatestMessageAsRead,

@@ -5,7 +5,6 @@ import {
 import {
   removeFromChatRoomsWithUnreadMessages,
   setPrivateMessages,
-  setSelectedUser,
 } from "../app/slices/echoLinkSlice";
 import socket from "../sockets/socket";
 
@@ -43,11 +42,9 @@ export const handleToggle = (e, dispatch, setTheme, setIsChecked) => {
 
 // This function handles the room select i.e., if you selecta user then it creates
 // a unique room Id and fetches the any previous messages from that room
-export const handleRoomSelect = async (dispatch, currentSelecteduser, user) => {
-  dispatch(setSelectedUser(currentSelecteduser));
-
+export const handleRoomSelect = async (dispatch, recieverId, user) => {
   //this functions is also in the backend if possible remove from one place
-  const uniqueRoomId = [currentSelecteduser?._id, user?._id].sort().join("-");
+  const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
 
   socket.emit("joinEchoLink", uniqueRoomId);
   dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
@@ -69,4 +66,9 @@ export const markAsRead = async (
   } catch (error) {
     console.log(error);
   }
+};
+
+//to create a unique chat room for two users
+export const createUniquechatRoom = (senderId, recieverId) => {
+  return [senderId, recieverId].sort().join("-");
 };

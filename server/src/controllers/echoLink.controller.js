@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { EchoLink } from "../models/echoLink.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
+import { UserFriend } from "../models/friends.model.js";
 
 export const getMyPrivateFriends = asyncHandler(async (req, res) => {
   const response = await User.findById(req.user);
@@ -205,8 +206,9 @@ export const deleteChatRoom = asyncHandler(async (req, res) => {
 
 export const searchEchoLinkFriends = asyncHandler(async (req, res) => {
   const { searchTerm } = req.query;
+  const userId = req.user;
 
-  const currUser = await User.findById(req.user).select("-password");
+  const { friends, blockedUsers } = await UserFriend.findOne({ userId });
 
   if (!searchTerm) {
     return res.status(400).json({ message: "Search query is required" });
@@ -215,14 +217,12 @@ export const searchEchoLinkFriends = asyncHandler(async (req, res) => {
   let searchedUsers = await User.find({
     username: { $regex: searchTerm, $options: "i" },
     _id: {
-      $in: [...currUser.friends],
-      $nin: [...currUser.blockedUsers, req.user],
+      $in: friends,
+      $nin: [...blockedUsers, req.user],
     },
     // $regex: query: Uses a regular expression (regex) to search within the username field for a pattern matching the query value. This means it will find usernames that partially match query rather than an exact match.
     // $options: "i": This option makes the regex search case-insensitive (e.g., "Alice" and "alice" would both match the query).
-  })
-    .select("-password")
-    .limit(5);
+  }).limit(5);
 
   res.status(203).json({ searchedUsers });
 });

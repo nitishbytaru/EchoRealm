@@ -83,7 +83,7 @@ function FindUsers() {
 
           {search.value &&
             (resultOfSearchedUsers?.length > 0 ? (
-              <div className="menu bg-base-300 w-full rounded-box mt-2">
+              <div className="menu bg-base-300 w-full sm:h-5/6 rounded-box mt-2">
                 {resultOfSearchedUsers?.length > 0 && (
                   <div className="overflow-y-auto max-h-[calc(100vh-150px)] px-2">
                     <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">

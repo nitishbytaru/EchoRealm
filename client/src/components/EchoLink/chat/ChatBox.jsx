@@ -18,29 +18,46 @@ import {
   removeFromMyPrivateChatRooms,
   setLatestMessageAsRead,
   setPrivateMessages,
-  setSelectedUser,
 } from "../../../app/slices/echoLinkSlice.js";
 import socket from "../../../sockets/socket.js";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
 import toast from "react-hot-toast";
 import { handleRemoveOrBlockMyFriendApi } from "../../../api/friendsApi.js";
-import { markAsRead } from "../../../heplerFunc/microFuncs.js";
+import {
+  createUniquechatRoom,
+  markAsRead,
+} from "../../../heplerFunc/microFuncs.js";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { searchUserByIdApi } from "../../../api/userApi.js";
 
 function ChatBox() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { recieverId } = useParams();
 
   const { user } = useSelector((state) => state.auth);
-  const { selectedUser, privateMessages } = useSelector(
-    (state) => state.echoLink
-  );
+  const { privateMessages } = useSelector((state) => state.echoLink);
 
   const messagesEndRef = useAutoScroll(privateMessages);
 
   const [echoLinkMessageData, setEchoLinkMessageData] = useState(null);
+  const [selectedUser, setSelecedUser] = useState(null);
+  const uniqueChatRoom = createUniquechatRoom(user?._id, recieverId);
+
+  useEffect(() => {
+    const getRecieverDataByIdFunc = async () => {
+      const response = await searchUserByIdApi(recieverId);
+      setSelecedUser(response?.data?.searchedUser);
+    };
+
+    if (recieverId) {
+      getRecieverDataByIdFunc();
+    }
+  }, [recieverId]);
 
   useEffect(() => {
     socket.on("send_latest_echoLink_message", (latestEchoLinkMessage) => {
-      if (selectedUser?._id === latestEchoLinkMessage?.latestMessage?.sender) {
+      if (recieverId === latestEchoLinkMessage?.latestMessage?.sender) {
         markAsRead(dispatch, setLatestMessageAsRead, latestEchoLinkMessage);
       }
       dispatch(addToMyPrivateChatRooms(latestEchoLinkMessage));
@@ -50,11 +67,11 @@ function ChatBox() {
     return () => {
       socket.off("send_latest_echoLink_message");
     };
-  }, [dispatch, selectedUser?._id, user._id]);
+  }, [dispatch, recieverId, user._id]);
 
   useEffect(() => {
     if (echoLinkMessageData && !echoLinkMessageData.has("receiver")) {
-      echoLinkMessageData.append("receiver", selectedUser?._id);
+      echoLinkMessageData.append("receiver", recieverId);
     }
 
     const sendMessage = async () => {
@@ -74,21 +91,19 @@ function ChatBox() {
     };
 
     sendMessage();
-  }, [dispatch, echoLinkMessageData, selectedUser?._id]);
+  }, [dispatch, echoLinkMessageData, recieverId]);
 
   const blockSender = async () => {
-    const senderId = selectedUser?.uniqueChatId
-      .replace("-", "")
-      .replace(user?._id, "");
+    const senderId = recieverId;
 
     dispatch(setIsLoading(true));
     const response = await handleRemoveOrBlockMyFriendApi({
       senderId,
       block: true,
     });
+
     dispatch(setIsLoading(false));
-    dispatch(removeFromMyPrivateChatRooms(selectedUser?.uniqueChatId));
-    dispatch(setSelectedUser(null));
+    dispatch(removeFromMyPrivateChatRooms(uniqueChatRoom));
     if (response?.data) {
       toast.success(response.data?.message);
     }
@@ -96,25 +111,23 @@ function ChatBox() {
 
   const clearChat = async () => {
     dispatch(setIsLoading(true));
-    const response = await clearChatApi(selectedUser?.uniqueChatId);
+    const response = await clearChatApi(uniqueChatRoom);
     dispatch(setIsLoading(false));
     dispatch(setPrivateMessages([]));
-    console.log(response);
     toast.success(response?.data?.message);
   };
 
   const deleteChatRoom = async () => {
     dispatch(setIsLoading(true));
-    const response = await deleteChatRoomApi(selectedUser?.uniqueChatId);
+    const response = await deleteChatRoomApi(uniqueChatRoom);
     dispatch(setIsLoading(false));
     toast.success(response?.data?.message);
-    dispatch(removeFromMyPrivateChatRooms(selectedUser?.uniqueChatId));
-    dispatch(setSelectedUser(null));
+    dispatch(removeFromMyPrivateChatRooms(uniqueChatRoom));
   };
 
   return (
     <>
-      {!selectedUser ? (
+      {!recieverId ? (
         <div className="h-full flex justify-center items-center text-center bg-base-100 rounded-xl">
           <p className="text-xl font-semibold text-gray-600">
             Select a user to open chat
@@ -127,12 +140,12 @@ function ChatBox() {
             <div className="flex-1">
               <div className="avatar flex items-center">
                 {/* Back Button */}
-                <button
+                <Link
                   className="p-0 sm:hidden btn btn-sm z-10"
-                  onClick={() => dispatch(setSelectedUser(null))}
+                  onClick={() => navigate("/echo-link")}
                 >
                   <ArrowBackIosIcon />
-                </button>
+                </Link>
                 <div className="w-10 rounded-full">
                   <img src={selectedUser?.avatar?.url} alt="User avatar" />
                 </div>
