@@ -6,6 +6,13 @@ import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 
+export const getMessages = asyncHandler(async (req, res) => {
+  const messages = await EchoShout.find()
+    .populate("sender", "username")
+    .populate("mentions", "username");
+
+  res.status(206).json({ messages });
+});
 export const sendMessage = asyncHandler(async (req, res) => {
   let attachments = null;
   let { message, mentions } = req.body;
@@ -53,14 +60,6 @@ export const sendMessage = asyncHandler(async (req, res) => {
   return res
     .status(202)
     .json({ message: "message sent succesfully", latestEchoShoutMessage });
-});
-
-export const getMessages = asyncHandler(async (req, res) => {
-  const messages = await EchoShout.find()
-    .populate("sender", "username")
-    .populate("mentions", "username");
-
-  res.status(206).json({ messages });
 });
 
 export const deleteMyMessagesInEchoShout = asyncHandler(async (req, res) => {

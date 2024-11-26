@@ -1,9 +1,8 @@
 import { Router } from "express";
 import {
-  getSelectedUserProfileDetails,
+  getUsersWithMumbles,
   updateCurrUserData,
   deleteMyAccount,
-  getSelectedUserProfile,
   searchUsers,
   searchUserById,
   getMostLikedMumbleWithLikesAndFriends,
@@ -15,15 +14,12 @@ const router = Router();
 //authentication middleware
 router.use(isAuthenticated);
 router
-  .route("/get-mumble-likes-friends")
+  .route("/mumble/:userId/likes-friends")
   .get(getMostLikedMumbleWithLikesAndFriends);
-router.route("/search-user-by-id").get(searchUserById);
-router.route("/search").get(searchUsers);
-router.route("/get-selected-profile").get(getSelectedUserProfile);
-router.route("/update-userdata").post(updateCurrUserData);
-router.route("/delete-my-account").get(deleteMyAccount);
-router
-  .route("/get-selected-profile-details")
-  .get(getSelectedUserProfileDetails);
+router.route("/search-user/:userId").get(searchUserById);
+router.route("/search-by/:username").get(searchUsers);
+router.route("/user/:userId/mumbles").get(getUsersWithMumbles);
+router.route("/update-user").patch(updateCurrUserData);
+router.route("/delete-account").delete(deleteMyAccount);
 
 export default router;

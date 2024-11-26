@@ -14,12 +14,14 @@ const router = Router();
 
 //authentication middleware
 router.use(isAuthenticated);
-router.route("/get-blockedUsers").get(getBlockedUsers);
-router.route("/send-friend-request").get(sendFriendRequest);
-router.route("/un-block").get(unBlockUser);
-router.route("/handle-friendRequest").post(handleFriendRequest);
-router.route("/remove-block-MyFriend").post(removeOrBlockMyFriend);
-router.route("/get-myFriendRequests").get(getMyFriendRequests);
-router.route("/get-myFriendList").get(getMyFriendList);
+router.route("/send-request/:senderId").get(sendFriendRequest);
+router.route("/friend-requests").get(getMyFriendRequests);
+router.route("/friends-list").get(getMyFriendList);
+
+router.route("/blocked-users").get(getBlockedUsers);
+router.route("/blocked-users/unblock/:userId").get(unBlockUser);
+
+router.route("/friend-request").put(handleFriendRequest);
+router.route("/friends/remove-or-block").put(removeOrBlockMyFriend);
 
 export default router;

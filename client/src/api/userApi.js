@@ -3,12 +3,9 @@ import { apiConfigJSON } from "./exportAPICONFIG.js";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/user`;
 
-export const fetchMostLikedMumbleWithLikesAndFriendsApi = async (
-  searchTerm
-) => {
+export const fetchMostLikedMumbleWithLikesAndFriendsApi = async (userId) => {
   try {
-    return await axios.get(`${API_URL}/get-mumble-likes-friends`, {
-      params: { query: searchTerm },
+    return await axios.get(`${API_URL}//mumble/${userId}/likes-friends`, {
       withCredentials: true,
     });
   } catch (error) {
@@ -17,10 +14,9 @@ export const fetchMostLikedMumbleWithLikesAndFriendsApi = async (
   }
 };
 
-export const searchUserByIdApi = async (searchTerm) => {
+export const searchUserByIdApi = async (userId) => {
   try {
-    return await axios.get(`${API_URL}/search-user-by-id`, {
-      params: { query: searchTerm },
+    return await axios.get(`${API_URL}/search-user/${userId}`, {
       withCredentials: true,
     });
   } catch (error) {
@@ -29,10 +25,9 @@ export const searchUserByIdApi = async (searchTerm) => {
   }
 };
 
-export const searchUsersApi = async (searchTerm) => {
+export const searchUsersApi = async (username) => {
   try {
-    return await axios.get(`${API_URL}/search`, {
-      params: { query: searchTerm },
+    return await axios.get(`${API_URL}/search-by/${username}`, {
       withCredentials: true,
     });
   } catch (error) {
@@ -41,11 +36,10 @@ export const searchUsersApi = async (searchTerm) => {
   }
 };
 
-export const getSelectedUserByIdApi = async (selectedUserId) => {
+export const getUsersWithMumbles = async (userId) => {
   try {
-    return await axios.get(`${API_URL}/get-selected-profile`, {
-      ...apiConfigJSON,
-      params: { selectedUserId },
+    return await axios.get(`${API_URL}/user/${userId}/mumbles`, {
+      withCredentials: true,
     });
   } catch (error) {
     console.log(error);
@@ -54,8 +48,8 @@ export const getSelectedUserByIdApi = async (selectedUserId) => {
 
 export const updateRequestApi = async (userNewData) => {
   try {
-    return await axios.post(
-      `${API_URL}/update-userdata`,
+    return await axios.patch(
+      `${API_URL}/update-user`,
       userNewData,
       apiConfigJSON
     );
@@ -65,20 +59,9 @@ export const updateRequestApi = async (userNewData) => {
   }
 };
 
-export const getDetailsToViewProfileApi = async (selectedViewProfileId) => {
-  try {
-    return await axios.get(`${API_URL}/get-selected-profile-details`, {
-      ...apiConfigJSON,
-      params: { selectedViewProfileId },
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 export const deleteMyAccountApi = async () => {
   try {
-    return await axios.get(`${API_URL}/delete-my-account`, {
+    return await axios.delete(`${API_URL}/delete-account`, {
       withCredentials: true,
     });
   } catch (error) {

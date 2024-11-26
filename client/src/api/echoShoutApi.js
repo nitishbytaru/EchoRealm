@@ -3,11 +3,21 @@ import { apiConfigFORM } from "./exportAPICONFIG.js";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoShout`;
 
-export const sendEchoShoutApi = async (Data) => {
+export const getEchoShoutsApi = async () => {
+  try {
+    return await axios.get(`${API_URL}/get-messages`, {
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const sendEchoShoutApi = async (message) => {
   try {
     const response = await axios.post(
-      `${API_URL}/send-echoShoutMessage`,
-      Data,
+      `${API_URL}/send-message`,
+      message,
       apiConfigFORM
     );
     return response;
@@ -17,20 +27,9 @@ export const sendEchoShoutApi = async (Data) => {
   }
 };
 
-export const getEchoShoutsApi = async () => {
-  try {
-    return await axios.get(`${API_URL}/get-echoShoutMessages`, {
-      withCredentials: true,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-// From here all the apis are used to delete the data
 export const deleteAllMessagesInEchoShoutApi = async () => {
   try {
-    return await axios.get(`${API_URL}/delete-my-messages`, {
+    return await axios.delete(`${API_URL}/my-messages`, {
       withCredentials: true,
     });
   } catch (error) {

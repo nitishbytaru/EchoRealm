@@ -9,13 +9,11 @@ import { UserFriend } from "../models/friends.model.js";
 
 export const getMostLikedMumbleWithLikesAndFriends = asyncHandler(
   async (req, res) => {
-    const { query } = req.query;
-    const receiverId = new mongoose.Types.ObjectId(query);
+    const { userId } = req.params;
+    const receiverId = new mongoose.Types.ObjectId(userId);
 
     //TOTAL FRIENDS
-    const friendsOfUser = await UserFriend.find({
-      userId: query,
-    });
+    const friendsOfUser = await UserFriend.find({ userId });
 
     //TOTAL FRIENDS
     const calculateLikes = await EchoMumble.aggregate([
@@ -53,15 +51,17 @@ export const getMostLikedMumbleWithLikesAndFriends = asyncHandler(
 );
 
 export const searchUserById = asyncHandler(async (req, res) => {
-  const { query } = req.query;
+  const { userId } = req.params;
 
-  const searchedUser = await User.findById(query).select("_id username avatar");
+  const searchedUser = await User.findById(userId).select(
+    "_id username avatar"
+  );
 
   res.status(202).json({ message: "searched user details", searchedUser });
 });
 
 export const searchUsers = asyncHandler(async (req, res) => {
-  const { query } = req.query;
+  const { username } = req.params;
   const userId = req.user;
 
   const currUserwithBlockedUsers = await UserFriend.findOne({ userId });
@@ -69,12 +69,12 @@ export const searchUsers = asyncHandler(async (req, res) => {
   const currUserwithBlockedUsersList =
     currUserwithBlockedUsers?.blockedUsers || [];
 
-  if (!query) {
-    return res.status(400).json({ message: "Search query is required" });
+  if (!username) {
+    return res.status(400).json({ message: "Search username is required" });
   }
 
   const searchedUsers = await User.find({
-    username: { $regex: query, $options: "i" },
+    username: { $regex: username, $options: "i" },
     _id: { $nin: [...currUserwithBlockedUsersList, req.user] },
   })
     .select("-password")
@@ -93,6 +93,33 @@ export const searchUsers = asyncHandler(async (req, res) => {
   res.status(203).json({
     message: "results of the searched users",
     searchedUsersWithFriends,
+  });
+});
+
+export const getUsersWithMumbles = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  const selectedUserProfileDetails = await User.findById(userId).select(
+    "_id username avatar"
+  );
+
+  const selectedUserProfileMumbles = await EchoMumble.find({
+    receiver: userId,
+    pinned: true,
+  });
+
+  const { avatar, _id, username } = selectedUserProfileDetails;
+
+  const selectedUserProfileDetailsResponse = {
+    avatar,
+    _id,
+    username,
+    selectedUserProfileMumbles,
+  };
+
+  return res.status(200).json({
+    message: "Selected User Data Featched Successfully",
+    selectedUserProfileDetailsResponse,
   });
 });
 
@@ -131,49 +158,6 @@ export const updateCurrUserData = asyncHandler(async (req, res) => {
 
   sendToken(res, user, 201, "account updated successfully");
 });
-
-//______________________________________//
-// what is the difference between them and give them unique names
-export const getSelectedUserProfileDetails = asyncHandler(async (req, res) => {
-  const { selectedViewProfileId } = req.query;
-
-  const selectedUserProfileDetails = await User.findById(
-    selectedViewProfileId
-  ).select("_id username avatar");
-
-  const selectedUserProfileMumbles = await EchoMumble.find({
-    receiver: selectedViewProfileId,
-    pinned: true,
-  });
-
-  const { avatar, _id, username } = selectedUserProfileDetails;
-
-  const selectedUserProfileDetailsResponse = {
-    avatar,
-    _id,
-    username,
-    selectedUserProfileMumbles,
-  };
-
-  return res.status(200).json({
-    message: "Selected User Data Featched Successfully",
-    selectedUserProfileDetailsResponse,
-  });
-});
-
-export const getSelectedUserProfile = asyncHandler(async (req, res) => {
-  const { selectedUserId } = req.query;
-
-  const selectedUserDetails = await User.findById(selectedUserId).select(
-    "-password"
-  );
-
-  return res.status(200).json({
-    message: "Selected User Data Featched Successfully",
-    selectedUserDetails,
-  });
-});
-//____________________________________//
 
 export const deleteMyAccount = asyncHandler(async (req, res) => {
   await EchoMumble.deleteMany({ receiver: req.user });

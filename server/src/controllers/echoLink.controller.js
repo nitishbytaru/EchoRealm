@@ -6,54 +6,6 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 import { UserFriend } from "../models/friends.model.js";
 
-export const getMyPrivateFriends = asyncHandler(async (req, res) => {
-  const response = await User.findById(req.user);
-
-  const blockedUsersForThisCurrentUser = response?.blockedUsers;
-
-  let myPrivateFriendsIds = [];
-
-  // Fetch chat rooms that contain the user's ID in uniqueChatId
-  const myPrivateChatRooms = await EchoLink.find({
-    uniqueChatId: { $regex: req.user },
-  });
-
-  // Extract friend IDs by removing the user's ID and hyphen from uniqueChatId
-  myPrivateChatRooms.forEach((chatRoom) => {
-    const friendId = chatRoom?.uniqueChatId
-      .replace(req.user, "")
-      .replace("-", "");
-    myPrivateFriendsIds.push(friendId);
-  });
-
-  // Fetch friend documents using the extracted IDs
-  const myPrivateFriends = await User.find({
-    _id: { $in: myPrivateFriendsIds, $nin: blockedUsersForThisCurrentUser },
-  })
-    .select("_id username avatar updatedAt")
-    .lean();
-
-  // For each friend, fetch the latest message asynchronously
-  let myPrivateFriendsWithMessages = await Promise.all(
-    myPrivateFriends.map(async (friend) => {
-      const latestMessage = await EchoLink.findOne({
-        uniqueChatId: [friend._id, req.user].sort().join("-"),
-      });
-
-      // Attach the latest message to the friend document, if found
-      return {
-        ...friend,
-        uniqueChatId: [friend._id, req.user].sort().join("-"),
-        latestMessage: latestMessage?.messages?.at(-1) || null,
-      };
-    })
-  );
-
-  return res
-    .status(202)
-    .json({ message: "Fetched your friends", myPrivateFriendsWithMessages });
-});
-
 export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
   let attachments = null;
   const { receiver, message } = req.body;
@@ -122,46 +74,117 @@ export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
     .json({ message: "message sent succesfully", receiverData });
 });
 
-export const getPrivateMessages = asyncHandler(async (req, res) => {
-  const { uniqueChatId } = req.query;
+export const getMyPrivateFriends = asyncHandler(async (req, res) => {
+  const response = await User.findById(req.user);
 
-  if (!uniqueChatId) {
-    res
-      .status(403)
-      .json({ message: "uniqueChatId is required to retrieve your messages" });
-  }
+  const blockedUsersForThisCurrentUser = response?.blockedUsers;
 
-  const privateMessages = await EchoLink.findOne({ uniqueChatId });
+  let myPrivateFriendsIds = [];
 
-  res.status(203).json({
-    message: "Private messages retrieved successfully",
-    privateMessages,
+  // Fetch chat rooms that contain the user's ID in uniqueChatId
+  const myPrivateChatRooms = await EchoLink.find({
+    uniqueChatId: { $regex: req.user },
   });
+
+  // Extract friend IDs by removing the user's ID and hyphen from uniqueChatId
+  myPrivateChatRooms.forEach((chatRoom) => {
+    const friendId = chatRoom?.uniqueChatId
+      .replace(req.user, "")
+      .replace("-", "");
+    myPrivateFriendsIds.push(friendId);
+  });
+
+  // Fetch friend documents using the extracted IDs
+  const myPrivateFriends = await User.find({
+    _id: { $in: myPrivateFriendsIds, $nin: blockedUsersForThisCurrentUser },
+  })
+    .select("_id username avatar updatedAt")
+    .lean();
+
+  // For each friend, fetch the latest message asynchronously
+  let myPrivateFriendsWithMessages = await Promise.all(
+    myPrivateFriends.map(async (friend) => {
+      const latestMessage = await EchoLink.findOne({
+        uniqueChatId: [friend._id, req.user].sort().join("-"),
+      });
+
+      // Attach the latest message to the friend document, if found
+      return {
+        ...friend,
+        uniqueChatId: [friend._id, req.user].sort().join("-"),
+        latestMessage: latestMessage?.messages?.at(-1) || null,
+      };
+    })
+  );
+
+  return res
+    .status(202)
+    .json({ message: "Fetched your friends", myPrivateFriendsWithMessages });
 });
 
 export const markLatestMessageAsRead = asyncHandler(async (req, res) => {
-  const { uniqueChatId } = req.query;
+  const { roomId } = req.params;
 
-  if (!uniqueChatId) {
+  if (!roomId) {
     return res
       .status(403)
-      .json({ message: "uniqueChatId is required to retrieve your messages" });
+      .json({ message: "roomId is required to retrieve your messages" });
   }
 
   const privateMessages = await EchoLink.findOneAndUpdate(
-    { uniqueChatId },
+    { uniqueChatId: roomId },
     { $set: { "latestMessage.receiver.messageStatus": "read" } },
     { new: true }
   );
 
   const messagesArrayUpdate = await EchoLink.findOneAndUpdate(
-    { uniqueChatId },
+    { uniqueChatId: roomId },
     { $set: { "messages.$[].receiver.messageStatus": "read" } },
     { new: true }
   );
 
   res.status(200).json({
     message: "Latest message status updated to 'read' successfully",
+    privateMessages,
+  });
+});
+
+export const searchEchoLinkFriends = asyncHandler(async (req, res) => {
+  const { roomId } = req.params;
+  const userId = req.user;
+
+  const { friends, blockedUsers } = await UserFriend.findOne({ userId });
+
+  if (!roomId) {
+    return res.status(400).json({ message: "Search query is required" });
+  }
+
+  let searchedUsers = await User.find({
+    username: { $regex: roomId, $options: "i" },
+    _id: {
+      $in: friends,
+      $nin: [...blockedUsers, req.user],
+    },
+    // $regex: query: Uses a regular expression (regex) to search within the username field for a pattern matching the query value. This means it will find usernames that partially match query rather than an exact match.
+    // $options: "i": This option makes the regex search case-insensitive (e.g., "Alice" and "alice" would both match the query).
+  }).limit(5);
+
+  res.status(203).json({ searchedUsers });
+});
+
+export const getPrivateMessages = asyncHandler(async (req, res) => {
+  const { roomId } = req.params;
+
+  if (!roomId) {
+    res
+      .status(403)
+      .json({ message: "roomId is required to retrieve your messages" });
+  }
+
+  const privateMessages = await EchoLink.findOne({ roomId });
+
+  res.status(203).json({
+    message: "Private messages retrieved successfully",
     privateMessages,
   });
 });
@@ -176,14 +199,14 @@ export const deleteAllMyChatRooms = asyncHandler(async (req, res) => {
 });
 
 export const deleteChat = asyncHandler(async (req, res) => {
-  const { uniqueChatId } = req.params;
+  const { roomId } = req.params;
 
-  if (!uniqueChatId) {
+  if (!roomId) {
     return res.status(405).json({ message: "couldent clear messages" });
   }
 
   const response = await EchoLink.findOneAndUpdate(
-    { uniqueChatId },
+    { uniqueChatId: roomId },
     {
       $set: { messages: [] },
     }
@@ -193,36 +216,13 @@ export const deleteChat = asyncHandler(async (req, res) => {
 });
 
 export const deleteChatRoom = asyncHandler(async (req, res) => {
-  const { uniqueChatId } = req.params;
+  const { roomId } = req.params;
 
-  if (!uniqueChatId) {
+  if (!roomId) {
     return res.status(405).json({ message: "couldent clear messages" });
   }
 
-  await EchoLink.findOneAndDelete({ uniqueChatId });
+  await EchoLink.findOneAndDelete({ uniqueChatId: roomId });
 
   res.status(203).json({ message: "Deleted the chat room" });
-});
-
-export const searchEchoLinkFriends = asyncHandler(async (req, res) => {
-  const { searchTerm } = req.query;
-  const userId = req.user;
-
-  const { friends, blockedUsers } = await UserFriend.findOne({ userId });
-
-  if (!searchTerm) {
-    return res.status(400).json({ message: "Search query is required" });
-  }
-
-  let searchedUsers = await User.find({
-    username: { $regex: searchTerm, $options: "i" },
-    _id: {
-      $in: friends,
-      $nin: [...blockedUsers, req.user],
-    },
-    // $regex: query: Uses a regular expression (regex) to search within the username field for a pattern matching the query value. This means it will find usernames that partially match query rather than an exact match.
-    // $options: "i": This option makes the regex search case-insensitive (e.g., "Alice" and "alice" would both match the query).
-  }).limit(5);
-
-  res.status(203).json({ searchedUsers });
 });

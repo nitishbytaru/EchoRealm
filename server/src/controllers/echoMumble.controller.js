@@ -5,29 +5,6 @@ import { UserFriend } from "../models/friends.model.js";
 import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-export const sendMumble = asyncHandler(async (req, res) => {
-  const { message, receiver } = req.body;
-  let senderDoc = await User.findById(req.user).select("-password");
-
-  const sender = senderDoc.isAnonymous
-    ? { senderId: null, username: "anonymous" }
-    : { senderId: req.user, username: senderDoc.username };
-
-  if (!message || !receiver) {
-    res.status(409).json({ message: "Mumble is required" });
-  }
-
-  const Mumble = await EchoMumble.create({
-    sender,
-    message,
-    receiver,
-  });
-
-  io.to(receiver).emit("New_mumble_sent", Mumble);
-
-  res.status(200).json({ message: "Mumble sent successfully", Mumble });
-});
-
 export const getMumbles = asyncHandler(async (req, res) => {
   const userId = req.user;
 
@@ -53,42 +30,19 @@ export const getMumbles = asyncHandler(async (req, res) => {
   res.status(200).json({ mumbles });
 });
 
-export const setMumblesAsRead = asyncHandler(async (req, res) => {
-  const userId = req.user;
-
-  await EchoMumble.updateMany(
-    { receiver: userId },
-    { $set: { mumbleStatus: "read" } }
-  );
-
-  res.status(200).json({ message: "all new mumbels read" });
-});
-
-export const deleteMumble = asyncHandler(async (req, res) => {
-  const { MumbleId } = req.query;
-
-  if (!MumbleId) {
-    res.status(404).json({ message: "Id is needed to delete the Mumble" });
-  }
-
-  const response = await EchoMumble.findByIdAndDelete(MumbleId);
-
-  res.status(207).json({ message: "Mumble is deleted successfully" });
-});
-
 export const pinMumble = asyncHandler(async (req, res) => {
-  const { MumbleId } = req.query;
+  const { mumbleId } = req.params;
 
-  if (!MumbleId) {
+  if (!mumbleId) {
     res.status(404).json({ message: "Id is needed to delete the Mumble" });
   }
 
   // Fetch the current document
-  const currentMumble = await EchoMumble.findById(MumbleId);
+  const currentMumble = await EchoMumble.findById(mumbleId);
 
   // Toggle `showOthers` based on its current value
   const updatedMumble = await EchoMumble.findByIdAndUpdate(
-    MumbleId,
+    mumbleId,
     { $set: { pinned: !currentMumble.pinned } }, // Toggle value
     { new: true }
   );
@@ -132,14 +86,14 @@ export const pinMumble = asyncHandler(async (req, res) => {
 });
 
 export const likeThisMumble = asyncHandler(async (req, res) => {
-  const { MumbleId } = req.query;
+  const { mumbleId } = req.params;
 
-  if (!MumbleId) {
+  if (!mumbleId) {
     res.status(404).json({ message: "Id is needed to like the Mumble" });
   }
 
   // Fetch the current document
-  const currentMumble = await EchoMumble.findById(MumbleId);
+  const currentMumble = await EchoMumble.findById(mumbleId);
 
   const alreadyLiked = currentMumble?.likes.includes(req.user);
 
@@ -147,7 +101,7 @@ export const likeThisMumble = asyncHandler(async (req, res) => {
 
   if (alreadyLiked) {
     updatedMumble = await EchoMumble.findByIdAndUpdate(
-      MumbleId,
+      mumbleId,
       {
         $pull: { likes: req.user },
       },
@@ -155,7 +109,7 @@ export const likeThisMumble = asyncHandler(async (req, res) => {
     );
   } else {
     updatedMumble = await EchoMumble.findByIdAndUpdate(
-      MumbleId,
+      mumbleId,
       {
         $push: { likes: req.user },
       },
@@ -166,6 +120,52 @@ export const likeThisMumble = asyncHandler(async (req, res) => {
   res
     .status(207)
     .json({ message: "updated likes for this Mumble", updatedMumble });
+});
+
+export const sendMumble = asyncHandler(async (req, res) => {
+  const { message, receiver } = req.body;
+  let senderDoc = await User.findById(req.user).select("-password");
+
+  const sender = senderDoc.isAnonymous
+    ? { senderId: null, username: "anonymous" }
+    : { senderId: req.user, username: senderDoc.username };
+
+  if (!message || !receiver) {
+    res.status(409).json({ message: "Mumble is required" });
+  }
+
+  const Mumble = await EchoMumble.create({
+    sender,
+    message,
+    receiver,
+  });
+
+  io.to(receiver).emit("New_mumble_sent", Mumble);
+
+  res.status(200).json({ message: "Mumble sent successfully", Mumble });
+});
+
+export const setMumblesAsRead = asyncHandler(async (req, res) => {
+  const userId = req.user;
+
+  await EchoMumble.updateMany(
+    { receiver: userId },
+    { $set: { mumbleStatus: "read" } }
+  );
+
+  res.status(200).json({ message: "all new mumbels read" });
+});
+
+export const deleteMumble = asyncHandler(async (req, res) => {
+  const { mumbleId } = req.params;
+
+  if (!mumbleId) {
+    res.status(404).json({ message: "Id is needed to delete the Mumble" });
+  }
+
+  const response = await EchoMumble.findByIdAndDelete(mumbleId);
+
+  res.status(207).json({ message: "Mumble is deleted successfully" });
 });
 
 export const deleteRecievedMumbles = asyncHandler(async (req, res) => {

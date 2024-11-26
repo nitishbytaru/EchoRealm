@@ -6,7 +6,7 @@ import {
   pinMumble,
   likeThisMumble,
   deleteRecievedMumbles,
-  deletesentMumbles,
+  deleteSentMumbles,
   setMumblesAsRead,
 } from "../controllers/echoMumble.controller.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
@@ -14,13 +14,14 @@ const router = Router();
 
 router.use(isAuthenticated);
 //protected routes
-router.route("/get-Mumbles").get(getMumbles);
-router.route("/delete-Mumble").delete(deleteMumble);
-router.route("/send-Mumble").post(sendMumble);
-router.route("/pin-Mumble").get(pinMumble);
-router.route("/like-Mumble").get(likeThisMumble);
-router.route("/delete-recieved-Mumbles").get(deleteRecievedMumbles);
-router.route("/delete-sent-Mumbles").get(deletesentMumbles);
-router.route("/set-mumbles-read").get(setMumblesAsRead);
+
+router.route("/mumbles").get(getMumbles);
+router.route("/pin/:mumbleId").get(pinMumble);
+router.route("/like/:mumbleId").get(likeThisMumble);
+router.route("/send-mumble").post(sendMumble);
+router.route("/mumbles-read").patch(setMumblesAsRead);
+router.route("/:mumbleId").delete(deleteMumble);
+router.route("/recieved").delete(deleteRecievedMumbles);
+router.route("/sent").delete(deleteSentMumbles);
 
 export default router;

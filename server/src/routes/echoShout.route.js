@@ -10,11 +10,11 @@ import { upload } from "../middleware/multer.middleware.js";
 const router = Router();
 
 //unprotected routes
-router.route("/get-echoShoutMessages").get(getMessages);
+router.route("/get-messages").get(getMessages);
 
 router.use(isAuthenticated);
 //protected routes
-router.route("/send-echoShoutMessage").post(
+router.route("/send-message").post(
   upload.fields([
     {
       name: "attachments",
@@ -23,6 +23,6 @@ router.route("/send-echoShoutMessage").post(
   ]),
   sendMessage
 );
-router.route("/delete-my-messages").get(deleteMyMessagesInEchoShout);
+router.route("/my-messages").delete(deleteMyMessagesInEchoShout);
 
 export default router;

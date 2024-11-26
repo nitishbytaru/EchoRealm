@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useParams } from "react-router-dom";
 import {
-  getDetailsToViewProfileApi,
+  getUsersWithMumbles,
   fetchMostLikedMumbleWithLikesAndFriendsApi,
 } from "../../api/userApi";
 import { FavoriteBorderIcon, FavoriteIcon } from "../../heplerFunc/exportIcons";
@@ -24,7 +24,7 @@ function ViewProfile() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await getDetailsToViewProfileApi(viewProfileUserId);
+      const response = await getUsersWithMumbles(viewProfileUserId);
       dispatch(
         setViewingProfileUserDetails(
           response?.data?.selectedUserProfileDetailsResponse

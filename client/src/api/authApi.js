@@ -5,7 +5,7 @@ const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/auth`;
 
 export const registerApi = async (Data) => {
   try {
-    return await axios.post(`${API_URL}/signin`, Data, apiConfigFORM);
+    return await axios.post(`${API_URL}/register`, Data, apiConfigFORM);
   } catch (error) {
     console.log(error);
   }
@@ -32,7 +32,7 @@ export const logoutApi = async () => {
 
 export const getProfileApi = async () => {
   try {
-    return await axios.get(`${API_URL}/get-profile`, {
+    return await axios.get(`${API_URL}/profile`, {
       withCredentials: true,
     });
   } catch (error) {
