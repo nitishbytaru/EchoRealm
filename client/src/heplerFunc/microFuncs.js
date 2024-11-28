@@ -2,6 +2,7 @@ import {
   getPrivateMessagesApi,
   markLatestMessageAsReadApi,
 } from "../api/echoLinkApi";
+import { sendEchoShoutApi } from "../api/echoShoutApi";
 import {
   removeFromChatRoomsWithUnreadMessages,
   setPrivateMessages,
@@ -71,4 +72,27 @@ export const markAsRead = async (
 //to create a unique chat room for two users
 export const createUniquechatRoom = (senderId, recieverId) => {
   return [senderId, recieverId].sort().join("-");
+};
+
+//to send a echoshout message
+export const sendEchoShoutMessage = async (
+  setSelectSearchBar,
+  mentions,
+  echoShoutMessageData,
+  setMentions,
+  setEchoShoutMessageData
+) => {
+  setSelectSearchBar(false);
+  if (mentions.length > 0) {
+    echoShoutMessageData.append("mentions", JSON.stringify(mentions));
+  }
+
+  try {
+    await sendEchoShoutApi(echoShoutMessageData);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setMentions([]);
+    setEchoShoutMessageData("");
+  }
 };

@@ -36,6 +36,10 @@ const userSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    numberOfPinnedMumbles: {
+      type: Number,
+      default: 0,
+    },
     isAnonymous: {
       type: Boolean,
       default: false,

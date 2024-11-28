@@ -5,9 +5,10 @@ const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoShout`;
 
 export const getEchoShoutsApi = async () => {
   try {
-    return await axios.get(`${API_URL}/get-messages`, {
+    const { data } = await axios.get(`${API_URL}/get-messages`, {
       withCredentials: true,
     });
+    return data;
   } catch (error) {
     console.log(error);
   }

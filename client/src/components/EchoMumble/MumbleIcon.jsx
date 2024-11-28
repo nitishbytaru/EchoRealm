@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-
 import {
   SendIcon,
   MailOutlineIcon,
@@ -21,7 +20,7 @@ function MumbleIcon() {
         </div>
         {!isMobile ? <div className="ml-2">EchoMumble</div> : null}
       </button>
-      
+
       <dialog id="my_modal_1" className="modal">
         <div className="modal-box max-w-xs sm:max-w-md">
           <div className="flex flex-col sm:flex-row gap-2">

@@ -16,8 +16,9 @@ export const getMessages = asyncHandler(async (req, res) => {
 export const sendMessage = asyncHandler(async (req, res) => {
   let attachments = null;
   let { message, mentions } = req.body;
-  mentions = JSON.parse(mentions);
-
+  if (mentions) {
+    mentions = JSON.parse(mentions);
+  }
   let sender = await User.findById(req.user).select("-password");
 
   if (!sender?.isAnonymous) {

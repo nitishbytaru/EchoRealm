@@ -40,31 +40,36 @@ export const pinMumble = asyncHandler(async (req, res) => {
   // Fetch the current document
   const currentMumble = await EchoMumble.findById(mumbleId);
 
-  // Toggle `showOthers` based on its current value
+  const newPinnedStatus = !currentMumble.pinned;
+
+  // Check the user's pinned Mumble limit only when pinning
+  if (newPinnedStatus) {
+    const user = await User.findById(req.user);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    if (user.numberOfPinnedMumbles >= 4) {
+      return res
+        .status(400)
+        .json({ message: "Maximum number of pinned Mumbles reached." });
+    }
+  }
+
+  // Update the Mumble's pinned status
   const updatedMumble = await EchoMumble.findByIdAndUpdate(
     mumbleId,
-    { $set: { pinned: !currentMumble.pinned } }, // Toggle value
+    { pinned: newPinnedStatus },
     { new: true }
   );
 
   if (!updatedMumble) {
-    return res.status(500).json({ message: "Error updating Mumble" });
+    return res.status(500).json({ message: "Failed to update Mumble." });
   }
 
-  // Increment or decrement numberOfPinnedMumbles based on the new value of `showOthers`
-  const incrementValue = updatedMumble.showOthers ? 1 : -1;
-
-  // Fetch user to check current numberOfPinnedMumbles
-  const userToCalcu = await User.findById(req.user);
-
-  // Check if incrementing would exceed max value
-  if (incrementValue >= 1 && userToCalcu.numberOfPinnedMumbles >= 4) {
-    return res
-      .status(400)
-      .json({ message: "Maximum number of pinned Mumbles reached." });
-  }
-
-  // Update the user's numberOfPinnedMumbles
+  // Update the user's pinned count
+  const incrementValue = newPinnedStatus ? 1 : -1;
   const updatedUser = await User.findByIdAndUpdate(
     req.user,
     { $inc: { numberOfPinnedMumbles: incrementValue } },
@@ -73,14 +78,14 @@ export const pinMumble = asyncHandler(async (req, res) => {
 
   if (!updatedUser) {
     return res
-      .status(500)
-      .json({ message: "Error updating user's pinned Mumbles count" });
+      .status(400)
+      .json({ message: "Failed to update user's pinned count." });
   }
 
-  res.status(207).json({
-    message: `Mumble is ${
-      updatedMumble.pinned ? "pined" : "unpined"
-    } successfully`,
+  return res.status(200).json({
+    message: `Mumble has been successfully ${
+      newPinnedStatus ? "pinned" : "unpinned"
+    }.`,
     updatedMumble,
   });
 });

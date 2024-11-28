@@ -39,6 +39,10 @@ export default function MessageBar({ setMessageData }) {
     }
   };
 
+  const CHARACTER_LIMIT = 55;
+
+  const isOverLimit = message.value.length > CHARACTER_LIMIT;
+
   return (
     <div className="bg-base-100 pt-2 sm:p-4 flex-none">
       {isUploading ? (
@@ -75,7 +79,9 @@ export default function MessageBar({ setMessageData }) {
           <div className="grow relative">
             <input
               type="text"
-              className="w-full input input-sm sm:input-md input-bordered pr-10"
+              className={`w-full input input-sm sm:input-md input-bordered pr-10 ${
+                isOverLimit ? "border-red-500" : ""
+              }`}
               placeholder={
                 attachments.file ? "File selected" : "Type a message..."
               }
@@ -93,10 +99,21 @@ export default function MessageBar({ setMessageData }) {
             )}
           </div>
 
+          {/* limit exceeded warning */}
+          <div className="text-right text-xs mt-1">
+            <span
+              className={`${
+                isOverLimit ? "text-red-500 font-bold" : "text-gray-500"
+              }`}
+            >
+              {message.value.length}/{CHARACTER_LIMIT}
+            </span>
+          </div>
+
           <button
             className="btn btn-sm sm:btn-md flex-shrink-0"
             onClick={sendCurrentMessage}
-            disabled={isUploading}
+            disabled={isUploading || isOverLimit}
           >
             <SendSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
           </button>

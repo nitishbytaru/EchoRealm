@@ -19,7 +19,7 @@ router.route("/mumbles").get(getMumbles);
 router.route("/pin/:mumbleId").get(pinMumble);
 router.route("/like/:mumbleId").get(likeThisMumble);
 router.route("/send-mumble").post(sendMumble);
-router.route("/mumbles-read").patch(setMumblesAsRead);
+router.route("/mumbles-read").get(setMumblesAsRead);
 router.route("/:mumbleId").delete(deleteMumble);
 router.route("/recieved").delete(deleteRecievedMumbles);
 router.route("/sent").delete(deleteSentMumbles);

@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const sendFriendRequest = asyncHandler(async (req, res) => {
-  const { requestSenderId } = req.params.senderId;
+  const requestSenderId = req.params.senderId;
   const userId = req.user;
 
   // Find the target user's friend requests

@@ -181,7 +181,7 @@ export const getPrivateMessages = asyncHandler(async (req, res) => {
       .json({ message: "roomId is required to retrieve your messages" });
   }
 
-  const privateMessages = await EchoLink.findOne({ roomId });
+  const privateMessages = await EchoLink.findOne({ uniqueChatId: roomId });
 
   res.status(203).json({
     message: "Private messages retrieved successfully",

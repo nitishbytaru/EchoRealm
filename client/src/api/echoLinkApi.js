@@ -5,11 +5,12 @@ const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoLink`;
 
 export const sendEchoLinkMessageApi = async (echoLinkMessage) => {
   try {
-    return await axios.post(
+    const { data } = await axios.post(
       `${API_URL}/message`,
       echoLinkMessage,
       apiConfigFORM
     );
+    return data;
   } catch (error) {
     console.log(error);
     return error;
@@ -18,9 +19,10 @@ export const sendEchoLinkMessageApi = async (echoLinkMessage) => {
 
 export const getMyPrivateFriendsApi = async () => {
   try {
-    return await axios.get(`${API_URL}/private-friends`, {
+    const { data } = await axios.get(`${API_URL}/private-friends`, {
       withCredentials: true,
     });
+    return data;
   } catch (error) {
     console.log(error);
     return error;
@@ -51,13 +53,13 @@ export const markLatestMessageAsReadApi = async (uniqueChatId) => {
 
 export const searchEchoLinkFriendsApi = async (searchTerm) => {
   try {
-    const response = await axios.get(
+    const { data } = await axios.get(
       `${API_URL}/friends/search/${searchTerm}`,
       {
         withCredentials: true,
       }
     );
-    return response?.data?.searchedUsers;
+    return data?.searchedUsers;
   } catch (error) {
     console.log(error);
   }

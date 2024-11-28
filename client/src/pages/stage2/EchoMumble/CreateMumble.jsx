@@ -32,7 +32,7 @@ function CreateMumble() {
       searchUSerByIdFunc();
       dispatch(setIsLoading(true));
     }
-  }, [mumbleTo]);
+  }, [dispatch, mumbleTo, search]);
 
   const sendCurrentMumble = async () => {
     if (!selectedUser) {
@@ -67,6 +67,10 @@ function CreateMumble() {
       setSelectedUser(null);
     }
   };
+
+  const CHARACTER_LIMIT = 55;
+
+  const isOverLimit = message.value.length > CHARACTER_LIMIT;
 
   return (
     <div className="bg-base-200 h-full rounded-xl pt-2">
@@ -159,7 +163,9 @@ function CreateMumble() {
               <div className="grow relative">
                 <input
                   type="text"
-                  className="w-full input input-sm sm:input-md input-bordered pr-10"
+                  className={`w-full input input-sm sm:input-md input-bordered pr-10 ${
+                    isOverLimit ? "border-red-500" : ""
+                  }`}
                   placeholder="Type a message..."
                   onChange={message.changeHandler}
                   value={message.value}
@@ -167,9 +173,20 @@ function CreateMumble() {
                 />
               </div>
 
+              <div className="text-right text-xs mt-1">
+                <span
+                  className={`${
+                    isOverLimit ? "text-red-500 font-bold" : "text-gray-500"
+                  }`}
+                >
+                  {message.value.length}/{CHARACTER_LIMIT}
+                </span>
+              </div>
+
               <button
                 className="btn btn-sm sm:btn-md flex-shrink-0"
                 onClick={sendCurrentMumble}
+                disabled={isOverLimit}
               >
                 <SendSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
               </button>

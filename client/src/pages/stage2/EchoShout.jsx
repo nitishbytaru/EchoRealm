@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import socket from "../../sockets/socket.js";
 import moment from "moment";
 import MessageBar from "../../components/ui/MessageBar";
-import { getEchoShoutsApi, sendEchoShoutApi } from "../../api/echoShoutApi";
+import { getEchoShoutsApi } from "../../api/echoShoutApi";
 import { setIsLoading } from "../../app/slices/authSlice.js";
 import {
   addEchoShoutMessage,
@@ -12,6 +12,7 @@ import {
 import { useAutoScroll } from "../../hooks/useAutoScroll.js";
 import { useInputValidation } from "6pp";
 import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults.js";
+import { sendEchoShoutMessage } from "../../heplerFunc/microFuncs.js";
 
 function EchoShout() {
   const dispatch = useDispatch();
@@ -42,8 +43,8 @@ function EchoShout() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await getEchoShoutsApi();
-        dispatch(setEchoShoutMessages(response?.data?.messages || []));
+        const { messages } = await getEchoShoutsApi();
+        dispatch(setEchoShoutMessages(messages || []));
       } catch (error) {
         console.log(error);
       } finally {
@@ -56,22 +57,15 @@ function EchoShout() {
   }, [dispatch]);
 
   useEffect(() => {
-    const sendEchoShoutMessage = async () => {
-      setSelectSearchBar(false);
-      setMentions([]);
-      echoShoutMessageData.append("mentions", JSON.stringify(mentions));
-
-      try {
-        await sendEchoShoutApi(echoShoutMessageData);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setEchoShoutMessageData("");
-      }
-    };
     if (echoShoutMessageData) {
       dispatch(setIsLoading(true));
-      sendEchoShoutMessage();
+      sendEchoShoutMessage(
+        setSelectSearchBar,
+        mentions,
+        echoShoutMessageData,
+        setMentions,
+        setEchoShoutMessageData
+      );
       dispatch(setIsLoading(false));
     }
   }, [dispatch, echoShoutMessageData, mentions]);
@@ -179,9 +173,7 @@ function EchoShout() {
                 </label>
               </div>
             </div>
-          ) : (
-            <></>
-          )}
+          ) : null}
           <div className="flex sm:flex-row items-center justify-center bg-base-100 sm:p-2 mb-4 sm:mb-0">
             {/* mentions */}
             {mentions.length > 0 ? (
@@ -195,9 +187,7 @@ function EchoShout() {
                   ))}
                 </div>
               </div>
-            ) : (
-              <></>
-            )}
+            ) : null}
             {/* Button Container search box */}
             <div className="flex-shrink-0 sm:pt-0 sm:mx-0 pt-2 mx-1">
               <button

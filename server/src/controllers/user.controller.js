@@ -25,7 +25,6 @@ export const getMostLikedMumbleWithLikesAndFriends = asyncHandler(
       { $project: { likeCount: { $size: "$likes" } } },
       { $group: { _id: null, totalLikes: { $sum: "$likeCount" } } },
     ]);
-    console.log();
 
     //HIGHEST LIKED MUMBLE
     const mostLikedMumble = await EchoMumble.aggregate([
@@ -139,15 +138,14 @@ export const updateCurrUserData = asyncHandler(async (req, res) => {
 
   let updateFields = {};
 
-  const avatarLocalPath = req.files?.avatar[0]?.path;
+  if (req.files?.avatar) {
+    const avatarLocalPath = req.files?.avatar[0]?.path;
 
-  if (avatarLocalPath) {
     const currUser = await User.findById(userId);
 
     const response = await deleteFromCloudinary(currUser?.avatar?.publicId);
 
     const updatedAvatar = await uploadToCloudinary(avatarLocalPath);
-
 
     if (!updatedAvatar) {
       return res.status(400).json({ message: "Avatar file is required" });

@@ -75,7 +75,7 @@ function MyMumbles() {
                       <button
                         className="btn m-2"
                         onClick={() => {
-                          pinMumble(Mumble);
+                          pinMumble(Mumble?._id);
                           document.getElementById(Mumble?._id).close();
                         }}
                       >
