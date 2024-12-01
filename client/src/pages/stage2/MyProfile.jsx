@@ -19,7 +19,7 @@ import {
   PersonAddAlt1Icon,
   PeopleIcon,
 } from "../../heplerFunc/exportIcons";
-import { logoutApi } from "../../api/authApi";
+import { logoutApi } from "../../api/auth.api.js";
 import toast from "react-hot-toast";
 import { normalLoading } from "../../components/Loaders/LoadingAnimations";
 
@@ -93,7 +93,7 @@ function MyProfile() {
                   }
                 >
                   <EditOutlinedIcon />
-                  profile
+                  Profile
                 </NavLink>
               </li>
               <li className={classList}>
@@ -104,7 +104,7 @@ function MyProfile() {
                   }
                 >
                   <ShieldIcon />
-                  {`${isMobile ? "" : "my"} Mumbles`}
+                  {`${isMobile ? "" : "My"} Mumbles`}
                 </NavLink>
               </li>
               <li className={`${classList} mb-2 sm:mb-0`}>
@@ -143,7 +143,7 @@ function MyProfile() {
                   }
                 >
                   <BlockIcon />
-                  {`blocked${isMobile ? "" : " users"}`}
+                  {`Blocked${isMobile ? "" : " Users"}`}
                 </NavLink>
               </li>
               <li className={`${classList}`}>
@@ -154,7 +154,7 @@ function MyProfile() {
                   }
                 >
                   <SearchIcon />
-                  {`find ${isMobile ? "" : "users"}`}
+                  {`Find ${isMobile ? "" : "Users"}`}
                 </NavLink>
               </li>
               <li className={`${classList}`}>
@@ -165,7 +165,7 @@ function MyProfile() {
                   }
                 >
                   <PersonIcon />
-                  account
+                  Account
                 </NavLink>
               </li>
               <li className={`${classList} bg-red-800 hover:bg-red-500`}>

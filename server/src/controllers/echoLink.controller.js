@@ -1,10 +1,12 @@
 // echoShout.controller.js
+import mongoose from "mongoose";
 import { io } from "../index.js";
 import { User } from "../models/user.model.js";
 import { EchoLink } from "../models/echoLink.model.js";
+import { UserFriend } from "../models/friends.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
-import { UserFriend } from "../models/friends.model.js";
+import { GroupChatRoom } from "../models/groupChatRoom.model.js";
 
 export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
   let attachments = null;
@@ -75,21 +77,35 @@ export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
 });
 
 export const getMyPrivateFriends = asyncHandler(async (req, res) => {
-  const response = await User.findById(req.user);
+  const userId = new mongoose.Types.ObjectId(req.user);
 
-  const blockedUsersForThisCurrentUser = response?.blockedUsers;
+  const { blockedUsers } = await User.findById(userId);
+
+  const blockedUsersForThisCurrentUser = blockedUsers || [];
 
   let myPrivateFriendsIds = [];
 
+  const groupChats = await GroupChatRoom.find({
+    groupChatRoomMembers: { $in: [userId] },
+  })
+    .populate({
+      path: "groupChatRoomMembers",
+      select: "username",
+    })
+    .populate({
+      path: "admin",
+      select: "username",
+    });
+
   // Fetch chat rooms that contain the user's ID in uniqueChatId
   const myPrivateChatRooms = await EchoLink.find({
-    uniqueChatId: { $regex: req.user },
+    uniqueChatId: { $regex: userId },
   });
 
   // Extract friend IDs by removing the user's ID and hyphen from uniqueChatId
   myPrivateChatRooms.forEach((chatRoom) => {
     const friendId = chatRoom?.uniqueChatId
-      .replace(req.user, "")
+      .replace(userId, "")
       .replace("-", "");
     myPrivateFriendsIds.push(friendId);
   });
@@ -105,21 +121,27 @@ export const getMyPrivateFriends = asyncHandler(async (req, res) => {
   let myPrivateFriendsWithMessages = await Promise.all(
     myPrivateFriends.map(async (friend) => {
       const latestMessage = await EchoLink.findOne({
-        uniqueChatId: [friend._id, req.user].sort().join("-"),
+        uniqueChatId: [friend._id, userId].sort().join("-"),
       });
 
       // Attach the latest message to the friend document, if found
       return {
         ...friend,
-        uniqueChatId: [friend._id, req.user].sort().join("-"),
+        uniqueChatId: [friend._id, userId].sort().join("-"),
         latestMessage: latestMessage?.messages?.at(-1) || null,
       };
     })
   );
 
-  return res
-    .status(202)
-    .json({ message: "Fetched your friends", myPrivateFriendsWithMessages });
+  const roomswithPrivateChats = [
+    ...myPrivateFriendsWithMessages,
+    ...groupChats,
+  ];
+
+  return res.status(202).json({
+    message: "Fetched your friends",
+    myPrivateFriendsWithMessages: roomswithPrivateChats,
+  });
 });
 
 export const markLatestMessageAsRead = asyncHandler(async (req, res) => {
@@ -225,4 +247,37 @@ export const deleteChatRoom = asyncHandler(async (req, res) => {
   await EchoLink.findOneAndDelete({ uniqueChatId: roomId });
 
   res.status(203).json({ message: "Deleted the chat room" });
+});
+
+//groupchat controllers
+export const createNewGroupChat = asyncHandler(async (req, res) => {
+  const { groupName, groupMembers } = req.body;
+  const userId = req.user;
+
+  const avatarLocalPath = req.files?.groupProfilePicture[0]?.path;
+
+  if (!avatarLocalPath) {
+    return res.status(400).json({ message: "Avatar file is required" });
+  }
+
+  const avatar = await uploadToCloudinary(avatarLocalPath);
+
+  if (!avatar) {
+    return res.status(400).json({ message: "Avatar file is required" });
+  }
+
+  const members = JSON.parse(groupMembers).map((member) => member.id);
+  members.push(req.user);
+
+  const newGroup = await GroupChatRoom.create({
+    groupProfile: { url: avatar.url, publicId: avatar.public_id },
+    groupName,
+    groupChatRoomMembers: members,
+    admin: userId,
+  });
+
+  res.status(203).json({
+    message: "New group created successfully",
+    newGroupDetails: newGroup,
+  });
 });

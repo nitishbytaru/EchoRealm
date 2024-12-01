@@ -11,7 +11,7 @@ import {
   clearChatApi,
   deleteChatRoomApi,
   sendEchoLinkMessageApi,
-} from "../../../api/echoLinkApi.js";
+} from "../../../api/echoLink.api.js";
 import {
   addPrivateMessage,
   addToMyPrivateChatRooms,
@@ -22,17 +22,16 @@ import {
 import socket from "../../../sockets/socket.js";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
 import toast from "react-hot-toast";
-import { handleRemoveOrBlockMyFriendApi } from "../../../api/friendsApi.js";
+import { handleRemoveOrBlockMyFriendApi } from "../../../api/friends.api.js";
 import {
   createUniquechatRoom,
   markAsRead,
 } from "../../../heplerFunc/microFuncs.js";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { searchUserByIdApi } from "../../../api/userApi.js";
+import { Link, useParams } from "react-router-dom";
+import { searchUserByIdApi } from "../../../api/user.api.js";
 
 function ChatBox() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { recieverId } = useParams();
 
   const { user } = useSelector((state) => state.auth);
@@ -140,10 +139,7 @@ function ChatBox() {
             <div className="flex-1">
               <div className="avatar flex items-center">
                 {/* Back Button */}
-                <Link
-                  className="p-0 sm:hidden btn btn-sm z-10"
-                  onClick={() => navigate("/echo-link")}
-                >
+                <Link to={"/"} className="p-0 sm:hidden btn btn-sm z-10">
                   <ArrowBackIosIcon />
                 </Link>
                 <div className="w-10 rounded-full">

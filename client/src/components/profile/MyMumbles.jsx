@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getMumblesApi, pinMumbleApi } from "../../api/echoMumbleApi";
+import { getMumblesApi, pinMumbleApi } from "../../api/echoMumble.api.js";
 import {
   FavoriteBorderIcon,
   FavoriteIcon,

@@ -9,7 +9,7 @@ import LoggedOut from "./utils/LoggedOut";
 import { normalLoading } from "./components/Loaders/LoadingAnimations.jsx";
 
 // API & Redux
-import { getProfileApi } from "./api/authApi.js";
+import { getProfileApi } from "./api/auth.api.js";
 import { setIsLoggedIn, setUser } from "./app/slices/authSlice.js";
 
 // Lazy Loaded Components

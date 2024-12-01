@@ -1,16 +1,16 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults";
+import { toast } from "react-hot-toast";
 import { useInputValidation } from "6pp";
-import { useNavigate } from "react-router-dom";
 import socket from "../../sockets/socket";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { sendFriendRequestApi } from "../../api/friends.api.js";
+import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults.js";
 import {
   setResultOfSearchedUsers,
   setViewingProfileUserDetails,
   updateResultOfSearchedUsers,
-} from "../../app/slices/userSlice";
-import { toast } from "react-hot-toast";
-import { sendFriendRequestApi } from "../../api/friendsApi.js";
+} from "../../app/slices/userSlice.js";
 
 function FindUsers() {
   const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMyFriendRequestsApi } from "../api/friendsApi";
+import { fetchMyFriendRequestsApi } from "../api/friends.api.js";
 import {
   setBadgeOfPendingRequests,
   setMyFriendRequests,

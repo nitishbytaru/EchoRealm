@@ -2,7 +2,7 @@ import toast from "react-hot-toast";
 import { useState, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
-import { loginApi, registerApi } from "../api/authApi";
+import { loginApi, registerApi } from "../api/auth.api.js";
 import { setIsLoggedIn, setIsLoading, setUser } from "../app/slices/authSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";

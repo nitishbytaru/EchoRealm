@@ -8,6 +8,7 @@ import {
   deleteChat,
   deleteChatRoom,
   searchEchoLinkFriends,
+  createNewGroupChat,
 } from "../controllers/echoLink.controller.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -29,5 +30,13 @@ router.route("/friends/search/:roomId").get(searchEchoLinkFriends);
 router.route("/chatRooms").delete(deleteAllMyChatRooms);
 router.route("/chats/:roomId").delete(deleteChat);
 router.route("/chatRoom/:roomId").delete(deleteChatRoom);
+
+//groupchats
+router
+  .route("/groupChat/create")
+  .post(
+    upload.fields([{ name: "groupProfilePicture", maxCount: 1 }]),
+    createNewGroupChat
+  );
 
 export default router;

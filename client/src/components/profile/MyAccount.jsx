@@ -1,18 +1,18 @@
 import toast from "react-hot-toast";
-import { deleteMyAccountApi } from "../../api/userApi";
-import { deleteAllMessagesInEchoShoutApi } from "../../api/echoShoutApi";
-import { handleDeleteAllEchoLinkApi } from "../../api/echoLinkApi";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { deleteMyAccountApi } from "../../api/user.api.js";
+import { handleDeleteAllEchoLinkApi } from "../../api/echoLink.api.js";
+import { deleteAllMessagesInEchoShoutApi } from "../../api/echoShout.api.js";
 import {
   deleteAllSentMumblesApi,
   deleteAllRecievedMumblesApi,
-} from "../../api/echoMumbleApi";
+} from "../../api/echoMumble.api.js";
 import {
   setIsLoggedIn,
   setIsLoading,
   setUser,
 } from "../../app/slices/authSlice";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
 function MyAccount() {
   const navigate = useNavigate();

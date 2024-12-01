@@ -1,8 +1,8 @@
 import {
   getPrivateMessagesApi,
   markLatestMessageAsReadApi,
-} from "../api/echoLinkApi";
-import { sendEchoShoutApi } from "../api/echoShoutApi";
+} from "../api/echoLink.api";
+import { sendEchoShoutApi } from "../api/echoShout.api";
 import {
   removeFromChatRoomsWithUnreadMessages,
   setPrivateMessages,

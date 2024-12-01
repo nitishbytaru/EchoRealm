@@ -1,6 +1,6 @@
 // hooks/useDebouncedSearchResults.js
 import { useState, useEffect } from "react";
-import { searchUsersApi } from "../api/userApi.js";
+import { searchUsersApi } from "../api/user.api.js";
 
 export function useDebouncedSearchResults(query) {
   const [searchResults, setSearchResults] = useState([]);

@@ -1,7 +1,7 @@
 import { toast } from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { handleFriendRequestApi } from "../../api/friendsApi.js";
+import { useDispatch, useSelector } from "react-redux";
+import { handleFriendRequestApi } from "../../api/friends.api.js";
 import {
   setViewingProfileUserDetails,
   removeFromMyFriendRequests,

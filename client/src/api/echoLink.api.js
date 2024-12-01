@@ -5,12 +5,11 @@ const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoLink`;
 
 export const sendEchoLinkMessageApi = async (echoLinkMessage) => {
   try {
-    const { data } = await axios.post(
+    return await axios.post(
       `${API_URL}/message`,
       echoLinkMessage,
       apiConfigFORM
     );
-    return data;
   } catch (error) {
     console.log(error);
     return error;
@@ -19,10 +18,9 @@ export const sendEchoLinkMessageApi = async (echoLinkMessage) => {
 
 export const getMyPrivateFriendsApi = async () => {
   try {
-    const { data } = await axios.get(`${API_URL}/private-friends`, {
+    return await axios.get(`${API_URL}/private-friends`, {
       withCredentials: true,
     });
-    return data;
   } catch (error) {
     console.log(error);
     return error;
@@ -92,6 +90,16 @@ export const deleteChatRoomApi = async (uniqueChatId) => {
       `${API_URL}/chatRoom/${uniqueChatId}`,
       apiConfigJSON
     );
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+//for group chat
+export const createGroupChatApi = async (Data) => {
+  try {
+    return await axios.post(`${API_URL}/groupChat/create`, Data, apiConfigFORM);
   } catch (error) {
     console.log(error);
     return error;
