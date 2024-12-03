@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
 import { setIsLoading } from "../../app/slices/authSlice.js";
+import { addToMyPrivateChatRooms } from "../../app/slices/echoLinkSlice.js";
 import {
   createGroupChatApi,
   searchEchoLinkFriendsApi,
@@ -57,7 +58,8 @@ function GroupChat() {
     formData.append("groupMembers", JSON.stringify(groupMembers));
     try {
       dispatch(setIsLoading(true));
-      await createGroupChatApi(formData);
+      const response = await createGroupChatApi(formData);
+      dispatch(addToMyPrivateChatRooms(response?.data?.newGroupDetails));
       toast.success("GroupCreated Refresh To access");
     } catch (error) {
       console.log(error);

@@ -1,17 +1,25 @@
 import moment from "moment";
-import { useDispatch, useSelector } from "react-redux";
+import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import MessageBar from "../../ui/MessageBar";
+import socket from "../../../sockets/socket.js";
+import { useDispatch, useSelector } from "react-redux";
+import { searchUserByIdApi } from "../../../api/user.api.js";
+import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
 import { setIsLoading } from "../../../app/slices/authSlice.js";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { handleRemoveOrBlockMyFriendApi } from "../../../api/friends.api.js";
+import {
+  clearChatApi,
+  deleteChatRoomApi,
+  getGroupChatDetailsApi,
+  sendEchoLinkMessageApi,
+  sendGroupChatMessageApi,
+} from "../../../api/echoLink.api.js";
 import {
   MoreVertSharpIcon,
   ArrowBackIosIcon,
 } from "../../../heplerFunc/exportIcons.js";
-import {
-  clearChatApi,
-  deleteChatRoomApi,
-  sendEchoLinkMessageApi,
-} from "../../../api/echoLink.api.js";
 import {
   addPrivateMessage,
   addToMyPrivateChatRooms,
@@ -19,19 +27,14 @@ import {
   setLatestMessageAsRead,
   setPrivateMessages,
 } from "../../../app/slices/echoLinkSlice.js";
-import socket from "../../../sockets/socket.js";
-import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
-import toast from "react-hot-toast";
-import { handleRemoveOrBlockMyFriendApi } from "../../../api/friends.api.js";
 import {
   createUniquechatRoom,
   markAsRead,
 } from "../../../heplerFunc/microFuncs.js";
-import { Link, useParams } from "react-router-dom";
-import { searchUserByIdApi } from "../../../api/user.api.js";
 
 function ChatBox() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { recieverId } = useParams();
 
   const { user } = useSelector((state) => state.auth);
@@ -45,8 +48,13 @@ function ChatBox() {
 
   useEffect(() => {
     const getRecieverDataByIdFunc = async () => {
-      const response = await searchUserByIdApi(recieverId);
-      setSelecedUser(response?.data?.searchedUser);
+      let response = await searchUserByIdApi(recieverId);
+      if (!response?.data?.searchedUser) {
+        response = await getGroupChatDetailsApi(recieverId);
+        setSelecedUser(response?.data?.groupDetails);
+      } else {
+        setSelecedUser(response?.data?.searchedUser);
+      }
     };
 
     if (recieverId) {
@@ -55,16 +63,27 @@ function ChatBox() {
   }, [recieverId]);
 
   useEffect(() => {
-    socket.on("send_latest_echoLink_message", (latestEchoLinkMessage) => {
-      if (recieverId === latestEchoLinkMessage?.latestMessage?.sender) {
+    const handleLatestEchoLinkMessage = (latestEchoLinkMessage) => {
+      const { latestMessage } = latestEchoLinkMessage;
+
+      if (recieverId === latestMessage?.sender) {
         markAsRead(dispatch, setLatestMessageAsRead, latestEchoLinkMessage);
       }
+
       dispatch(addToMyPrivateChatRooms(latestEchoLinkMessage));
-      dispatch(addPrivateMessage(latestEchoLinkMessage.latestMessage));
-    });
+      dispatch(addPrivateMessage(latestMessage));
+    };
+
+    const handleNewGroupChatMessage = (groupChatMessage) => {
+      dispatch(addPrivateMessage(groupChatMessage));
+    };
+
+    socket.on("send_latest_echoLink_message", handleLatestEchoLinkMessage);
+    socket.on("new_groupChat_Message", handleNewGroupChatMessage);
 
     return () => {
       socket.off("send_latest_echoLink_message");
+      socket.off("new_groupChat_Message");
     };
   }, [dispatch, recieverId, user._id]);
 
@@ -75,11 +94,19 @@ function ChatBox() {
 
     const sendMessage = async () => {
       try {
-        if (echoLinkMessageData) {
-          const response = await sendEchoLinkMessageApi(echoLinkMessageData);
-          dispatch(
-            addPrivateMessage(response?.data?.receiverData?.latestMessage)
-          );
+        if (!echoLinkMessageData) return;
+
+        const response = selectedUser?.groupName
+          ? await sendGroupChatMessageApi(echoLinkMessageData)
+          : await sendEchoLinkMessageApi(echoLinkMessageData);
+
+        const latestMessage = selectedUser?.groupName
+          ? response?.data?.latestMessage
+          : response?.data?.receiverData?.latestMessage;
+
+        dispatch(addPrivateMessage(latestMessage));
+
+        if (!selectedUser?.groupName) {
           dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
         }
       } catch (error) {
@@ -90,7 +117,7 @@ function ChatBox() {
     };
 
     sendMessage();
-  }, [dispatch, echoLinkMessageData, recieverId]);
+  }, [dispatch, echoLinkMessageData, recieverId, selectedUser?.groupName]);
 
   const blockSender = async () => {
     const senderId = recieverId;
@@ -143,10 +170,17 @@ function ChatBox() {
                   <ArrowBackIosIcon />
                 </Link>
                 <div className="w-10 rounded-full">
-                  <img src={selectedUser?.avatar?.url} alt="User avatar" />
+                  <img
+                    src={
+                      selectedUser?.avatar?.url ||
+                      selectedUser?.groupProfile?.url
+                    }
+                    alt="User avatar"
+                  />
                 </div>
                 <p className="ml-2 flex items-center">
-                  {selectedUser?.username}
+                  {selectedUser?.username || selectedUser?.groupName}
+                  {console.log(selectedUser)}
                 </p>
               </div>
             </div>
@@ -169,7 +203,13 @@ function ChatBox() {
                     </button>
                   </li>
                   <li>
-                    <button className="btn" onClick={deleteChatRoom}>
+                    <button
+                      className="btn"
+                      onClick={() => {
+                        deleteChatRoom();
+                        navigate("/echo-link");
+                      }}
+                    >
                       Delete ChatRoom
                     </button>
                   </li>
@@ -195,6 +235,8 @@ function ChatBox() {
                     }`}
                   >
                     <div className="chat-bubble ">
+                      {/* {console.log(messages)} */}
+
                       {messages?.attachments?.url ? null : (
                         <img
                           src={messages?.attachments[0]?.url}

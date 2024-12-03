@@ -187,8 +187,6 @@ export const searchEchoLinkFriends = asyncHandler(async (req, res) => {
       $in: friends,
       $nin: [...blockedUsers, req.user],
     },
-    // $regex: query: Uses a regular expression (regex) to search within the username field for a pattern matching the query value. This means it will find usernames that partially match query rather than an exact match.
-    // $options: "i": This option makes the regex search case-insensitive (e.g., "Alice" and "alice" would both match the query).
   }).limit(5);
 
   res.status(203).json({ searchedUsers });
@@ -276,8 +274,77 @@ export const createNewGroupChat = asyncHandler(async (req, res) => {
     admin: userId,
   });
 
+  const newGroupDetails = await GroupChatRoom.findById(newGroup._id)
+    .populate({
+      path: "groupChatRoomMembers",
+      select: "username",
+    })
+    .populate({
+      path: "admin",
+      select: "username",
+    });
+
   res.status(203).json({
     message: "New group created successfully",
-    newGroupDetails: newGroup,
+    newGroupDetails,
   });
+});
+
+export const getGroupChatDetails = asyncHandler(async (req, res) => {
+  const { groupId } = req.params;
+
+  const groupDetails = await GroupChatRoom.findById(groupId);
+
+  res.status(209).json({ message: "group details sent", groupDetails });
+});
+
+export const sendGroupChatMessage = asyncHandler(async (req, res) => {
+  let attachments = null;
+  const { receiver, message } = req.body;
+  const sender = req.user;
+
+  if (!message) return res.status(405).json({ message: "enter a message" });
+
+  if (!receiver || !sender)
+    return res.status(406).json({ message: "could not send the message" });
+
+  if (req.files.attachments) {
+    const attachmentsLocalPath = req.files?.attachments[0]?.path;
+
+    if (!attachmentsLocalPath) {
+      return res.status(400).json({ message: "Avatar file is required" });
+    }
+
+    attachments = await uploadToCloudinary(attachmentsLocalPath);
+
+    if (!attachments) {
+      return res.status(400).json({ message: "Avatar file is required" });
+    }
+  }
+
+  const newMessage = {
+    message,
+    receiver: { receiverId: receiver },
+    sender,
+    attachments: {
+      url: attachments?.url,
+      publicId: attachments?.public_id,
+    },
+    messageStatus: "sent",
+  };
+
+  const { messages } = await GroupChatRoom.findByIdAndUpdate(
+    receiver,
+    {
+      $push: { messages: newMessage },
+    },
+    { new: true, upsert: true }
+  );
+  const latestMessage = messages.at(-1);
+
+  io.to(receiver).emit("new_groupChat_Message", latestMessage);
+
+  return res
+    .status(202)
+    .json({ message: "message sent succesfully", latestMessage });
 });

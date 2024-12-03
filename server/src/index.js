@@ -19,12 +19,15 @@ export const io = new Server(httpServer, {
 io.on("connection", (socket) => {
   //This is the soket connections for the ECHOLINK
   socket.on("joinEchoLink", (uniqueRoomId) => {
-    console.log("joined Private chat", uniqueRoomId);
     socket.join(uniqueRoomId);
   });
 
+  socket.on("joinGroupChat", (_id) => {
+    console.log(`joined group ${_id}`);
+    socket.join(_id);
+  });
+
   socket.on("joinMyPersonalRoom", (myRoomId) => {
-    console.log("joined:", myRoomId);
     socket.join(myRoomId);
   });
 

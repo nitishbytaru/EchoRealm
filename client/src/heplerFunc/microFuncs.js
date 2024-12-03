@@ -1,13 +1,14 @@
+import socket from "../sockets/socket";
+import { sendEchoShoutApi } from "../api/echoShout.api";
 import {
   getPrivateMessagesApi,
   markLatestMessageAsReadApi,
+  getGroupChatDetailsApi,
 } from "../api/echoLink.api";
-import { sendEchoShoutApi } from "../api/echoShout.api";
 import {
   removeFromChatRoomsWithUnreadMessages,
   setPrivateMessages,
 } from "../app/slices/echoLinkSlice";
-import socket from "../sockets/socket";
 
 export const handleKeyPress = (e, executableFunction) => {
   if (e.key === "Enter" && !e.shiftKey) {
@@ -41,17 +42,28 @@ export const handleToggle = (e, dispatch, setTheme, setIsChecked) => {
   }
 };
 
-// This function handles the room select i.e., if you selecta user then it creates
+// This function handles the room select i.e., if you select a user then it creates
 // a unique room Id and fetches the any previous messages from that room
 export const handleRoomSelect = async (dispatch, recieverId, user) => {
-  //this functions is also in the backend if possible remove from one place
-  const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
+  const groupResponse = await getGroupChatDetailsApi(recieverId);
+  const groupDetails = groupResponse?.data?.groupDetails;
 
-  socket.emit("joinEchoLink", uniqueRoomId);
-  dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
+  if (groupDetails) {
+    const { _id, messages } = groupDetails;
+    socket.emit("joinGroupChat", _id);
 
-  const response = await getPrivateMessagesApi(uniqueRoomId);
-  dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
+    dispatch(setPrivateMessages(messages));
+  } else {
+    //here logic for the joining of the private chat and the above code is for groupchat
+
+    const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
+
+    socket.emit("joinEchoLink", uniqueRoomId);
+    dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
+
+    const response = await getPrivateMessagesApi(uniqueRoomId);
+    dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
+  }
 };
 
 //this sets the message as read

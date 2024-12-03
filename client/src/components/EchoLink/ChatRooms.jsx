@@ -62,19 +62,22 @@ function ChatRooms() {
   }, [dispatch, user?._id]);
 
   useEffect(() => {
-    socket.on("new_privte_message_received", (senderData) => {
+    const handleNewPrivateMessage = (senderData) => {
       if (
-        senderData?.uniqueChatId.includes(user?._id) &&
-        senderData?._id != user._id
-      ) {
-        if (senderData?._id != recieverId) {
-          dispatch(addToChatRoomsWithUnreadMessages(senderData?.uniqueChatId));
-          dispatch(addToMyPrivateChatRooms(senderData));
-        } else {
-          markAsRead(dispatch, setLatestMessageAsRead, senderData);
-        }
+        !senderData?.uniqueChatId.includes(user?._id) ||
+        senderData?._id === user._id
+      )
+        return;
+
+      if (senderData?._id !== recieverId) {
+        dispatch(addToChatRoomsWithUnreadMessages(senderData?.uniqueChatId));
+        dispatch(addToMyPrivateChatRooms(senderData));
+      } else {
+        markAsRead(dispatch, setLatestMessageAsRead, senderData);
       }
-    });
+    };
+
+    socket.on("new_privte_message_received", handleNewPrivateMessage);
 
     return () => {
       socket.off("new_privte_message_received");
@@ -187,7 +190,9 @@ function ChatRooms() {
             onClick={() => {
               navigate(`/echo-link/${receiver._id}`);
               handleRoomSelect(dispatch, receiver._id, user);
-              markAsRead(dispatch, setLatestMessageAsRead, receiver);
+              if (receiver.latestMessage) {
+                markAsRead(dispatch, setLatestMessageAsRead, receiver);
+              }
             }}
           >
             <div className="flex items-center gap-3">
@@ -220,9 +225,11 @@ function ChatRooms() {
                   </p>
                 ) : (
                   <p className="text-gray-500">
-                    {receiver?.groupChatRoomMembers
-                      .map((member) => member.username)
-                      .join(", ")}
+                    {truncateMessage(
+                      receiver?.groupChatRoomMembers
+                        .map((member) => member.username)
+                        .join(", ")
+                    )}
                   </p>
                 )}
               </div>
