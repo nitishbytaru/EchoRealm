@@ -1,10 +1,10 @@
-import { useDispatch, useSelector } from "react-redux";
-import { useFileHandler, useInputValidation } from "6pp";
-import { toast } from "react-hot-toast";
 import { useState } from "react";
-import { updateRequestApi } from "../../api/userApi";
-import { setIsLoading, setUser } from "../../app/slices/authSlice";
+import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { updateRequestApi } from "../../api/user.api.js";
+import { useFileHandler, useInputValidation } from "6pp";
+import { setIsLoading, setUser } from "../../app/slices/authSlice";
 
 function MyProfileDetails() {
   const dispatch = useDispatch();

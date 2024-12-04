@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useParams } from "react-router-dom";
+import { setIsLoading } from "../../app/slices/authSlice.js";
+import { likeThisMumbleApi } from "../../api/echoMumble.api.js";
+import { FavoriteBorderIcon, FavoriteIcon } from "../../heplerFunc/exportIcons";
 import {
   getUsersWithMumbles,
   fetchMostLikedMumbleWithLikesAndFriendsApi,
-} from "../../api/userApi";
-import { FavoriteBorderIcon, FavoriteIcon } from "../../heplerFunc/exportIcons";
-import { likeThisMumbleApi } from "../../api/echoMumbleApi";
+} from "../../api/user.api.js";
 import {
   updateViewingProfileUserDetails,
   setViewingProfileUserDetails,
 } from "../../app/slices/userSlice.js";
-import { setIsLoading } from "../../app/slices/authSlice.js";
 
 function ViewProfile() {
   const dispatch = useDispatch();

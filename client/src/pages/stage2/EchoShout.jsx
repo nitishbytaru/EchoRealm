@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import socket from "../../sockets/socket.js";
 import moment from "moment";
+import { useInputValidation } from "6pp";
+import { useEffect, useState } from "react";
+import socket from "../../sockets/socket.js";
+import { useDispatch, useSelector } from "react-redux";
 import MessageBar from "../../components/ui/MessageBar";
-import { getEchoShoutsApi } from "../../api/echoShoutApi";
+import { useAutoScroll } from "../../hooks/useAutoScroll.js";
 import { setIsLoading } from "../../app/slices/authSlice.js";
+import { getEchoShoutsApi } from "../../api/echoShout.api.js";
+import { sendEchoShoutMessage } from "../../heplerFunc/microFuncs.js";
+import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults.js";
 import {
   addEchoShoutMessage,
   setEchoShoutMessages,
 } from "../../app/slices/echoShoutSlice.js";
-import { useAutoScroll } from "../../hooks/useAutoScroll.js";
-import { useInputValidation } from "6pp";
-import { useDebouncedSearchResults } from "../../hooks/useDebouncedSearchResults.js";
-import { sendEchoShoutMessage } from "../../heplerFunc/microFuncs.js";
 
 function EchoShout() {
   const dispatch = useDispatch();

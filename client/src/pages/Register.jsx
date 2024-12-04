@@ -1,11 +1,12 @@
 import toast from "react-hot-toast";
+import { jwtDecode } from "jwt-decode";
 import { useState, Suspense } from "react";
+import { GoogleLogin } from "@react-oauth/google";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
 import { loginApi, registerApi } from "../api/auth.api.js";
 import { setIsLoggedIn, setIsLoading, setUser } from "../app/slices/authSlice";
-import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
+
 
 const Register = () => {
   const [isSignUp, setIsSignUp] = useState(false);

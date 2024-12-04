@@ -1,5 +1,7 @@
 import { useEffect } from "react";
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import { setIsLoading } from "../../app/slices/authSlice";
 import { getMumblesApi, pinMumbleApi } from "../../api/echoMumble.api.js";
 import {
   FavoriteBorderIcon,
@@ -11,8 +13,6 @@ import {
   updateMumbles,
   removePinnedMumble,
 } from "../../app/slices/echoMumbleSlice";
-import toast from "react-hot-toast";
-import { setIsLoading } from "../../app/slices/authSlice";
 
 function MyMumbles() {
   const dispatch = useDispatch();

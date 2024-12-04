@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { getBlockedUsersApi, unBlockUserApi } from "../../api/friendsApi.js";
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsLoading } from "../../app/slices/authSlice";
+import { getBlockedUsersApi, unBlockUserApi } from "../../api/friends.api.js";
 import {
   setBlockedUsers,
   removeFromBlockedUsers,
 } from "../../app/slices/userSlice";
-import toast from "react-hot-toast";
 
 function BlockedUsers() {
   const dispatch = useDispatch();

@@ -1,7 +1,7 @@
+import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import ChatRooms from "../../components/EchoLink/ChatRooms";
 import ChatBox from "../../components/EchoLink/chat/ChatBox";
-import { useSelector } from "react-redux";
 
 export default function EchoLink() {
   const { recieverId } = useParams();

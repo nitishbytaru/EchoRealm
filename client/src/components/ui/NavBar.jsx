@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
+import socket from "../../sockets/socket.js";
 import { useEffect, lazy, Suspense } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import MumbleIcon from "../EchoMumble/MumbleIcon.jsx";
+import { useDispatch, useSelector } from "react-redux";
+import { handleToggle } from "../../heplerFunc/microFuncs.js";
+import { useFriendRequests } from "../../hooks/useFriendRequests.js";
+import { useJoinRoomSocket } from "../../hooks/useJoinRoomSocket.js";
+import { useGetRequestsSocket } from "../../hooks/useGetRequestsSocket.js";
 //importing the components
 import {
   setIsMobile,
@@ -14,11 +19,7 @@ import {
   HomeIcon,
   MenuIcon,
 } from "../../heplerFunc/exportIcons.js";
-import { handleToggle } from "../../heplerFunc/microFuncs.js";
-import socket from "../../sockets/socket.js";
-import { useJoinRoomSocket } from "../../hooks/useJoinRoomSocket.js";
-import { useGetRequestsSocket } from "../../hooks/useGetRequestsSocket.js";
-import { useFriendRequests } from "../../hooks/useFriendRequests.js";
+
 
 //lazy loading
 const ThemeToggle = lazy(() => import("./ThemeToggle"));

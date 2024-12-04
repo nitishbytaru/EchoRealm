@@ -1,7 +1,10 @@
+import toast from "react-hot-toast";
+import { logoutApi } from "../../api/auth.api.js";
 import { useDispatch, useSelector } from "react-redux";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { handleToggle } from "../../heplerFunc/microFuncs";
 import ThemeToggle from "../../components/ui/ThemeToggle";
+import { handleToggle } from "../../heplerFunc/microFuncs";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { normalLoading } from "../../components/Loaders/LoadingAnimations";
 import {
   setTheme,
   setIsChecked,
@@ -19,9 +22,6 @@ import {
   PersonAddAlt1Icon,
   PeopleIcon,
 } from "../../heplerFunc/exportIcons";
-import { logoutApi } from "../../api/auth.api.js";
-import toast from "react-hot-toast";
-import { normalLoading } from "../../components/Loaders/LoadingAnimations";
 
 function MyProfile() {
   const dispatch = useDispatch();

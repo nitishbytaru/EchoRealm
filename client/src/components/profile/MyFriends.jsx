@@ -5,7 +5,7 @@ import { setIsLoading } from "../../app/slices/authSlice";
 import {
   handleRemoveOrBlockMyFriendApi,
   getMyFriendsListApi,
-} from "../../api/friendsApi.js";
+} from "../../api/friends.api.js";
 import {
   removeFromMyFriendsList,
   setToMyFriendsList,
