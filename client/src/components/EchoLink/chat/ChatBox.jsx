@@ -180,7 +180,6 @@ function ChatBox() {
                 </div>
                 <p className="ml-2 flex items-center">
                   {selectedUser?.username || selectedUser?.groupName}
-                  {console.log(selectedUser)}
                 </p>
               </div>
             </div>
