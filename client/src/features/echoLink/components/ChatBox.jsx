@@ -1,6 +1,6 @@
 import moment from "moment";
 import toast from "react-hot-toast";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -8,7 +8,6 @@ import MessageBar from "../../../components/MessageBar.jsx";
 import socket from "../../../sockets/socket.js";
 import { searchUserByIdApi } from "../../profile/api/user.api.js";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
-import { setIsLoading } from "../../../app/slices/auth.slice.js";
 import { handleRemoveOrBlockMyFriendApi } from "../../profile/api/friends.api.js";
 import {
   clearChatApi,
@@ -32,6 +31,7 @@ import {
   createUniquechatRoom,
   markAsRead,
 } from "../../../utils/heplers/micro_funcs.js";
+import Loading from "../../../utils/ui/Loading.jsx";
 
 function ChatBox() {
   const dispatch = useDispatch();
@@ -47,19 +47,28 @@ function ChatBox() {
   const [selectedUser, setSelecedUser] = useState(null);
   const uniqueChatRoom = createUniquechatRoom(user?._id, recieverId);
 
+  const [isPending, startTransition] = useTransition();
+
   useEffect(() => {
     const getRecieverDataByIdFunc = async () => {
-      let response = await searchUserByIdApi(recieverId);
-      if (!response?.data?.searchedUser) {
-        response = await getGroupChatDetailsApi(recieverId);
-        setSelecedUser(response?.data?.groupDetails);
-      } else {
-        setSelecedUser(response?.data?.searchedUser);
+      try {
+        let response = await searchUserByIdApi(recieverId);
+        if (!response?.data?.searchedUser) {
+          response = await getGroupChatDetailsApi(recieverId);
+          setSelecedUser(response?.data?.groupDetails);
+        } else {
+          setSelecedUser(response?.data?.searchedUser);
+        }
+      } catch (error) {
+        console.error("Error fetching receiver data:", error);
+        toast.error("Failed to fetch receiver details.");
       }
     };
 
     if (recieverId) {
-      getRecieverDataByIdFunc();
+      startTransition(() => {
+        getRecieverDataByIdFunc();
+      });
     }
   }, [recieverId]);
 
@@ -117,40 +126,62 @@ function ChatBox() {
       }
     };
 
-    sendMessage();
+    startTransition(() => {
+      sendMessage();
+    });
   }, [dispatch, echoLinkMessageData, recieverId, selectedUser?.groupName]);
 
-  const blockSender = async () => {
+  const blockSender = () => {
     const senderId = recieverId;
+    try {
+      startTransition(async () => {
+        const response = await handleRemoveOrBlockMyFriendApi({
+          senderId,
+          block: true,
+        });
 
-    dispatch(setIsLoading(true));
-    const response = await handleRemoveOrBlockMyFriendApi({
-      senderId,
-      block: true,
-    });
-
-    dispatch(setIsLoading(false));
-    dispatch(removeFromMyPrivateChatRooms(uniqueChatRoom));
-    if (response?.data) {
-      toast.success(response.data?.message);
+        if (response?.data) {
+          toast.success(response.data?.message);
+          dispatch(removeFromMyPrivateChatRooms(uniqueChatRoom));
+        }
+      });
+    } catch (error) {
+      console.error("Error blocking sender:", error);
+      toast.error("Failed to block sender.");
     }
   };
 
-  const clearChat = async () => {
-    dispatch(setIsLoading(true));
-    const response = await clearChatApi(uniqueChatRoom);
-    dispatch(setIsLoading(false));
-    dispatch(setPrivateMessages([]));
-    toast.success(response?.data?.message);
+  const clearChat = () => {
+    try {
+      startTransition(async () => {
+        const response = await clearChatApi(uniqueChatRoom);
+        dispatch(setPrivateMessages([]));
+        if (response?.data?.message) {
+          toast.success(response.data.message);
+        }
+      });
+    } catch (error) {
+      console.error("Error clearing chat:", error);
+      toast.error("Failed to clear the chat.");
+    }
   };
 
-  const deleteChatRoom = async () => {
-    dispatch(setIsLoading(true));
-    const response = await deleteChatRoomApi(uniqueChatRoom);
-    dispatch(setIsLoading(false));
-    toast.success(response?.data?.message);
-    dispatch(removeFromMyPrivateChatRooms(uniqueChatRoom));
+  const deleteChatRoom = () => {
+    try {
+      startTransition(async () => {
+        const response = await deleteChatRoomApi(uniqueChatRoom);
+        if (response?.data?.message) {
+          toast.success(response.data.message);
+          dispatch(removeFromMyPrivateChatRooms(uniqueChatRoom));
+        }
+      });
+    } catch (error) {
+      console.error("Error deleting chat room:", error);
+      toast.error("Failed to delete the chat room.");
+    }
   };
+
+  if (isPending) return <Loading />;
 
   return (
     <>

@@ -1,18 +1,16 @@
-import toast from "react-hot-toast";
 import { useInputValidation } from "6pp";
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import toast, { LoaderIcon } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect, useTransition } from "react";
 
-import { searchUserByIdApi } from "../../profile/api/user.api.js";
 import { sendMumbleApi } from "../api/echo_mumble.api.js";
-import { setIsLoading } from "../../../app/slices/auth.slice.js";
+import { searchUserByIdApi } from "../../profile/api/user.api.js";
 import { handleKeyPress } from "../../../utils/heplers/micro_funcs.js";
 import { SendSharpIcon } from "../../../utils/heplers/icons/export_icons.js";
 import { useDebouncedSearchResults } from "../../../hooks/useDebouncedSearchResults.js";
 
 function CreateMumble() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { mumbleTo } = useParams();
   const { user } = useSelector((state) => state.auth);
@@ -22,20 +20,33 @@ function CreateMumble() {
   const message = useInputValidation("");
   const searchResults = useDebouncedSearchResults(search.value);
 
-  useEffect(() => {
-    const searchUSerByIdFunc = async () => {
-      const response = await searchUserByIdApi(mumbleTo);
-      setSelectedUser(response?.data?.searchedUser);
-      search.clear();
-    };
-    if (mumbleTo) {
-      dispatch(setIsLoading(true));
-      searchUSerByIdFunc();
-      dispatch(setIsLoading(true));
-    }
-  }, [dispatch, mumbleTo, search]);
+  const [isPending, startTransition] = useTransition();
 
-  const sendCurrentMumble = async () => {
+  const searchUserByIdFunc = async () => {
+    if (!mumbleTo) {
+      return;
+    }
+
+    try {
+      const response = await searchUserByIdApi(mumbleTo);
+
+      startTransition(() => {
+        setSelectedUser(response?.data?.searchedUser);
+        search.clear();
+      });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      toast.error("Failed to fetch user data.");
+    }
+  };
+
+  useEffect(() => {
+    if (mumbleTo) {
+      searchUserByIdFunc();
+    }
+  }, [mumbleTo]);
+
+  const sendCurrentMumble = () => {
     if (!selectedUser) {
       return toast.error("Please select a user to send a Mumble", {
         autoClose: 5000,
@@ -57,13 +68,14 @@ function CreateMumble() {
     };
 
     try {
-      dispatch(setIsLoading(true));
-      const response = await sendMumbleApi(data);
-      toast.success(response?.data?.message);
+      startTransition(async () => {
+        const response = await sendMumbleApi(data);
+        toast.success(response?.data?.message);
+      });
     } catch (error) {
-      console.log(error);
+      console.error("Error sending mumble:", error);
+      toast.error("Failed to send Mumble. Please try again.");
     } finally {
-      dispatch(setIsLoading(false));
       message.clear();
       setSelectedUser(null);
     }
@@ -183,14 +195,17 @@ function CreateMumble() {
                   {message.value.length}/{CHARACTER_LIMIT}
                 </span>
               </div>
-
-              <button
-                className="btn btn-sm sm:btn-md flex-shrink-0"
-                onClick={sendCurrentMumble}
-                disabled={isOverLimit}
-              >
-                <SendSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
-              </button>
+              {isPending ? (
+                <LoaderIcon />
+              ) : (
+                <button
+                  className="btn btn-sm sm:btn-md flex-shrink-0"
+                  onClick={sendCurrentMumble}
+                  disabled={isOverLimit}
+                >
+                  <SendSharpIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                </button>
+              )}
             </div>
           </div>
         </div>

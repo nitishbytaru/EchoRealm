@@ -1,12 +1,11 @@
 import moment from "moment";
 import { useInputValidation } from "6pp";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import socket from "../../../sockets/socket.js";
 import MessageBar from "../../../components/MessageBar.jsx";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
-import { setIsLoading } from "../../../app/slices/auth.slice.js";
 import { getEchoShoutsApi } from "../api/echo_shout.api.js";
 import { sendEchoShoutMessage } from "../../../utils/heplers/micro_funcs.js";
 import { useDebouncedSearchResults } from "../../../hooks/useDebouncedSearchResults.js";
@@ -14,6 +13,7 @@ import {
   addEchoShoutMessage,
   setEchoShoutMessages,
 } from "../slices/echo_shout.slice.js";
+import { LoaderIcon } from "react-hot-toast";
 
 function EchoShout() {
   const dispatch = useDispatch();
@@ -22,9 +22,11 @@ function EchoShout() {
   const { messages } = useSelector((state) => state.echoShout);
   const messagesEndRef = useAutoScroll(messages);
 
-  const [echoShoutMessageData, setEchoShoutMessageData] = useState("");
   const [mentions, setMentions] = useState([]);
   const [selectSearchBar, setSelectSearchBar] = useState(false);
+  const [echoShoutMessageData, setEchoShoutMessageData] = useState("");
+
+  const [isPending, startTransition] = useTransition();
 
   const search = useInputValidation("");
   let searchResults = useDebouncedSearchResults(search.value);
@@ -47,19 +49,16 @@ function EchoShout() {
         const { messages } = await getEchoShoutsApi();
         dispatch(setEchoShoutMessages(messages || []));
       } catch (error) {
-        console.log(error);
-      } finally {
-        dispatch(setIsLoading(false));
+        console.error("Error fetching echo shout messages:", error);
       }
     };
-    dispatch(setIsLoading(true));
-    fetchMessages();
-    dispatch(setIsLoading(false));
+    startTransition(() => {
+      fetchMessages();
+    });
   }, [dispatch]);
 
   useEffect(() => {
     if (echoShoutMessageData) {
-      dispatch(setIsLoading(true));
       sendEchoShoutMessage(
         setSelectSearchBar,
         mentions,
@@ -67,7 +66,6 @@ function EchoShout() {
         setMentions,
         setEchoShoutMessageData
       );
-      dispatch(setIsLoading(false));
     }
   }, [dispatch, echoShoutMessageData, mentions]);
 
@@ -203,7 +201,11 @@ function EchoShout() {
 
             {/* MessageBar Container */}
             <div className="w-full">
-              <MessageBar setMessageData={setEchoShoutMessageData} />
+              {isPending ? (
+                <LoaderIcon />
+              ) : (
+                <MessageBar setMessageData={setEchoShoutMessageData} />
+              )}
             </div>
           </div>
         </>

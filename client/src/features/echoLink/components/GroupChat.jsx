@@ -1,9 +1,10 @@
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
-import { setIsLoading } from "../../../app/slices/auth.slice.js";
+
+import Loading from "../../../utils/ui/Loading.jsx";
 import { addToMyPrivateChatRooms } from "../slices/echo_link.slice.js";
 import {
   createGroupChatApi,
@@ -21,6 +22,8 @@ function GroupChat() {
 
   const [groupMembers, setGroupMembers] = useState([]);
   const [searchResults, setSearchResults] = useState(null);
+
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -51,26 +54,29 @@ function GroupChat() {
     search.clear();
   }
 
-  const createNewGroup = async () => {
-    const formData = new FormData();
-    formData.append("groupName", groupName.value);
-    formData.append("groupProfilePicture", groupProfile.file);
-    formData.append("groupMembers", JSON.stringify(groupMembers));
-    try {
-      dispatch(setIsLoading(true));
-      const response = await createGroupChatApi(formData);
-      dispatch(addToMyPrivateChatRooms(response?.data?.newGroupDetails));
-      toast.success("GroupCreated Refresh To access");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      dispatch(setIsLoading(false));
-      setGroupMembers([]);
-      groupName.clear();
-      groupProfile.clear();
-    }
+  const createNewGroup = () => {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("groupName", groupName.value);
+      formData.append("groupProfilePicture", groupProfile.file);
+      formData.append("groupMembers", JSON.stringify(groupMembers));
+
+      try {
+        const response = await createGroupChatApi(formData);
+        dispatch(addToMyPrivateChatRooms(response?.data?.newGroupDetails));
+        toast.success("GroupCreated Refresh To access");
+      } catch (error) {
+        console.error("Error creating group:", error);
+        toast.error("Failed to create group. Please try again.");
+      } finally {
+        setGroupMembers([]);
+        groupName.clear();
+        groupProfile.clear();
+      }
+    });
   };
 
+  if (isPending) return <Loading />;
   return (
     <dialog id="my_modal_9" className="modal modal-bottom sm:modal-middle">
       <div className="modal-box">

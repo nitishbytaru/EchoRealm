@@ -1,11 +1,10 @@
 import GroupChat from "./GroupChat.jsx";
 import { useInputValidation } from "6pp";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import socket from "../../../sockets/socket.js";
-import { setIsLoading } from "../../../app/slices/auth.slice.js";
 import { MoreVertSharpIcon } from "../../../utils/heplers/icons/export_icons.js";
 import {
   getMyPrivateFriendsApi,
@@ -22,6 +21,7 @@ import {
   markAsRead,
   truncateMessage,
 } from "../../../utils/heplers/micro_funcs.js";
+import Loading from "../../../utils/ui/Loading.jsx";
 
 function ChatRooms() {
   const { recieverId } = useParams();
@@ -33,6 +33,8 @@ function ChatRooms() {
 
   const search = useInputValidation("");
   const [searchResults, setSearchResults] = useState(null);
+
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const fetchMyPrivateFriends = async () => {
@@ -57,9 +59,9 @@ function ChatRooms() {
       dispatch(setMyPrivateChatRooms(sortedMyPrivateFriendsWithMessages));
     };
 
-    dispatch(setIsLoading(true));
-    fetchMyPrivateFriends();
-    dispatch(setIsLoading(false));
+    startTransition(() => {
+      fetchMyPrivateFriends();
+    });
   }, [dispatch, user?._id]);
 
   useEffect(() => {
@@ -106,6 +108,8 @@ function ChatRooms() {
     // It cancels the setTimeout if search.value changes before the 300 ms delay completes, avoiding unnecessary searchUsers calls.
     // This helps make sure only the latest input triggers the search, effectively debouncing it.
   }, [search.value, user._id]);
+
+  if (isPending) return <Loading />;
 
   return (
     <div className="h-full flex flex-col">

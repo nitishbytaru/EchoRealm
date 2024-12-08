@@ -1,12 +1,13 @@
 import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useTransition } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
-import { loginApi, registerApi } from "../api/auth.api.js";
-import { setIsLoggedIn, setIsLoading, setUser } from "../app/slices/auth.slice.js";
 
+import Loading from "../utils/ui/Loading.jsx";
+import { loginApi, registerApi } from "../api/auth.api.js";
+import { setIsLoggedIn, setUser } from "../app/slices/auth.slice.js";
 
 const Register = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -14,6 +15,8 @@ const Register = () => {
   const dispatch = useDispatch();
 
   const { isMobile } = useSelector((state) => state.auth);
+
+  const [isPending, startTransition] = useTransition();
 
   // Using 6pp package for input data handling
   const avatar = useFileHandler("single");
@@ -27,88 +30,108 @@ const Register = () => {
       toast.error("All fields are required for registration.");
       return;
     }
+    try {
+      const formData = new FormData();
+      formData.append("username", username.value);
+      formData.append("password", password.value);
+      formData.append("email", email.value);
+      formData.append("avatar", avatar.file);
 
-    const formData = new FormData();
-
-    formData.append("username", username.value);
-    formData.append("password", password.value);
-    formData.append("email", email.value);
-    formData.append("avatar", avatar.file);
-
-    dispatch(setIsLoading(true));
-    const response = await registerApi(formData); //register api
-    if (response.data) {
-      dispatch(setIsLoggedIn(true));
-      dispatch(setUser(response?.data?.user));
-      localStorage.setItem("allowFetch", true);
-      toast.success("Registration successful");
-    }
-    dispatch(setIsLoading(false));
-
-    email.clear();
-    username.clear();
-    password.clear();
-    avatar.clear();
-  };
-
-  const loginApiFunc = async (e) => {
-    e.preventDefault();
-    if (!username.value || !password.value) {
-      toast.error("All fields are required for registration.");
-      return;
-    }
-
-    const formData = new FormData();
-
-    formData.append("username", username.value);
-    formData.append("password", password.value);
-
-    dispatch(setIsLoggedIn(true));
-    const response = await loginApi(formData);
-    toast.success(response?.data?.message);
-    if (response.data) {
-      localStorage.setItem("allowFetch", true);
-      dispatch(setUser(response?.data?.user));
-    }
-    username.clear();
-    password.clear();
-  };
-
-  const responseMessage = async (response) => {
-    const decodedToken = jwtDecode(response.credential);
-    let formData = new FormData();
-
-    formData.append("username", decodedToken.given_name);
-    formData.append("password", decodedToken.sub);
-
-    if (isSignUp) {
-      formData.append("avatarUrl", decodedToken.picture);
-      formData.append("email", decodedToken.email);
-
-      dispatch(setIsLoading(true));
-      const response = await registerApi(formData); //register api
+      const response = await registerApi(formData);
       if (response.data) {
         dispatch(setIsLoggedIn(true));
         dispatch(setUser(response?.data?.user));
         localStorage.setItem("allowFetch", true);
         toast.success("Registration successful");
       }
-      dispatch(setIsLoading(false));
-    } else {
-      const response = await loginApi(formData); //login api
+    } catch (error) {
+      console.error("Error during registration:", error);
+      toast.error("Failed to register. Please try again.");
+    } finally {
+      email.clear();
+      username.clear();
+      password.clear();
+      avatar.clear();
+    }
+  };
 
-      toast(response?.response?.data?.message);
-      if (response.data) {
-        localStorage.setItem("allowFetch", true);
-        dispatch(setIsLoggedIn(true));
-        dispatch(setUser(response?.data?.user));
+  const loginApiFunc = (e) => {
+    e.preventDefault();
+    if (!username.value || !password.value) {
+      toast.error("All fields are required for registration.");
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        const formData = new FormData();
+        formData.append("username", username.value);
+        formData.append("password", password.value);
+
+        const response = await loginApi(formData);
+        if (response?.data) {
+          dispatch(setIsLoggedIn(true));
+          dispatch(setUser(response?.data?.user));
+          localStorage.setItem("allowFetch", true);
+          toast.success(response?.data?.message);
+        }
+      } catch (error) {
+        console.error("Error during login:", error);
+        toast.error("Failed to log in. Please check your credentials.");
+      } finally {
+        username.clear();
+        password.clear();
       }
+    });
+  };
+
+  const responseMessage = async (response) => {
+    const decodedToken = jwtDecode(response.credential);
+
+    let formData = new FormData();
+    formData.append("username", decodedToken.given_name);
+    formData.append("password", decodedToken.sub);
+
+    if (isSignUp) {
+      formData.append("avatarUrl", decodedToken.picture);
+      formData.append("email", decodedToken.email);
+      startTransition(async () => {
+        try {
+          const apiResponse = await registerApi(formData);
+          if (apiResponse?.data) {
+            dispatch(setIsLoggedIn(true));
+            dispatch(setUser(apiResponse?.data?.user));
+            localStorage.setItem("allowFetch", true);
+            toast.success("Registration successful");
+          }
+        } catch (error) {
+          console.error("Registration error:", error);
+          toast.error("Failed to register. Please try again.");
+        }
+      });
+    } else {
+      startTransition(async () => {
+        try {
+          const apiResponse = await loginApi(formData);
+          if (apiResponse?.data) {
+            localStorage.setItem("allowFetch", true);
+            dispatch(setIsLoggedIn(true));
+            dispatch(setUser(apiResponse?.data?.user));
+            toast.success(apiResponse?.data?.message);
+          }
+        } catch (error) {
+          console.error("Login error:", error);
+          toast.error("Failed to log in. Please check your credentials.");
+        }
+      });
     }
   };
 
   const errorMessage = (error) => {
     console.log(error);
   };
+
+  if (isPending) return <Loading />;
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-base-200 rounded-xl p-4 sm:p-6 md:p-8 text-center">

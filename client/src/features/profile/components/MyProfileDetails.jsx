@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRequestApi } from "../api/user.api.js";
 import { useFileHandler, useInputValidation } from "6pp";
-import { setIsLoading, setUser } from "../../../app/slices/auth.slice.js";
+
+import Loading from "../../../utils/ui/Loading.jsx";
+import { setUser } from "../../../app/slices/auth.slice.js";
 
 function MyProfileDetails() {
   const dispatch = useDispatch();
@@ -26,12 +28,14 @@ function MyProfileDetails() {
     user?.isAnonymous
   );
 
-  const submitUpdateRequest = async () => {
-    const formData = new FormData();
+  const [isPending, startTransition] = useTransition();
+
+  const submitUpdateRequest = () => {
     if (updatedEmail.value === "" || updatedUsername.value === "") {
       return toast.error("fill the all fields");
     }
-    dispatch(setIsLoading(true));
+
+    const formData = new FormData();
     formData.append("updatedEmail", updatedEmail.value);
     formData.append("updatedUsername", updatedUsername.value);
     formData.append("updatedPassword", updatedPassword.value);
@@ -39,14 +43,25 @@ function MyProfileDetails() {
     formData.append("updatedIsAnonymous", updatedIsAnonymous);
     formData.append("avatar", avatar.file);
 
-    const response = await updateRequestApi(formData);
-    dispatch(setIsLoading(false));
-    dispatch(setUser(response?.data?.user));
-    toast.success(response?.data?.message);
-    updatedPassword.clear();
-    navigate("/");
+    try {
+      startTransition(async () => {
+        const response = await updateRequestApi(formData);
+        if (response?.data) {
+          dispatch(setUser(response.data.user));
+          toast.success(response.data.message);
+          updatedPassword.clear();
+          navigate("/");
+        } else {
+          toast.error("Failed to update the information.");
+        }
+      });
+    } catch (error) {
+      console.error("Error submitting update request:", error);
+      toast.error("An error occurred. Please try again.");
+    }
   };
 
+  if (isPending) return <Loading />;
   return (
     <div>
       <h1 className="sm:text-2xl text-lg sm:mb-2 text-center">My Details</h1>

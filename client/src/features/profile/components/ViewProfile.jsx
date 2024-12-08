@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useParams } from "react-router-dom";
 
-import { setIsLoading } from "../../../app/slices/auth.slice.js";
+import Loading from "../../../utils/ui/Loading.jsx";
 import { likeThisMumbleApi } from "../../echoMumble/api/echo_mumble.api.js";
 import {
   FavoriteBorderIcon,
@@ -20,52 +21,87 @@ import {
 function ViewProfile() {
   const dispatch = useDispatch();
   const { viewProfileUserId } = useParams();
+
   const { user, isMobile } = useSelector((state) => state.auth);
   const { viewingProfileUserDetails } = useSelector((state) => state.user);
-  const [splMumble, setSplMumble] = useState(null);
+
   const [likes, setLikes] = useState(0);
   const [friends, setFriends] = useState(0);
+  const [splMumble, setSplMumble] = useState(null);
+
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await getUsersWithMumbles(viewProfileUserId);
-      dispatch(
-        setViewingProfileUserDetails(
-          response?.data?.selectedUserProfileDetailsResponse
-        )
-      );
+      try {
+        const response = await getUsersWithMumbles(viewProfileUserId);
+
+        if (response?.data?.selectedUserProfileDetailsResponse) {
+          dispatch(
+            setViewingProfileUserDetails(
+              response.data.selectedUserProfileDetailsResponse
+            )
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        toast.error("Failed to load profile details.");
+      }
     };
 
     if (viewProfileUserId) {
-      dispatch(setIsLoading(true));
-      fetchData();
-      dispatch(setIsLoading(false));
+      startTransition(() => {
+        fetchData();
+      });
     }
   }, [dispatch, viewProfileUserId]);
 
   useEffect(() => {
     const fetchMostLikedMumbleWithLikesAndFriendsApiFunc = async () => {
-      const response = await fetchMostLikedMumbleWithLikesAndFriendsApi(
-        viewProfileUserId
-      );
+      try {
+        const response = await fetchMostLikedMumbleWithLikesAndFriendsApi(
+          viewProfileUserId
+        );
 
-      setSplMumble(
-        response?.data?.userRequestedProfileData?.mumbleWithHighestLikes
-      );
-      setLikes(response?.data?.userRequestedProfileData?.profileLikes);
-      setFriends(response?.data?.userRequestedProfileData?.friends);
+        if (response?.data?.userRequestedProfileData) {
+          const { mumbleWithHighestLikes, profileLikes, friends } =
+            response.data.userRequestedProfileData;
+
+          startTransition(() => {
+            setSplMumble(mumbleWithHighestLikes);
+            setLikes(profileLikes);
+            setFriends(friends);
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+        toast.error("Failed to load profile data.");
+      }
     };
-    dispatch(setIsLoading(true));
-    fetchMostLikedMumbleWithLikesAndFriendsApiFunc();
-    dispatch(setIsLoading(false));
+    startTransition(() => {
+      fetchMostLikedMumbleWithLikesAndFriendsApiFunc();
+    });
   }, [dispatch, viewProfileUserId]);
 
-  const likeThisMumbleFunc = async (mumbleId) => {
-    dispatch(setIsLoading(true));
-    const response = await likeThisMumbleApi(mumbleId);
-    dispatch(setIsLoading(false));
-    dispatch(updateViewingProfileUserDetails(response?.data?.updatedMumble));
+  const likeThisMumbleFunc = (mumbleId) => {
+    try {
+      startTransition(async () => {
+        const response = await likeThisMumbleApi(mumbleId);
+
+        if (response?.data?.updatedMumble) {
+          dispatch(
+            updateViewingProfileUserDetails(response.data.updatedMumble)
+          );
+          toast.success(response?.data?.message);
+        }
+      });
+    } catch (error) {
+      console.error("Error liking mumble:", error);
+      toast.error("An error occurred while liking the mumble.");
+    }
   };
+
+  if (isPending) return <Loading />;
 
   return (
     <div className="flex items-center justify-center h-full">

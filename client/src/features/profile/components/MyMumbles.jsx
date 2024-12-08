@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 
-import { setIsLoading } from "../../../app/slices/auth.slice.js";
-import { getMumblesApi, pinMumbleApi } from "../../echoMumble/api/echo_mumble.api.js";
+import Loading from "../../../utils/ui/Loading.jsx";
+import {
+  getMumblesApi,
+  pinMumbleApi,
+} from "../../echoMumble/api/echo_mumble.api.js";
 import {
   FavoriteBorderIcon,
   FavoriteIcon,
@@ -20,29 +23,46 @@ function MyMumbles() {
 
   const { pinnedMumblesInMyProfile } = useSelector((state) => state.echoMumble);
 
+  const [isPending, startTransition] = useTransition();
+
   useEffect(() => {
     const func = async () => {
-      const response = await getMumblesApi();
-      const finalResponse = response?.data?.mumbles?.filter(
-        (mumble) => mumble?.pinned === true
-      );
-      dispatch(setPinnedMumbles(finalResponse));
+      try {
+        const response = await getMumblesApi();
+        const pinnedMumbles = response?.data?.mumbles?.filter(
+          (mumble) => mumble?.pinned === true
+        );
+        dispatch(setPinnedMumbles(pinnedMumbles));
+      } catch (error) {
+        console.error("Error fetching pinned mumbles:", error);
+        toast.error("Failed to fetch pinned mumbles.");
+      }
     };
-    dispatch(setIsLoading(true));
-    func();
-    dispatch(setIsLoading(false));
+    startTransition(() => {
+      func();
+    });
   }, [dispatch]);
 
-  const pinMumble = async (mumbleId) => {
-    dispatch(setIsLoading(true));
-    const response = await pinMumbleApi(mumbleId);
-    dispatch(setIsLoading(false));
-    dispatch(updateMumbles(response?.data?.updatedMumble));
-    dispatch(removePinnedMumble(response?.data?.updatedMumble?._id));
-    if (response?.data) {
-      toast.success(response?.data?.message);
+  const pinMumble = (mumbleId) => {
+    try {
+      startTransition(async () => {
+        const response = await pinMumbleApi(mumbleId);
+        if (response?.data) {
+          const { updatedMumble, message } = response.data;
+
+          dispatch(updateMumbles(updatedMumble));
+          dispatch(removePinnedMumble(updatedMumble?._id));
+
+          toast.success(message);
+        }
+      });
+    } catch (error) {
+      console.error("Error pinning mumble:", error);
+      toast.error("Failed to pin the mumble.");
     }
   };
+
+  if (isPending) return <Loading />;
 
   return (
     <div className="px-4 overflow-y-auto">

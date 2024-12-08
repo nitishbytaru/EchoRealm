@@ -1,8 +1,7 @@
-import { useEffect } from "react";
 import toast from "react-hot-toast";
+import { useEffect, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { setIsLoading } from "../../../app/slices/auth.slice.js";
 import {
   handleRemoveOrBlockMyFriendApi,
   getMyFriendsListApi,
@@ -11,54 +10,68 @@ import {
   removeFromMyFriendsList,
   setToMyFriendsList,
 } from "../slices/user.slice.js";
+import Loading from "../../../utils/ui/Loading.jsx";
 
 function MyFriends() {
   const dispatch = useDispatch();
   const { myFriendsList } = useSelector((state) => state.user);
 
-  useEffect(() => {
-    const getMyFriendsListFunc = async () => {
-      const myFriendsListApiResponse = await getMyFriendsListApi();
-      dispatch(
-        setToMyFriendsList(
-          myFriendsListApiResponse?.data?.myFriendList?.friends
-        )
-      );
-    };
+  const [isPending, startTransition] = useTransition();
 
-    getMyFriendsListFunc();
+  useEffect(() => {
+    const fetchMyFriendsList = async () => {
+      try {
+        const { data } = await getMyFriendsListApi();
+        if (data?.myFriendList?.friends) {
+          dispatch(setToMyFriendsList(data.myFriendList.friends));
+        }
+      } catch (error) {
+        console.error("Error fetching friends list:", error);
+      }
+    };
+    startTransition(() => {
+      fetchMyFriendsList();
+    });
   }, [dispatch]);
 
-  const blockSender = async (friendId) => {
-    dispatch(setIsLoading(true));
-    await handleRemoveOrBlockMyFriendApi({ friendId, block: true });
-
-    const response = await handleRemoveOrBlockMyFriendApi({
-      friendId,
-      block: true,
+  const blockSender = (friendId) => {
+    startTransition(async () => {
+      try {
+        const response = await handleRemoveOrBlockMyFriendApi({
+          friendId,
+          block: true,
+        });
+        if (response?.data?.message) {
+          toast.success(response.data.message);
+        }
+        dispatch(removeFromMyFriendsList(friendId));
+      } catch (error) {
+        console.error("Error blocking sender:", error);
+        toast.error("Failed to block the sender.");
+      }
     });
-
-    dispatch(removeFromMyFriendsList(friendId));
-    dispatch(setIsLoading(false));
-    if (response?.data) {
-      toast.success(response.data?.message);
-    }
   };
 
-  const removeFriend = async (friendId) => {
-    setIsLoading(true);
+  const removeFriend = (friendId) => {
+    startTransition(async () => {
+      try {
+        const response = await handleRemoveOrBlockMyFriendApi({
+          friendId,
+          block: false,
+        });
 
-    const response = await handleRemoveOrBlockMyFriendApi({
-      friendId,
-      block: false,
+        dispatch(removeFromMyFriendsList(friendId));
+        if (response?.data?.message) {
+          toast.success(response.data.message);
+        }
+      } catch (error) {
+        console.error("Error removing friend:", error);
+        toast.error("Failed to remove the friend.");
+      }
     });
-
-    dispatch(removeFromMyFriendsList(friendId));
-    setIsLoading(false);
-    if (response?.data) {
-      toast.success(response.data?.message);
-    }
   };
+
+  if (isPending) return <Loading />;
 
   return (
     <div className="bg-base-200 h-full rounded-xl">

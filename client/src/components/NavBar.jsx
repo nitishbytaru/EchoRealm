@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
-import socket from "../sockets/socket.js";
 import { useEffect, lazy, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import MumbleIcon from "../features/echoMumble/components/MumbleIcon.jsx";
+import socket from "../sockets/socket.js";
 import { handleToggle } from "../utils/heplers/micro_funcs.js";
 import { useFriendRequests } from "../hooks/useFriendRequests.js";
 import { useJoinRoomSocket } from "../hooks/useJoinRoomSocket.js";
 import { useGetRequestsSocket } from "../hooks/useGetRequestsSocket.js";
+import MumbleIcon from "../features/echoMumble/components/MumbleIcon.jsx";
+
 //importing the components
 import {
   setIsMobile,
@@ -49,6 +50,12 @@ function NavBar() {
   useEffect(() => {
     dispatch(setTheme(theme));
     document.documentElement.setAttribute("data-theme", theme);
+
+    const backgroundColor = theme === "business" ? "#fff" : "#000";
+
+    document.querySelectorAll(".loading-circle").forEach((circle) => {
+      circle.style.backgroundColor = backgroundColor;
+    });
   }, [dispatch, theme]);
 
   //hook to fetch friendRequests and add new frindRequests notification badge

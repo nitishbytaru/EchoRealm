@@ -1,9 +1,9 @@
 import toast from "react-hot-toast";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { setIsLoading } from "../../../app/slices/auth.slice.js";
+import Loading from "../../../utils/ui/Loading.jsx";
 import {
   deleteMumbleApi,
   getMumblesApi,
@@ -28,7 +28,6 @@ import {
 } from "../../../utils/heplers/icons/export_icons.js";
 
 function ListenMumble() {
-  // Track if the effect is running for the first time
   const isFirstRender = useRef(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -38,38 +37,43 @@ function ListenMumble() {
     (state) => state.echoMumble
   );
 
+  const [isPending, startTransition] = useTransition();
+
   useEffect(() => {
     const func = async () => {
-      const response = await getMumblesApi();
-      const blockedUsersApiResponse = await getBlockedUsersApi();
+      try {
+        const response = await getMumblesApi();
+        const blockedUsersApiResponse = await getBlockedUsersApi();
 
-      const myMumbles = response?.data?.mumbles.filter((mumble) => {
-        return mumble.receiver.toString() === user._id.toString();
-      });
+        const myMumbles = response?.data?.mumbles.filter((mumble) => {
+          return mumble.receiver.toString() === user._id.toString();
+        });
 
-      const responseMumbles = myMumbles?.filter(
-        (mumble) =>
-          !blockedUsersApiResponse?.data?.blockedUsers.includes(mumble?.sender)
-      );
+        const responseMumbles = myMumbles?.filter(
+          (mumble) =>
+            !blockedUsersApiResponse?.data?.blockedUsers.includes(
+              mumble?.sender
+            )
+        );
 
-      const numberOfPinnedMumblesInResponse = response?.data?.Mumbles?.filter(
-        (mumble) => mumble?.pinned
-      );
+        const pinnedMumbles = response?.data?.Mumbles?.filter(
+          (mumble) => mumble?.pinned
+        );
 
-      dispatch(
-        setNumberOfPinnedMumbles(numberOfPinnedMumblesInResponse?.length)
-      );
-
-      const calculateUnReadMumbles = responseMumbles.filter(
-        (mumble) => mumble.mumbleStatus !== "read"
-      );
-
-      dispatch(setUnReadMumbles(calculateUnReadMumbles.length));
-      dispatch(setMumbles(responseMumbles || []));
+        dispatch(setNumberOfPinnedMumbles(pinnedMumbles?.length));
+        dispatch(
+          setUnReadMumbles(
+            responseMumbles?.filter((mumble) => mumble.mumbleStatus !== "read")
+              .length
+          )
+        );
+        dispatch(setMumbles(responseMumbles || []));
+      } catch (error) {
+        console.error("Error fetching mumbles or blocked users:", error);
+        toast.error("Failed to load mumbles or blocked users.");
+      }
     };
-    dispatch(setIsLoading(true));
-    func();
-    dispatch(setIsLoading(false));
+    startTransition(() => func());
   }, [dispatch, user._id, user.blockedUsers]);
 
   //useEffect for marking the unread mumbles as read
@@ -121,42 +125,61 @@ function ListenMumble() {
     ));
   };
 
-  const confirmDeleteMumbleApiFunc = async (MumbleId) => {
-    dispatch(setIsLoading(true));
-    const response = await deleteMumbleApi(MumbleId);
-    dispatch(setIsLoading(false));
-    if (response?.data) {
-      dispatch(removeMumble(MumbleId));
-      toast.success(response.data?.message);
-    }
+  const confirmDeleteMumbleApiFunc = (MumbleId) => {
+    startTransition(async () => {
+      try {
+        const response = await deleteMumbleApi(MumbleId);
+
+        if (response?.data) {
+          dispatch(removeMumble(MumbleId)); // Remove mumble from state
+          toast.success(response.data?.message); // Show success message
+        }
+      } catch (error) {
+        console.error("Error deleting mumble:", error);
+        toast.error("Failed to delete mumble.");
+      }
+    });
   };
 
-  const pinMumbleApiFunc = async (mumble) => {
+  const pinMumbleApiFunc = (mumble) => {
     if (!mumble?.pinned && numberOfPinnedMumbles >= 4) {
       return toast.error("Only 5 mumbles can be Pinned");
     }
-    dispatch(setIsLoading(true));
-    const response = await pinMumbleApi(mumble._id);
-    dispatch(setIsLoading(false));
-    dispatch(updateMumbles(response?.data?.updatedMumble));
-    dispatch(increaseNumberOfPinnedMumbles());
-    if (response?.data) {
-      toast.success(response?.data?.message);
-    }
+    startTransition(async () => {
+      try {
+        const response = await pinMumbleApi(mumble._id);
+
+        if (response?.data) {
+          dispatch(updateMumbles(response.data.updatedMumble));
+          dispatch(increaseNumberOfPinnedMumbles());
+          toast.success(response.data.message);
+        }
+      } catch (error) {
+        console.error("Error pinning mumble:", error);
+        toast.error("Failed to pin mumble.");
+      }
+    });
   };
 
-  const blockSenderApiFunc = async (MumbleId, senderId) => {
-    dispatch(removeMumble(MumbleId));
-    dispatch(setIsLoading(true));
-    const response = await handleRemoveOrBlockMyFriendApi({
-      senderId,
-      block: true,
+  const blockSenderApiFunc = (MumbleId, senderId) => {
+    startTransition(async () => {
+      try {
+        dispatch(removeMumble(MumbleId));
+        const response = await handleRemoveOrBlockMyFriendApi({
+          senderId,
+          block: true,
+        });
+        if (response?.data) {
+          toast.success(response.data?.message);
+        }
+      } catch (error) {
+        console.error("Error blocking sender:", error);
+        toast.error("Failed to block sender.");
+      }
     });
-    dispatch(setIsLoading(false));
-    if (response?.data) {
-      toast.success(response.data?.message);
-    }
   };
+
+  if (isPending) return <Loading />;
 
   return (
     <div className="flex flex-col bg-base-200 h-full p-4 rounded-xl">

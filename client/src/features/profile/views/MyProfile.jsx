@@ -2,6 +2,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
+import Loading from "../../../utils/ui/Loading.jsx";
 import { logoutApi } from "../../../api/auth.api.js";
 import ThemeToggle from "../../../components/ThemeToggle.jsx";
 import { handleToggle } from "../../../utils/heplers/micro_funcs.js";
@@ -10,7 +11,6 @@ import {
   setIsChecked,
   setUser,
   setIsLoggedIn,
-  setIsLoading,
 } from "../../../app/slices/auth.slice.js";
 import {
   LogoutOutlinedIcon,
@@ -22,6 +22,7 @@ import {
   PersonAddAlt1Icon,
   PeopleIcon,
 } from "../../../utils/heplers/icons/export_icons.js";
+import { useTransition } from "react";
 
 function MyProfile() {
   const dispatch = useDispatch();
@@ -32,26 +33,28 @@ function MyProfile() {
   );
   const { badgeOfPendingRequests } = useSelector((state) => state.user);
 
-  const logoutApiFunc = async () => {
-    try {
-      dispatch(setIsLoading(true));
-      const response = await logoutApi();
-      toast.success(response?.data?.message);
-      dispatch(setUser(null));
-      dispatch(setIsLoggedIn(false));
-      localStorage.setItem("allowFetch", false);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      dispatch(setIsLoading(false));
-    }
+  const [isPending, startTransition] = useTransition();
 
-    navigate("/");
+  const logoutApiFunc = async () => {
+    startTransition(async () => {
+      try {
+        const response = await logoutApi();
+        toast.success(response?.data?.message);
+        dispatch(setUser(null));
+        dispatch(setIsLoggedIn(false));
+        localStorage.setItem("allowFetch", false);
+        navigate("/");
+      } catch (error) {
+        console.error("Error during logout:", error);
+        toast.error("Failed to log out. Please try again.");
+      }
+    });
   };
 
   const classList =
     "flex items-center justify-start btn w-20 sm:w-full btn-ghost sm:text-xl";
 
+  if (isPending) return <Loading />;
   return (
     <div className="flex bg-base-200 w-full h-full rounded-2xl">
       {/* Sidebar Section */}

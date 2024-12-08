@@ -1,8 +1,8 @@
-import { useEffect } from "react";
 import toast from "react-hot-toast";
+import { useEffect, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { setIsLoading } from "../../../app/slices/auth.slice.js";
+import Loading from "../../../utils/ui/Loading.jsx";
 import { getBlockedUsersApi, unBlockUserApi } from "../api/friends.api.js";
 import {
   setBlockedUsers,
@@ -13,24 +13,41 @@ function BlockedUsers() {
   const dispatch = useDispatch();
   const { blockedUsers } = useSelector((state) => state.user);
 
+  const [isPending, startTransition] = useTransition();
+
   useEffect(() => {
     const funcGetBlockedUsers = async () => {
-      const response = await getBlockedUsersApi();
-      dispatch(setBlockedUsers(response?.data?.blockedUsers));
+      try {
+        const response = await getBlockedUsersApi();
+        if (response?.data?.blockedUsers) {
+          dispatch(setBlockedUsers(response.data.blockedUsers));
+        }
+      } catch (error) {
+        console.error("Error fetching blocked users:", error);
+      }
     };
 
-    dispatch(setIsLoading(true));
-    funcGetBlockedUsers();
-    dispatch(setIsLoading(false));
+    startTransition(() => {
+      funcGetBlockedUsers();
+    });
   }, [dispatch]);
 
-  const unBlockApiFunc = async (userId) => {
-    dispatch(setIsLoading(true));
-    const response = await unBlockUserApi(userId);
-    dispatch(setIsLoading(false));
-    toast.success(response?.data?.message);
-    dispatch(removeFromBlockedUsers(userId));
+  const unBlockApiFunc = (userId) => {
+    startTransition(async () => {
+      try {
+        const response = await unBlockUserApi(userId);
+        if (response?.data?.message) {
+          toast.success(response.data.message);
+        }
+        dispatch(removeFromBlockedUsers(userId));
+      } catch (error) {
+        console.error("Error unblocking user:", error);
+        toast.error("Failed to unblock the user.");
+      }
+    });
   };
+
+  if (isPending) return <Loading />;
 
   return (
     <div className="px-4 overflow-y-auto">

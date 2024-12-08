@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import { toast } from "react-hot-toast";
 import { useInputValidation } from "6pp";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import socket from "../../../sockets/socket.js";
+import Loading from "../../../utils/ui/Loading.jsx";
 import { sendFriendRequestApi } from "../api/friends.api.js";
 import { useDebouncedSearchResults } from "../../../hooks/useDebouncedSearchResults.js";
 import {
@@ -22,39 +23,50 @@ function FindUsers() {
   const search = useInputValidation("");
   const searchResults = useDebouncedSearchResults(search.value);
 
+  const [isPending, startTransition] = useTransition();
+
   useEffect(() => {
     dispatch(setResultOfSearchedUsers(searchResults));
   }, [dispatch, searchResults, user._id]);
 
-  const addFriendFunc = async (selectedUser) => {
+  const addFriendFunc = (selectedUser) => {
     try {
-      const response = await sendFriendRequestApi(selectedUser?._id);
+      startTransition(async () => {
+        const response = await sendFriendRequestApi(selectedUser?._id);
 
-      if (response?.data?.myFriendRequests) {
-        dispatch(updateResultOfSearchedUsers(response?.data?.myFriendRequests));
+        if (response?.data?.myFriendRequests) {
+          dispatch(
+            updateResultOfSearchedUsers(response?.data?.myFriendRequests)
+          );
 
-        socket.emit("friendRequestSent", {
-          senderDetails: {
-            // sender data is sent to the reciever bby the sockets
-            senderId: user._id,
-            senderAvatar: user.avatar,
-            senderUsername: user.username,
-            requestSeen: false,
-          },
-          recipientId: selectedUser._id,
-        });
-      }
+          socket.emit("friendRequestSent", {
+            senderDetails: {
+              // sender data is sent to the reciever bby the sockets
+              senderId: user._id,
+              senderAvatar: user.avatar,
+              senderUsername: user.username,
+              requestSeen: false,
+            },
+            recipientId: selectedUser._id,
+          });
+        }
 
-      toast.success(response?.data?.message);
+        if (response?.data?.message) {
+          toast.success(response.data.message);
+        }
+      });
     } catch (error) {
-      console.log(error);
+      console.error("Error adding friend:", error);
+      toast.error("Failed to send friend request.");
     }
   };
 
-  const viewProfileFunc = async (viewProfileUserId) => {
+  const viewProfileFunc = (viewProfileUserId) => {
     dispatch(setViewingProfileUserDetails(viewProfileUserId));
     navigate(`/about/view-profile/${viewProfileUserId}`);
   };
+
+  if (isPending) return <Loading />;
 
   return (
     <div className="bg-base-200 h-full rounded-xl">
