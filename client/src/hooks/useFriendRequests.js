@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMyFriendRequestsApi } from "../api/friends.api.js";
+
+import { fetchMyFriendRequestsApi } from "../features/profile/api/friends.api.js";
+import { setUnReadMumbles } from "../features/echoMumble/slices/echo_mumble.slice.js";
 import {
   setBadgeOfPendingRequests,
   setMyFriendRequests,
-} from "../app/slices/userSlice";
-import { setUnReadMumbles } from "../app/slices/echoMumbleSlice";
+} from "../features/profile/slices/user.slice.js";
 
 export function useFriendRequests(user) {
   const dispatch = useDispatch();

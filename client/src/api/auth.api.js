@@ -1,11 +1,15 @@
 import axios from "axios";
-import { apiConfigFORM, apiConfigJSON } from "./exportAPICONFIG.js";
+axios.defaults.withCredentials = true;
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/auth`;
 
 export const registerApi = async (Data) => {
   try {
-    return await axios.post(`${API_URL}/register`, Data, apiConfigFORM);
+    return await axios.post(`${API_URL}/register`, Data, {
+      headers: {
+        "Content-Type": "application/form-data",
+      },
+    });
   } catch (error) {
     console.log(error);
   }
@@ -13,7 +17,11 @@ export const registerApi = async (Data) => {
 
 export const loginApi = async (Data) => {
   try {
-    return await axios.post(`${API_URL}/login`, Data, apiConfigJSON);
+    return await axios.post(`${API_URL}/login`, Data, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   } catch (error) {
     console.log(error);
     return error;
@@ -22,9 +30,7 @@ export const loginApi = async (Data) => {
 
 export const logoutApi = async () => {
   try {
-    return await axios.get(`${API_URL}/logout`, {
-      withCredentials: true,
-    });
+    return await axios.get(`${API_URL}/logout`);
   } catch (error) {
     console.log(error);
   }
@@ -32,9 +38,7 @@ export const logoutApi = async () => {
 
 export const getProfileApi = async () => {
   try {
-    return await axios.get(`${API_URL}/profile`, {
-      withCredentials: true,
-    });
+    return await axios.get(`${API_URL}/profile`);
   } catch (error) {
     console.log(error);
   }

@@ -1,0 +1,9 @@
+export { default as MyProfile } from "./views/MyProfile";
+export { default as BlockedUsers } from "./components/BlockedUsers";
+export { default as FindUsers } from "./components/FindUsers";
+export { default as MyAccount } from "./components/MyAccount";
+export { default as MyFriendRequests } from "./components/MyFriendRequests";
+export { default as MyFriends } from "./components/MyFriends";
+export { default as MyMumbles } from "./components/MyMumbles";
+export { default as MyProfileDetails } from "./components/MyProfileDetails";
+export { default as ViewProfile } from "./components/ViewProfile";

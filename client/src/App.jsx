@@ -1,103 +1,99 @@
-import { lazy, Suspense, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { Toaster } from "react-hot-toast";
+import { lazy, Suspense, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Utility Components
-import PrivateRoutes from "./utils/PrivateRoutues";
-import LoggedOut from "./utils/LoggedOut";
-import { normalLoading } from "./components/Loaders/LoadingAnimations.jsx";
+import PrivateRoutes from "./utils/PrivateRoutes.jsx";
+import LoggedOut from "./utils/LoggedOut.jsx";
 
-// API & Redux
+// API
 import { getProfileApi } from "./api/auth.api.js";
-import { setIsLoggedIn, setUser } from "./app/slices/authSlice.js";
+//Redux
+import { setIsLoggedIn, setUser } from "./app/slices/auth.slice.js";
 
-// Lazy Loaded Components
+//Views
+import { EchoLink } from "./features/echoLink/index.js";
+import { CreateMumble, ListenMumble } from "./features/echoMumble/index.js";
+import { EchoShout } from "./features/echoShout/index.js";
+
+// Profile Components
+import {
+  MyProfile,
+  MyProfileDetails,
+  MyAccount,
+  MyMumbles,
+  BlockedUsers,
+  FindUsers,
+  MyFriends,
+  MyFriendRequests,
+  ViewProfile,
+} from "./features/profile/index.js";
+
 const Layout = lazy(() => import("./Layout"));
 const Register = lazy(() => import("./pages/Register"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage"));
-const EchoShout = lazy(() => import("./pages/stage2/EchoShout"));
-const EchoLink = lazy(() => import("./pages/stage2/EchoLink"));
-const ListenMumble = lazy(() =>
-  import("./pages/stage2/EchoMumble/ListenMumble")
-);
-const CreateMumble = lazy(() =>
-  import("./pages/stage2/EchoMumble/CreateMumble")
-);
-
-// Profile Components
-const MyProfile = lazy(() => import("./pages/stage2/MyProfile.jsx"));
-const MyProfileDetails = lazy(() =>
-  import("./components/profile/MyProfileDetails.jsx")
-);
-const MyMumbles = lazy(() => import("./components/profile/MyMumbles.jsx"));
-const BlockedUsers = lazy(() =>
-  import("./components/profile/BlockedUsers.jsx")
-);
-const FindUsers = lazy(() => import("./components/profile/FindUsers.jsx"));
-const MyAccount = lazy(() => import("./components/profile/MyAccount.jsx"));
-const MyFriends = lazy(() => import("./components/profile/MyFriends.jsx"));
-const MyFriendRequests = lazy(() =>
-  import("./components/profile/MyFriendRequests.jsx")
-);
-const ViewProfile = lazy(() => import("./components/profile/ViewProfile.jsx"));
 
 function App() {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (JSON.parse(localStorage.getItem("allowFetch"))) {
-      getProfileApi()
-        .then((response) => {
+    const allowFetch = JSON.parse(localStorage.getItem("allowFetch"));
+    if (allowFetch) {
+      (async () => {
+        try {
+          const response = await getProfileApi();
           if (response) {
             dispatch(setUser(response?.data?.user));
             dispatch(setIsLoggedIn(true));
           }
-        })
-        .catch((err) => console.error(err));
+        } catch (err) {
+          console.error("Profile fetch failed: ", err);
+        }
+      })();
     }
   }, [dispatch]);
 
   return (
     <Router>
-      <Suspense fallback={normalLoading()}>
+      <Suspense fallback={<p>Loading...</p>}>
         <Routes>
+          {/* Main Layout */}
           <Route path="/" element={<Layout />}>
-            {/* Routes for logged-out users */}
+            {/* Public Routes */}
             <Route element={<LoggedOut user={user} />}>
-              <Route index element={<Register />} />
+              <Route path="" element={<Register />} />
             </Route>
 
-            {/* Routes for authenticated users */}
+            {/* Authenticated Routes */}
             <Route element={<PrivateRoutes user={user} />}>
-              <Route path="echo-link" element={<EchoLink />} />
-              <Route path="echo-link/:recieverId" element={<EchoLink />} />
-              <Route path="create-mumble" element={<CreateMumble />} />
+              <Route path="shout" element={<EchoShout />} />
+              <Route path="links/:recieverId?" element={<EchoLink />} />
               <Route
-                path="create-mumble/:mumbleTo"
+                path="mumbles/send/:mumbleTo?"
                 element={<CreateMumble />}
               />
-              <Route path="listen-mumble" element={<ListenMumble />} />
+              <Route path="mumbles/read" element={<ListenMumble />} />
 
               {/* Nested profile routes */}
-              <Route path="about" element={<MyProfile />}>
-                <Route path="edit-details" element={<MyProfileDetails />} />
-                <Route path="my-mumbles" element={<MyMumbles />} />
+              <Route path="profile" element={<MyProfile />}>
+                <Route path="edit" element={<MyProfileDetails />} />
+                <Route path="mumbles" element={<MyMumbles />} />
                 <Route path="blocked-users" element={<BlockedUsers />} />
                 <Route path="find-users" element={<FindUsers />} />
                 <Route path="account" element={<MyAccount />} />
-                <Route path="friend-requests" element={<MyFriendRequests />} />
-                <Route path="my-friends" element={<MyFriends />} />
+                <Route path="friends">
+                  <Route path="requests" element={<MyFriendRequests />} />
+                  <Route path="list" element={<MyFriends />} />
+                </Route>
+
                 <Route
-                  path="view-profile/:viewProfileUserId"
+                  path="view/:viewProfileUserId"
                   element={<ViewProfile />}
                 />
               </Route>
             </Route>
-
-            {/* Public routes */}
-            <Route path="echo-shout" element={<EchoShout />} />
           </Route>
 
           {/* Fallback route */}

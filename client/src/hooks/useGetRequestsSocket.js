@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setMyFriendRequests } from "../app/slices/userSlice";
-import { addToMumbles } from "../app/slices/echoMumbleSlice";
+import { setMyFriendRequests } from "../features/profile/slices/user.slice.js";
+import { addToMumbles } from "../features/echoMumble/slices/echo_mumble.slice.js";
 
 export function useGetRequestsSocket(socket) {
   const dispatch = useDispatch();

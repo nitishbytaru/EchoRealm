@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { app } from "./app.js";
-import connectDB from "./db/index.js";
+import connectDB from "./config/db/index.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 

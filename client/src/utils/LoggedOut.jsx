@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
-import EchoLink from "../pages/stage2/EchoLink";
+
+import EchoLink from "../features/echoLink/views/EchoLink.jsx";
 
 
 function LoggedOut({ user }) {

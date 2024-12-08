@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { scrollToBottom } from "../heplerFunc/microFuncs";
+import { scrollToBottom } from "../utils/heplers/micro_funcs";
 
 export function useAutoScroll(dependency) {
   const messagesEndRef = useRef(null);

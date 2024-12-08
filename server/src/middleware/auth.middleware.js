@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/async_handler.js";
 
 const isAuthenticated = asyncHandler(async (req, res, next) => {
   const token = req.cookies["echo-token"];

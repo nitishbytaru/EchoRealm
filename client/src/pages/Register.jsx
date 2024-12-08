@@ -5,7 +5,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
 import { loginApi, registerApi } from "../api/auth.api.js";
-import { setIsLoggedIn, setIsLoading, setUser } from "../app/slices/authSlice";
+import { setIsLoggedIn, setIsLoading, setUser } from "../app/slices/auth.slice.js";
 
 
 const Register = () => {
