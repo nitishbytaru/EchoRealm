@@ -4,10 +4,11 @@ import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import MessageBar from "../../../components/MessageBar.jsx";
 import socket from "../../../sockets/socket.js";
-import { searchUserByIdApi } from "../../profile/api/user.api.js";
+import Loading from "../../../components/Loading.jsx";
+import MessageBar from "../../../components/MessageBar.jsx";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
+import { searchUserByIdApi } from "../../profile/api/user.api.js";
 import { handleRemoveOrBlockMyFriendApi } from "../../profile/api/friends.api.js";
 import {
   clearChatApi,
@@ -19,7 +20,7 @@ import {
 import {
   MoreVertSharpIcon,
   ArrowBackIosIcon,
-} from "../../../utils/heplers/icons/export_icons.js";
+} from "../../../utils/icons/export_icons.js";
 import {
   addPrivateMessage,
   addToMyPrivateChatRooms,
@@ -31,7 +32,6 @@ import {
   createUniquechatRoom,
   markAsRead,
 } from "../../../utils/heplers/micro_funcs.js";
-import Loading from "../../../utils/ui/Loading.jsx";
 
 function ChatBox() {
   const dispatch = useDispatch();

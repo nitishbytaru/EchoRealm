@@ -2,7 +2,7 @@ import { useEffect, useTransition } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 
-import Loading from "../../../utils/ui/Loading.jsx";
+import Loading from "../../../components/Loading.jsx";
 import {
   getMumblesApi,
   pinMumbleApi,
@@ -11,7 +11,7 @@ import {
   FavoriteBorderIcon,
   FavoriteIcon,
   MoreVertSharpIcon,
-} from "../../../utils/heplers/icons/export_icons.js";
+} from "../../../utils/icons/export_icons.js";
 import {
   setPinnedMumbles,
   updateMumbles,

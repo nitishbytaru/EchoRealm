@@ -5,7 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import socket from "../../../sockets/socket.js";
-import { MoreVertSharpIcon } from "../../../utils/heplers/icons/export_icons.js";
+import Loading from "../../../components/Loading.jsx";
+import { MoreVertSharpIcon } from "../../../utils/icons/export_icons.js";
 import {
   getMyPrivateFriendsApi,
   searchEchoLinkFriendsApi,
@@ -21,7 +22,6 @@ import {
   markAsRead,
   truncateMessage,
 } from "../../../utils/heplers/micro_funcs.js";
-import Loading from "../../../utils/ui/Loading.jsx";
 
 function ChatRooms() {
   const { recieverId } = useParams();

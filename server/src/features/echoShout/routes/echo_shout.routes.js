@@ -14,7 +14,7 @@ router.route("/messages").get(getMessages);
 
 router.use(isAuthenticated);
 //protected routes
-router.route("/message").post(
+router.route("/messages").post(
   upload.fields([
     {
       name: "attachments",

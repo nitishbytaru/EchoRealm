@@ -5,7 +5,7 @@ const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/friends`;
 
 export const sendFriendRequestApi = async (senderId) => {
   try {
-    return await axios.get(`${API_URL}/requests/${senderId}`);
+    return await axios.patch(`${API_URL}/requests/${senderId}`);
   } catch (error) {
     console.log(error);
   }
@@ -22,7 +22,7 @@ export const fetchMyFriendRequestsApi = async () => {
 
 export const getMyFriendsListApi = async () => {
   try {
-    return await axios.get(`${API_URL}/list`);
+    return await axios.get(`${API_URL}/friends`);
   } catch (error) {
     console.log(error);
     return error;
@@ -44,7 +44,7 @@ export const getBlockedUsersApi = async () => {
 
 export const unBlockUserApi = async (userId) => {
   try {
-    return await axios.get(`${API_URL}/blockedUsers/unblock/${userId}`);
+    return await axios.patch(`${API_URL}/blockedUsers/unblock/${userId}`);
   } catch (error) {
     console.log(error);
     return error;

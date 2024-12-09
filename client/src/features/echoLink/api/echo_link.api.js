@@ -5,7 +5,7 @@ const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/echoLink`;
 
 export const sendEchoLinkMessageApi = async (echoLinkMessage) => {
   try {
-    return await axios.post(`${API_URL}/message`, echoLinkMessage, {
+    return await axios.post(`${API_URL}/messages`, echoLinkMessage, {
       headers: {
         "Content-Type": "application/form-data",
       },
@@ -36,7 +36,7 @@ export const getPrivateMessagesApi = async (uniqueChatId) => {
 
 export const markLatestMessageAsReadApi = async (uniqueChatId) => {
   try {
-    await axios.get(`${API_URL}/messages/${uniqueChatId}/read`);
+    await axios.patch(`${API_URL}/messages/${uniqueChatId}`);
   } catch (error) {
     console.log(error);
     return error;

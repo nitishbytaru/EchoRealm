@@ -1,11 +1,11 @@
-import { useState, useTransition } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRequestApi } from "../api/user.api.js";
 import { useFileHandler, useInputValidation } from "6pp";
 
-import Loading from "../../../utils/ui/Loading.jsx";
+import Loading from "../../../components/Loading.jsx";
 import { setUser } from "../../../app/slices/auth.slice.js";
 
 function MyProfileDetails() {

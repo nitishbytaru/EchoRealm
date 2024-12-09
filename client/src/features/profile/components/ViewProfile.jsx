@@ -3,12 +3,12 @@ import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useParams } from "react-router-dom";
 
-import Loading from "../../../utils/ui/Loading.jsx";
+import Loading from "../../../components/Loading.jsx";
 import { likeThisMumbleApi } from "../../echoMumble/api/echo_mumble.api.js";
 import {
   FavoriteBorderIcon,
   FavoriteIcon,
-} from "../../../utils/heplers/icons/export_icons.js";
+} from "../../../utils/icons/export_icons.js";
 import {
   getUsersWithMumbles,
   fetchMostLikedMumbleWithLikesAndFriendsApi,

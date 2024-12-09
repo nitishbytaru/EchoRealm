@@ -4,7 +4,7 @@ import {
   SendIcon,
   MailOutlineIcon,
   ForumOutlinedIcon,
-} from "../../../utils/heplers/icons/export_icons.js";
+} from "../../../utils/icons/export_icons.js";
 
 function MumbleIcon() {
   const { isLoggedIn, isMobile } = useSelector((state) => state.auth);

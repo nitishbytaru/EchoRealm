@@ -14,7 +14,7 @@ export const getMumblesApi = async () => {
 
 export const pinMumbleApi = async (mumbleId) => {
   try {
-    return await axios.get(`${API_URL}/pin/${mumbleId}`);
+    return await axios.patch(`${API_URL}/pin/${mumbleId}`);
   } catch (error) {
     console.log(error);
     return error?.response;
@@ -32,7 +32,7 @@ export const likeThisMumbleApi = async (mumbleId) => {
 
 export const sendMumbleApi = async (mumble) => {
   try {
-    return await axios.post(`${API_URL}/mumbles/send`, mumble, {
+    return await axios.post(`${API_URL}/mumbles`, mumble, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -45,7 +45,7 @@ export const sendMumbleApi = async (mumble) => {
 
 export const setMumblesAsReadApi = async () => {
   try {
-    return await axios.get(`${API_URL}/mumbles/read`);
+    return await axios.patch(`${API_URL}/mumbles`);
   } catch (error) {
     console.log(error);
     return error?.response;

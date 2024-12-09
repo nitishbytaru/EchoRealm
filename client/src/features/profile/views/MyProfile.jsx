@@ -1,9 +1,10 @@
 import toast from "react-hot-toast";
+import { useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
-import Loading from "../../../utils/ui/Loading.jsx";
 import { logoutApi } from "../../../api/auth.api.js";
+import Loading from "../../../components/Loading.jsx";
 import ThemeToggle from "../../../components/ThemeToggle.jsx";
 import { handleToggle } from "../../../utils/heplers/micro_funcs.js";
 import {
@@ -21,8 +22,7 @@ import {
   PersonIcon,
   PersonAddAlt1Icon,
   PeopleIcon,
-} from "../../../utils/heplers/icons/export_icons.js";
-import { useTransition } from "react";
+} from "../../../utils/icons/export_icons.js";
 
 function MyProfile() {
   const dispatch = useDispatch();
@@ -55,6 +55,7 @@ function MyProfile() {
     "flex items-center justify-start btn w-20 sm:w-full btn-ghost sm:text-xl";
 
   if (isPending) return <Loading />;
+  
   return (
     <div className="flex bg-base-200 w-full h-full rounded-2xl">
       {/* Sidebar Section */}

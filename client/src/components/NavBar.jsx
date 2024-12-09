@@ -20,7 +20,7 @@ import {
   ChatIcon,
   HomeIcon,
   MenuIcon,
-} from "../utils/heplers/icons/export_icons.js";
+} from "../utils/icons/export_icons.js";
 
 //lazy loading
 const ThemeToggle = lazy(() => import("./ThemeToggle"));
@@ -50,12 +50,6 @@ function NavBar() {
   useEffect(() => {
     dispatch(setTheme(theme));
     document.documentElement.setAttribute("data-theme", theme);
-
-    const backgroundColor = theme === "business" ? "#fff" : "#000";
-
-    document.querySelectorAll(".loading-circle").forEach((circle) => {
-      circle.style.backgroundColor = backgroundColor;
-    });
   }, [dispatch, theme]);
 
   //hook to fetch friendRequests and add new frindRequests notification badge

@@ -18,6 +18,6 @@ router.route("/login").post(loginUser);
 //authentication middleware
 router.use(isAuthenticated);
 router.route("/profile").get(getProfile);
-router.route("/logout").get(logoutUser);
+router.route("/logout").post(logoutUser);
 
 export default router;

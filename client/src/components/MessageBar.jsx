@@ -6,7 +6,7 @@ import {
   SendSharpIcon,
   AttachFileSharpIcon,
   CloseIcon,
-} from "../utils/heplers/icons/export_icons.js";
+} from "../utils/icons/export_icons.js";
 
 // eslint-disable-next-line react/prop-types
 export default function MessageBar({ setMessageData }) {

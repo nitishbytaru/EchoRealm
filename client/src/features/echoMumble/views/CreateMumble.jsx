@@ -7,7 +7,7 @@ import { useState, useEffect, useTransition } from "react";
 import { sendMumbleApi } from "../api/echo_mumble.api.js";
 import { searchUserByIdApi } from "../../profile/api/user.api.js";
 import { handleKeyPress } from "../../../utils/heplers/micro_funcs.js";
-import { SendSharpIcon } from "../../../utils/heplers/icons/export_icons.js";
+import { SendSharpIcon } from "../../../utils/icons/export_icons.js";
 import { useDebouncedSearchResults } from "../../../hooks/useDebouncedSearchResults.js";
 
 function CreateMumble() {

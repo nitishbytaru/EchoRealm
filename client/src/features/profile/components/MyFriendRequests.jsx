@@ -3,7 +3,7 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import Loading from "../../../utils/ui/Loading.jsx";
+import Loading from "../../../components/Loading.jsx";
 import { handleFriendRequestApi } from "../api/friends.api.js";
 import {
   setViewingProfileUserDetails,

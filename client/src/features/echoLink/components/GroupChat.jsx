@@ -1,10 +1,10 @@
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
+import { useEffect, useState, useTransition } from "react";
 
-import Loading from "../../../utils/ui/Loading.jsx";
+import Loading from "../../../components/Loading.jsx";
 import { addToMyPrivateChatRooms } from "../slices/echo_link.slice.js";
 import {
   createGroupChatApi,

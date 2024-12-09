@@ -2,7 +2,7 @@ import toast from "react-hot-toast";
 import { useEffect, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import Loading from "../../../utils/ui/Loading.jsx";
+import Loading from "../../../components/Loading.jsx";
 import { getBlockedUsersApi, unBlockUserApi } from "../api/friends.api.js";
 import {
   setBlockedUsers,

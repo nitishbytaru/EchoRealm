@@ -2,6 +2,7 @@ import toast from "react-hot-toast";
 import { useEffect, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import Loading from "../../../components/Loading.jsx";
 import {
   handleRemoveOrBlockMyFriendApi,
   getMyFriendsListApi,
@@ -10,7 +11,6 @@ import {
   removeFromMyFriendsList,
   setToMyFriendsList,
 } from "../slices/user.slice.js";
-import Loading from "../../../utils/ui/Loading.jsx";
 
 function MyFriends() {
   const dispatch = useDispatch();

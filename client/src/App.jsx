@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Utility Components
-import PrivateRoutes from "./utils/PrivateRoutes.jsx";
-import LoggedOut from "./utils/LoggedOut.jsx";
+import PrivateRoutes from "./pages/PrivateRoutes.jsx";
+import LoggedOut from "./pages/LoggedOut.jsx";
 
 // API
 import { getProfileApi } from "./api/auth.api.js";
@@ -29,6 +29,7 @@ import {
   MyFriendRequests,
   ViewProfile,
 } from "./features/profile/index.js";
+import Loading from "./components/Loading.jsx";
 
 const Layout = lazy(() => import("./Layout"));
 const Register = lazy(() => import("./pages/Register"));
@@ -57,7 +58,7 @@ function App() {
 
   return (
     <Router>
-      <Suspense fallback={<p>Loading...</p>}>
+      <Suspense fallback={<Loading />}>
         <Routes>
           {/* Main Layout */}
           <Route path="/" element={<Layout />}>

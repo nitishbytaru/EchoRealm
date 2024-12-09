@@ -16,10 +16,10 @@ router.use(isAuthenticated);
 //protected routes
 
 router.route("/mumbles").get(getMumbles);
-router.route("/pin/:mumbleId").get(pinMumble);
-router.route("/like/:mumbleId").get(likeThisMumble);
-router.route("/mumbles/send").post(sendMumble);
-router.route("/mumbles/read").get(setMumblesAsRead);
+router.route("/pin/:mumbleId").patch(pinMumble);
+router.route("/like/:mumbleId").patch(likeThisMumble);
+router.route("/mumbles").post(sendMumble);
+router.route("/mumbles").patch(setMumblesAsRead);
 router.route("/:mumbleId").delete(deleteMumble);
 router.route("/recieved").delete(deleteRecievedMumbles);
 router.route("/sent").delete(deleteSentMumbles);

@@ -20,14 +20,14 @@ const router = Router();
 router.use(isAuthenticated);
 //protected routes
 router
-  .route("/message")
+  .route("/messages")
   .post(
     upload.fields([{ name: "attachments", maxCount: 1 }]),
     sendEchoLinkMessage
   );
 router.route("/friends/private").get(getMyPrivateFriends);
 router.route("/messages/:roomId").get(getPrivateMessages);
-router.route("/messages/:roomId/read").get(markLatestMessageAsRead);
+router.route("/messages/:roomId").patch(markLatestMessageAsRead);
 router.route("/friends/search/:roomId").get(searchEchoLinkFriends);
 router.route("/chatRooms").delete(deleteAllMyChatRooms);
 router.route("/chats/:roomId").delete(deleteChat);

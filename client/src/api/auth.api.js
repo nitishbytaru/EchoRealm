@@ -30,7 +30,7 @@ export const loginApi = async (Data) => {
 
 export const logoutApi = async () => {
   try {
-    return await axios.get(`${API_URL}/logout`);
+    return await axios.post(`${API_URL}/logout`);
   } catch (error) {
     console.log(error);
   }

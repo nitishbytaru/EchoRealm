@@ -1,11 +1,11 @@
-import { useEffect, useTransition } from "react";
 import { toast } from "react-hot-toast";
 import { useInputValidation } from "6pp";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import socket from "../../../sockets/socket.js";
-import Loading from "../../../utils/ui/Loading.jsx";
+import Loading from "../../../components/Loading.jsx";
 import { sendFriendRequestApi } from "../api/friends.api.js";
 import { useDebouncedSearchResults } from "../../../hooks/useDebouncedSearchResults.js";
 import {
@@ -63,7 +63,7 @@ function FindUsers() {
 
   const viewProfileFunc = (viewProfileUserId) => {
     dispatch(setViewingProfileUserDetails(viewProfileUserId));
-    navigate(`/about/view-profile/${viewProfileUserId}`);
+    navigate(`/profile/view/${viewProfileUserId}`);
   };
 
   if (isPending) return <Loading />;

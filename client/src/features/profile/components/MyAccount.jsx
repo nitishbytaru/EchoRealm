@@ -3,7 +3,7 @@ import { useTransition } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import Loading from "../../../utils/ui/Loading.jsx";
+import Loading from "../../../components/Loading.jsx";
 import { deleteMyAccountApi } from "../api/user.api.js";
 import { setIsLoggedIn, setUser } from "../../../app/slices/auth.slice.js";
 import { handleDeleteAllEchoLinkApi } from "../../echoLink/api/echo_link.api.js";

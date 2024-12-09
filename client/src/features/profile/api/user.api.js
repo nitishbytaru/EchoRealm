@@ -14,7 +14,7 @@ export const fetchMostLikedMumbleWithLikesAndFriendsApi = async (userId) => {
 
 export const searchUserByIdApi = async (userId) => {
   try {
-    return await axios.get(`${API_URL}/search-user/${userId}`);
+    return await axios.get(`${API_URL}/search/${userId}`);
   } catch (error) {
     console.error("Error searching users:", error);
     return error;
@@ -23,7 +23,7 @@ export const searchUserByIdApi = async (userId) => {
 
 export const searchUsersApi = async (username) => {
   try {
-    return await axios.get(`${API_URL}/search-by/${username}`);
+    return await axios.get(`${API_URL}/search/${username}`);
   } catch (error) {
     console.error("Error searching users:", error);
     return error;
@@ -32,7 +32,7 @@ export const searchUsersApi = async (username) => {
 
 export const getUsersWithMumbles = async (userId) => {
   try {
-    return await axios.get(`${API_URL}/user/${userId}/mumbles`);
+    return await axios.get(`${API_URL}/user/${userId}`);
   } catch (error) {
     console.log(error);
   }
@@ -40,7 +40,7 @@ export const getUsersWithMumbles = async (userId) => {
 
 export const updateRequestApi = async (userNewData) => {
   try {
-    return await axios.post(`${API_URL}/update-user`, userNewData, {
+    return await axios.patch(`${API_URL}/user`, userNewData, {
       headers: {
         "Content-Type": "application/form-data",
       },
@@ -53,7 +53,7 @@ export const updateRequestApi = async (userNewData) => {
 
 export const deleteMyAccountApi = async () => {
   try {
-    return await axios.delete(`${API_URL}/delete-account`);
+    return await axios.delete(`${API_URL}/account`);
   } catch (error) {
     console.log(error);
   }

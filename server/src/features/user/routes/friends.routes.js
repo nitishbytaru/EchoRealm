@@ -14,12 +14,12 @@ const router = Router();
 
 //authentication middleware
 router.use(isAuthenticated);
-router.route("/requests/:senderId").get(sendFriendRequest);
+router.route("/requests/:senderId").patch(sendFriendRequest);
 router.route("/requests").get(getMyFriendRequests);
-router.route("/list").get(getMyFriendList);
+router.route("/friends").get(getMyFriendList);
 
 router.route("/blockedUsers").get(getBlockedUsers);
-router.route("/blockedUsers/unblock/:userId").get(unBlockUser);
+router.route("/blockedUsers/unblock/:userId").patch(unBlockUser);
 
 router.route("/requests").put(handleFriendRequest);
 router.route("/remove-or-block").put(removeOrBlockMyFriend);
