@@ -18,7 +18,7 @@ router
   .route("/mumble/:userId/likes-friends")
   .get(getMostLikedMumbleWithLikesAndFriends);
 router.route("/search/:userId").get(searchUserById);
-router.route("/search/:username").get(searchUsers);
+router.route("/search/username/:username").get(searchUsers);
 router.route("/user/:userId").get(getUsersWithMumbles);
 router
   .route("/user")

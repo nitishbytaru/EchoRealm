@@ -121,7 +121,7 @@ function CreateMumble() {
                         key={searchResultUser?.user?._id}
                         onClick={() =>
                           navigate(
-                            `/create-Mumble/${searchResultUser?.user?._id}`
+                            `/mumbles/send/${searchResultUser?.user?._id}`
                           )
                         }
                       >

@@ -1,11 +1,11 @@
 import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
-import { useState, Suspense, useTransition } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
+import { useState, Suspense, useTransition } from "react";
 
-import Loading from "../utils/ui/Loading.jsx";
+import Loading from "../components/Loading.jsx";
 import { loginApi, registerApi } from "../api/auth.api.js";
 import { setIsLoggedIn, setUser } from "../app/slices/auth.slice.js";
 

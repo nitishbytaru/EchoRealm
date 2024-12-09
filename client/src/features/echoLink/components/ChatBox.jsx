@@ -1,11 +1,10 @@
 import moment from "moment";
-import toast from "react-hot-toast";
-import { useEffect, useState, useTransition } from "react";
+import toast, { LoaderIcon } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useState, useTransition } from "react";
 
 import socket from "../../../sockets/socket.js";
-import Loading from "../../../components/Loading.jsx";
 import MessageBar from "../../../components/MessageBar.jsx";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
 import { searchUserByIdApi } from "../../profile/api/user.api.js";
@@ -43,9 +42,9 @@ function ChatBox() {
 
   const messagesEndRef = useAutoScroll(privateMessages);
 
-  const [echoLinkMessageData, setEchoLinkMessageData] = useState(null);
   const [selectedUser, setSelecedUser] = useState(null);
   const uniqueChatRoom = createUniquechatRoom(user?._id, recieverId);
+  const [echoLinkMessageData, setEchoLinkMessageData] = useState(null);
 
   const [isPending, startTransition] = useTransition();
 
@@ -97,39 +96,37 @@ function ChatBox() {
     };
   }, [dispatch, recieverId, user._id]);
 
-  useEffect(() => {
-    if (echoLinkMessageData && !echoLinkMessageData.has("receiver")) {
-      echoLinkMessageData.append("receiver", recieverId);
-    }
-
-    const sendMessage = async () => {
-      try {
+  const sendMessage = useCallback(() => {
+    try {
+      startTransition(async () => {
         if (!echoLinkMessageData) return;
 
         const response = selectedUser?.groupName
           ? await sendGroupChatMessageApi(echoLinkMessageData)
           : await sendEchoLinkMessageApi(echoLinkMessageData);
 
-        const latestMessage = selectedUser?.groupName
-          ? response?.data?.latestMessage
-          : response?.data?.receiverData?.latestMessage;
-
-        dispatch(addPrivateMessage(latestMessage));
+        if (response.response) {
+          return toast.error(response.response.data.message);
+        }
 
         if (!selectedUser?.groupName) {
           dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
         }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setEchoLinkMessageData(null);
-      }
-    };
+      });
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      setEchoLinkMessageData(null);
+    }
+  }, [dispatch, echoLinkMessageData, selectedUser?.groupName]);
 
-    startTransition(() => {
-      sendMessage();
-    });
-  }, [dispatch, echoLinkMessageData, recieverId, selectedUser?.groupName]);
+  useEffect(() => {
+    if (echoLinkMessageData && !echoLinkMessageData.has("receiver")) {
+      echoLinkMessageData.append("receiver", recieverId);
+    }
+
+    if (echoLinkMessageData) sendMessage();
+  }, [echoLinkMessageData, recieverId, sendMessage]);
 
   const blockSender = () => {
     const senderId = recieverId;
@@ -180,8 +177,6 @@ function ChatBox() {
       toast.error("Failed to delete the chat room.");
     }
   };
-
-  if (isPending) return <Loading />;
 
   return (
     <>
@@ -294,7 +289,14 @@ function ChatBox() {
           </div>
 
           {/* Message bar at the bottom */}
-          <MessageBar setMessageData={setEchoLinkMessageData} />
+
+          {isPending ? (
+            <div className="w-full flex justify-center items-center">
+              <LoaderIcon style={{ width: "40px", height: "40px" }} />
+            </div>
+          ) : (
+            <MessageBar setMessageData={setEchoLinkMessageData} />
+          )}
         </div>
       )}
     </>

@@ -27,7 +27,7 @@ function MumbleIcon() {
             {isLoggedIn ? (
               <div className="w-full mt-2 sm:mt-4 flex">
                 <Link
-                  to="/listen-Mumble"
+                  to="/mumbles/read"
                   className="btn btn-sm sm:btn-lg bg-base-300 rounded-lg w-full text-xs sm:text-sm"
                   onClick={() => document.getElementById("my_modal_1").close()}
                 >
@@ -38,7 +38,7 @@ function MumbleIcon() {
             ) : null}
             <div className="w-full mt-2 sm:mt-4 flex">
               <Link
-                to="/create-Mumble"
+                to="/mumbles/send"
                 className="btn btn-sm sm:btn-lg bg-base-300 rounded-lg w-full text-xs sm:text-sm"
                 onClick={() => document.getElementById("my_modal_1").close()}
               >
