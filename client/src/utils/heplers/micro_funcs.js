@@ -7,6 +7,7 @@ import {
 } from "../../features/echoLink/api/echo_link.api";
 import {
   removeFromChatRoomsWithUnreadMessages,
+  setPaginationDetails,
   setPrivateMessages,
 } from "../../features/echoLink/slices/echo_link.slice.js";
 
@@ -44,7 +45,12 @@ export const handleToggle = (e, dispatch, setTheme, setIsChecked) => {
 
 // This function handles the room select i.e., if you select a user then it creates
 // a unique room Id and fetches the any previous messages from that room
-export const handleRoomSelect = async (dispatch, recieverId, user) => {
+export const handleRoomSelect = async (
+  dispatch,
+  recieverId,
+  user,
+  page = 1
+) => {
   const groupResponse = await getGroupChatDetailsApi(recieverId);
   const groupDetails = groupResponse?.data?.groupDetails;
 
@@ -54,15 +60,26 @@ export const handleRoomSelect = async (dispatch, recieverId, user) => {
 
     dispatch(setPrivateMessages(messages));
   } else {
-    //here logic for the joining of the private chat and the above code is for groupchat
-
     const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
 
-    socket.emit("joinEchoLink", uniqueRoomId);
-    dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
+    // Initial room join
+    if (page === 1) {
+      socket.emit("joinEchoLink", uniqueRoomId);
+      dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
+    }
 
-    const response = await getPrivateMessagesApi(uniqueRoomId);
-    dispatch(setPrivateMessages(response?.data?.privateMessages?.messages));
+    const response = await getPrivateMessagesApi(uniqueRoomId, page);
+    if (response?.data?.messages) {
+      dispatch(setPrivateMessages(response.data.messages));
+
+      dispatch(
+        setPaginationDetails({
+          roomId: uniqueRoomId,
+          hasMoreMessages: response.data.hasMoreMessages,
+          currentPage: page,
+        })
+      );
+    }
   }
 };
 

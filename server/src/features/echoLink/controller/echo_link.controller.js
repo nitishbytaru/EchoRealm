@@ -194,6 +194,7 @@ export const searchEchoLinkFriends = asyncHandler(async (req, res) => {
 
 export const getPrivateMessages = asyncHandler(async (req, res) => {
   const { roomId } = req.params;
+  const { page = 1, limit = 7 } = req.query;
 
   if (!roomId) {
     res
@@ -203,9 +204,32 @@ export const getPrivateMessages = asyncHandler(async (req, res) => {
 
   const privateMessages = await EchoLink.findOne({ uniqueChatId: roomId });
 
-  res.status(203).json({
-    message: "Private messages retrieved successfully",
-    privateMessages,
+  if (!privateMessages || !privateMessages.messages.length) {
+    return res
+      .status(404)
+      .json({ message: "No messages found for this chat room" });
+  }
+
+  const totalMessages = privateMessages.messages.length;
+  const startIndex = Math.max(totalMessages - page * limit, 0);
+  const endIndex = Math.max(totalMessages - (page - 1) * limit, 0);
+
+  const paginatedMessages = privateMessages.messages.slice(
+    startIndex,
+    endIndex
+  );
+
+  if (!privateMessages) {
+    return res.status(404).json({ message: "No messages found" });
+  }
+
+
+  res.status(200).json({
+    message: "Messages retrieved successfully",
+    messages: paginatedMessages,
+    totalMessages,
+    currentPage: parseInt(page, 10),
+    hasMoreMessages: startIndex > 0,
   });
 });
 

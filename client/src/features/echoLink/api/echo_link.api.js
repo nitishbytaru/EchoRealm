@@ -25,9 +25,15 @@ export const getMyPrivateFriendsApi = async () => {
   }
 };
 
-export const getPrivateMessagesApi = async (uniqueChatId) => {
+export const getPrivateMessagesApi = async (
+  uniqueChatId,
+  page = 1,
+  limit = 7
+) => {
   try {
-    return await axios.get(`${API_URL}/messages/${uniqueChatId}`);
+    return await axios.get(
+      `${API_URL}/messages/${uniqueChatId}?page=${page}&limit=${limit}`
+    );
   } catch (error) {
     console.log(error);
     return error;

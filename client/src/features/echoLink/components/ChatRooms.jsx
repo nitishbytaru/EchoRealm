@@ -24,9 +24,9 @@ import {
 } from "../../../utils/heplers/micro_funcs.js";
 
 function ChatRooms() {
-  const { recieverId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { recieverId } = useParams();
 
   const { user } = useSelector((state) => state.auth);
   const { myPrivateChatRooms } = useSelector((state) => state.echoLink);

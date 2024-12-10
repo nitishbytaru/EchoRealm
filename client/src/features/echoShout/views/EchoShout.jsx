@@ -1,7 +1,8 @@
 import moment from "moment";
 import { useInputValidation } from "6pp";
-import { useEffect, useState, useTransition } from "react";
+import { LoaderIcon } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState, useTransition } from "react";
 
 import socket from "../../../sockets/socket.js";
 import MessageBar from "../../../components/MessageBar.jsx";
@@ -13,7 +14,6 @@ import {
   addEchoShoutMessage,
   setEchoShoutMessages,
 } from "../slices/echo_shout.slice.js";
-import { LoaderIcon } from "react-hot-toast";
 
 function EchoShout() {
   const dispatch = useDispatch();

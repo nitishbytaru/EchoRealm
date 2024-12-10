@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   privateMessages: [],
+  pagination: {},
   myPrivateChatRooms: [],
   newUnreadMessages: 0,
   chatRoomsWithUnreadMessages: [],
@@ -83,6 +84,13 @@ const echoLinkSlice = createSlice({
         }
       }
     },
+    addOlderPrivateMessages(state, action) {
+      state.privateMessages = [...action.payload, ...state.privateMessages];
+    },
+    setPaginationDetails(state, action) {
+      const { roomId, hasMoreMessages, currentPage } = action.payload;
+      state.pagination[roomId] = { hasMoreMessages, currentPage };
+    },
   },
 });
 export const {
@@ -94,5 +102,7 @@ export const {
   addToChatRoomsWithUnreadMessages,
   removeFromChatRoomsWithUnreadMessages,
   removeFromMyPrivateChatRooms,
+  addOlderPrivateMessages,
+  setPaginationDetails,
 } = echoLinkSlice.actions;
 export default echoLinkSlice.reducer;

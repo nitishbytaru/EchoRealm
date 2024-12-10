@@ -47,6 +47,7 @@ function NavBar() {
     };
   }, [dispatch]);
 
+  //to set the theme
   useEffect(() => {
     dispatch(setTheme(theme));
     document.documentElement.setAttribute("data-theme", theme);

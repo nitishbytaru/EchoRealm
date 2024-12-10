@@ -1,4 +1,4 @@
-import moment from "moment";
+/* eslint-disable react/prop-types */
 import toast, { LoaderIcon } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 
 import socket from "../../../sockets/socket.js";
 import MessageBar from "../../../components/MessageBar.jsx";
+import LoadingSpinner from "../../../components/LoadingSpinner.jsx";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
 import { searchUserByIdApi } from "../../profile/api/user.api.js";
 import { handleRemoveOrBlockMyFriendApi } from "../../profile/api/friends.api.js";
@@ -31,8 +32,14 @@ import {
   createUniquechatRoom,
   markAsRead,
 } from "../../../utils/heplers/micro_funcs.js";
+import MessageBubble from "./MessageBubble.jsx";
 
-function ChatBox() {
+function ChatBox({
+  scrollRef,
+  shouldScrollToBottom,
+  setShouldScrollToBottom,
+  gettingOldMessages,
+}) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { recieverId } = useParams();
@@ -40,13 +47,37 @@ function ChatBox() {
   const { user } = useSelector((state) => state.auth);
   const { privateMessages } = useSelector((state) => state.echoLink);
 
-  const messagesEndRef = useAutoScroll(privateMessages);
+  const messagesEndRef = useAutoScroll(privateMessages, shouldScrollToBottom);
 
   const [selectedUser, setSelecedUser] = useState(null);
   const uniqueChatRoom = createUniquechatRoom(user?._id, recieverId);
   const [echoLinkMessageData, setEchoLinkMessageData] = useState(null);
 
   const [isPending, startTransition] = useTransition();
+
+  const sendMessage = useCallback(() => {
+    try {
+      startTransition(async () => {
+        if (!echoLinkMessageData) return;
+
+        const response = selectedUser?.groupName
+          ? await sendGroupChatMessageApi(echoLinkMessageData)
+          : await sendEchoLinkMessageApi(echoLinkMessageData);
+
+        if (response.response) {
+          return toast.error(response.response.data.message);
+        }
+
+        if (!selectedUser?.groupName) {
+          dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
+        }
+      });
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      setEchoLinkMessageData(null);
+    }
+  }, [dispatch, echoLinkMessageData, selectedUser?.groupName]);
 
   useEffect(() => {
     const getRecieverDataByIdFunc = async () => {
@@ -81,6 +112,7 @@ function ChatBox() {
 
       dispatch(addToMyPrivateChatRooms(latestEchoLinkMessage));
       dispatch(addPrivateMessage(latestMessage));
+      setShouldScrollToBottom(true);
     };
 
     const handleNewGroupChatMessage = (groupChatMessage) => {
@@ -94,31 +126,7 @@ function ChatBox() {
       socket.off("send_latest_echoLink_message");
       socket.off("new_groupChat_Message");
     };
-  }, [dispatch, recieverId, user._id]);
-
-  const sendMessage = useCallback(() => {
-    try {
-      startTransition(async () => {
-        if (!echoLinkMessageData) return;
-
-        const response = selectedUser?.groupName
-          ? await sendGroupChatMessageApi(echoLinkMessageData)
-          : await sendEchoLinkMessageApi(echoLinkMessageData);
-
-        if (response.response) {
-          return toast.error(response.response.data.message);
-        }
-
-        if (!selectedUser?.groupName) {
-          dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
-        }
-      });
-    } catch (error) {
-      console.error("Error sending message:", error);
-    } finally {
-      setEchoLinkMessageData(null);
-    }
-  }, [dispatch, echoLinkMessageData, selectedUser?.groupName]);
+  }, [dispatch, recieverId, setShouldScrollToBottom, user._id]);
 
   useEffect(() => {
     if (echoLinkMessageData && !echoLinkMessageData.has("receiver")) {
@@ -252,44 +260,26 @@ function ChatBox() {
           {/* Chat area */}
           <div className="flex-1 overflow-y-auto bg-base-100 mt-2 p-2 rounded-xl">
             <div className="h-full">
-              <div className="flex-1 overflow-y-auto">
-                {privateMessages?.map((messages, index) => (
-                  <div
-                    key={index}
-                    className={`chat ${
-                      messages?.sender !== user?._id ? "chat-start" : "chat-end"
-                    }`}
-                  >
-                    <div className="chat-bubble ">
-                      {/* {console.log(messages)} */}
-
-                      {messages?.attachments?.url ? null : (
-                        <img
-                          src={messages?.attachments[0]?.url}
-                          alt=""
-                          className={`${
-                            messages?.attachments[0]?.url
-                              ? "w-72 h-40 object-cover rounded-lg mb-2"
-                              : ""
-                          }`}
-                        />
-                      )}
-                      {messages?.message}
-                    </div>
-                    <div className="chat-footer opacity-50 mt-1">
-                      <time className="text-xs opacity-50">
-                        {moment(messages?.createdAt).fromNow()}
-                      </time>
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} /> {/* Reference for auto-scroll */}
+              <div className="flex-1 overflow-y-auto flex-col">
+                <div
+                  className="sm:max-h-[450px] max-h-[400px] overflow-y-auto"
+                  ref={scrollRef}
+                >
+                  {gettingOldMessages && <LoadingSpinner />}
+                  {privateMessages?.map((messages, index) => (
+                    <MessageBubble
+                      key={index}
+                      messages={messages}
+                      user={user}
+                    />
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
               </div>
             </div>
           </div>
 
           {/* Message bar at the bottom */}
-
           {isPending ? (
             <div className="w-full flex justify-center items-center">
               <LoaderIcon style={{ width: "40px", height: "40px" }} />
