@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+  pagination: {},
   messages: [],
 };
 
@@ -14,9 +15,20 @@ const echoShoutSlice = createSlice({
     setEchoShoutMessages(state, action) {
       state.messages = action.payload;
     },
+    addOlderShouts(state, action) {
+      state.messages = [...action.payload, ...state.messages];
+    },
+    setPaginationDetails(state, action) {
+      const { hasMoreMessages, currentPage } = action.payload;
+      state.pagination = { hasMoreMessages, currentPage };
+    },
   },
 });
 
-export const { addEchoShoutMessage, setEchoShoutMessages } =
-  echoShoutSlice.actions;
+export const {
+  addEchoShoutMessage,
+  setEchoShoutMessages,
+  addOlderShouts,
+  setPaginationDetails,
+} = echoShoutSlice.actions;
 export default echoShoutSlice.reducer;

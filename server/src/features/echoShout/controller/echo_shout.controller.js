@@ -1,5 +1,3 @@
-// echoShout.controller.js
-
 import { io } from "../../../index.js";
 import { EchoShout } from "../models/echo_shout.model.js";
 import { User } from "../../user/models/user.model.js";
@@ -7,12 +5,26 @@ import { asyncHandler } from "../../../utils/async_handler.js";
 import { uploadToCloudinary } from "../../../config/cloudinary/cloudinary.js";
 
 export const getMessages = asyncHandler(async (req, res) => {
-  const messages = await EchoShout.find()
-    .populate("sender", "username")
-    .populate("mentions", "username");
+  const { page = 1, limit = 7 } = req.query;
+  const messages = await EchoShout.find();
 
-  res.status(206).json({ messages });
+  console.log(messages);
+
+  const totalMessages = messages.length;
+  const startIndex = Math.max(totalMessages - page * limit, 0);
+  const endIndex = Math.max(totalMessages - (page - 1) * limit, 0);
+
+  const paginatedMessages = messages.slice(startIndex, endIndex);
+
+  res.status(200).json({
+    message: "Messages retrieved successfully",
+    messages: paginatedMessages,
+    totalMessages,
+    currentPage: parseInt(page, 10),
+    hasMoreMessages: startIndex > 0,
+  });
 });
+
 export const sendMessage = asyncHandler(async (req, res) => {
   let attachments = null;
   let { message, mentions } = req.body;

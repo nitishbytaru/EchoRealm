@@ -243,7 +243,7 @@ function ListenMumble() {
                               className="btn m-2"
                               onClick={() =>
                                 navigate(
-                                  `/echo-link/${Mumble?.sender?.senderId}`
+                                  `/links/${Mumble?.sender?.senderId}`
                                 )
                               }
                             >

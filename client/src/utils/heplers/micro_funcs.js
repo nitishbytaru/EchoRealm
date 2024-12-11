@@ -1,15 +1,5 @@
-import socket from "../../sockets/socket";
 import { sendEchoShoutApi } from "../../features/echoShout/api/echo_shout.api.js";
-import {
-  getPrivateMessagesApi,
-  markLatestMessageAsReadApi,
-  getGroupChatDetailsApi,
-} from "../../features/echoLink/api/echo_link.api";
-import {
-  removeFromChatRoomsWithUnreadMessages,
-  setPaginationDetails,
-  setPrivateMessages,
-} from "../../features/echoLink/slices/echo_link.slice.js";
+import { markLatestMessageAsReadApi } from "../../features/echoLink/api/echo_link.api";
 
 export const handleKeyPress = (e, executableFunction) => {
   if (e.key === "Enter" && !e.shiftKey) {
@@ -43,47 +33,6 @@ export const handleToggle = (e, dispatch, setTheme, setIsChecked) => {
   }
 };
 
-// This function handles the room select i.e., if you select a user then it creates
-// a unique room Id and fetches the any previous messages from that room
-export const handleRoomSelect = async (
-  dispatch,
-  recieverId,
-  user,
-  page = 1
-) => {
-  const groupResponse = await getGroupChatDetailsApi(recieverId);
-  const groupDetails = groupResponse?.data?.groupDetails;
-
-  if (groupDetails) {
-    const { _id, messages } = groupDetails;
-    socket.emit("joinGroupChat", _id);
-
-    dispatch(setPrivateMessages(messages));
-  } else {
-    const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
-
-    // Initial room join
-    if (page === 1) {
-      socket.emit("joinEchoLink", uniqueRoomId);
-      dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
-    }
-
-    const response = await getPrivateMessagesApi(uniqueRoomId, page);
-    if (response?.data?.messages) {
-      dispatch(setPrivateMessages(response.data.messages));
-
-      dispatch(
-        setPaginationDetails({
-          roomId: uniqueRoomId,
-          hasMoreMessages: response.data.hasMoreMessages,
-          currentPage: page,
-        })
-      );
-    }
-  }
-};
-
-//this sets the message as read
 export const markAsRead = async (
   dispatch,
   setLatestMessageAsRead,
@@ -109,7 +58,8 @@ export const sendEchoShoutMessage = async (
   mentions,
   echoShoutMessageData,
   setMentions,
-  setEchoShoutMessageData
+  setEchoShoutMessageData,
+  setIsUploading
 ) => {
   setSelectSearchBar(false);
   if (mentions.length > 0) {
@@ -123,5 +73,6 @@ export const sendEchoShoutMessage = async (
   } finally {
     setMentions([]);
     setEchoShoutMessageData("");
+    setIsUploading(false);
   }
 };

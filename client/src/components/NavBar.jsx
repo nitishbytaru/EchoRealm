@@ -127,7 +127,7 @@ function NavBar() {
               <Suspense fallback={<div>Loading...</div>}>
                 <div tabIndex={0} role="button" className="rounded-btn">
                   <label className="btn-circle avatar items-center justify-center sm:mr-2">
-                    <Link to={"profile"} className="btn sm:btn-ghost">
+                    <Link to={"profile/mumbles"} className="btn sm:btn-ghost">
                       <MenuIcon sx={{ fontSize: "30px" }} />
                     </Link>
                   </label>

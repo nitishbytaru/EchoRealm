@@ -8,7 +8,9 @@ import socket from "../../../sockets/socket.js";
 import Loading from "../../../components/Loading.jsx";
 import { MoreVertSharpIcon } from "../../../utils/icons/export_icons.js";
 import {
+  getGroupChatDetailsApi,
   getMyPrivateFriendsApi,
+  getPrivateMessagesApi,
   searchEchoLinkFriendsApi,
 } from "../api/echo_link.api.js";
 import {
@@ -16,9 +18,12 @@ import {
   setLatestMessageAsRead,
   addToChatRoomsWithUnreadMessages,
   addToMyPrivateChatRooms,
+  setPrivateMessages,
+  setPaginationDetails,
+  removeFromChatRoomsWithUnreadMessages,
 } from "../slices/echo_link.slice.js";
 import {
-  handleRoomSelect,
+  createUniquechatRoom,
   markAsRead,
   truncateMessage,
 } from "../../../utils/heplers/micro_funcs.js";
@@ -108,6 +113,41 @@ function ChatRooms() {
     // It cancels the setTimeout if search.value changes before the 300 ms delay completes, avoiding unnecessary searchUsers calls.
     // This helps make sure only the latest input triggers the search, effectively debouncing it.
   }, [search.value, user._id]);
+
+  const handleRoomSelect = async (dispatch, recieverId, user, page = 1) => {
+    const groupResponse = await getGroupChatDetailsApi(recieverId);
+    const groupDetails = groupResponse?.data?.groupDetails;
+
+    dispatch(setPrivateMessages([]));
+
+    if (groupDetails) {
+      const { _id, messages } = groupDetails;
+      socket.emit("joinGroupChat", _id);
+
+      dispatch(setPrivateMessages(messages));
+    } else {
+      const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
+
+      // Initial room join
+      if (page === 1) {
+        socket.emit("joinEchoLink", uniqueRoomId);
+        dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
+      }
+
+      const response = await getPrivateMessagesApi(uniqueRoomId, page);
+      if (response?.data?.messages) {
+        dispatch(setPrivateMessages(response.data.messages));
+
+        dispatch(
+          setPaginationDetails({
+            roomId: uniqueRoomId,
+            hasMoreMessages: response.data.hasMoreMessages,
+            currentPage: page,
+          })
+        );
+      }
+    }
+  };
 
   if (isPending) return <Loading />;
 

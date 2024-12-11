@@ -1,19 +1,20 @@
 /* eslint-disable react/prop-types */
 import toast, { LoaderIcon } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState, useTransition } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useCallback, useEffect, useState, useTransition } from "react";
 
 import socket from "../../../sockets/socket.js";
 import MessageBar from "../../../components/MessageBar.jsx";
-import LoadingSpinner from "../../../components/LoadingSpinner.jsx";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
 import { searchUserByIdApi } from "../../profile/api/user.api.js";
+import LoadingSpinner from "../../../components/LoadingSpinner.jsx";
 import { handleRemoveOrBlockMyFriendApi } from "../../profile/api/friends.api.js";
 import {
   clearChatApi,
   deleteChatRoomApi,
   getGroupChatDetailsApi,
+  getPrivateMessagesApi,
   sendEchoLinkMessageApi,
   sendGroupChatMessageApi,
 } from "../api/echo_link.api.js";
@@ -54,30 +55,6 @@ function ChatBox({
   const [echoLinkMessageData, setEchoLinkMessageData] = useState(null);
 
   const [isPending, startTransition] = useTransition();
-
-  const sendMessage = useCallback(() => {
-    try {
-      startTransition(async () => {
-        if (!echoLinkMessageData) return;
-
-        const response = selectedUser?.groupName
-          ? await sendGroupChatMessageApi(echoLinkMessageData)
-          : await sendEchoLinkMessageApi(echoLinkMessageData);
-
-        if (response.response) {
-          return toast.error(response.response.data.message);
-        }
-
-        if (!selectedUser?.groupName) {
-          dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
-        }
-      });
-    } catch (error) {
-      console.error("Error sending message:", error);
-    } finally {
-      setEchoLinkMessageData(null);
-    }
-  }, [dispatch, echoLinkMessageData, selectedUser?.groupName]);
 
   useEffect(() => {
     const getRecieverDataByIdFunc = async () => {
@@ -133,8 +110,44 @@ function ChatBox({
       echoLinkMessageData.append("receiver", recieverId);
     }
 
+    const sendMessage = () => {
+      try {
+        startTransition(async () => {
+          if (!echoLinkMessageData) return;
+
+          const response = selectedUser?.groupName
+            ? await sendGroupChatMessageApi(echoLinkMessageData)
+            : await sendEchoLinkMessageApi(echoLinkMessageData);
+
+          if (response.response) {
+            return toast.error(response.response.data.message);
+          }
+
+          if (!selectedUser?.groupName) {
+            dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
+          }
+        });
+      } catch (error) {
+        console.error("Error sending message:", error);
+      } finally {
+        setEchoLinkMessageData(null);
+      }
+    };
+
     if (echoLinkMessageData) sendMessage();
-  }, [echoLinkMessageData, recieverId, sendMessage]);
+  }, [dispatch, echoLinkMessageData, recieverId, selectedUser?.groupName]);
+
+  useEffect(() => {
+    if (recieverId) {
+      const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
+      startTransition(async () => {
+        const response = await getPrivateMessagesApi(uniqueRoomId);
+        if (response?.data?.messages) {
+          dispatch(setPrivateMessages(response.data.messages));
+        }
+      });
+    }
+  }, [dispatch, recieverId, user?._id]);
 
   const blockSender = () => {
     const senderId = recieverId;
@@ -180,6 +193,7 @@ function ChatBox({
           dispatch(removeFromMyPrivateChatRooms(uniqueChatRoom));
         }
       });
+      navigate("/links");
     } catch (error) {
       console.error("Error deleting chat room:", error);
       toast.error("Failed to delete the chat room.");
@@ -237,13 +251,7 @@ function ChatBox({
                     </button>
                   </li>
                   <li>
-                    <button
-                      className="btn"
-                      onClick={() => {
-                        deleteChatRoom();
-                        navigate("/echo-link");
-                      }}
-                    >
+                    <button className="btn" onClick={deleteChatRoom}>
                       Delete ChatRoom
                     </button>
                   </li>

@@ -58,7 +58,13 @@ function App() {
 
   return (
     <Router>
-      <Suspense fallback={<Loading />}>
+      <Suspense
+        fallback={
+          <div className="h-screen w-screen">
+            <Loading />
+          </div>
+        }
+      >
         <Routes>
           {/* Main Layout */}
           <Route path="/" element={<Layout />}>

@@ -206,7 +206,7 @@ export const getPrivateMessages = asyncHandler(async (req, res) => {
 
   if (!privateMessages || !privateMessages.messages.length) {
     return res
-      .status(404)
+      .status(204)
       .json({ message: "No messages found for this chat room" });
   }
 
@@ -218,11 +218,6 @@ export const getPrivateMessages = asyncHandler(async (req, res) => {
     startIndex,
     endIndex
   );
-
-  if (!privateMessages) {
-    return res.status(404).json({ message: "No messages found" });
-  }
-
 
   res.status(200).json({
     message: "Messages retrieved successfully",
