@@ -1,17 +1,17 @@
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
-import { useEffect, useState, useTransition } from "react";
 
-import Loading from "../../../components/Loading.jsx";
 import { addToMyPrivateChatRooms } from "../slices/echo_link.slice.js";
 import {
   createGroupChatApi,
   searchEchoLinkFriendsApi,
 } from "../api/echo_link.api.js";
 
-function GroupChat() {
+// eslint-disable-next-line react/prop-types
+function GroupChat({ isGroupPending, startTransitionGroup }) {
   const dispatch = useDispatch();
 
   const { user, isMobile } = useSelector((state) => state.auth);
@@ -22,8 +22,6 @@ function GroupChat() {
 
   const [groupMembers, setGroupMembers] = useState([]);
   const [searchResults, setSearchResults] = useState(null);
-
-  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -54,29 +52,28 @@ function GroupChat() {
     search.clear();
   }
 
-  const createNewGroup = () => {
-    startTransition(async () => {
-      const formData = new FormData();
-      formData.append("groupName", groupName.value);
-      formData.append("groupProfilePicture", groupProfile.file);
-      formData.append("groupMembers", JSON.stringify(groupMembers));
+  const createNewGroup = async () => {
+    const formData = new FormData();
+    formData.append("groupName", groupName.value);
+    formData.append("groupProfilePicture", groupProfile.file);
+    formData.append("groupMembers", JSON.stringify(groupMembers));
 
-      try {
-        const response = await createGroupChatApi(formData);
-        dispatch(addToMyPrivateChatRooms(response?.data?.newGroupDetails));
-        toast.success("GroupCreated Refresh To access");
-      } catch (error) {
-        console.error("Error creating group:", error);
-        toast.error("Failed to create group. Please try again.");
-      } finally {
-        setGroupMembers([]);
-        groupName.clear();
-        groupProfile.clear();
-      }
-    });
+    try {
+      startTransitionGroup(true);
+      const response = await createGroupChatApi(formData);
+      dispatch(addToMyPrivateChatRooms(response?.data?.newGroupDetails));
+      toast.success("Group Created");
+    } catch (error) {
+      console.error("Error creating group:", error);
+      toast.error("Failed to create group. Please try again.");
+    } finally {
+      startTransitionGroup(false);
+      setGroupMembers([]);
+      groupName.clear();
+      groupProfile.clear();
+    }
   };
 
-  if (isPending) return <Loading />;
   return (
     <dialog id="my_modal_9" className="modal modal-bottom sm:modal-middle">
       <div className="modal-box">
@@ -202,7 +199,9 @@ function GroupChat() {
           className="btn rounded-lg w-full"
           onClick={() => {
             createNewGroup();
-            document.getElementById("my_modal_9").close();
+            if (!isGroupPending) {
+              document.getElementById("my_modal_9").close();
+            }
           }}
         >
           Create New Group

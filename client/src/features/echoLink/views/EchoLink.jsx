@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
-import ChatRooms from "../components/ChatRooms";
 import ChatBox from "../components/ChatBox";
+import ChatRooms from "../components/ChatRooms";
 import { getPrivateMessagesApi } from "../api/echo_link.api";
 import { createUniquechatRoom } from "../../../utils/heplers/micro_funcs";
 import {
@@ -79,6 +79,7 @@ export default function EchoLink() {
           {recieverId ? (
             // Show ChatBox in mobile view if a user is selected
             <div className="h-full bg-base-200 p-4 overflow-auto rounded-box">
+              {console.log(recieverId)}
               <ChatBox
                 scrollRef={scrollRef}
                 shouldScrollToBottom={shouldScrollToBottom}

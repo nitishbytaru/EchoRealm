@@ -1,11 +1,12 @@
-import GroupChat from "./GroupChat.jsx";
 import { useInputValidation } from "6pp";
 import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import GroupChat from "./CreateGroup.jsx";
 import socket from "../../../sockets/socket.js";
 import Loading from "../../../components/Loading.jsx";
+import LoadingSpinner from "../../../components/LoadingSpinner.jsx";
 import { MoreVertSharpIcon } from "../../../utils/icons/export_icons.js";
 import {
   getGroupChatDetailsApi,
@@ -40,6 +41,7 @@ function ChatRooms() {
   const [searchResults, setSearchResults] = useState(null);
 
   const [isPending, startTransition] = useTransition();
+  const [isGroupPending, startTransitionGroup] = useState(false);
 
   useEffect(() => {
     const fetchMyPrivateFriends = async () => {
@@ -109,47 +111,52 @@ function ChatRooms() {
     }, 400);
 
     return () => clearTimeout(delayDebounceFn);
-    //This return function acts as a cleanup function for the useEffect.
-    // It cancels the setTimeout if search.value changes before the 300 ms delay completes, avoiding unnecessary searchUsers calls.
-    // This helps make sure only the latest input triggers the search, effectively debouncing it.
   }, [search.value, user._id]);
 
-  const handleRoomSelect = async (dispatch, recieverId, user, page = 1) => {
+  const joinPrivateChat = async (recieverId, page = 1) => {
+    const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
+
+    // Initial room join
+    if (page === 1) {
+      socket.emit("joinEchoLink", uniqueRoomId);
+      dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
+    }
+
+    const response = await getPrivateMessagesApi(uniqueRoomId, page);
+    if (response?.data?.messages) {
+      dispatch(setPrivateMessages(response.data.messages));
+
+      dispatch(
+        setPaginationDetails({
+          roomId: uniqueRoomId,
+          hasMoreMessages: response.data.hasMoreMessages,
+          currentPage: page,
+        })
+      );
+    }
+  };
+
+  const joinGroupChat = async (recieverId) => {
     const groupResponse = await getGroupChatDetailsApi(recieverId);
     const groupDetails = groupResponse?.data?.groupDetails;
 
     dispatch(setPrivateMessages([]));
 
-    if (groupDetails) {
-      const { _id, messages } = groupDetails;
-      socket.emit("joinGroupChat", _id);
+    const { _id, messages } = groupDetails;
+    socket.emit("joinGroupChat", _id);
 
-      dispatch(setPrivateMessages(messages));
-    } else {
-      const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
-
-      // Initial room join
-      if (page === 1) {
-        socket.emit("joinEchoLink", uniqueRoomId);
-        dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
-      }
-
-      const response = await getPrivateMessagesApi(uniqueRoomId, page);
-      if (response?.data?.messages) {
-        dispatch(setPrivateMessages(response.data.messages));
-
-        dispatch(
-          setPaginationDetails({
-            roomId: uniqueRoomId,
-            hasMoreMessages: response.data.hasMoreMessages,
-            currentPage: page,
-          })
-        );
-      }
-    }
+    dispatch(setPrivateMessages(messages));
   };
 
   if (isPending) return <Loading />;
+  if (isGroupPending) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <LoadingSpinner />
+        <p>Creating Group...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -186,14 +193,18 @@ function ChatRooms() {
                     key={searchResultUser._id}
                     onClick={() => {
                       navigate(`/links/${searchResultUser._id}`);
-                      handleRoomSelect(dispatch, searchResultUser._id, user);
+                      {
+                        searchResultUser?.groupProfile
+                          ? joinGroupChat(searchResultUser._id)
+                          : joinPrivateChat(searchResultUser._id);
+                      }
                       search.clear();
                     }}
                   >
                     <div className="flex items-center gap-2">
                       <img
                         src={searchResultUser?.avatar?.url}
-                        alt=""
+                        alt="searchResultUser.username"
                         className="w-10 h-10 object-cover rounded-full"
                         crossOrigin="anonymous"
                       />
@@ -222,7 +233,10 @@ function ChatRooms() {
           >
             <MoreVertSharpIcon />
           </button>
-          <GroupChat />
+          <GroupChat
+            isGroupPending={isGroupPending}
+            startTransitionGroup={startTransitionGroup}
+          />
         </div>
       </div>
 
@@ -234,7 +248,11 @@ function ChatRooms() {
             key={index}
             onClick={() => {
               navigate(`/links/${receiver._id}`);
-              handleRoomSelect(dispatch, receiver._id, user);
+              {
+                receiver?.groupProfile
+                  ? joinGroupChat(receiver._id)
+                  : joinPrivateChat(receiver._id);
+              }
               if (receiver.latestMessage) {
                 markAsRead(dispatch, setLatestMessageAsRead, receiver);
               }
