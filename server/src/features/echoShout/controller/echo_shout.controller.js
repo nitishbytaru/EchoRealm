@@ -8,8 +8,6 @@ export const getMessages = asyncHandler(async (req, res) => {
   const { page = 1, limit = 7 } = req.query;
   const messages = await EchoShout.find();
 
-  console.log(messages);
-
   const totalMessages = messages.length;
   const startIndex = Math.max(totalMessages - page * limit, 0);
   const endIndex = Math.max(totalMessages - (page - 1) * limit, 0);
