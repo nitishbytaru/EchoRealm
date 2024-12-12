@@ -1,37 +1,35 @@
 /* eslint-disable react/prop-types */
+import { useParams } from "react-router-dom";
 import toast, { LoaderIcon } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useTransition } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 
+import Loading from "../../../components/Loading.jsx";
 import socket from "../../../sockets/socket.js";
-import PrivateChatNav from "./ChatBox/PrivateChatNav.jsx";
+import MessageBubble from "./ChatBox/MessageBubble.jsx";
 import MessageBar from "../../../components/MessageBar.jsx";
+import GroupChatNav from "./ChatBox/NavBars/GroupChatNav.jsx";
 import { useAutoScroll } from "../../../hooks/useAutoScroll.js";
+import PrivateChatNav from "./ChatBox/NavBars/PrivateChatNav.jsx";
 import { searchUserByIdApi } from "../../profile/api/user.api.js";
 import LoadingSpinner from "../../../components/LoadingSpinner.jsx";
-import { handleRemoveOrBlockMyFriendApi } from "../../profile/api/friends.api.js";
 import {
-  clearChatApi,
-  deleteChatRoomApi,
   getGroupChatDetailsApi,
   getPrivateMessagesApi,
   sendEchoLinkMessageApi,
   sendGroupChatMessageApi,
 } from "../api/echo_link.api.js";
-
 import {
   addPrivateMessage,
   addToMyPrivateChatRooms,
-  removeFromMyPrivateChatRooms,
   setLatestMessageAsRead,
   setPrivateMessages,
+  setSelectedChat,
 } from "../slices/echo_link.slice.js";
 import {
   createUniquechatRoom,
   markAsRead,
 } from "../../../utils/heplers/micro_funcs.js";
-import MessageBubble from "./ChatBox/MessageBubble.jsx";
 
 function ChatBox({
   scrollRef,
@@ -40,19 +38,20 @@ function ChatBox({
   gettingOldMessages,
 }) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { recieverId } = useParams();
 
   const { user } = useSelector((state) => state.auth);
-  const { privateMessages } = useSelector((state) => state.echoLink);
+  const { selectedChat, privateMessages } = useSelector(
+    (state) => state.echoLink
+  );
 
   const messagesEndRef = useAutoScroll(privateMessages, shouldScrollToBottom);
 
-  const [selectedUser, setSelecedUser] = useState(null);
-  const uniqueChatRoom = createUniquechatRoom(user?._id, recieverId);
   const [echoLinkMessageData, setEchoLinkMessageData] = useState(null);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPendingOperation, setIsPendingOperation] = useState(false);
+  const [isPendingSendMessage, startTransitionSendMessage] = useTransition();
+  const [isPendingGetMessage, startTransitionGetMessage] = useTransition();
 
   useEffect(() => {
     const getRecieverDataByIdFunc = async () => {
@@ -60,9 +59,9 @@ function ChatBox({
         let response = await searchUserByIdApi(recieverId);
         if (!response?.data?.searchedUser) {
           response = await getGroupChatDetailsApi(recieverId);
-          setSelecedUser(response?.data?.groupDetails);
+          dispatch(setSelectedChat(response?.data?.groupDetails));
         } else {
-          setSelecedUser(response?.data?.searchedUser);
+          dispatch(setSelectedChat(response?.data?.searchedUser));
         }
       } catch (error) {
         console.error("Error fetching receiver data:", error);
@@ -71,11 +70,11 @@ function ChatBox({
     };
 
     if (recieverId) {
-      startTransition(() => {
+      startTransitionGetMessage(() => {
         getRecieverDataByIdFunc();
       });
     }
-  }, [recieverId]);
+  }, [dispatch, recieverId]);
 
   useEffect(() => {
     const handleLatestEchoLinkMessage = (latestEchoLinkMessage) => {
@@ -110,10 +109,10 @@ function ChatBox({
 
     const sendMessage = () => {
       try {
-        startTransition(async () => {
+        startTransitionSendMessage(async () => {
           if (!echoLinkMessageData) return;
 
-          const response = selectedUser?.groupName
+          const response = selectedChat?.groupName
             ? await sendGroupChatMessageApi(echoLinkMessageData)
             : await sendEchoLinkMessageApi(echoLinkMessageData);
 
@@ -121,7 +120,7 @@ function ChatBox({
             return toast.error(response.response.data.message);
           }
 
-          if (!selectedUser?.groupName) {
+          if (!selectedChat?.groupName) {
             dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
           }
         });
@@ -133,70 +132,37 @@ function ChatBox({
     };
 
     if (echoLinkMessageData) sendMessage();
-  }, [dispatch, echoLinkMessageData, recieverId, selectedUser?.groupName]);
+  }, [dispatch, echoLinkMessageData, recieverId, selectedChat?.groupName]);
 
   useEffect(() => {
     if (recieverId) {
       const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
-      startTransition(async () => {
+      startTransitionGetMessage(async () => {
         const response = await getPrivateMessagesApi(uniqueRoomId);
         if (response?.data?.messages) {
           dispatch(setPrivateMessages(response.data.messages));
+        } else {
+          const groupResponse = await getGroupChatDetailsApi(recieverId);
+          const groupDetails = groupResponse?.data?.groupDetails;
+
+          if (groupDetails?._id) {
+            const { _id, messages } = groupDetails;
+            socket.emit("joinGroupChat", _id);
+            dispatch(setPrivateMessages(messages));
+          }
         }
       });
     }
   }, [dispatch, recieverId, user?._id]);
 
-  const blockSender = () => {
-    const senderId = recieverId;
-    try {
-      startTransition(async () => {
-        const response = await handleRemoveOrBlockMyFriendApi({
-          senderId,
-          block: true,
-        });
-
-        if (response?.data) {
-          toast.success(response.data?.message);
-          dispatch(removeFromMyPrivateChatRooms(uniqueChatRoom));
-        }
-      });
-    } catch (error) {
-      console.error("Error blocking sender:", error);
-      toast.error("Failed to block sender.");
-    }
-  };
-
-  const clearChat = () => {
-    try {
-      startTransition(async () => {
-        const response = await clearChatApi(uniqueChatRoom);
-        dispatch(setPrivateMessages([]));
-        if (response?.data?.message) {
-          toast.success(response.data.message);
-        }
-      });
-    } catch (error) {
-      console.error("Error clearing chat:", error);
-      toast.error("Failed to clear the chat.");
-    }
-  };
-
-  const deleteChatRoom = () => {
-    try {
-      startTransition(async () => {
-        const response = await deleteChatRoomApi(uniqueChatRoom);
-        if (response?.data?.message) {
-          toast.success(response.data.message);
-          dispatch(removeFromMyPrivateChatRooms(uniqueChatRoom));
-        }
-      });
-      navigate("/links");
-    } catch (error) {
-      console.error("Error deleting chat room:", error);
-      toast.error("Failed to delete the chat room.");
-    }
-  };
+  if (isPendingGetMessage) return <Loading />;
+  if (isPendingOperation)
+    return (
+      <div className="h-full flex flex-col justify-center items-center">
+        <LoaderIcon style={{ width: "40px", height: "40px" }} />
+        <p>Performing operation</p>
+      </div>
+    );
 
   return (
     <>
@@ -209,12 +175,11 @@ function ChatBox({
       ) : (
         <div className="h-full flex flex-col">
           {/* Navbar with dropdown menu */}
-          <PrivateChatNav
-            blockSender={blockSender}
-            clearChat={clearChat}
-            deleteChatRoom={deleteChatRoom}
-            selectedUser={selectedUser}
-          />
+          {selectedChat?.groupName ? (
+            <GroupChatNav setIsPendingOperation={setIsPendingOperation} />
+          ) : (
+            <PrivateChatNav setIsPendingOperation={setIsPendingOperation} />
+          )}
 
           {/* Chat area */}
           <div className="flex-1 overflow-y-auto bg-base-100 mt-2 p-2 rounded-xl">
@@ -239,7 +204,7 @@ function ChatBox({
           </div>
 
           {/* Message bar at the bottom */}
-          {isPending ? (
+          {isPendingSendMessage ? (
             <div className="w-full flex justify-center items-center">
               <LoaderIcon style={{ width: "40px", height: "40px" }} />
             </div>

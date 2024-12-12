@@ -3,9 +3,10 @@ import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import GroupChat from "./CreateGroup.jsx";
 import socket from "../../../sockets/socket.js";
-import Loading from "../../../components/Loading.jsx";
+import AddToGroup from "./GroupChat/AddToGroup.jsx";
+import CreateGroup from "./GroupChat/CreateGroup.jsx";
+import RemoveFromGroup from "./GroupChat/RemoveFromGroup.jsx";
 import LoadingSpinner from "../../../components/LoadingSpinner.jsx";
 import { MoreVertSharpIcon } from "../../../utils/icons/export_icons.js";
 import {
@@ -35,7 +36,9 @@ function ChatRooms() {
   const { recieverId } = useParams();
 
   const { user } = useSelector((state) => state.auth);
-  const { myPrivateChatRooms } = useSelector((state) => state.echoLink);
+  const { myPrivateChatRooms, selectedChat } = useSelector(
+    (state) => state.echoLink
+  );
 
   const search = useInputValidation("");
   const [searchResults, setSearchResults] = useState(null);
@@ -148,12 +151,11 @@ function ChatRooms() {
     dispatch(setPrivateMessages(messages));
   };
 
-  if (isPending) return <Loading />;
-  if (isGroupPending) {
+  if (isPending || isGroupPending) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
         <LoadingSpinner />
-        <p>Creating Group...</p>
+        {isGroupPending && <p>Creating Group...</p>}
       </div>
     );
   }
@@ -233,10 +235,16 @@ function ChatRooms() {
           >
             <MoreVertSharpIcon />
           </button>
-          <GroupChat
+          <CreateGroup
             isGroupPending={isGroupPending}
             startTransitionGroup={startTransitionGroup}
           />
+          {selectedChat?.groupName && (
+            <>
+              <AddToGroup />
+              <RemoveFromGroup />
+            </>
+          )}
         </div>
       </div>
 

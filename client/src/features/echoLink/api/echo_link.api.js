@@ -136,3 +136,33 @@ export const sendGroupChatMessageApi = async (echoLinkMessage) => {
     return error;
   }
 };
+
+export const leaveFromGroupChatApi = async (groupId) => {
+  try {
+    return await axios.patch(`${API_URL}/groupChat/${groupId}/leave`, {
+      headers: {
+        "Content-Type": "application/form-data",
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const updateMembersInGroupApi = async ({ groupId, groupMembers }) => {
+  try {
+    return await axios.patch(
+      `${API_URL}/groupChat/${groupId}/members`,
+      groupMembers,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};

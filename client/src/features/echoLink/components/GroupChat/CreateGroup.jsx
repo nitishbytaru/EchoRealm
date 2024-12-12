@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useFileHandler, useInputValidation } from "6pp";
 
-import { addToMyPrivateChatRooms } from "../slices/echo_link.slice.js";
+import { addToMyPrivateChatRooms } from "../../slices/echo_link.slice.js";
 import {
   createGroupChatApi,
   searchEchoLinkFriendsApi,
-} from "../api/echo_link.api.js";
+} from "../../api/echo_link.api.js";
 
 // eslint-disable-next-line react/prop-types
 function GroupChat({ isGroupPending, startTransitionGroup }) {

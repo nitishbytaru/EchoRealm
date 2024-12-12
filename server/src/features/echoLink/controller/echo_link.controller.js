@@ -312,7 +312,15 @@ export const createNewGroupChat = asyncHandler(async (req, res) => {
 export const getGroupChatDetails = asyncHandler(async (req, res) => {
   const { groupId } = req.params;
 
-  const groupDetails = await GroupChatRoom.findById(groupId);
+  const groupDetails = await GroupChatRoom.findById(groupId)
+    .populate({
+      path: "groupChatRoomMembers",
+      select: "username",
+    })
+    .populate({
+      path: "admin",
+      select: "username",
+    });
 
   res.status(209).json({ message: "group details sent", groupDetails });
 });
@@ -366,4 +374,42 @@ export const sendGroupChatMessage = asyncHandler(async (req, res) => {
   return res
     .status(202)
     .json({ message: "message sent succesfully", latestMessage });
+});
+
+export const leaveGroupChat = asyncHandler(async (req, res) => {
+  const { groupId } = req.params;
+  const userId = req.user;
+
+  const groupChatRoom = await GroupChatRoom.updateOne(
+    { _id: groupId },
+    { $pull: { groupChatRoomMembers: userId } }
+  );
+
+  res.status(204).json({ message: "Left room successfully" });
+});
+
+export const updateMembersInGroup = asyncHandler(async (req, res) => {
+  const { groupId } = req.params;
+  let members = req.body;
+
+  members = members.map((member) => member._id || member.id);
+
+  const groupDetails = await GroupChatRoom.findByIdAndUpdate(
+    groupId,
+    { groupChatRoomMembers: members },
+    { new: true }
+  )
+    .populate({
+      path: "groupChatRoomMembers",
+      select: "username",
+    })
+    .populate({
+      path: "admin",
+      select: "username",
+    });
+
+  res.status(203).json({
+    message: "New group created successfully",
+    newGroupDetails: groupDetails,
+  });
 });

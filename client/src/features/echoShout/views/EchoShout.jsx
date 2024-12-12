@@ -98,8 +98,6 @@ function EchoShout() {
   // Load older messages
   useEffect(() => {
     const loadOlderMessages = async () => {
-      console.log(pagination);
-
       if (!pagination?.hasMoreMessages || loading.current) return;
       console.log("reached top");
       console.log(pagination);
