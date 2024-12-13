@@ -1,4 +1,4 @@
-import { useEffect, useTransition } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -23,11 +23,12 @@ function MyMumbles() {
 
   const { pinnedMumblesInMyProfile } = useSelector((state) => state.echoMumble);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     const func = async () => {
       try {
+        setIsPending(true);
         const response = await getMumblesApi();
         const pinnedMumbles = response?.data?.mumbles?.filter(
           (mumble) => mumble?.pinned === true
@@ -36,29 +37,30 @@ function MyMumbles() {
       } catch (error) {
         console.error("Error fetching pinned mumbles:", error);
         toast.error("Failed to fetch pinned mumbles.");
+      } finally {
+        setIsPending(false);
       }
     };
-    startTransition(() => {
-      func();
-    });
+    func();
   }, [dispatch]);
 
-  const pinMumble = (mumbleId) => {
+  const pinMumble = async (mumbleId) => {
+    setIsPending(true);
     try {
-      startTransition(async () => {
-        const response = await pinMumbleApi(mumbleId);
-        if (response?.data) {
-          const { updatedMumble, message } = response.data;
+      const response = await pinMumbleApi(mumbleId);
+      if (response?.data) {
+        const { updatedMumble, message } = response.data;
 
-          dispatch(updateMumbles(updatedMumble));
-          dispatch(removePinnedMumble(updatedMumble?._id));
+        dispatch(updateMumbles(updatedMumble));
+        dispatch(removePinnedMumble(updatedMumble?._id));
 
-          toast.success(message);
-        }
-      });
+        toast.success(message);
+      }
     } catch (error) {
       console.error("Error pinning mumble:", error);
       toast.error("Failed to pin the mumble.");
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -77,7 +79,6 @@ function MyMumbles() {
             <div className="card-body">
               <div className="card-actions justify-between">
                 <h2 className="card-title">@{Mumble?.sender?.username}</h2>
-                {/* Open the modal using document.getElementById('ID').showModal() method */}
                 <button
                   onClick={() =>
                     document.getElementById(Mumble?._id).showModal()
@@ -105,7 +106,6 @@ function MyMumbles() {
                     </div>
                     <div className="modal-action">
                       <form method="dialog">
-                        {/* if there is a button in form, it will close the modal */}
                         <button className="btn">Close</button>
                       </form>
                     </div>

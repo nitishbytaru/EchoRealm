@@ -1,4 +1,4 @@
-import { useTransition } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,31 +17,32 @@ function MyFriendRequests() {
 
   const { myFriendRequests } = useSelector((state) => state.user);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   const viewProfileFunc = (viewProfileUserId) => {
     dispatch(setViewingProfileUserDetails(viewProfileUserId));
     navigate(`/about/view-profile/${viewProfileUserId}`);
   };
 
-  const handleFriendRequest = (requestedUserId, willAccepct) => {
+  const handleFriendRequest = async (requestedUserId, willAccepct) => {
     try {
-      startTransition(async () => {
-        const response = await handleFriendRequestApi({
-          requestedUserId,
-          willAccepct,
-        });
-
-        if (willAccepct) {
-          dispatch(addToMyFriendsList(response?.data?.updatedMyFriendRequests));
-        }
-
-        dispatch(removeFromMyFriendRequests(requestedUserId));
-        toast.success(response?.data?.message);
+      setIsPending(true);
+      const response = await handleFriendRequestApi({
+        requestedUserId,
+        willAccepct,
       });
+
+      if (willAccepct) {
+        dispatch(addToMyFriendsList(response?.data?.updatedMyFriendRequests));
+      }
+
+      dispatch(removeFromMyFriendRequests(requestedUserId));
+      toast.success(response?.data?.message);
     } catch (error) {
       console.error("Error handling friend request:", error);
       toast.error("Failed to handle friend request.");
+    } finally {
+      setIsPending(false);
     }
   };
 

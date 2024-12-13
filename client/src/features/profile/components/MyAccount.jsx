@@ -1,5 +1,5 @@
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { useTransition } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -18,7 +18,7 @@ function MyAccount() {
   const dispatch = useDispatch();
   const constantCSS = "btn bg-primary p-2 m-2 rounded-xl sm:text-lg";
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useState(false);
 
   const handleWarningBeforeDelete = (message, func) => {
     toast((t) => (
@@ -46,79 +46,84 @@ function MyAccount() {
     ));
   };
 
-  const deleteAllRecievedMumbles = () => {
+  const deleteAllRecievedMumbles = async () => {
     try {
-      startTransition(async () => {
-        const response = await deleteAllRecievedMumblesApi();
-        if (response?.data?.message) {
-          toast.success(response.data.message);
-        }
-      });
+      startTransition(true);
+      const response = await deleteAllRecievedMumblesApi();
+      if (response?.data?.message) {
+        toast.success(response.data.message);
+      }
     } catch (error) {
       console.error("Error deleting received mumbles:", error);
       toast.error("Failed to delete all received mumbles.");
+    } finally {
+      startTransition(false);
     }
   };
 
-  const deleteAllEchoLink = () => {
+  const deleteAllEchoLink = async () => {
     try {
-      startTransition(async () => {
-        const response = await handleDeleteAllEchoLinkApi();
-        if (response?.data?.message) {
-          toast.success(response.data.message);
-        }
-      });
+      startTransition(true);
+      const response = await handleDeleteAllEchoLinkApi();
+      if (response?.data?.message) {
+        toast.success(response.data.message);
+      }
     } catch (error) {
       console.error("Error deleting all echo links:", error);
       toast.error("Failed to delete all echo links.");
+    } finally {
+      startTransition(false);
     }
   };
 
-  const deleteAllSentMumbles = () => {
+  const deleteAllSentMumbles = async () => {
     try {
-      startTransition(async () => {
-        const response = await deleteAllSentMumblesApi();
-        if (response?.data?.message) {
-          toast.success(response.data.message);
-        }
-      });
+      startTransition(true);
+      const response = await deleteAllSentMumblesApi();
+      if (response?.data?.message) {
+        toast.success(response.data.message);
+      }
     } catch (error) {
       console.error("Error deleting all sent mumbles:", error);
       toast.error("Failed to delete all sent mumbles.");
+    } finally {
+      startTransition(false);
     }
   };
 
-  const deleteAllMessagesInEchoShout = () => {
+  const deleteAllMessagesInEchoShout = async () => {
     try {
-      startTransition(async () => {
-        const response = await deleteAllMessagesInEchoShoutApi();
-        if (response?.data?.message) {
-          toast.success(response.data.message);
-        }
-      });
+      startTransition(true);
+      const response = await deleteAllMessagesInEchoShoutApi();
+      if (response?.data?.message) {
+        toast.success(response.data.message);
+      }
     } catch (error) {
       console.error("Error deleting all messages in EchoShout:", error);
       toast.error("Failed to delete all messages in EchoShout.");
+    } finally {
+      startTransition(false);
     }
   };
 
-  const deleteMyAccount = () => {
+  const deleteMyAccount = async () => {
     try {
-      startTransition(async () => {
-        const response = await deleteMyAccountApi();
-        dispatch(setUser(null));
-        dispatch(setIsLoggedIn(false));
-        localStorage.setItem("allowFetch", false);
+      startTransition(true);
+      const response = await deleteMyAccountApi();
+      dispatch(setUser(null));
+      dispatch(setIsLoggedIn(false));
+      localStorage.setItem("allowFetch", false);
 
-        if (response?.data?.message) {
-          toast.success(response.data.message);
-        }
+      if (response?.data?.message) {
+        toast.success(response.data.message);
+      }
 
-        navigate("/");
-      });
+      navigate("/");
     } catch (error) {
       console.error("Error deleting account:", error);
       toast.error("Failed to delete the account.");
+    } finally {
+      startTransition(false);
     }
   };
 

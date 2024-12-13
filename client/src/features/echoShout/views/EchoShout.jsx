@@ -1,7 +1,7 @@
 import { useInputValidation } from "6pp";
 import { LoaderIcon } from "react-hot-toast";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef, useState, useTransition } from "react";
 
 import socket from "../../../sockets/socket.js";
 import Loading from "../../../components/Loading.jsx";
@@ -23,17 +23,17 @@ function EchoShout() {
   const { isLoggedIn } = useSelector((state) => state.auth);
   const { messages, pagination } = useSelector((state) => state.echoShout);
 
-  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
   const [mentions, setMentions] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [selectSearchBar, setSelectSearchBar] = useState(false);
   const [echoShoutMessageData, setEchoShoutMessageData] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
+  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
-  const shoutScrollRef = useRef(null);
   const loading = useRef(false);
+  const shoutScrollRef = useRef(null);
 
-  const [isFetcthing, startTransitionToFetch] = useTransition();
-  const [gettingOldMessages, startTransitionToGetOldMessages] = useTransition();
+  const [isFetcthing, startTransitionToFetch] = useState(false);
+  const [gettingOldMessages, startTransitionToGetOldMessages] = useState(false);
 
   const search = useInputValidation("");
   let searchResults = useDebouncedSearchResults(search.value);
@@ -56,6 +56,7 @@ function EchoShout() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
+        startTransitionToFetch(true);
         const response = await getEchoShoutsApi();
         dispatch(setEchoShoutMessages(response?.data?.messages || []));
         dispatch(
@@ -67,12 +68,12 @@ function EchoShout() {
         setShouldScrollToBottom(true);
       } catch (error) {
         console.error("Error fetching messages:", error);
+      } finally {
+        startTransitionToFetch(false);
       }
     };
 
-    startTransitionToFetch(() => {
-      fetchMessages();
-    });
+    fetchMessages();
   }, [dispatch]);
 
   // Handle sending new messages
@@ -99,33 +100,29 @@ function EchoShout() {
   useEffect(() => {
     const loadOlderMessages = async () => {
       if (!pagination?.hasMoreMessages || loading.current) return;
-      console.log("reached top");
-      console.log(pagination);
 
-      startTransitionToGetOldMessages(async () => {
-        loading.current = true;
-        const nextPage = (pagination?.currentPage || 1) + 1;
+      loading.current = true;
+      const nextPage = (pagination?.currentPage || 1) + 1;
+      try {
+        startTransitionToGetOldMessages(true);
+        const response = await getEchoShoutsApi(nextPage);
+        if (response?.data?.messages) {
+          dispatch(addOlderShouts(response.data.messages));
+          setShouldScrollToBottom(false);
 
-        try {
-          const response = await getEchoShoutsApi(nextPage);
-
-          if (response?.data?.messages) {
-            dispatch(addOlderShouts(response.data.messages));
-            setShouldScrollToBottom(false);
-
-            dispatch(
-              setPaginationDetails({
-                hasMoreMessages: response.data.hasMoreMessages,
-                currentPage: nextPage,
-              })
-            );
-          }
-        } catch (error) {
-          console.error("Error loading older messages:", error);
-        } finally {
-          loading.current = false;
+          dispatch(
+            setPaginationDetails({
+              hasMoreMessages: response.data.hasMoreMessages,
+              currentPage: nextPage,
+            })
+          );
         }
-      });
+      } catch (error) {
+        console.error("Error loading older messages:", error);
+      } finally {
+        startTransitionToGetOldMessages(false);
+        loading.current = false;
+      }
     };
 
     const scrollElement = shoutScrollRef.current;

@@ -1,9 +1,9 @@
 import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
+import { useInputValidation } from "6pp";
+import { useState, Suspense } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useDispatch, useSelector } from "react-redux";
-import { useFileHandler, useInputValidation } from "6pp";
-import { useState, Suspense, useTransition } from "react";
 
 import Loading from "../components/Loading.jsx";
 import { loginApi, registerApi } from "../api/auth.api.js";
@@ -11,22 +11,19 @@ import { setIsLoggedIn, setUser } from "../app/slices/auth.slice.js";
 
 const Register = () => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isPending, setIsPending] = useState(false);
 
   const dispatch = useDispatch();
-
   const { isMobile } = useSelector((state) => state.auth);
 
-  const [isPending, startTransition] = useTransition();
-
   // Using 6pp package for input data handling
-  const avatar = useFileHandler("single");
   const email = useInputValidation("");
   const username = useInputValidation("");
   const password = useInputValidation("");
 
   const registerApiFunc = async (e) => {
     e.preventDefault();
-    if (!email.value || !username.value || !password.value || !avatar.file) {
+    if (!email.value || !username.value || !password.value) {
       toast.error("All fields are required for registration.");
       return;
     }
@@ -35,7 +32,6 @@ const Register = () => {
       formData.append("username", username.value);
       formData.append("password", password.value);
       formData.append("email", email.value);
-      formData.append("avatar", avatar.file);
 
       const response = await registerApi(formData);
       if (response.data) {
@@ -51,38 +47,37 @@ const Register = () => {
       email.clear();
       username.clear();
       password.clear();
-      avatar.clear();
     }
   };
 
-  const loginApiFunc = (e) => {
+  const loginApiFunc = async (e) => {
     e.preventDefault();
     if (!username.value || !password.value) {
       toast.error("All fields are required for registration.");
       return;
     }
 
-    startTransition(async () => {
-      try {
-        const formData = new FormData();
-        formData.append("username", username.value);
-        formData.append("password", password.value);
+    setIsPending(true);
+    try {
+      const formData = new FormData();
+      formData.append("username", username.value);
+      formData.append("password", password.value);
 
-        const response = await loginApi(formData);
-        if (response?.data) {
-          dispatch(setIsLoggedIn(true));
-          dispatch(setUser(response?.data?.user));
-          localStorage.setItem("allowFetch", true);
-          toast.success(response?.data?.message);
-        }
-      } catch (error) {
-        console.error("Error during login:", error);
-        toast.error("Failed to log in. Please check your credentials.");
-      } finally {
-        username.clear();
-        password.clear();
+      const response = await loginApi(formData);
+      if (response?.data) {
+        dispatch(setIsLoggedIn(true));
+        dispatch(setUser(response?.data?.user));
+        localStorage.setItem("allowFetch", true);
+        toast.success(response?.data?.message);
       }
-    });
+    } catch (error) {
+      console.error("Error during login:", error);
+      toast.error("Failed to log in. Please check your credentials.");
+    } finally {
+      setIsPending(false);
+      username.clear();
+      password.clear();
+    }
   };
 
   const responseMessage = async (response) => {
@@ -95,35 +90,37 @@ const Register = () => {
     if (isSignUp) {
       formData.append("avatarUrl", decodedToken.picture);
       formData.append("email", decodedToken.email);
-      startTransition(async () => {
-        try {
-          const apiResponse = await registerApi(formData);
-          if (apiResponse?.data) {
-            dispatch(setIsLoggedIn(true));
-            dispatch(setUser(apiResponse?.data?.user));
-            localStorage.setItem("allowFetch", true);
-            toast.success("Registration successful");
-          }
-        } catch (error) {
-          console.error("Registration error:", error);
-          toast.error("Failed to register. Please try again.");
+      setIsPending(true);
+      try {
+        const apiResponse = await registerApi(formData);
+        if (apiResponse?.data) {
+          dispatch(setIsLoggedIn(true));
+          dispatch(setUser(apiResponse?.data?.user));
+          localStorage.setItem("allowFetch", true);
+          toast.success("Registration successful");
         }
-      });
+      } catch (error) {
+        console.error("Registration error:", error);
+        toast.error("Failed to register. Please try again.");
+      } finally {
+        setIsPending(false);
+      }
     } else {
-      startTransition(async () => {
-        try {
-          const apiResponse = await loginApi(formData);
-          if (apiResponse?.data) {
-            localStorage.setItem("allowFetch", true);
-            dispatch(setIsLoggedIn(true));
-            dispatch(setUser(apiResponse?.data?.user));
-            toast.success(apiResponse?.data?.message);
-          }
-        } catch (error) {
-          console.error("Login error:", error);
-          toast.error("Failed to log in. Please check your credentials.");
+      setIsPending(true);
+      try {
+        const apiResponse = await loginApi(formData);
+        if (apiResponse?.data) {
+          localStorage.setItem("allowFetch", true);
+          dispatch(setIsLoggedIn(true));
+          dispatch(setUser(apiResponse?.data?.user));
+          toast.success(apiResponse?.data?.message);
         }
-      });
+      } catch (error) {
+        console.error("Login error:", error);
+        toast.error("Failed to log in. Please check your credentials.");
+      } finally {
+        setIsPending(false);
+      }
     }
   };
 
@@ -139,12 +136,10 @@ const Register = () => {
         Welcome to EchoRealm
       </h2>
 
-      {/* Centered Container */}
       <div className="bg-base-100 shadow-2xl rounded-lg flex justify-center items-center p-4 sm:p-6 md:p-8 w-full max-w-md">
         <div className="flex flex-col items-center w-full">
           <h1 className="text-lg sm:text-xl font-bold mb-4">
             <div className="flex relative">
-              {/* Toggle Options */}
               <div
                 className="cursor-pointer m-1 p-2"
                 onClick={() => setIsSignUp(true)}
@@ -158,7 +153,6 @@ const Register = () => {
                 Log In
               </div>
 
-              {/* Animated Toggle Indicator */}
               <div
                 className={`absolute bottom-0 h-1 bg-black transition-all duration-300 ease-in-out`}
                 style={{
@@ -221,26 +215,6 @@ const Register = () => {
             />
           </label>
 
-          {isSignUp && (
-            <>
-              <div>Profile picture</div>
-              <label
-                className={`${
-                  isMobile ? "input-sm" : ""
-                } input input-bordered flex items-center p-0 gap-2 w-full mb-4`}
-              >
-                <input
-                  name="avatar"
-                  type="file"
-                  onChange={avatar.changeHandler}
-                  className={`file-input ${
-                    isMobile ? "file-input-sm" : "file-input-md"
-                  } w-full max-w-xs`}
-                />
-              </label>
-            </>
-          )}
-
           {isSignUp ? (
             <button
               className="btn-ghost bg-base-300 py-2 px-6 rounded-full mb-1"
@@ -268,7 +242,6 @@ const Register = () => {
                 name="google-icon"
                 className="rounded-full text-center flex items-center justify-center"
               >
-                {/* <GoogleIcon /> */}
                 <GoogleLogin
                   onSuccess={responseMessage}
                   onError={errorMessage}

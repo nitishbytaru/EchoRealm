@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { useEffect, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import Loading from "../../../components/Loading.jsx";
@@ -13,38 +13,40 @@ function BlockedUsers() {
   const dispatch = useDispatch();
   const { blockedUsers } = useSelector((state) => state.user);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useState(false);
 
   useEffect(() => {
     const funcGetBlockedUsers = async () => {
       try {
+        startTransition(true);
         const response = await getBlockedUsersApi();
         if (response?.data?.blockedUsers) {
           dispatch(setBlockedUsers(response.data.blockedUsers));
         }
       } catch (error) {
         console.error("Error fetching blocked users:", error);
+      } finally {
+        startTransition(false);
       }
     };
 
-    startTransition(() => {
-      funcGetBlockedUsers();
-    });
+    funcGetBlockedUsers();
   }, [dispatch]);
 
-  const unBlockApiFunc = (userId) => {
-    startTransition(async () => {
-      try {
-        const response = await unBlockUserApi(userId);
-        if (response?.data?.message) {
-          toast.success(response.data.message);
-        }
-        dispatch(removeFromBlockedUsers(userId));
-      } catch (error) {
-        console.error("Error unblocking user:", error);
-        toast.error("Failed to unblock the user.");
+  const unBlockApiFunc = async (userId) => {
+    try {
+      startTransition(true);
+      const response = await unBlockUserApi(userId);
+      if (response?.data?.message) {
+        toast.success(response.data.message);
       }
-    });
+      dispatch(removeFromBlockedUsers(userId));
+    } catch (error) {
+      console.error("Error unblocking user:", error);
+      toast.error("Failed to unblock the user.");
+    } finally {
+      startTransition(false);
+    }
   };
 
   if (isPending) return <Loading />;

@@ -1,8 +1,8 @@
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { useInputValidation } from "6pp";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState, useTransition } from "react";
 
 import LoadingSpinner from "../../../../components/LoadingSpinner.jsx";
 import { addToMyPrivateChatRooms } from "../../slices/echo_link.slice.js";
@@ -24,7 +24,7 @@ function AddToGroup() {
   );
   const [searchResults, setSearchResults] = useState(null);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useState(false);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -55,23 +55,24 @@ function AddToGroup() {
     search.clear();
   }
 
-  const addMembersToGroup = () => {
+  const addMembersToGroup = async () => {
     const groupId = selectedChat?._id;
-    startTransition(async () => {
-      try {
-        const response = await updateMembersInGroupApi({
-          groupId,
-          groupMembers,
-        });
-        dispatch(addToMyPrivateChatRooms(response?.data?.newGroupDetails));
-        toast.success("Adding group members");
-      } catch (error) {
-        console.error("Error adding group members:", error);
-        toast.error("Failed to adding group members. Please try again.");
-      } finally {
-        setGroupMembers([]);
-      }
-    });
+    try {
+      startTransition(true);
+      const response = await updateMembersInGroupApi({
+        groupId,
+        groupMembers,
+      });
+      dispatch(addToMyPrivateChatRooms(response?.data?.newGroupDetails));
+      toast.success("Adding group members");
+    } catch (error) {
+      console.error("Error adding group members:", error);
+      toast.error("Failed to adding group members. Please try again.");
+    } finally {
+      startTransition(false);
+
+      setGroupMembers([]);
+    }
   };
 
   return (

@@ -1,8 +1,8 @@
 import { useInputValidation } from "6pp";
 import { useSelector } from "react-redux";
+import { useState, useEffect } from "react";
 import toast, { LoaderIcon } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import { useState, useEffect, useTransition } from "react";
 
 import { sendMumbleApi } from "../api/echo_mumble.api.js";
 import { searchUserByIdApi } from "../../profile/api/user.api.js";
@@ -20,7 +20,7 @@ function CreateMumble() {
   const message = useInputValidation("");
   const searchResults = useDebouncedSearchResults(search.value);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useState(false);
 
   const searchUserByIdFunc = async () => {
     if (!mumbleTo) {
@@ -29,24 +29,18 @@ function CreateMumble() {
 
     try {
       const response = await searchUserByIdApi(mumbleTo);
-
-      startTransition(() => {
-        setSelectedUser(response?.data?.searchedUser);
-        search.clear();
-      });
+      startTransition(true);
+      setSelectedUser(response?.data?.searchedUser);
+      search.clear();
     } catch (error) {
       console.error("Error fetching user:", error);
       toast.error("Failed to fetch user data.");
+    } finally {
+      startTransition(false);
     }
   };
 
-  useEffect(() => {
-    if (mumbleTo) {
-      searchUserByIdFunc();
-    }
-  }, [mumbleTo]);
-
-  const sendCurrentMumble = () => {
+  const sendCurrentMumble = async () => {
     if (!selectedUser) {
       return toast.error("Please select a user to send a Mumble", {
         autoClose: 5000,
@@ -68,18 +62,24 @@ function CreateMumble() {
     };
 
     try {
-      startTransition(async () => {
-        const response = await sendMumbleApi(data);
-        toast.success(response?.data?.message);
-      });
+      startTransition(true);
+      const response = await sendMumbleApi(data);
+      toast.success(response?.data?.message);
     } catch (error) {
       console.error("Error sending mumble:", error);
       toast.error("Failed to send Mumble. Please try again.");
     } finally {
       message.clear();
+      startTransition(false);
       setSelectedUser(null);
     }
   };
+
+  useEffect(() => {
+    if (mumbleTo) {
+      searchUserByIdFunc();
+    }
+  }, [mumbleTo]);
 
   const CHARACTER_LIMIT = 55;
 

@@ -1,5 +1,5 @@
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
@@ -33,29 +33,30 @@ function MyProfile() {
   );
   const { badgeOfPendingRequests } = useSelector((state) => state.user);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useState(false);
 
   const logoutApiFunc = async () => {
-    startTransition(async () => {
-      try {
-        const response = await logoutApi();
-        toast.success(response?.data?.message);
-        dispatch(setUser(null));
-        dispatch(setIsLoggedIn(false));
-        localStorage.setItem("allowFetch", false);
-        navigate("/");
-      } catch (error) {
-        console.error("Error during logout:", error);
-        toast.error("Failed to log out. Please try again.");
-      }
-    });
+    try {
+      startTransition(true);
+      const response = await logoutApi();
+      toast.success(response?.data?.message);
+      dispatch(setUser(null));
+      dispatch(setIsLoggedIn(false));
+      localStorage.setItem("allowFetch", false);
+      navigate("/");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      toast.error("Failed to log out. Please try again.");
+    } finally {
+      startTransition(false);
+    }
   };
 
   const classList =
     "flex items-center justify-start btn w-20 sm:w-full btn-ghost sm:text-xl";
 
   if (isPending) return <Loading />;
-  
+
   return (
     <div className="flex bg-base-200 w-full h-full rounded-2xl">
       {/* Sidebar Section */}

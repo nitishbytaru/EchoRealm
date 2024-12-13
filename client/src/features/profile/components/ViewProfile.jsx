@@ -1,5 +1,5 @@
 import { toast } from "react-hot-toast";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useParams } from "react-router-dom";
 
@@ -28,12 +28,12 @@ function ViewProfile() {
   const [likes, setLikes] = useState(0);
   const [friends, setFriends] = useState(0);
   const [splMumble, setSplMumble] = useState(null);
-
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsPending(true);
         const response = await getUsersWithMumbles(viewProfileUserId);
 
         if (response?.data?.selectedUserProfileDetailsResponse) {
@@ -46,19 +46,20 @@ function ViewProfile() {
       } catch (error) {
         console.error("Error fetching user profile:", error);
         toast.error("Failed to load profile details.");
+      } finally {
+        setIsPending(false);
       }
     };
 
     if (viewProfileUserId) {
-      startTransition(() => {
-        fetchData();
-      });
+      fetchData();
     }
   }, [dispatch, viewProfileUserId]);
 
   useEffect(() => {
     const fetchMostLikedMumbleWithLikesAndFriendsApiFunc = async () => {
       try {
+        setIsPending(true);
         const response = await fetchMostLikedMumbleWithLikesAndFriendsApi(
           viewProfileUserId
         );
@@ -67,37 +68,36 @@ function ViewProfile() {
           const { mumbleWithHighestLikes, profileLikes, friends } =
             response.data.userRequestedProfileData;
 
-          startTransition(() => {
-            setSplMumble(mumbleWithHighestLikes);
-            setLikes(profileLikes);
-            setFriends(friends);
-          });
+          setSplMumble(mumbleWithHighestLikes);
+          setLikes(profileLikes);
+          setFriends(friends);
         }
       } catch (error) {
         console.error("Error fetching profile data:", error);
         toast.error("Failed to load profile data.");
+      } finally {
+        setIsPending(false);
       }
     };
-    startTransition(() => {
-      fetchMostLikedMumbleWithLikesAndFriendsApiFunc();
-    });
+    fetchMostLikedMumbleWithLikesAndFriendsApiFunc();
   }, [dispatch, viewProfileUserId]);
 
-  const likeThisMumbleFunc = (mumbleId) => {
+  const likeThisMumbleFunc = async (mumbleId) => {
     try {
-      startTransition(async () => {
-        const response = await likeThisMumbleApi(mumbleId);
+      setIsPending(true);
+      const response = await likeThisMumbleApi(mumbleId);
 
-        if (response?.data?.updatedMumble) {
-          dispatch(
-            updateViewingProfileUserDetails(response.data.updatedMumble)
-          );
-          toast.success(response?.data?.message);
-        }
-      });
+      if (response?.data?.updatedMumble) {
+        dispatch(
+          updateViewingProfileUserDetails(response.data.updatedMumble)
+        );
+        toast.success(response?.data?.message);
+      }
     } catch (error) {
       console.error("Error liking mumble:", error);
       toast.error("An error occurred while liking the mumble.");
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -117,7 +117,6 @@ function ViewProfile() {
       ) : (
         <div className="w-full h-full">
           <div className="flex items-center justify-between mx-4">
-            {/* profile pic and username section */}
             <div className="flex flex-col items-center justify-center">
               <img
                 src={viewingProfileUserDetails?.avatar?.url}
@@ -162,18 +161,14 @@ function ViewProfile() {
               </NavLink>
             )}
 
-            {/* likes and friends section */}
             <div className="flex flex-col gap-2 sm:mr-12 bg-base-100 p-2 rounded-xl shadow-xl">
-              {/* Likes Section */}
               <div className="flex flex-col items-center sm:items-start">
                 <p className="text-xs sm:text-sm uppercase tracking-wide">
                   Likes:
                 </p>
                 <p className="text-2xl sm:text-3xl font-extrabold">{likes}</p>
               </div>
-              {/* Divider Line */}
               <div className="w-12 h-px bg-gray-300 hidden sm:block"></div>
-              {/* Friends Section */}
               <div className="flex flex-col items-center sm:items-start">
                 <p className="text-xs sm:text-sm uppercase tracking-wide">
                   Friends:

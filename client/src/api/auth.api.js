@@ -7,7 +7,7 @@ export const registerApi = async (Data) => {
   try {
     return await axios.post(`${API_URL}/register`, Data, {
       headers: {
-        "Content-Type": "application/form-data",
+        "Content-Type": "application/json",
       },
     });
   } catch (error) {

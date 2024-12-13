@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { useEffect, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import Loading from "../../../components/Loading.jsx";
@@ -16,59 +16,62 @@ function MyFriends() {
   const dispatch = useDispatch();
   const { myFriendsList } = useSelector((state) => state.user);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     const fetchMyFriendsList = async () => {
       try {
+        setIsPending(true);
         const { data } = await getMyFriendsListApi();
         if (data?.myFriendList?.friends) {
           dispatch(setToMyFriendsList(data.myFriendList.friends));
         }
       } catch (error) {
         console.error("Error fetching friends list:", error);
+      } finally {
+        setIsPending(false);
       }
     };
-    startTransition(() => {
-      fetchMyFriendsList();
-    });
+    fetchMyFriendsList();
   }, [dispatch]);
 
-  const blockSender = (friendId) => {
-    startTransition(async () => {
-      try {
-        const response = await handleRemoveOrBlockMyFriendApi({
-          friendId,
-          block: true,
-        });
-        if (response?.data?.message) {
-          toast.success(response.data.message);
-        }
-        dispatch(removeFromMyFriendsList(friendId));
-      } catch (error) {
-        console.error("Error blocking sender:", error);
-        toast.error("Failed to block the sender.");
+  const blockSender = async (friendId) => {
+    setIsPending(true);
+    try {
+      const response = await handleRemoveOrBlockMyFriendApi({
+        friendId,
+        block: true,
+      });
+      if (response?.data?.message) {
+        toast.success(response.data.message);
       }
-    });
+      dispatch(removeFromMyFriendsList(friendId));
+    } catch (error) {
+      console.error("Error blocking sender:", error);
+      toast.error("Failed to block the sender.");
+    } finally {
+      setIsPending(false);
+    }
   };
 
-  const removeFriend = (friendId) => {
-    startTransition(async () => {
-      try {
-        const response = await handleRemoveOrBlockMyFriendApi({
-          friendId,
-          block: false,
-        });
+  const removeFriend = async (friendId) => {
+    try {
+      setIsPending(true);
+      const response = await handleRemoveOrBlockMyFriendApi({
+        friendId,
+        block: false,
+      });
 
-        dispatch(removeFromMyFriendsList(friendId));
-        if (response?.data?.message) {
-          toast.success(response.data.message);
-        }
-      } catch (error) {
-        console.error("Error removing friend:", error);
-        toast.error("Failed to remove the friend.");
+      dispatch(removeFromMyFriendsList(friendId));
+      if (response?.data?.message) {
+        toast.success(response.data.message);
       }
-    });
+    } catch (error) {
+      console.error("Error removing friend:", error);
+      toast.error("Failed to remove the friend.");
+    } finally {
+      setIsPending(false);
+    }
   };
 
   if (isPending) return <Loading />;

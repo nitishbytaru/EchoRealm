@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast, { LoaderIcon } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState, useTransition } from "react";
 
 import Loading from "../../../components/Loading.jsx";
 import socket from "../../../sockets/socket.js";
@@ -50,12 +50,13 @@ function ChatBox({
   const [echoLinkMessageData, setEchoLinkMessageData] = useState(null);
 
   const [isPendingOperation, setIsPendingOperation] = useState(false);
-  const [isPendingSendMessage, startTransitionSendMessage] = useTransition();
-  const [isPendingGetMessage, startTransitionGetMessage] = useTransition();
+  const [isPendingSendMessage, startTransitionSendMessage] = useState(false);
+  const [isPendingGetMessage, startTransitionGetMessage] = useState(false);
 
   useEffect(() => {
     const getRecieverDataByIdFunc = async () => {
       try {
+        startTransitionGetMessage(true);
         let response = await searchUserByIdApi(recieverId);
         if (!response?.data?.searchedUser) {
           response = await getGroupChatDetailsApi(recieverId);
@@ -66,13 +67,13 @@ function ChatBox({
       } catch (error) {
         console.error("Error fetching receiver data:", error);
         toast.error("Failed to fetch receiver details.");
+      } finally {
+        startTransitionGetMessage(false);
       }
     };
 
     if (recieverId) {
-      startTransitionGetMessage(() => {
-        getRecieverDataByIdFunc();
-      });
+      getRecieverDataByIdFunc();
     }
   }, [dispatch, recieverId]);
 
@@ -107,26 +108,26 @@ function ChatBox({
       echoLinkMessageData.append("receiver", recieverId);
     }
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
       try {
-        startTransitionSendMessage(async () => {
-          if (!echoLinkMessageData) return;
+        startTransitionSendMessage(true);
+        if (!echoLinkMessageData) return;
 
-          const response = selectedChat?.groupName
-            ? await sendGroupChatMessageApi(echoLinkMessageData)
-            : await sendEchoLinkMessageApi(echoLinkMessageData);
+        const response = selectedChat?.groupName
+          ? await sendGroupChatMessageApi(echoLinkMessageData)
+          : await sendEchoLinkMessageApi(echoLinkMessageData);
 
-          if (response.response) {
-            return toast.error(response.response.data.message);
-          }
+        if (response.response) {
+          return toast.error(response.response.data.message);
+        }
 
-          if (!selectedChat?.groupName) {
-            dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
-          }
-        });
+        if (!selectedChat?.groupName) {
+          dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
+        }
       } catch (error) {
         console.error("Error sending message:", error);
       } finally {
+        startTransitionSendMessage(false);
         setEchoLinkMessageData(null);
       }
     };
@@ -135,23 +136,27 @@ function ChatBox({
   }, [dispatch, echoLinkMessageData, recieverId, selectedChat?.groupName]);
 
   useEffect(() => {
-    if (recieverId) {
+    const getMessages = async () => {
       const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
-      startTransitionGetMessage(async () => {
-        const response = await getPrivateMessagesApi(uniqueRoomId);
-        if (response?.data?.messages) {
-          dispatch(setPrivateMessages(response.data.messages));
-        } else {
-          const groupResponse = await getGroupChatDetailsApi(recieverId);
-          const groupDetails = groupResponse?.data?.groupDetails;
+      startTransitionGetMessage(true);
+      const response = await getPrivateMessagesApi(uniqueRoomId);
+      if (response?.data?.messages) {
+        dispatch(setPrivateMessages(response.data.messages));
+      } else {
+        const groupResponse = await getGroupChatDetailsApi(recieverId);
+        const groupDetails = groupResponse?.data?.groupDetails;
 
-          if (groupDetails?._id) {
-            const { _id, messages } = groupDetails;
-            socket.emit("joinGroupChat", _id);
-            dispatch(setPrivateMessages(messages));
-          }
+        if (groupDetails?._id) {
+          const { _id, messages } = groupDetails;
+          socket.emit("joinGroupChat", _id);
+          dispatch(setPrivateMessages(messages));
         }
-      });
+      }
+      startTransitionGetMessage(false);
+    };
+
+    if (recieverId) {
+      getMessages();
     }
   }, [dispatch, recieverId, user?._id]);
 

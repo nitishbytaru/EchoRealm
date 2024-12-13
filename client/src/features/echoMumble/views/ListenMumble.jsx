@@ -1,7 +1,7 @@
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef, useTransition } from "react";
 
 import Loading from "../../../components/Loading.jsx";
 import {
@@ -37,11 +37,12 @@ function ListenMumble() {
     (state) => state.echoMumble
   );
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useState(false);
 
   useEffect(() => {
     const func = async () => {
       try {
+        startTransition(true);
         const response = await getMumblesApi();
         const blockedUsersApiResponse = await getBlockedUsersApi();
 
@@ -71,9 +72,11 @@ function ListenMumble() {
       } catch (error) {
         console.error("Error fetching mumbles or blocked users:", error);
         toast.error("Failed to load mumbles or blocked users.");
+      } finally {
+        startTransition(false);
       }
     };
-    startTransition(() => func());
+    func();
   }, [dispatch, user._id, user.blockedUsers]);
 
   //useEffect for marking the unread mumbles as read
@@ -125,58 +128,59 @@ function ListenMumble() {
     ));
   };
 
-  const confirmDeleteMumbleApiFunc = (MumbleId) => {
-    startTransition(async () => {
-      try {
-        const response = await deleteMumbleApi(MumbleId);
-
-        if (response?.data) {
-          dispatch(removeMumble(MumbleId)); // Remove mumble from state
-          toast.success(response.data?.message); // Show success message
-        }
-      } catch (error) {
-        console.error("Error deleting mumble:", error);
-        toast.error("Failed to delete mumble.");
+  const confirmDeleteMumbleApiFunc = async (MumbleId) => {
+    try {
+      startTransition(true);
+      const response = await deleteMumbleApi(MumbleId);
+      if (response?.data) {
+        dispatch(removeMumble(MumbleId));
+        toast.success(response.data?.message);
       }
-    });
+    } catch (error) {
+      console.error("Error deleting mumble:", error);
+      toast.error("Failed to delete mumble.");
+    } finally {
+      startTransition(false);
+    }
   };
 
-  const pinMumbleApiFunc = (mumble) => {
+  const pinMumbleApiFunc = async (mumble) => {
     if (!mumble?.pinned && numberOfPinnedMumbles >= 4) {
       return toast.error("Only 5 mumbles can be Pinned");
     }
-    startTransition(async () => {
-      try {
-        const response = await pinMumbleApi(mumble._id);
-
-        if (response?.data) {
-          dispatch(updateMumbles(response.data.updatedMumble));
-          dispatch(increaseNumberOfPinnedMumbles());
-          toast.success(response.data.message);
-        }
-      } catch (error) {
-        console.error("Error pinning mumble:", error);
-        toast.error("Failed to pin mumble.");
+    try {
+      startTransition(true);
+      const response = await pinMumbleApi(mumble._id);
+      if (response?.data) {
+        dispatch(updateMumbles(response.data.updatedMumble));
+        dispatch(increaseNumberOfPinnedMumbles());
+        toast.success(response.data.message);
       }
-    });
+    } catch (error) {
+      console.error("Error pinning mumble:", error);
+      toast.error("Failed to pin mumble.");
+    } finally {
+      startTransition(false);
+    }
   };
 
-  const blockSenderApiFunc = (MumbleId, senderId) => {
-    startTransition(async () => {
-      try {
-        dispatch(removeMumble(MumbleId));
-        const response = await handleRemoveOrBlockMyFriendApi({
-          senderId,
-          block: true,
-        });
-        if (response?.data) {
-          toast.success(response.data?.message);
-        }
-      } catch (error) {
-        console.error("Error blocking sender:", error);
-        toast.error("Failed to block sender.");
+  const blockSenderApiFunc = async (MumbleId, senderId) => {
+    try {
+      startTransition(true);
+      dispatch(removeMumble(MumbleId));
+      const response = await handleRemoveOrBlockMyFriendApi({
+        senderId,
+        block: true,
+      });
+      if (response?.data) {
+        toast.success(response.data?.message);
       }
-    });
+    } catch (error) {
+      console.error("Error blocking sender:", error);
+      toast.error("Failed to block sender.");
+    } finally {
+      startTransition(false);
+    }
   };
 
   if (isPending) return <Loading />;
@@ -242,9 +246,7 @@ function ListenMumble() {
                             <button
                               className="btn m-2"
                               onClick={() =>
-                                navigate(
-                                  `/links/${Mumble?.sender?.senderId}`
-                                )
+                                navigate(`/links/${Mumble?.sender?.senderId}`)
                               }
                             >
                               Direct Message @

@@ -1,7 +1,6 @@
 import { UserFriend } from "../../user/models/friends.model.js";
 import { User } from "../../user/models/user.model.js";
 import { asyncHandler } from "../../../utils/async_handler.js";
-import { uploadToCloudinary } from "../../../config/cloudinary/cloudinary.js";
 import { cookieOptions, sendToken } from "../../../utils/send_token.js";
 
 //To register a new user
@@ -32,20 +31,13 @@ export const registerUser = asyncHandler(async (req, res) => {
       username,
     });
   } else {
-    const avatarLocalPath = req.files?.avatar[0]?.path;
+    avatarUrl =
+      "https://res.cloudinary.com/dhysbx7mk/image/upload/v1734113464/echorealm/placeholder_xymc9y.jpg";
 
-    if (!avatarLocalPath) {
-      return res.status(400).json({ message: "Avatar file is required" });
-    }
-
-    const avatar = await uploadToCloudinary(avatarLocalPath);
-
-    if (!avatar) {
-      return res.status(400).json({ message: "Avatar file is required" });
-    }
+    publicId = "echorealm/placeholder_xymc9y";
 
     user = await User.create({
-      avatar: { url: avatar.url, publicId: avatar.public_id },
+      avatar: { url: avatarUrl, publicId: null },
       email,
       password,
       username,

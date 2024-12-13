@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, useTransition } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import ChatBox from "../components/ChatBox";
 import ChatRooms from "../components/ChatRooms";
@@ -20,19 +20,18 @@ export default function EchoLink() {
   const scrollRef = useRef(null);
   const loading = useRef(false);
 
+  const [gettingOldMessages, startTransition] = useState(false);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
-
-  const [gettingOldMessages, startTransition] = useTransition();
 
   useEffect(() => {
     const loadOlderMessages = async () => {
       const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
       if (!pagination[uniqueRoomId]?.hasMoreMessages || loading.current) return;
+      loading.current = true;
+      const nextPage = (pagination[uniqueRoomId]?.currentPage || 1) + 1;
 
-      startTransition(async () => {
-        loading.current = true;
-        const nextPage = (pagination[uniqueRoomId]?.currentPage || 1) + 1;
-
+      try {
+        startTransition(true);
         const response = await getPrivateMessagesApi(uniqueRoomId, nextPage);
 
         if (response?.data?.messages) {
@@ -47,9 +46,12 @@ export default function EchoLink() {
             })
           );
         }
-      });
-
-      loading.current = false;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        startTransition(true);
+        loading.current = false;
+      }
     };
 
     const scrollElement = scrollRef.current;

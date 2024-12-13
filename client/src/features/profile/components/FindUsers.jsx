@@ -1,7 +1,7 @@
 import { toast } from "react-hot-toast";
 import { useInputValidation } from "6pp";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import socket from "../../../sockets/socket.js";
@@ -23,41 +23,38 @@ function FindUsers() {
   const search = useInputValidation("");
   const searchResults = useDebouncedSearchResults(search.value);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useState(false);
 
   useEffect(() => {
     dispatch(setResultOfSearchedUsers(searchResults));
   }, [dispatch, searchResults, user._id]);
 
-  const addFriendFunc = (selectedUser) => {
+  const addFriendFunc = async (selectedUser) => {
     try {
-      startTransition(async () => {
-        const response = await sendFriendRequestApi(selectedUser?._id);
+      startTransition(true);
+      const response = await sendFriendRequestApi(selectedUser?._id);
+      if (response?.data?.myFriendRequests) {
+        dispatch(updateResultOfSearchedUsers(response?.data?.myFriendRequests));
 
-        if (response?.data?.myFriendRequests) {
-          dispatch(
-            updateResultOfSearchedUsers(response?.data?.myFriendRequests)
-          );
+        socket.emit("friendRequestSent", {
+          senderDetails: {
+            senderId: user._id,
+            senderAvatar: user.avatar,
+            senderUsername: user.username,
+            requestSeen: false,
+          },
+          recipientId: selectedUser._id,
+        });
+      }
 
-          socket.emit("friendRequestSent", {
-            senderDetails: {
-              // sender data is sent to the reciever bby the sockets
-              senderId: user._id,
-              senderAvatar: user.avatar,
-              senderUsername: user.username,
-              requestSeen: false,
-            },
-            recipientId: selectedUser._id,
-          });
-        }
-
-        if (response?.data?.message) {
-          toast.success(response.data.message);
-        }
-      });
+      if (response?.data?.message) {
+        toast.success(response.data.message);
+      }
     } catch (error) {
       console.error("Error adding friend:", error);
       toast.error("Failed to send friend request.");
+    } finally {
+      startTransition(false);
     }
   };
 

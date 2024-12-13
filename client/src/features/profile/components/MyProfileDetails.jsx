@@ -1,6 +1,6 @@
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { useState, useTransition } from "react";
+import { useState } from "react"; // Removed useTransition
 import { useDispatch, useSelector } from "react-redux";
 import { updateRequestApi } from "../api/user.api.js";
 import { useFileHandler, useInputValidation } from "6pp";
@@ -28,9 +28,9 @@ function MyProfileDetails() {
     user?.isAnonymous
   );
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
-  const submitUpdateRequest = () => {
+  const submitUpdateRequest = async () => {
     if (updatedEmail.value === "" || updatedUsername.value === "") {
       return toast.error("fill the all fields");
     }
@@ -43,21 +43,22 @@ function MyProfileDetails() {
     formData.append("updatedIsAnonymous", updatedIsAnonymous);
     formData.append("avatar", avatar.file);
 
+    setIsPending(true);
     try {
-      startTransition(async () => {
-        const response = await updateRequestApi(formData);
-        if (response?.data) {
-          dispatch(setUser(response.data.user));
-          toast.success(response.data.message);
-          updatedPassword.clear();
-          navigate("/");
-        } else {
-          toast.error("Failed to update the information.");
-        }
-      });
+      const response = await updateRequestApi(formData);
+      if (response?.data) {
+        dispatch(setUser(response.data.user));
+        toast.success(response.data.message);
+        updatedPassword.clear();
+        navigate("/");
+      } else {
+        toast.error("Failed to update the information.");
+      }
     } catch (error) {
       console.error("Error submitting update request:", error);
       toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -66,7 +67,6 @@ function MyProfileDetails() {
     <div>
       <h1 className="sm:text-2xl text-lg sm:mb-2 text-center">My Details</h1>
       <div className="flex flex-col items-center justify-center">
-        {/* Hidden File Input */}
         <input
           id="avatarUpload"
           name="avatar"
@@ -76,7 +76,6 @@ function MyProfileDetails() {
           className="hidden"
         />
 
-        {/* Profile Picture with Edit Icon */}
         <div className="relative">
           <label htmlFor="avatarUpload" className="cursor-pointer">
             <img
@@ -84,7 +83,6 @@ function MyProfileDetails() {
               alt="avatar"
               className="avatar rounded-full w-24 h-24 mt-3 sm:w-48 sm:h-48 sm:mt-2 object-cover"
             />
-            {/* Edit Icon */}
             <span className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-gray-800 text-white p-1 rounded-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -109,7 +107,6 @@ function MyProfileDetails() {
           </label>
         </div>
 
-        {/* Username */}
         <p>@{user?.username}</p>
       </div>
 

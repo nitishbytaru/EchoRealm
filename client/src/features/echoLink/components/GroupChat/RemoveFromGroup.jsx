@@ -1,5 +1,5 @@
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateMembersInGroupApi } from "../../api/echo_link.api.js";
@@ -12,7 +12,7 @@ function RemoveFromGroup() {
   const { isMobile } = useSelector((state) => state.auth);
   const { selectedChat } = useSelector((state) => state.echoLink);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useState(false);
   const [groupMembers, setGroupMembers] = useState(
     selectedChat?.groupChatRoomMembers
   );
@@ -23,24 +23,23 @@ function RemoveFromGroup() {
     );
   }
 
-  const removeMemberFromGroup = () => {
+  const removeMemberFromGroup = async () => {
     const groupId = selectedChat?._id;
-
-    startTransition(async () => {
-      try {
-        const response = await updateMembersInGroupApi({
-          groupId,
-          groupMembers,
-        });
-        dispatch(addToMyPrivateChatRooms(response?.data?.newGroupDetails));
-        toast.success("removed from group");
-      } catch (error) {
-        console.error("Error removing from group:", error);
-        toast.error("Failed to remove from group. Please try again.");
-      } finally {
-        setGroupMembers([]);
-      }
-    });
+    try {
+      startTransition(true);
+      const response = await updateMembersInGroupApi({
+        groupId,
+        groupMembers,
+      });
+      dispatch(addToMyPrivateChatRooms(response?.data?.newGroupDetails));
+      toast.success("removed from group");
+    } catch (error) {
+      console.error("Error removing from group:", error);
+      toast.error("Failed to remove from group. Please try again.");
+    } finally {
+      startTransition(false);
+      setGroupMembers([]);
+    }
   };
 
   return (

@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Utility Components
-import PrivateRoutes from "./pages/PrivateRoutes.jsx";
 import LoggedOut from "./pages/LoggedOut.jsx";
+import PrivateRoutes from "./pages/PrivateRoutes.jsx";
 
 // API
 import { getProfileApi } from "./api/auth.api.js";
@@ -14,8 +14,8 @@ import { setIsLoggedIn, setUser } from "./app/slices/auth.slice.js";
 
 //Views
 import { EchoLink } from "./features/echoLink/index.js";
-import { CreateMumble, ListenMumble } from "./features/echoMumble/index.js";
 import { EchoShout } from "./features/echoShout/index.js";
+import { CreateMumble, ListenMumble } from "./features/echoMumble/index.js";
 
 // Profile Components
 import {

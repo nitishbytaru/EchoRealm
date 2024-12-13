@@ -1,5 +1,5 @@
 import { useInputValidation } from "6pp";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -43,35 +43,40 @@ function ChatRooms() {
   const search = useInputValidation("");
   const [searchResults, setSearchResults] = useState(null);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useState(false);
   const [isGroupPending, startTransitionGroup] = useState(false);
 
   useEffect(() => {
     const fetchMyPrivateFriends = async () => {
-      const response = await getMyPrivateFriendsApi();
+      try {
+        startTransition(true);
+        const response = await getMyPrivateFriendsApi();
 
-      response?.data?.myPrivateFriendsWithMessages.map((chatRoom) => {
-        if (
-          chatRoom?.latestMessage?.receiver?.messageStatus == "sent" &&
-          chatRoom?.latestMessage?.sender != user?._id
-        ) {
-          dispatch(addToChatRoomsWithUnreadMessages(chatRoom?.uniqueChatId));
-        }
-      });
-
-      const sortedMyPrivateFriendsWithMessages =
-        response?.data?.myPrivateFriendsWithMessages.sort((a, b) => {
-          const dateA = new Date(a.latestMessage?.updatedAt);
-          const dateB = new Date(b.latestMessage?.updatedAt);
-          return dateB - dateA;
+        response?.data?.myPrivateFriendsWithMessages.map((chatRoom) => {
+          if (
+            chatRoom?.latestMessage?.receiver?.messageStatus == "sent" &&
+            chatRoom?.latestMessage?.sender != user?._id
+          ) {
+            dispatch(addToChatRoomsWithUnreadMessages(chatRoom?.uniqueChatId));
+          }
         });
 
-      dispatch(setMyPrivateChatRooms(sortedMyPrivateFriendsWithMessages));
+        const sortedMyPrivateFriendsWithMessages =
+          response?.data?.myPrivateFriendsWithMessages.sort((a, b) => {
+            const dateA = new Date(a.latestMessage?.updatedAt);
+            const dateB = new Date(b.latestMessage?.updatedAt);
+            return dateB - dateA;
+          });
+
+        dispatch(setMyPrivateChatRooms(sortedMyPrivateFriendsWithMessages));
+      } catch (error) {
+        console.log(error);
+      } finally {
+        startTransition(false);
+      }
     };
 
-    startTransition(() => {
-      fetchMyPrivateFriends();
-    });
+    fetchMyPrivateFriends();
   }, [dispatch, user?._id]);
 
   useEffect(() => {
