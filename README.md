@@ -150,4 +150,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ### 🌟 **Let's Echo Together!**
 Connect, chat, and share moments with **EchoApp** – your new favorite social hub! 🎉
-```
+
+📧 **Email**: [bndnitish24@gmail.com](mailto:bndnitish24@gmail.com)  
+🔗 **LinkedIn**: [Nitish Bytaru](https://www.linkedin.com/in/nitishbytaru/)
