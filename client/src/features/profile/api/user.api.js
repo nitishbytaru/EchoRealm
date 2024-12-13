@@ -25,7 +25,7 @@ export const searchUsersApi = async (username) => {
   try {
     return await axios.get(`${API_URL}/search/username/${username}`);
   } catch (error) {
-    console.error("Error searching users:", error);
+    console.log("Error searching users:", error);
     return error;
   }
 };

@@ -1,101 +1,153 @@
-# Project Title
+# 🌐 EchoApp  
 
-EchoRealm
+**EchoApp** is a cutting-edge social web application designed to connect users through direct messaging, group interactions, and dynamic community discussions. With real-time notifications, customizable privacy options, and an intuitive interface, **EchoApp** delivers a seamless and engaging user experience. 🚀  
 
-## Description
+> Total time spent building:  
+[![Wakatime Badge](https://wakatime.com/badge/user/018dc722-c7e8-4188-aa96-7e9c5304aed8/project/2acd640a-521c-4ad0-9799-67d9ab9d88b7.svg)](https://wakatime.com/badge/user/018dc722-c7e8-4188-aa96-7e9c5304aed8/project/2acd640a-521c-4ad0-9799-67d9ab9d88b7)  
 
-EchoRealm is a real-time communication platform that allows users to engage in various forms of messaging, including chat rooms, mumble (voice messages), and shout (broadcast messages). The application is designed to facilitate seamless communication among users with a focus on user experience and performance.
+---  
 
-## Installation Instructions
 
-### Client
 
-1. Navigate to the `client` directory:
-   ```bash
-   cd client
-   ```
+## 📂 Folder Structure
 
-2. Install the dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-### Server
-
-1. Navigate to the `server` directory:
-   ```bash
-   cd server
-   ```
-
-2. Install the dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the server:
-   ```bash
-   npm start
-   ```
-
-## Usage
-
-- Access the client application in your browser at `http://localhost:3000`.
-- The server will run on `http://localhost:5000`.
-
-## Features
-
-- **Chat Rooms**: Engage in group chats with multiple users.
-- **Mumble**: Send voice messages to other users.
-- **Shout**: Broadcast messages to all users in a chat room.
-- **User Profiles**: Manage your account and view friends' profiles.
-- **Real-time Notifications**: Get notified of new messages and updates.
-
-## Folder Structure
-
-### Client
-
-```
-client/
-├── public/                  # Static files
-├── src/                     # Source files
-│   ├── api/                 # API calls
-│   ├── components/          # Reusable components
-│   ├── features/            # Feature-specific components
-│   ├── hooks/               # Custom hooks
-│   ├── pages/               # Page components
-│   └── utils/               # Utility functions
-└── package.json             # Client dependencies
+### **Client**
+```plaintext
+├─ client
+│   ├─ .env
+│   ├─ public
+│   ├─ src
+│       ├─ api            # Authentication APIs
+│       ├─ app            # Redux store setup
+│       ├─ components     # Reusable components
+│       ├─ features       # Feature-based organization
+│           ├─ echoLink   # One-to-one and group chats
+│               ├─ api
+│               ├─ components
+│               ├─ slices
+│               ├─ views
+│           ├─ echoMumble # Mumbles functionality
+│           ├─ echoShout  # Community chat
+│           └─ profile    # User profile management
+│       ├─ pages          # Reusable pages
+│       ├─ sockets        # Socket.io configuration
+│       └─ utils          # Utility functions
+│   ├─ tailwind.config.js # Tailwind CSS configuration
+│   ├─ vercel.json        # Deployment configuration
+│   └─ vite.config.js     # Vite.js configuration
 ```
 
-### Server
-
+### **Server**
+```plaintext
+└─ server
+    ├─ .env
+    ├─ public
+    ├─ src
+        ├─ app.js         # Server configuration
+        ├─ config         # Database and utility configurations
+        ├─ features       # Feature-based backend logic
+            ├─ auth       # Authentication
+            ├─ echoLink   # Messaging and group chat
+                ├─ controller
+                ├─ models
+                └─ routes
+            ├─ echoMumble  # Mumble-related logic
+            ├─ echoShout   # Community chat logic
+            └─ user        # User profile management
+        ├─ index.js       # Server and socket setup
+        ├─ middleware     # Middleware functions
+        └─ utils          # Utility functions
 ```
-server/
-├── src/
-│   ├── config/              # Configuration files
-│   ├── features/            # Feature-specific logic
-│   ├── middleware/          # Middleware functions
-│   ├── models/              # Database models
-│   ├── routes/              # API routes
-│   └── utils/               # Utility functions
-└── package.json             # Server dependencies
+
+---
+
+## 🚀 Technologies Used
+- **Frontend**: React, Redux, Tailwind CSS, Vite.js.
+- **Backend**: Node.js, Express.js.
+- **Database**: MongoDB.
+- **Real-Time**: Socket.io.
+- **Deployment**: Vercel.
+
+---
+
+## 📖 Getting Started
+
+### Prerequisites
+- Install [Node.js](https://nodejs.org/).
+- Install [Vite.js](https://vitejs.dev/).
+- Setup MongoDB.
+
+### Installation
+1. Clone the repository:
+   ```bash
+   https://github.com/nitishbytaru/EchoRealm.git
+   ```
+2. Navigate to the client and server folders and install dependencies:
+   ```bash
+   cd client && npm install
+   cd server && npm install
+   ```
+
+3. Set up `.env` files for both client and server as per your configuration.
+
+4. Run the development servers:
+   - **Client**: 
+     ```bash
+     npm run dev
+     ```
+   - **Server**: 
+     ```bash
+     npm start
+     ```
+
+---
+
+
+## ✨ Key Features
+
+### 1️⃣ **EchoLink**
+- 🤝 Users can connect by sending **friend requests**.
+- 📩 **One-to-one messaging** or **group chats** with friends.
+- 🚫 Option to **block users** for privacy.
+
+### 2️⃣ **Shout**
+- 🌍 A **community chatroom** where users can participate in discussions.
+- Perfect for engaging with a larger audience!
+
+### 3️⃣ **Mumble**
+- 📤 Send **short messages** to random users.
+- 📌 **Pin mumbles** to your profile for others to see.
+- ❤️ Other users can **like pinned mumbles**.
+- 📊 User profiles showcase:
+  - Friends list.
+  - **Total aggregated likes** on all their mumbles.
+
+### 4️⃣ **Anonymous Mode**
+- 🕵️ Switch to **anonymous mode** for privacy:
+  - Send **anonymous mumbles**.
+  - Participate anonymously in **EchoShout**.
+
+### ⚡ **Real-Time Notifications**
+- Instant alerts for:
+  - New messages.
+  - New mumbles.
+  - Friend requests.
+
+### 🔒 **Privacy Controls**
+- Block unwanted users and manage your connections effortlessly.
+
+---
+
+## 📣 Contributing
+Contributions are welcome! Feel free to submit issues or pull requests to improve this project. 😊
+
+---
+
+## 🛡️ License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+---
+
+### 🌟 **Let's Echo Together!**
+Connect, chat, and share moments with **EchoApp** – your new favorite social hub! 🎉
 ```
-
-## Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Make your changes and commit them.
-4. Push your changes to your forked repository.
-5. Create a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

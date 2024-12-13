@@ -23,7 +23,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("joinGroupChat", (_id) => {
-    console.log(`joined group ${_id}`);
+    // console.log(`joined group ${_id}`);
     socket.join(_id);
   });
 
@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    // console.log("User disconnected");
   });
 });
 

@@ -1,3 +1,4 @@
+// eslint-disable-next-line react/prop-types
 function ThemeToggle({ isChecked, handleToggle }) {
   return (
     <label className="swap swap-rotate">

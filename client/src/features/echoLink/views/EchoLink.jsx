@@ -81,7 +81,6 @@ export default function EchoLink() {
           {recieverId ? (
             // Show ChatBox in mobile view if a user is selected
             <div className="h-full bg-base-200 p-4 overflow-auto rounded-box">
-              {console.log(recieverId)}
               <ChatBox
                 scrollRef={scrollRef}
                 shouldScrollToBottom={shouldScrollToBottom}
