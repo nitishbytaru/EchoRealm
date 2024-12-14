@@ -132,8 +132,6 @@ function ChatRooms() {
 
     const response = await getPrivateMessagesApi(uniqueRoomId, page);
     if (response?.data?.messages) {
-      console.log("joined");
-
       dispatch(setPrivateMessages(response.data.messages));
 
       dispatch(

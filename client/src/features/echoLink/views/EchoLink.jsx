@@ -23,58 +23,55 @@ export default function EchoLink() {
   const [gettingOldMessages, startTransition] = useState(false);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
+  // Separate effect for handling scroll behavior
   useEffect(() => {
-    const loadOlderMessages = async () => {
-      console.log("lodaing");
-      const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
-      if (!pagination[uniqueRoomId]?.hasMoreMessages || loading.current) return;
-      loading.current = true;
-      const nextPage = (pagination[uniqueRoomId]?.currentPage || 1) + 1;
-
-      try {
-        startTransition(true);
-        const response = await getPrivateMessagesApi(uniqueRoomId, nextPage);
-
-        if (response?.data?.messages) {
-          dispatch(addOlderPrivateMessages(response.data.messages));
-          setShouldScrollToBottom(false);
-
-          dispatch(
-            setPaginationDetails({
-              roomId: uniqueRoomId,
-              hasMoreMessages: response.data.hasMoreMessages,
-              currentPage: nextPage,
-            })
-          );
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        startTransition(false);
-        loading.current = false;
-      }
-    };
-
     const scrollElement = scrollRef.current;
 
+    if (!scrollElement) return;
+
     const handleScroll = () => {
-      console.log("scrolling");
       if (scrollElement.scrollTop === 0) {
-        console.log("reached top");
         loadOlderMessages();
       }
     };
 
-    if (scrollElement) {
-      scrollElement.addEventListener("scroll", handleScroll);
-    }
+    scrollElement.addEventListener("scroll", handleScroll);
 
     return () => {
-      if (scrollElement) {
-        scrollElement.removeEventListener("scroll", handleScroll);
-      }
+      scrollElement.removeEventListener("scroll", handleScroll);
     };
-  }, [recieverId, dispatch, user, pagination]);
+  }, [scrollRef.current, recieverId, pagination]);
+
+  const loadOlderMessages = async () => {
+    const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
+    if (!pagination[uniqueRoomId]?.hasMoreMessages || loading.current) return;
+
+    loading.current = true;
+    const nextPage = (pagination[uniqueRoomId]?.currentPage || 1) + 1;
+
+    try {
+      startTransition(true);
+      const response = await getPrivateMessagesApi(uniqueRoomId, nextPage);
+
+      if (response?.data?.messages) {
+        dispatch(addOlderPrivateMessages(response.data.messages));
+        setShouldScrollToBottom(false);
+
+        dispatch(
+          setPaginationDetails({
+            roomId: uniqueRoomId,
+            hasMoreMessages: response.data.hasMoreMessages,
+            currentPage: nextPage,
+          })
+        );
+      }
+    } catch (error) {
+      console.error("Error loading older messages:", error);
+    } finally {
+      startTransition(false);
+      loading.current = false;
+    }
+  };
 
   return (
     <div className="h-full flex flex-col w-full">
