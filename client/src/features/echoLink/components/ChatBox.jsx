@@ -191,7 +191,7 @@ function ChatBox({
             <div className="h-full">
               <div className="flex-1 overflow-y-auto flex-col">
                 <div
-                  className="sm:max-h-[450px] max-h-[400px] overflow-y-auto"
+                  className="sm:max-h-[450px] max-h-[550px] overflow-y-auto"
                   ref={scrollRef}
                 >
                   {gettingOldMessages && <LoadingSpinner />}

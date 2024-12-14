@@ -25,6 +25,7 @@ export default function EchoLink() {
 
   useEffect(() => {
     const loadOlderMessages = async () => {
+      console.log("lodaing");
       const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
       if (!pagination[uniqueRoomId]?.hasMoreMessages || loading.current) return;
       loading.current = true;
@@ -36,7 +37,7 @@ export default function EchoLink() {
 
         if (response?.data?.messages) {
           dispatch(addOlderPrivateMessages(response.data.messages));
-          setShouldScrollToBottom(false); // Do not scroll for older messages
+          setShouldScrollToBottom(false);
 
           dispatch(
             setPaginationDetails({
@@ -49,7 +50,7 @@ export default function EchoLink() {
       } catch (error) {
         console.error(error);
       } finally {
-        startTransition(true);
+        startTransition(false);
         loading.current = false;
       }
     };
@@ -57,7 +58,9 @@ export default function EchoLink() {
     const scrollElement = scrollRef.current;
 
     const handleScroll = () => {
+      console.log("scrolling");
       if (scrollElement.scrollTop === 0) {
+        console.log("reached top");
         loadOlderMessages();
       }
     };
@@ -71,7 +74,7 @@ export default function EchoLink() {
         scrollElement.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [recieverId, pagination, dispatch, user]);
+  }, [recieverId, dispatch, user, pagination]);
 
   return (
     <div className="h-full flex flex-col w-full">

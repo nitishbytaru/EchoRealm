@@ -38,7 +38,8 @@ function NavBar() {
   // Update the isMobile state based on window size
   useEffect(() => {
     const handleResize = () => {
-      dispatch(setIsMobile(window.innerWidth < 640));
+      console.log(window.innerWidth);
+      dispatch(setIsMobile(window.innerWidth < 670));
     };
 
     window.addEventListener("resize", handleResize);
@@ -77,7 +78,7 @@ function NavBar() {
       {/* center elements */}
       <div className="navbar-center">
         <ul className="menu menu-horizontal bg-base-200 rounded-box p-1">
-          {isLoggedIn ? (
+          {isLoggedIn && (
             <li>
               <div>
                 <Link to="links">
@@ -95,7 +96,7 @@ function NavBar() {
                 )}
               </div>
             </li>
-          ) : null}
+          )}
           <li>
             <Link to="/shout">
               <div className="flex items-center">
@@ -104,18 +105,35 @@ function NavBar() {
               </div>
             </Link>
           </li>
-          {isLoggedIn ? (
-            <li>
-              <div>
-                <MumbleIcon />
-                {unReadMumbles !== 0 && (
-                  <span className="absolute -top-1 -left-1 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
-                    {unReadMumbles}
-                  </span>
-                )}
-              </div>
-            </li>
-          ) : null}
+          {isLoggedIn && (
+            <>
+              <li>
+                <div>
+                  <MumbleIcon />
+                  {unReadMumbles !== 0 && (
+                    <span className="absolute -top-1 -left-1 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
+                      {unReadMumbles}
+                    </span>
+                  )}
+                </div>
+              </li>
+              {!isMobile && (
+                <li>
+                  <Link to={"profile/mumbles"}>
+                    <div className="flex items-center">
+                      <MenuIcon />
+                      {!isMobile ? <div>About</div> : null}
+                    </div>
+                  </Link>
+                  {badgeOfPendingRequests != 0 && (
+                    <span className="absolute -top-1 -left-1 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
+                      {badgeOfPendingRequests}
+                    </span>
+                  )}
+                </li>
+              )}
+            </>
+          )}
         </ul>
       </div>
 
@@ -123,22 +141,38 @@ function NavBar() {
       <div className="navbar-end">
         <div className="flex-none">
           {user ? (
-            <>
-              <Suspense fallback={<div>Loading...</div>}>
-                <div tabIndex={0} role="button" className="rounded-btn">
-                  <label className="btn-circle avatar items-center justify-center sm:mr-2">
-                    <Link to={"profile/mumbles"} className="btn sm:btn-ghost">
-                      <MenuIcon sx={{ fontSize: "30px" }} />
+            <Suspense fallback={<div>Loading...</div>}>
+              <div tabIndex={0} role="button" className="rounded-btn">
+                <label className="flex items-center justify-center sm:mr-2">
+                  {isMobile ? (
+                    <div className="relative">
+                      <Link to={"profile/mumbles"}>
+                        <div className="flex items-center btn">
+                          <MenuIcon />
+                        </div>
+                      </Link>
+                      {badgeOfPendingRequests !== 0 && (
+                        <span className="absolute -top-1 -left-1 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
+                          {badgeOfPendingRequests}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <Link to={"profile/mumbles"}>
+                      <div className="card bg-base-300 rounded-2xl h-[12%] sm:h-[25%] flex items-center justify-center">
+                        <div className="avatar h-12 w-12">
+                          <img
+                            src={user?.avatar?.url}
+                            alt="User Avatar"
+                            className="object-cover rounded-full"
+                          />
+                        </div>
+                      </div>
                     </Link>
-                  </label>
-                </div>
-              </Suspense>
-              {badgeOfPendingRequests != 0 && (
-                <span className="absolute top-2  bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center sm:text-sm">
-                  {badgeOfPendingRequests}
-                </span>
-              )}
-            </>
+                  )}
+                </label>
+              </div>
+            </Suspense>
           ) : (
             <div
               tabIndex={0}

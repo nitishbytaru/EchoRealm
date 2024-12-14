@@ -106,9 +106,9 @@ function EchoShout() {
       try {
         startTransitionToGetOldMessages(true);
         const response = await getEchoShoutsApi(nextPage);
+
         if (response?.data?.messages) {
           dispatch(addOlderShouts(response.data.messages));
-          setShouldScrollToBottom(false);
 
           dispatch(
             setPaginationDetails({
@@ -129,6 +129,7 @@ function EchoShout() {
 
     const handleScroll = () => {
       if (scrollElement.scrollTop === 0) {
+        setShouldScrollToBottom(false);
         loadOlderMessages();
       }
     };

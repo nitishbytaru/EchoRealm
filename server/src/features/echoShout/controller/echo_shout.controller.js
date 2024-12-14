@@ -6,7 +6,11 @@ import { uploadToCloudinary } from "../../../config/cloudinary/cloudinary.js";
 
 export const getMessages = asyncHandler(async (req, res) => {
   const { page = 1, limit = 7 } = req.query;
-  const messages = await EchoShout.find();
+
+  const messages = await EchoShout.find().populate({
+    path: "mentions",
+    select: "username",
+  });
 
   const totalMessages = messages.length;
   const startIndex = Math.max(totalMessages - page * limit, 0);

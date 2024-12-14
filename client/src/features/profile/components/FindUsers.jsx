@@ -20,7 +20,7 @@ function FindUsers() {
   const { user } = useSelector((state) => state.auth);
   const { resultOfSearchedUsers } = useSelector((state) => state.user);
 
-  const search = useInputValidation("");
+  const search = useInputValidation("a");
   const searchResults = useDebouncedSearchResults(search.value);
 
   const [isPending, startTransition] = useState(false);

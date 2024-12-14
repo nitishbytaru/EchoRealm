@@ -123,8 +123,8 @@ function ChatRooms() {
 
   const joinPrivateChat = async (recieverId, page = 1) => {
     const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
+    dispatch(setPrivateMessages([]));
 
-    // Initial room join
     if (page === 1) {
       socket.emit("joinEchoLink", uniqueRoomId);
       dispatch(removeFromChatRoomsWithUnreadMessages(uniqueRoomId));
@@ -132,6 +132,8 @@ function ChatRooms() {
 
     const response = await getPrivateMessagesApi(uniqueRoomId, page);
     if (response?.data?.messages) {
+      console.log("joined");
+
       dispatch(setPrivateMessages(response.data.messages));
 
       dispatch(
@@ -145,6 +147,7 @@ function ChatRooms() {
   };
 
   const joinGroupChat = async (recieverId) => {
+    dispatch(setPrivateMessages([]));
     const groupResponse = await getGroupChatDetailsApi(recieverId);
     const groupDetails = groupResponse?.data?.groupDetails;
 

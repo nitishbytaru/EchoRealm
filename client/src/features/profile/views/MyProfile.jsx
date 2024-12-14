@@ -76,7 +76,7 @@ function MyProfile() {
           )}
 
           <div className="card bg-base-300 rounded-2xl h-[12%] sm:h-[25%] flex items-center justify-center">
-            <div className="btn-circle avatar sm:h-32 h-12 sm:w-32 w-12">
+            <div className="btn-circle avatar sm:h-32  sm:w-32 h-12 w-12">
               <img
                 src={user?.avatar?.url}
                 alt=""

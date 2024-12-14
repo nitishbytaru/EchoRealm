@@ -14,7 +14,7 @@ function ChatHistoryBox({
   return (
     <div className="flex-grow bg-base-200 sm:p-4 mx-2 sm:mx-4 rounded-xl">
       <div
-        className="sm:max-h-[500px] max-h-[450px] overflow-y-auto"
+        className="sm:max-h-[500px] max-h-[620px] overflow-y-auto"
         ref={shoutScrollRef}
       >
         {gettingOldMessages && <LoadingSpinner />}
