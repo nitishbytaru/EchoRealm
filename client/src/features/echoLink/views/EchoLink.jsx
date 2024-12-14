@@ -43,6 +43,7 @@ export default function EchoLink() {
   }, [scrollRef.current, recieverId, pagination]);
 
   const loadOlderMessages = async () => {
+    setShouldScrollToBottom(false);
     const uniqueRoomId = createUniquechatRoom(recieverId, user?._id);
     if (!pagination[uniqueRoomId]?.hasMoreMessages || loading.current) return;
 
@@ -55,7 +56,6 @@ export default function EchoLink() {
 
       if (response?.data?.messages) {
         dispatch(addOlderPrivateMessages(response.data.messages));
-        setShouldScrollToBottom(false);
 
         dispatch(
           setPaginationDetails({
