@@ -52,7 +52,7 @@ function ChatRooms() {
         startTransition(true);
         const response = await getMyPrivateFriendsApi();
 
-        response?.data?.myPrivateFriendsWithMessages.map((chatRoom) => {
+        response?.data?.myPrivateFriendsWithMessages?.map((chatRoom) => {
           if (
             chatRoom?.latestMessage?.receiver?.messageStatus == "sent" &&
             chatRoom?.latestMessage?.sender != user?._id
@@ -143,7 +143,6 @@ function ChatRooms() {
       );
     }
   };
-
   const joinGroupChat = async (recieverId) => {
     dispatch(setPrivateMessages([]));
     const groupResponse = await getGroupChatDetailsApi(recieverId);
@@ -304,7 +303,7 @@ function ChatRooms() {
                   <p className="text-gray-500">
                     {truncateMessage(
                       receiver?.groupChatRoomMembers
-                        .map((member) => member.username)
+                        ?.map((member) => member.username)
                         .join(", ")
                     )}
                   </p>
