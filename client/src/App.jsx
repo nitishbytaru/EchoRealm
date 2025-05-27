@@ -71,11 +71,11 @@ function App() {
             {/* Public Routes */}
             <Route element={<LoggedOut user={user} />}>
               <Route path="" element={<Register />} />
+              <Route path="shout" element={<EchoShout />} />
             </Route>
 
             {/* Authenticated Routes */}
             <Route element={<PrivateRoutes user={user} />}>
-              <Route path="shout" element={<EchoShout />} />
               <Route path="links/:recieverId?" element={<EchoLink />} />
               <Route
                 path="mumbles/send/:mumbleTo?"
