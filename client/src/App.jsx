@@ -68,10 +68,10 @@ function App() {
         <Routes>
           {/* Main Layout */}
           <Route path="/" element={<Layout />}>
+          <Route path="shout" element={<EchoShout />} />
             {/* Public Routes */}
             <Route element={<LoggedOut user={user} />}>
               <Route path="" element={<Register />} />
-              <Route path="shout" element={<EchoShout />} />
             </Route>
 
             {/* Authenticated Routes */}
