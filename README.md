@@ -1,6 +1,6 @@
-# 🌐 EchoApp  
+# 🌐 EchoRealm  
 
-**EchoApp** is a cutting-edge social web application designed to connect users through direct messaging, group interactions, and dynamic community discussions. With real-time notifications, customizable privacy options, and an intuitive interface, **EchoApp** delivers a seamless and engaging user experience. 🚀  
+**EchoRealm** is a cutting-edge social web application designed to connect users through direct messaging, group interactions, and dynamic community discussions. With real-time notifications, customizable privacy options, and an intuitive interface, **EchoRealm** delivers a seamless and engaging user experience. 🚀  
 
 > Total time spent building:  
 [![Wakatime Badge](https://wakatime.com/badge/user/018dc722-c7e8-4188-aa96-7e9c5304aed8/project/2acd640a-521c-4ad0-9799-67d9ab9d88b7.svg)](https://wakatime.com/badge/user/018dc722-c7e8-4188-aa96-7e9c5304aed8/project/2acd640a-521c-4ad0-9799-67d9ab9d88b7)  
