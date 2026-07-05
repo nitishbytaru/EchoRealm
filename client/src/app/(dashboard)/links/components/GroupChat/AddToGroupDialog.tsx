@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { Search, Plus, X, Loader2 } from "lucide-react";
 
 import { useInputValidation } from "@/hooks/useInputValidation";
@@ -103,9 +103,9 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-950 border-slate-800 text-white sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-popover border-border text-popover-foreground sm:max-w-md max-h-[90vh] overflow-y-auto rounded-xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+          <DialogTitle className="text-sm font-bold text-foreground">
             Add Members to {selectedChat?.groupName || "Group"}
           </DialogTitle>
         </DialogHeader>
@@ -113,20 +113,20 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
         <div className="space-y-4 py-2">
           {/* Search Users */}
           <div className="space-y-1.5 relative">
-            <label className="text-xs font-semibold text-slate-400">Search users to add</label>
+            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Search users to add</label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/75" />
               <Input
                 type="text"
                 placeholder="Search friends..."
                 value={search.value}
                 onChange={search.changeHandler}
-                className="pl-9 bg-slate-900 border-slate-800 focus-visible:ring-indigo-500 text-white"
+                className="pl-9 bg-background border-border focus-visible:ring-indigo-500 text-foreground placeholder:text-muted-foreground/60 h-9 text-xs rounded-lg"
               />
             </div>
 
             {search.value && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-slate-950 border border-slate-800 rounded-xl shadow-2xl max-h-40 overflow-y-auto z-50 p-1 divide-y divide-slate-900">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-2xl max-h-40 overflow-y-auto z-50 p-1 divide-y divide-border">
                 {searchResults?.length > 0 ? (
                   searchResults.map((searchUser) => (
                     <div
@@ -137,12 +137,12 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
                           username: searchUser.username,
                         })
                       }
-                      className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-900 cursor-pointer"
+                      className="flex items-center justify-between p-2 rounded-lg hover:bg-accent cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
                         <Avatar className="h-7 w-7">
                           <AvatarImage src={searchUser?.avatar?.url} />
-                          <AvatarFallback className="bg-indigo-950 text-indigo-400 text-[10px]">
+                          <AvatarFallback className="bg-muted text-indigo-400 text-[10px] border border-border">
                             {searchUser.username.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
@@ -152,7 +152,7 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
                     </div>
                   ))
                 ) : (
-                  <div className="p-3 text-center text-xs text-slate-500">No users found</div>
+                  <div className="p-3 text-center text-xs text-muted-foreground">No users found</div>
                 )}
               </div>
             )}
@@ -160,18 +160,18 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
 
           {/* Current group members */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400">Selected Members ({groupMembers.length})</label>
-            <div className="flex flex-wrap gap-1.5 p-2 bg-slate-900/30 border border-slate-900 rounded-xl max-h-40 overflow-y-auto">
+            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Selected Members ({groupMembers.length})</label>
+            <div className="flex flex-wrap gap-1.5 p-2 bg-muted border border-border rounded-xl max-h-40 overflow-y-auto">
               {groupMembers.map((member) => (
                 <span
                   key={member.id}
-                  className="inline-flex items-center gap-1 bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[10px] font-medium px-2 py-0.5 rounded-full"
+                  className="inline-flex items-center gap-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-550 dark:text-indigo-300 text-[10px] font-medium px-2 py-0.5 rounded-full"
                 >
                   @{member.username}
                   <button
                     type="button"
                     onClick={() => removeLocalGroupMember(member.id)}
-                    className="text-indigo-400 hover:text-white"
+                    className="text-indigo-550 hover:text-indigo-650 dark:text-indigo-450 dark:hover:text-white"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -183,18 +183,16 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
 
         <div className="flex justify-end gap-2 pt-2">
           <DialogClose render={
-            <Button variant="ghost" className="hover:bg-slate-900 text-slate-400 hover:text-white text-xs">
+            <Button variant="ghost" className="hover:bg-accent text-muted-foreground hover:text-foreground text-xs rounded-lg h-9 tap-interactive">
               Cancel
             </Button>
           } />
           <Button
             onClick={addMembersToGroup}
-            disabled={isPending || groupMembers.length === 0}
-            className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs px-4"
+            loading={isPending}
+            disabled={groupMembers.length === 0}
+            className="bg-indigo-650 hover:bg-indigo-600 text-white text-xs px-4 rounded-lg shadow-sm shadow-indigo-950/20 h-9 tap-interactive"
           >
-            {isPending ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-            ) : null}
             Update Members
           </Button>
         </div>

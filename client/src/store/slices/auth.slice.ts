@@ -8,6 +8,8 @@ export interface User {
     url?: string;
     public_id?: string;
   };
+  isAcceptingMumbles?: boolean;
+  isAnonymous?: boolean;
 }
 
 export interface AuthState {
@@ -19,11 +21,11 @@ export interface AuthState {
 }
 
 const initialState: AuthState = {
-  theme: typeof window !== "undefined" ? localStorage.getItem("theme") || "business" : "business",
+  theme: "business",
   isLoggedIn: false,
   user: null,
-  isMobile: typeof window !== "undefined" ? window.innerWidth < 640 : false,
-  isChecked: typeof window !== "undefined" ? localStorage.getItem("theme") === "business" : true,
+  isMobile: false,
+  isChecked: true,
 };
 
 const authSlice = createSlice({

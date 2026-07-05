@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { Trash2, Loader2, X } from "lucide-react";
 
 import { updateMembersInGroupApi } from "@/api/echo_link.api";
@@ -67,37 +67,37 @@ export const RemoveFromGroupDialog: React.FC<RemoveFromGroupDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-950 border-slate-800 text-white sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-popover border-border text-popover-foreground sm:max-w-md max-h-[90vh] overflow-y-auto rounded-xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+          <DialogTitle className="text-sm font-bold text-foreground">
             Remove Members from {selectedChat?.groupName || "Group"}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          <p className="text-xs text-slate-400">Click &apos;X&apos; next to the member you wish to remove, then update.</p>
+          <p className="text-[10px] text-muted-foreground">Click &apos;X&apos; next to the member you wish to remove, then update.</p>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400">Group Members ({groupMembers.length})</label>
-            <div className="bg-slate-900/30 border border-slate-900 rounded-xl max-h-60 overflow-y-auto p-2 space-y-1.5">
+            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Group Members ({groupMembers.length})</label>
+            <div className="bg-muted border border-border rounded-xl max-h-60 overflow-y-auto p-2 space-y-1.5">
               {groupMembers.map((member) => (
                 <div
                   key={member._id}
-                  className="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-900"
+                  className="flex items-center justify-between p-2 rounded-lg bg-background border border-border"
                 >
-                  <span className="text-xs font-medium text-slate-200">@{member.username}</span>
+                  <span className="text-xs font-medium text-foreground">@{member.username}</span>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => removeGroupMember(member)}
-                    className="h-7 w-7 text-rose-450 hover:text-rose-450 hover:bg-rose-500/10 rounded-full"
+                    className="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-full tap-interactive"
                   >
                     <X className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               ))}
               {groupMembers.length === 0 && (
-                <div className="text-center p-4 text-xs text-slate-500">No members selected</div>
+                <div className="text-center p-4 text-xs text-muted-foreground">No members selected</div>
               )}
             </div>
           </div>
@@ -105,18 +105,16 @@ export const RemoveFromGroupDialog: React.FC<RemoveFromGroupDialogProps> = ({
 
         <div className="flex justify-end gap-2 pt-2">
           <DialogClose render={
-            <Button variant="ghost" className="hover:bg-slate-900 text-slate-400 hover:text-white text-xs">
+            <Button variant="ghost" className="hover:bg-accent text-muted-foreground hover:text-foreground text-xs rounded-lg h-9 tap-interactive">
               Cancel
             </Button>
           } />
           <Button
             onClick={removeMemberFromGroup}
-            disabled={isPending || groupMembers.length === 0}
-            className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs px-4"
+            loading={isPending}
+            disabled={groupMembers.length === 0}
+            className="bg-indigo-650 hover:bg-indigo-600 text-white text-xs px-4 rounded-lg shadow-sm shadow-indigo-950/20 h-9 tap-interactive"
           >
-            {isPending ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-            ) : null}
             Update Group
           </Button>
         </div>

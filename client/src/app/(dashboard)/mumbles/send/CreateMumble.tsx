@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Send, Search, Loader2 } from "lucide-react";
 
@@ -89,31 +89,31 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
   const isOverLimit = message.value.length > CHARACTER_LIMIT;
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full relative p-4">
-      <div className="w-full bg-slate-900/40 border border-slate-900 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl space-y-6">
+    <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full relative p-4">
+      <div className="w-full bg-card border border-border rounded-xl p-5 shadow-xl shadow-black/5 dark:shadow-black/30 space-y-5">
         
-        <div className="text-center space-y-1">
-          <h2 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+        <div className="text-center space-y-0.5">
+          <h2 className="text-xl font-bold tracking-tight text-foreground">
             Send a Mumble
           </h2>
-          <p className="text-xs text-slate-400">Send an anonymous or public whisper to another user</p>
+          <p className="text-[10px] text-muted-foreground">Send an anonymous or public whisper to another user</p>
         </div>
 
         {/* Search section */}
         <div className="relative">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
             <Input
               type="text"
               placeholder="Search user by username..."
               value={search.value}
               onChange={search.changeHandler}
-              className="pl-10 bg-slate-950 border-slate-800 focus-visible:ring-indigo-500 text-white w-full rounded-2xl h-11"
+              className="pl-9 bg-background border-border focus-visible:ring-indigo-500 text-foreground placeholder:text-muted-foreground w-full rounded-lg h-9 text-xs"
             />
           </div>
 
           {search.value && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl max-h-60 overflow-y-auto z-50 divide-y divide-slate-900 p-1.5">
+            <div className="absolute top-full left-0 right-0 mt-1.5 bg-popover border border-border rounded-lg shadow-2xl max-h-60 overflow-y-auto z-50 divide-y divide-border p-1">
               {searchResults?.length > 0 ? (
                 searchResults.map((result) => {
                   const targetUser = result?.user;
@@ -122,23 +122,23 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
                     <div
                       key={targetUser._id}
                       onClick={() => router.push(`/mumbles/send/${targetUser._id}`)}
-                      className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-900 cursor-pointer transition-colors"
+                      className="flex items-center gap-2.5 p-1.5 rounded-md hover:bg-accent cursor-pointer transition-colors"
                     >
-                      <Avatar className="h-9 w-9 border border-indigo-500/30">
+                      <Avatar className="h-7 w-7 border border-border">
                         <AvatarImage src={targetUser?.avatar?.url} />
-                        <AvatarFallback className="bg-indigo-950 text-indigo-400 text-xs">
+                        <AvatarFallback className="bg-muted text-indigo-400 text-[10px]">
                           {targetUser.username.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-xs font-semibold text-white">@{targetUser.username}</p>
-                        <p className="text-[10px] text-indigo-400">Accepts whispers</p>
+                        <p className="text-xs font-semibold text-foreground">@{targetUser.username}</p>
+                        <p className="text-[9px] text-indigo-400">Accepts whispers</p>
                       </div>
                     </div>
                   );
                 })
               ) : (
-                <div className="p-4 text-center text-xs text-slate-500">
+                <div className="p-3 text-center text-xs text-muted-foreground">
                   No user found with username &quot;{search.value}&quot;
                 </div>
               )}
@@ -147,33 +147,33 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
         </div>
 
         {/* Selected User Display */}
-        <div className="flex-1 flex flex-col items-center justify-center min-h-[160px] py-4 bg-slate-950/40 border border-slate-900/60 rounded-2xl">
+        <div className="flex flex-col items-center justify-center min-h-[140px] py-4 bg-muted/30 border border-border rounded-xl">
           {selectedUser ? (
-            <div className="flex flex-col items-center space-y-3 animate-in zoom-in-95 duration-200">
-              <Avatar className="h-20 w-20 border-2 border-indigo-500/50 shadow-lg">
+            <div className="flex flex-col items-center space-y-2 animate-in zoom-in-95 duration-200">
+              <Avatar className="h-16 w-16 border border-indigo-500/30 shadow-md">
                 <AvatarImage src={selectedUser?.avatar?.url} />
-                <AvatarFallback className="bg-indigo-900 text-lg">
+                <AvatarFallback className="bg-background text-indigo-400 text-sm">
                   {selectedUser.username.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="text-center">
-                <h3 className="text-lg font-bold text-white">@{selectedUser.username}</h3>
-                <p className="text-[10px] text-slate-500">Mumbling to this user</p>
+                <h3 className="text-xs font-bold text-foreground">@{selectedUser.username}</h3>
+                <p className="text-[9px] text-muted-foreground">Mumbling to this user</p>
               </div>
             </div>
           ) : (
-            <div className="text-center space-y-1">
-              <p className="text-slate-500 text-sm">No user selected</p>
-              <p className="text-[10px] text-slate-600">Search above and select a profile</p>
+            <div className="text-center space-y-0.5">
+              <p className="text-muted-foreground text-xs">No user selected</p>
+              <p className="text-[9px] text-muted-foreground/70">Search above and select a profile</p>
             </div>
           )}
         </div>
 
         {/* Message Input bar */}
-        <div className="flex items-center gap-2 bg-slate-950/80 rounded-2xl border border-slate-900 p-2 relative">
+        <div className="flex items-center gap-2 bg-background rounded-lg border border-border p-1.5 relative">
           <Input
             type="text"
-            className={`w-full bg-transparent border-none text-white placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0 pr-10 ${
+            className={`w-full bg-transparent border-none text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 pr-10 text-xs h-8.5 ${
               isOverLimit ? "text-red-400" : ""
             }`}
             placeholder={selectedUser ? `Whisper to @${selectedUser.username}...` : "Please select a user first..."}
@@ -183,10 +183,10 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
             onKeyDown={(e) => handleKeyPress(e, sendCurrentMumble)}
           />
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <span
-              className={`text-[10px] font-mono ${
-                isOverLimit ? "text-red-500 font-bold" : "text-slate-500"
+              className={`text-[9px] font-mono ${
+                isOverLimit ? "text-red-500 font-bold" : "text-muted-foreground"
               }`}
             >
               {message.value.length}/{CHARACTER_LIMIT}
@@ -197,12 +197,12 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
               size="icon"
               onClick={sendCurrentMumble}
               disabled={isPending || isOverLimit || !selectedUser || !message.value}
-              className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl h-9 w-9 flex-shrink-0"
+              className="bg-indigo-650 hover:bg-indigo-600 text-zinc-50 rounded-lg h-8.5 w-8.5 flex-shrink-0"
             >
               {isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
-                <Send className="h-4 w-4" />
+                <Send className="h-3.5 w-3.5" />
               )}
             </Button>
           </div>

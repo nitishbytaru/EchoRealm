@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { getProfileApi } from "@/api/auth.api";
@@ -15,6 +15,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const dispatch = useDispatch();
   const { isLoggedIn, user } = useSelector((state: RootState) => state.auth);
   const [loading, setLoading] = useState(!isLoggedIn);
@@ -54,21 +55,20 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-slate-950">
+      <div className="h-screen w-screen flex items-center justify-center bg-zinc-950">
         <Loading />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-slate-950 text-white relative">
-      {/* Background radial glow */}
-      <div className="absolute inset-0 bg-radial from-slate-900 via-slate-950 to-black pointer-events-none z-0" />
-      
+    <div className="min-h-screen w-full flex flex-col bg-background text-foreground relative">
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <NavBar />
-        <main className="flex-1 flex flex-col w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 z-10">
-          {children}
+        <main className="flex-1 flex flex-col w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 z-10">
+          <div key={pathname} className="flex-1 flex flex-col w-full animate-fade-in-up">
+            {children}
+          </div>
         </main>
       </div>
     </div>

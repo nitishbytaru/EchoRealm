@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Loader2 } from "lucide-react";
 
@@ -134,16 +134,12 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           ? await sendGroupChatMessageApi(echoLinkMessageData)
           : await sendEchoLinkMessageApi(echoLinkMessageData);
 
-        if (response.response) {
-          toast.error(response.response.data?.message || "Failed to send message.");
-          return;
-        }
-
         if (!selectedChat?.groupName) {
           dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error sending message:", error);
+        toast.error(error?.response?.data?.message || "Failed to send message.");
       } finally {
         setIsPendingSendMessage(false);
         setEchoLinkMessageData(null);
@@ -195,8 +191,14 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
   return (
     <>
       {!recieverId ? (
-        <div className="h-full flex justify-center items-center text-center bg-slate-900/10 border border-slate-900 rounded-3xl min-h-[400px]">
-          <p className="text-sm font-medium text-slate-500">
+        <div
+          className="h-full flex justify-center items-center text-center rounded-2xl min-h-[400px] border-0"
+          style={{
+            background: "var(--background)",
+            boxShadow: "var(--nm-inset, inset 0 4px 12px rgba(0,0,0,0.1))",
+          }}
+        >
+          <p className="text-xs font-medium text-muted-foreground">
             Select a user or group to open chat
           </p>
         </div>
@@ -222,8 +224,14 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           )}
 
           {/* Chat area */}
-          <div className="flex-1 overflow-y-auto bg-slate-905 mt-3 p-3 rounded-2xl border border-slate-900/40 relative min-h-[300px]">
-            <div className="h-full overflow-y-auto" ref={scrollRef}>
+          <div
+            className="flex-1 overflow-y-auto mt-4 p-4 rounded-2xl relative min-h-[300px] border-0"
+            style={{
+              background: "var(--background)",
+              boxShadow: "var(--nm-inset, inset 0 4px 12px rgba(0,0,0,0.12))",
+            }}
+          >
+            <div className="h-full overflow-y-auto hide-scrollBar" ref={scrollRef}>
               {gettingOldMessages && (
                 <div className="flex justify-center p-2">
                   <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
@@ -237,7 +245,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           </div>
 
           {/* Message input bar */}
-          <div className="mt-3">
+          <div className="mt-4">
             {isPendingSendMessage ? (
               <div className="w-full flex justify-center items-center py-4">
                 <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />

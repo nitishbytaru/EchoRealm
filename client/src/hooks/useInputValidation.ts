@@ -13,6 +13,7 @@ export const useInputValidation = (initialValue: string = "") => {
 
   return {
     value,
+    setValue,
     changeHandler,
     clear,
   };

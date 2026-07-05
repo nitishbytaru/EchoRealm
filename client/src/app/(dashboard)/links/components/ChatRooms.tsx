@@ -178,17 +178,17 @@ export const ChatRooms: React.FC = () => {
       {/* Search Header */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-555" />
           <Input
             type="text"
             placeholder="Search active chats..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 bg-slate-900 border-slate-800 focus-visible:ring-indigo-500 text-white rounded-xl h-10 w-full"
+            className="pl-9 bg-background border-border focus-visible:ring-indigo-500 text-foreground placeholder:text-muted-foreground rounded-lg h-9 w-full text-xs"
           />
 
           {search && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-slate-950 border border-slate-800 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 p-1.5 divide-y divide-slate-900">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-lg shadow-2xl max-h-60 overflow-y-auto z-50 p-1 divide-y divide-border">
               {searchResults && searchResults.length > 0 ? (
                 searchResults.map((searchUser) => (
                   <div
@@ -202,22 +202,22 @@ export const ChatRooms: React.FC = () => {
                       }
                       setSearch("");
                     }}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-900 cursor-pointer transition-colors"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer transition-colors tap-interactive"
                   >
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-7 w-7">
                       <AvatarImage src={searchUser?.avatar?.url} />
-                      <AvatarFallback className="bg-indigo-950 text-indigo-400 text-xs">
+                      <AvatarFallback className="bg-muted text-indigo-400 text-[10px] border border-border">
                         {searchUser.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-xs font-semibold text-white">@{searchUser.username}</span>
+                    <span className="text-xs font-semibold text-foreground">@{searchUser.username}</span>
                   </div>
                 ))
               ) : (
-                <div className="p-4 text-center text-xs text-slate-500 flex flex-col items-center gap-2">
+                <div className="p-3 text-center text-[10px] text-zinc-500 flex flex-col items-center gap-2">
                   <span>No user found</span>
                   <Link href="/profile/find-users">
-                    <Button size="sm" className="bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] h-7 px-3 rounded-lg">
+                    <Button size="sm" className="bg-indigo-660 hover:bg-indigo-500 text-white text-[9px] h-6 px-3 rounded-md tap-interactive">
                       Find Friends
                     </Button>
                   </Link>
@@ -230,10 +230,10 @@ export const ChatRooms: React.FC = () => {
         <Button
           size="icon"
           onClick={() => setOpenCreateGroup(true)}
-          className="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-indigo-400 hover:text-white rounded-xl h-10 w-10 flex-shrink-0"
+          className="bg-background border border-border hover:bg-muted text-indigo-400 hover:text-foreground rounded-lg h-9 w-9 flex-shrink-0 tap-interactive"
           title="Create New Group"
         >
-          <MessageSquarePlus className="h-5 w-5" />
+          <MessageSquarePlus className="h-4 w-4" />
         </Button>
       </div>
 
@@ -245,12 +245,12 @@ export const ChatRooms: React.FC = () => {
       />
 
       {/* Scrollable list */}
-      <div className="flex-1 overflow-y-auto pr-1 space-y-2">
+      <div className="flex-1 overflow-y-auto pr-0.5 space-y-1 hide-scrollBar">
         {myPrivateChatRooms?.map((receiver: any, index: number) => {
           const isSelected = recieverId === receiver._id;
           const isUnread =
-            receiver?.latestMessage?.receiver?.messageStatus === "sent" &&
-            receiver?.latestMessage?.sender !== user?._id;
+              receiver?.latestMessage?.receiver?.messageStatus === "sent" &&
+              receiver?.latestMessage?.sender !== user?._id;
 
           return (
             <div
@@ -266,34 +266,34 @@ export const ChatRooms: React.FC = () => {
                   markAsRead(dispatch, setLatestMessageAsRead, receiver);
                 }
               }}
-              className={`flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all duration-200 border ${
+              className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all duration-150 border tap-interactive ${
                 isSelected
-                  ? "bg-indigo-500/10 border-indigo-500/30"
-                  : "bg-slate-900/20 border-slate-900/60 hover:bg-slate-900/40 hover:border-slate-800"
+                  ? "bg-muted border-border text-foreground"
+                  : "bg-transparent border-transparent hover:bg-muted/50 hover:border-border/30 text-muted-foreground"
               }`}
             >
-              <div className="flex items-center gap-3 overflow-hidden flex-1">
-                <Avatar className="h-11 w-11 border border-slate-800">
+              <div className="flex items-center gap-2 overflow-hidden flex-1">
+                <Avatar className="h-9 w-9 border border-border">
                   <AvatarImage src={receiver?.avatar?.url || receiver?.groupProfile?.url} />
-                  <AvatarFallback className="bg-slate-900 text-indigo-400">
+                  <AvatarFallback className="bg-background text-indigo-400 text-xs border border-border">
                     {(receiver?.username || receiver?.groupName)?.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="overflow-hidden flex-1">
-                  <h4 className="text-xs font-bold text-slate-205 truncate">
+                  <h4 className="text-[11px] font-semibold text-foreground truncate">
                     {receiver?.username ? `@${receiver.username}` : receiver?.groupName}
                   </h4>
                   {receiver.latestMessage ? (
                     <p
                       className={`text-[10px] mt-0.5 truncate ${
-                        isUnread ? "text-indigo-400 font-bold" : "text-slate-500"
+                        isUnread ? "text-indigo-400 font-bold" : "text-muted-foreground"
                       }`}
                     >
                       {truncateMessage(receiver?.latestMessage?.message, 30)}
                     </p>
                   ) : (
-                    <p className="text-[10px] text-slate-500 mt-0.5 truncate">
+                    <p className="text-[10px] text-zinc-500 mt-0.5 truncate">
                       {truncateMessage(
                         receiver?.groupChatRoomMembers?.map((m: any) => m.username).join(", ") || "",
                         30
@@ -305,14 +305,14 @@ export const ChatRooms: React.FC = () => {
 
               {/* Notification Dot */}
               {isUnread && (
-                <div className="h-2 w-2 rounded-full bg-indigo-500 shadow-md shadow-indigo-500/50 animate-pulse ml-2 flex-shrink-0" />
+                <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-sm shadow-indigo-500/40 ml-2 flex-shrink-0" />
               )}
             </div>
           );
         })}
 
         {myPrivateChatRooms?.length === 0 && (
-          <div className="text-center py-8 text-xs text-slate-500">
+          <div className="text-center py-8 text-[11px] text-muted-foreground">
             No active conversations. Start one!
           </div>
         )}

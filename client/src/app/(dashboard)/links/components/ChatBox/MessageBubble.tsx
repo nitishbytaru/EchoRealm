@@ -16,20 +16,40 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ messages, user }) 
   const attachmentUrl = hasAttachments ? messages.attachments[0]?.url : null;
 
   return (
-    <div className={`flex flex-col mb-4 ${isOwnMessage ? "items-end" : "items-start"}`}>
+    <div className={`flex flex-col mb-3 animate-scale-in ${isOwnMessage ? "items-end" : "items-start"}`}>
       <div
-        className={`max-w-[70%] rounded-2xl px-4 py-2.5 text-xs shadow-md leading-relaxed whitespace-pre-wrap break-words ${
+        className={`max-w-[70%] rounded-xl px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap break-words border-0 ${
           isOwnMessage
-            ? "bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-br-none"
-            : "bg-slate-900 border border-slate-800 text-slate-200 rounded-bl-none"
+            ? "bg-indigo-600 text-white rounded-br-none shadow-sm shadow-indigo-950/20"
+            : "rounded-bl-none"
         }`}
+        style={
+          !isOwnMessage
+            ? {
+                background: "var(--background)",
+                boxShadow:
+                  "var(--nm-raised, 4px 4px 10px rgba(0,0,0,0.12), -2px -2px 6px rgba(255,255,255,0.7))",
+                color: "var(--foreground)",
+              }
+            : undefined
+        }
       >
         {attachmentUrl && (
-          <div className="mb-2 max-w-full overflow-hidden rounded-lg">
+          <div
+            className="mb-2 max-w-full overflow-hidden rounded-md"
+            style={
+              !isOwnMessage
+                ? {
+                    boxShadow:
+                      "var(--nm-inset, inset 0 2px 6px rgba(0,0,0,0.1))",
+                  }
+                : undefined
+            }
+          >
             <img
               src={attachmentUrl}
               alt="Attachment"
-              className="w-full h-auto max-h-60 object-cover hover:scale-105 transition-transform duration-350"
+              className="w-full h-auto max-h-60 object-cover hover:scale-102 transition-transform duration-300"
             />
           </div>
         )}
@@ -37,7 +57,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ messages, user }) 
         <p>{messages?.message}</p>
       </div>
 
-      <span className="text-[9px] text-slate-500 mt-1 px-1">
+      <span className="text-[9px] text-muted-foreground mt-1.5 px-1 font-medium">
         {moment(messages?.createdAt).fromNow()}
       </span>
     </div>

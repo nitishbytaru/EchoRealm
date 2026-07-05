@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { Paperclip, X, Send } from "lucide-react";
 
 import { useFileHandler } from "@/hooks/useFileHandler";
@@ -47,14 +47,24 @@ export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
   const isOverLimit = message.value.length > CHARACTER_LIMIT;
 
   return (
-    <div className="bg-slate-950 pt-2 sm:p-4 flex-none border-t border-slate-900">
-      <div className="flex items-center gap-2 max-w-4xl mx-auto">
+    <div
+      className="py-2 flex-none border-0"
+      style={{
+        background: "var(--background)",
+        boxShadow: "0 -4px 12px var(--nm-dark, rgba(0,0,0,0.12)), 0 -1px 0 var(--nm-light, rgba(255,255,255,0.7))",
+      }}
+    >
+      <div className="flex items-center gap-2 max-w-4xl mx-auto px-4">
         <div className="relative flex-shrink-0">
           <label
             htmlFor="attachments-file-input"
-            className="inline-flex items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-300 size-8 cursor-pointer hover:bg-slate-800 hover:text-white transition-all"
+            className="inline-flex items-center justify-center rounded-lg text-muted-foreground size-9 cursor-pointer hover:text-foreground transition-all tap-interactive border-0"
+            style={{
+              background: "var(--background)",
+              boxShadow: "var(--nm-raised, 3px 3px 8px rgba(0,0,0,0.12), -2px -2px 6px rgba(255,255,255,0.8))",
+            }}
           >
-            <Paperclip className="h-5 w-5" />
+            <Paperclip className="h-4 w-4" />
           </label>
           <input
             id="attachments-file-input"
@@ -65,16 +75,22 @@ export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
             className="absolute inset-0 w-0 h-0 opacity-0 pointer-events-none"
           />
           {attachments.file && (
-            <span className="absolute -top-1 -right-1 bg-indigo-500 rounded-full w-2.5 h-2.5 shadow-lg animate-pulse" />
+            <span className="absolute -top-1 -right-1 bg-indigo-500 rounded-full w-2.5 h-2.5 shadow-lg" />
           )}
         </div>
 
         <div className="grow relative">
           <Input
             type="text"
-            className={`w-full bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-indigo-500 pr-10 ${
-              isOverLimit ? "border-red-500 focus-visible:ring-red-500" : ""
+            className={`w-full text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-indigo-500 pr-9 rounded-lg h-9 text-xs border-0 ${
+              isOverLimit ? "focus-visible:ring-red-500" : ""
             }`}
+            style={{
+              background: "var(--background)",
+              boxShadow: isOverLimit
+                ? "var(--nm-inset, inset 2px 2px 6px rgba(0,0,0,0.15)), 0 0 0 2px rgba(239,68,68,0.3)"
+                : "var(--nm-inset, inset 2px 2px 6px rgba(0,0,0,0.15))",
+            }}
             placeholder={
               attachments.file ? `File: ${attachments.file.name}` : "Type a message..."
             }
@@ -87,7 +103,7 @@ export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 text-slate-400 hover:text-white"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground tap-interactive"
               onClick={() => attachments.clear()}
             >
               <X className="h-4 w-4" />
@@ -95,10 +111,10 @@ export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
           )}
         </div>
 
-        <div className="flex flex-col items-end justify-center min-w-[45px]">
+        <div className="flex flex-col items-end justify-center min-w-[40px]">
           <span
-            className={`text-[10px] font-mono ${
-              isOverLimit ? "text-red-500 font-bold" : "text-slate-500"
+            className={`text-[9px] font-mono ${
+              isOverLimit ? "text-red-500 font-bold" : "text-muted-foreground"
             }`}
           >
             {message.value.length}/{CHARACTER_LIMIT}
@@ -110,7 +126,7 @@ export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
           size="icon"
           onClick={sendCurrentMessage}
           disabled={isOverLimit || (!message.value && !attachments.file)}
-          className="bg-indigo-500 hover:bg-indigo-600 text-white flex-shrink-0"
+          className="bg-indigo-600 hover:bg-indigo-500 text-white flex-shrink-0 h-9 w-9 rounded-lg shadow-sm shadow-indigo-950/30 tap-interactive border-0"
         >
           <Send className="h-4 w-4" />
         </Button>

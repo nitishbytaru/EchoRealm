@@ -49,38 +49,51 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Neumorphic soft-gray base — slightly warm off-white */
+  --background: #e8eaf0;
+  --foreground: #2d2f36;
+  --card: #e8eaf0;
+  --card-foreground: #2d2f36;
+  --popover: #e8eaf0;
+  --popover-foreground: #2d2f36;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --secondary: #dddfe8;
+  --secondary-foreground: #2d2f36;
+  --muted: #dddfe8;
+  --muted-foreground: #6b6f7e;
+  --accent: #dddfe8;
+  --accent-foreground: #2d2f36;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: #d0d3de;
+  --input: #d0d3de;
+  --ring: oklch(0.488 0.243 264.376);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar: #e8eaf0;
+  --sidebar-foreground: #2d2f36;
+  --sidebar-primary: #4f46e5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #dddfe8;
+  --sidebar-accent-foreground: #2d2f36;
+  --sidebar-border: #d0d3de;
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Neumorphic shadow tokens */
+  --nm-light: #ffffff;
+  --nm-dark: #b8bac4;
+  --nm-distance: 6px;
+  --nm-blur: 12px;
+  --nm-raised: var(--nm-distance) var(--nm-distance) var(--nm-blur) var(--nm-dark),
+               calc(-1 * var(--nm-distance)) calc(-1 * var(--nm-distance)) var(--nm-blur) var(--nm-light);
+  --nm-inset: inset 4px 4px 8px var(--nm-dark),
+              inset -4px -4px 8px var(--nm-light);
+  --nm-flat: 2px 2px 5px var(--nm-dark),
+             -2px -2px 5px var(--nm-light);
 }
 
 .dark {
@@ -117,6 +130,55 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@theme {
+  --animate-fade-in-up: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-scale-in: scaleIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  --animate-slide-in-bottom: slideInBottom 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-fade-in: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slideInBottom {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -127,6 +189,138 @@
   html {
     @apply font-sans;
   }
+}
+
+.tap-interactive {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.tap-interactive:active {
+  transform: scale(0.96);
+  opacity: 0.92;
+}
+
+.card-interactive {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background-color 0.2s ease;
+}
+.card-interactive:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.3);
+}
+.dark .card-interactive:hover {
+  box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.5);
+}
+.card-interactive:active {
+  transform: scale(0.985) translateY(0);
+}
+
+/* ─── Neumorphic utility classes (light mode only) ─── */
+.nm-raised {
+  box-shadow: var(--nm-raised);
+  border: none;
+}
+.nm-inset {
+  box-shadow: var(--nm-inset);
+  border: none;
+}
+.nm-flat {
+  box-shadow: var(--nm-flat);
+  border: none;
+}
+
+/* Dark mode resets — these classes should do nothing in dark mode */
+.dark .nm-raised,
+.dark .nm-inset,
+.dark .nm-flat {
+  box-shadow: none;
+  border: 1px solid oklch(1 0 0 / 10%);
+}
+
+/* ─── Global light-mode neumorphic application ─── */
+
+/* Cards */
+:root .card-nm,
+body:not(.dark) [data-slot="card"] {
+  background: var(--card);
+  box-shadow: var(--nm-raised);
+  border: none;
+}
+
+/* Inputs */
+body:not(.dark) [data-slot="input"],
+body:not(.dark) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+  background: var(--background);
+  box-shadow: var(--nm-inset);
+  border: none;
+}
+body:not(.dark) [data-slot="input"]:focus,
+body:not(.dark) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus {
+  box-shadow: var(--nm-inset), 0 0 0 2px rgba(79, 70, 229, 0.3);
+  outline: none;
+}
+
+/* Buttons (secondary/ghost/outline variants) */
+body:not(.dark) [data-slot="button"][data-variant="secondary"],
+body:not(.dark) [data-slot="button"][data-variant="outline"],
+body:not(.dark) [data-slot="button"][data-variant="ghost"]:hover {
+  background: var(--background);
+  box-shadow: var(--nm-raised);
+  border: none;
+}
+body:not(.dark) [data-slot="button"][data-variant="secondary"]:active,
+body:not(.dark) [data-slot="button"][data-variant="outline"]:active {
+  box-shadow: var(--nm-inset);
+}
+
+/* Navbar */
+body:not(.dark) header,
+body:not(.dark) nav[class*="border-border"] {
+  background: var(--background);
+  box-shadow: 0 2px 8px var(--nm-dark);
+  border-bottom: none;
+}
+
+/* Dialog / Popover panels */
+body:not(.dark) [data-slot="dialog-content"],
+body:not(.dark) [role="dialog"] > div,
+body:not(.dark) [data-radix-popper-content-wrapper] > div {
+  background: var(--background);
+  box-shadow: 16px 16px 32px var(--nm-dark), -8px -8px 20px var(--nm-light);
+  border: none;
+}
+
+/* Theme toggle track in light mode */
+body:not(.dark) label [class*="rounded-full"][class*="w-14"] {
+  background: var(--background);
+  box-shadow: var(--nm-inset);
+}
+
+/* Bottom mobile nav */
+body:not(.dark) nav[class*="fixed bottom-0"] {
+  background: var(--background);
+  box-shadow: 0 -2px 10px var(--nm-dark), 0 -1px 0 var(--nm-light);
+  border-top: none;
+}
+
+/* Sidebar / chat list panel */
+body:not(.dark) [class*="border-r border-border"] {
+  background: var(--background);
+  box-shadow: 4px 0 12px -4px var(--nm-dark);
+  border-right: none;
+}
+
+/* Avatar fallback */
+body:not(.dark) [data-slot="avatar-fallback"] {
+  background: var(--background);
+  box-shadow: var(--nm-flat);
+}
+
+/* Dropdown / popover menus */
+body:not(.dark) [data-slot="dropdown-menu-content"],
+body:not(.dark) [role="listbox"],
+body:not(.dark) [role="menu"] {
+  background: var(--background);
+  box-shadow: 8px 8px 20px var(--nm-dark), -4px -4px 12px var(--nm-light);
+  border: none;
 }
 
 .hide-scrollBar {

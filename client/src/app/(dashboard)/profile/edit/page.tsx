@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { Camera, Mail, User as UserIcon, Lock, Loader2, Save } from "lucide-react";
 
 import { updateRequestApi } from "@/api/user.api";
@@ -95,15 +95,15 @@ export default function MyProfileDetailsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-xl mx-auto">
-      <div className="space-y-1">
-        <h2 className="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+    <div className="space-y-5 max-w-md mx-auto">
+      <div className="space-y-0.5">
+        <h2 className="text-xl font-bold tracking-tight text-zinc-100">
           Profile Details
         </h2>
-        <p className="text-xs text-slate-500">Update your account username, email, password, and preferences</p>
+        <p className="text-[10px] text-zinc-555 mt-0.5">Update your account username, email, password, and preferences</p>
       </div>
 
-      <div className="flex flex-col items-center justify-center space-y-3 py-4 bg-slate-950/20 border border-slate-900/60 rounded-3xl">
+      <div className="flex flex-col items-center justify-center space-y-2 py-4 bg-zinc-900/10 border border-zinc-900 rounded-xl">
         <input
           id="avatarUpload"
           name="avatar"
@@ -115,92 +115,92 @@ export default function MyProfileDetailsPage() {
 
         <div className="relative group">
           <label htmlFor="avatarUpload" className="cursor-pointer block relative">
-            <Avatar className="h-24 w-24 sm:h-32 sm:w-32 border-2 border-indigo-500/30 group-hover:border-indigo-500/60 transition-colors">
+            <Avatar className="h-20 w-20 border border-zinc-800 group-hover:border-indigo-500/50 transition-colors">
               <AvatarImage src={avatarPreview || user?.avatar?.url} className="object-cover" />
-              <AvatarFallback className="bg-indigo-950 text-indigo-400 text-2xl">
+              <AvatarFallback className="bg-zinc-950 text-indigo-400 text-xl">
                 {user?.username?.slice(0, 2).toUpperCase() || "ME"}
               </AvatarFallback>
             </Avatar>
             <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-              <Camera className="h-5 w-5 text-white" />
+              <Camera className="h-4 w-4 text-zinc-100" />
             </div>
           </label>
         </div>
 
         <div className="text-center">
-          <h3 className="text-sm font-semibold text-white">@{user?.username}</h3>
-          <p className="text-[10px] text-slate-500">Click avatar to select a new image</p>
+          <h3 className="text-xs font-semibold text-zinc-200">@{user?.username}</h3>
+          <p className="text-[9px] text-zinc-500">Click avatar to select a new image</p>
         </div>
       </div>
 
       <div className="space-y-4 pt-2">
         {/* Email */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-400">Email Address</label>
+        <div className="space-y-2">
+          <label className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Email Address</label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-500" />
             <Input
               type="email"
               value={updatedEmail.value}
               onChange={updatedEmail.changeHandler}
-              className="pl-9 bg-slate-900 border-slate-800 focus-visible:ring-indigo-500 text-white text-xs h-10"
+              className="pl-9 bg-zinc-900 border-zinc-800 focus-visible:ring-indigo-500 text-zinc-50 placeholder:text-zinc-650 text-xs h-9 rounded-lg"
             />
           </div>
         </div>
 
         {/* Username */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-400">Username</label>
+        <div className="space-y-2">
+          <label className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Username</label>
           <div className="relative">
-            <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+            <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-500" />
             <Input
               type="text"
               value={updatedUsername.value}
               onChange={updatedUsername.changeHandler}
-              className="pl-9 bg-slate-900 border-slate-800 focus-visible:ring-indigo-500 text-white text-xs h-10"
+              className="pl-9 bg-zinc-900 border-zinc-800 focus-visible:ring-indigo-500 text-zinc-50 placeholder:text-zinc-650 text-xs h-9 rounded-lg"
             />
           </div>
         </div>
 
         {/* New Password */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-400">New Password (leave blank if unchanged)</label>
+        <div className="space-y-2">
+          <label className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">New Password (leave blank if unchanged)</label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-500" />
             <Input
               type="password"
               placeholder="Enter new password"
               value={updatedPassword.value}
               onChange={updatedPassword.changeHandler}
-              className="pl-9 bg-slate-900 border-slate-800 focus-visible:ring-indigo-500 text-white text-xs h-10"
+              className="pl-9 bg-zinc-900 border-zinc-800 focus-visible:ring-indigo-500 text-zinc-50 placeholder:text-zinc-650 text-xs h-9 rounded-lg"
             />
           </div>
         </div>
 
-        <div className="border-t border-slate-900 pt-4 mt-6 space-y-3.5">
+        <div className="border-t border-zinc-900 pt-4 mt-6 space-y-4">
           {/* Become Anonymous Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-xs font-semibold text-slate-200">Become Anonymous</h4>
-              <p className="text-[10px] text-slate-500">Hide your active identity details from public posts</p>
+              <h4 className="text-xs font-semibold text-zinc-200">Become Anonymous</h4>
+              <p className="text-[9px] text-zinc-500">Hide your active identity details from public posts</p>
             </div>
             <Switch
               checked={updatedIsAnonymous}
               onCheckedChange={setUpdatedIsAnonymous}
-              className="data-[state=checked]:bg-indigo-500"
+              className="data-[state=checked]:bg-indigo-650"
             />
           </div>
 
           {/* Accept Mumbles Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-xs font-semibold text-slate-200">Accept Mumbles</h4>
-              <p className="text-[10px] text-slate-500">Allow other members to send anonymous whispers to you</p>
+              <h4 className="text-xs font-semibold text-zinc-200">Accept Mumbles</h4>
+              <p className="text-[9px] text-zinc-500">Allow other members to send anonymous whispers to you</p>
             </div>
             <Switch
               checked={udatedIsAcceptingMumbles}
               onCheckedChange={setUpdatedIsAcceptingMumbles}
-              className="data-[state=checked]:bg-indigo-500"
+              className="data-[state=checked]:bg-indigo-650"
             />
           </div>
         </div>
@@ -209,12 +209,12 @@ export default function MyProfileDetailsPage() {
           <Button
             onClick={submitUpdateRequest}
             disabled={isPending || updatedEmail.value === "" || updatedUsername.value === ""}
-            className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs px-4"
+            className="bg-indigo-650 hover:bg-indigo-600 text-zinc-50 text-xs px-4 h-9 rounded-lg shadow-sm shadow-indigo-950/20 tap-interactive"
           >
             {isPending ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
             ) : (
-              <Save className="h-3.5 w-3.5 mr-1.5" />
+              <Save className="h-4 w-4 mr-2" />
             )}
             Save Changes
           </Button>

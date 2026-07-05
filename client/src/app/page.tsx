@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 import Loading from "@/components/Loading";
 import { loginApi, registerApi, getProfileApi } from "@/api/auth.api";
@@ -14,7 +14,7 @@ import { RootState } from "@/store/store";
 import { useInputValidation } from "@/hooks/useInputValidation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 
 export default function RegisterPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -23,7 +23,7 @@ export default function RegisterPage() {
 
   const dispatch = useDispatch();
   const router = useRouter();
-  const { isMobile, isLoggedIn } = useSelector((state: RootState) => state.auth);
+  const { isLoggedIn } = useSelector((state: RootState) => state.auth);
 
   const email = useInputValidation("");
   const username = useInputValidation("");
@@ -185,31 +185,33 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-radial from-slate-950 via-slate-900 to-black text-white selection:bg-indigo-500 selection:text-white">
-      <div className="relative z-10 w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-sm">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-6 bg-background text-foreground selection:bg-indigo-500 selection:text-white">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="text-center space-y-1.5">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
             EchoRealm
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-xs text-muted-foreground">
             Connecting voices in a modern, secure workspace
           </p>
         </div>
 
-        <Card className="border-slate-800 bg-slate-950/80 backdrop-blur-xl shadow-2xl">
+        <Card className="border-border bg-card backdrop-blur-xl shadow-xl shadow-black/5 dark:shadow-black/40 rounded-xl">
           <CardHeader className="space-y-4 pb-4">
-            <div className="relative flex justify-center border-b border-slate-800 pb-2">
+            <div className="relative flex justify-center border-b border-zinc-900 pb-2">
               <button
-                className={`flex-1 py-2 text-center text-sm font-semibold transition-colors duration-200 ${
-                  isSignUp ? "text-indigo-400" : "text-slate-400 hover:text-slate-200"
+                type="button"
+                className={`flex-1 py-1.5 text-center text-xs font-semibold transition-colors duration-200 ${
+                  isSignUp ? "text-indigo-400" : "text-zinc-500 hover:text-zinc-350"
                 }`}
                 onClick={() => setIsSignUp(true)}
               >
                 Register
               </button>
               <button
-                className={`flex-1 py-2 text-center text-sm font-semibold transition-colors duration-200 ${
-                  !isSignUp ? "text-indigo-400" : "text-slate-400 hover:text-slate-200"
+                type="button"
+                className={`flex-1 py-1.5 text-center text-xs font-semibold transition-colors duration-200 ${
+                  !isSignUp ? "text-indigo-400" : "text-zinc-500 hover:text-zinc-350"
                 }`}
                 onClick={() => setIsSignUp(false)}
               >
@@ -223,15 +225,15 @@ export default function RegisterPage() {
                 }}
               />
             </div>
-            <CardDescription className="text-center text-slate-400">
+            <CardDescription className="text-center text-zinc-500 text-xs">
               {isSignUp ? "Create an account to start chatting" : "Welcome back! Please enter your details"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form onSubmit={isSignUp ? registerApiFunc : loginApiFunc} className="space-y-4">
+            <form onSubmit={isSignUp ? registerApiFunc : loginApiFunc} className="space-y-3.5">
               {isSignUp && (
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                     Email Address
                   </label>
                   <Input
@@ -239,14 +241,14 @@ export default function RegisterPage() {
                     placeholder="daisy@site.com"
                     value={email.value}
                     onChange={email.changeHandler}
-                    className="bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-600 focus-visible:ring-indigo-500"
+                    className="bg-zinc-900/50 border-zinc-800 text-zinc-200 placeholder:text-zinc-750 focus-visible:ring-indigo-500 rounded-lg h-9 text-xs"
                     required
                   />
                 </div>
               )}
 
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                   Username
                 </label>
                 <Input
@@ -254,13 +256,13 @@ export default function RegisterPage() {
                   placeholder="user24"
                   value={username.value}
                   onChange={username.changeHandler}
-                  className="bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-600 focus-visible:ring-indigo-500"
+                  className="bg-zinc-900/50 border-zinc-800 text-zinc-200 placeholder:text-zinc-750 focus-visible:ring-indigo-500 rounded-lg h-9 text-xs"
                   required
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                   Password
                 </label>
                 <Input
@@ -268,26 +270,26 @@ export default function RegisterPage() {
                   placeholder="••••••••"
                   value={password.value}
                   onChange={password.changeHandler}
-                  className="bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-600 focus-visible:ring-indigo-500"
+                  className="bg-zinc-900/50 border-zinc-800 text-zinc-200 placeholder:text-zinc-750 focus-visible:ring-indigo-500 rounded-lg h-9 text-xs"
                   required
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold shadow-lg shadow-indigo-500/20"
+                className="w-full bg-indigo-650 hover:bg-indigo-600 text-zinc-50 text-xs font-semibold h-9 rounded-lg shadow-sm shadow-indigo-950/20 mt-2 tap-interactive"
               >
                 {isSignUp ? "Register" : "Login"}
               </Button>
             </form>
 
             <div className="relative flex py-2 items-center">
-              <div className="flex-grow border-t border-slate-800"></div>
-              <span className="flex-shrink mx-4 text-slate-500 text-xs font-medium uppercase tracking-wider">Or continue with</span>
-              <div className="flex-grow border-t border-slate-800"></div>
+              <div className="flex-grow border-t border-zinc-900"></div>
+              <span className="flex-shrink mx-3 text-zinc-650 text-[10px] font-medium uppercase tracking-wider">Or continue with</span>
+              <div className="flex-grow border-t border-zinc-900"></div>
             </div>
 
-            <div className="flex justify-center w-full">
+            <div className="flex justify-center w-full pt-1">
               <GoogleLogin
                 onSuccess={responseMessage}
                 onError={errorMessage}
