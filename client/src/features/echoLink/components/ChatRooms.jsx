@@ -143,7 +143,6 @@ function ChatRooms() {
       );
     }
   };
-
   const joinGroupChat = async (recieverId) => {
     dispatch(setPrivateMessages([]));
     const groupResponse = await getGroupChatDetailsApi(recieverId);
