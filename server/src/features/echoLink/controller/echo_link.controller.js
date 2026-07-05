@@ -99,7 +99,7 @@ export const getMyPrivateFriends = asyncHandler(async (req, res) => {
 
   // Fetch chat rooms that contain the user's ID in uniqueChatId
   const myPrivateChatRooms = await EchoLink.find({
-    uniqueChatId: { $regex: userId },
+    uniqueChatId: { $regex: req.user },
   });
 
   // Extract friend IDs by removing the user's ID and hyphen from uniqueChatId

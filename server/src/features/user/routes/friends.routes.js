@@ -16,7 +16,7 @@ const router = Router();
 router.use(isAuthenticated);
 router.route("/requests/:senderId").patch(sendFriendRequest);
 router.route("/requests").get(getMyFriendRequests);
-router.route("/friends").get(getMyFriendList);
+router.route("/").get(getMyFriendList);
 
 router.route("/blockedUsers").get(getBlockedUsers);
 router.route("/blockedUsers/unblock/:userId").patch(unBlockUser);

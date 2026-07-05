@@ -7,11 +7,13 @@ const isAuthenticated = asyncHandler(async (req, res, next) => {
   if (!token)
     return res.status(408).json({ message: "User not authenticated" });
 
-  const decodedData = jwt.verify(token, process.env.JWT_SECRET);
-
-  req.user = decodedData._id;
-
-  next();
+  try {
+    const decodedData = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decodedData._id;
+    next();
+  } catch (error) {
+    return res.status(408).json({ message: "User not authenticated or token expired" });
+  }
 });
 
 export { isAuthenticated };
