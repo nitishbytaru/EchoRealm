@@ -53,12 +53,12 @@ export const NavBar: React.FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md text-foreground">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 w-full border-b-[3px] border-[var(--nb-border-color)] bg-card text-foreground">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           
           {/* Brand/Home Logo */}
           <div className="flex items-center">
-            <Link href="/links" className="text-sm font-extrabold tracking-tight text-foreground transition-opacity hover:opacity-90">
+            <Link href="/links" className="text-lg font-extrabold tracking-tight text-foreground transition-opacity hover:opacity-90">
               EchoRealm
             </Link>
           </div>
@@ -70,15 +70,17 @@ export const NavBar: React.FC = () => {
                 <Link
                   href="/links"
                   className={cn(
-                    "flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-lg hover:bg-muted transition-all text-muted-foreground hover:text-foreground tap-interactive",
-                    pathname.startsWith("/links") && "text-indigo-400 hover:text-indigo-400"
+                    "flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl border-[3px] transition-all duration-150 tap-interactive",
+                    pathname.startsWith("/links")
+                      ? "bg-primary text-primary-foreground border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
+                      : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted hover:border-[var(--nb-border-color)]"
                   )}
                 >
-                  <MessageSquare className="h-4 w-4" />
+                  <MessageSquare className="h-5 w-5" />
                   <span>EchoLink</span>
                 </Link>
                 {newUnreadMessages > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-indigo-650 text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold shadow-md shadow-black/40">
+                  <span className="absolute -top-2 -right-2 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]">
                     {newUnreadMessages}
                   </span>
                 )}
@@ -89,21 +91,23 @@ export const NavBar: React.FC = () => {
               <Link
                 href="/shout"
                 className={cn(
-                  "flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-lg hover:bg-muted transition-all text-muted-foreground hover:text-foreground tap-interactive",
-                  pathname.startsWith("/shout") && "text-indigo-400 hover:text-indigo-400"
+                  "flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl border-[3px] transition-all duration-150 tap-interactive",
+                  pathname.startsWith("/shout")
+                    ? "bg-secondary text-secondary-foreground border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
+                    : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted hover:border-[var(--nb-border-color)]"
                 )}
               >
-                <Megaphone className="h-4 w-4" />
+                <Megaphone className="h-5 w-5" />
                 <span>EchoShout</span>
               </Link>
             </div>
 
             {isLoggedIn && (
               <>
-                <div className="relative px-3 py-2 text-xs font-medium rounded-lg hover:bg-muted transition-all text-muted-foreground hover:text-foreground cursor-pointer tap-interactive">
+                <div className="relative px-4 py-2 text-sm font-bold rounded-xl border-[3px] border-transparent hover:bg-muted hover:border-[var(--nb-border-color)] transition-all text-muted-foreground hover:text-foreground cursor-pointer tap-interactive">
                   <MumbleIcon />
                   {unReadMumbles > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-indigo-650 text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold shadow-md shadow-black/40">
+                    <span className="absolute -top-2 -right-2 bg-nb-accent text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]">
                       {unReadMumbles}
                     </span>
                   )}
@@ -113,15 +117,17 @@ export const NavBar: React.FC = () => {
                   <Link
                     href="/profile/mumbles"
                     className={cn(
-                      "flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-lg hover:bg-muted transition-all text-muted-foreground hover:text-foreground tap-interactive",
-                      pathname.startsWith("/profile") && "text-indigo-400 hover:text-indigo-400"
+                      "flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl border-[3px] transition-all duration-150 tap-interactive",
+                      pathname.startsWith("/profile")
+                        ? "bg-nb-accent text-white border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
+                        : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted hover:border-[var(--nb-border-color)]"
                     )}
                   >
-                    <Menu className="h-4 w-4" />
+                    <Menu className="h-5 w-5" />
                     <span>About</span>
                   </Link>
                   {badgeOfPendingRequests > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-indigo-650 text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold shadow-md shadow-black/40">
+                    <span className="absolute -top-2 -right-2 bg-nb-warning text-foreground rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]">
                       {badgeOfPendingRequests}
                     </span>
                   )}
@@ -131,7 +137,7 @@ export const NavBar: React.FC = () => {
           </nav>
 
           {/* Profile Avatar / Theme Toggle */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <ThemeToggle
               handleToggle={(e) =>
                 handleToggle(e, dispatch, setTheme, setIsChecked)
@@ -143,23 +149,23 @@ export const NavBar: React.FC = () => {
               <div className="flex items-center">
                 {isMobile ? (
                   <Link href="/profile/edit" className="tap-interactive">
-                    <Avatar className="h-7 w-7 border border-zinc-800">
+                    <Avatar className="h-8 w-8">
                       <AvatarImage src={user?.avatar?.url} />
-                      <AvatarFallback className="bg-zinc-950 text-indigo-400 text-[10px] border border-zinc-900">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">
                         {user.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Link>
                 ) : (
                   <Link href="/profile/mumbles" className="tap-interactive">
-                    <div className="flex items-center gap-2 bg-muted pl-2 pr-3 py-1 rounded-lg border border-border hover:bg-accent transition-colors">
-                      <Avatar className="h-5 w-5 border border-border">
+                    <div className="flex items-center gap-2 bg-card pl-2 pr-3 py-1.5 rounded-xl border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] hover:shadow-[var(--nb-shadow)] transition-all">
+                      <Avatar className="h-6 w-6 border-[2px]">
                         <AvatarImage src={user?.avatar?.url} />
-                        <AvatarFallback className="bg-background text-indigo-400 text-[9px]">
+                        <AvatarFallback className="bg-primary text-primary-foreground text-[9px]">
                           {user.username.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-[11px] font-medium text-muted-foreground">@{user?.username}</span>
+                      <span className="text-xs font-bold text-foreground">@{user?.username}</span>
                     </div>
                   </Link>
                 )}
@@ -171,19 +177,26 @@ export const NavBar: React.FC = () => {
 
       {/* Mobile Bottom Navigation Bar */}
       {isLoggedIn && (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/80 border-t border-border backdrop-blur-md flex items-center justify-around h-16 pb-safe">
+        <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card border-t-[3px] border-[var(--nb-border-color)] flex items-center justify-around h-16 pb-safe">
           {/* Chats */}
           <Link
             href="/links"
             className={cn(
-              "flex flex-col items-center justify-center gap-1 flex-1 h-full text-muted-foreground hover:text-foreground relative transition-colors tap-interactive",
-              pathname.startsWith("/links") && "text-indigo-400 hover:text-indigo-400"
+              "flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-all duration-150 tap-interactive",
+              pathname.startsWith("/links")
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <MessageSquare className="h-5 w-5" />
-            <span className="text-[9px] font-medium">Chats</span>
+            <div className={cn(
+              "flex items-center justify-center w-10 h-10 rounded-xl transition-all",
+              pathname.startsWith("/links") && "bg-primary border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]"
+            )}>
+              <MessageSquare className="h-5 w-5" />
+            </div>
+            <span className="text-[9px] font-bold">Chats</span>
             {newUnreadMessages > 0 && (
-              <span className="absolute top-2.5 right-6 bg-indigo-650 text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold shadow-md">
+              <span className="absolute top-1 right-4 bg-destructive text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold border-[2px] border-[var(--nb-border-color)]">
                 {newUnreadMessages}
               </span>
             )}
@@ -193,12 +206,19 @@ export const NavBar: React.FC = () => {
           <Link
             href="/shout"
             className={cn(
-              "flex flex-col items-center justify-center gap-1 flex-1 h-full text-muted-foreground hover:text-foreground relative transition-colors tap-interactive",
-              pathname.startsWith("/shout") && "text-indigo-400 hover:text-indigo-400"
+              "flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-all duration-150 tap-interactive",
+              pathname.startsWith("/shout")
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <Megaphone className="h-5 w-5" />
-            <span className="text-[9px] font-medium">Shouts</span>
+            <div className={cn(
+              "flex items-center justify-center w-10 h-10 rounded-xl transition-all",
+              pathname.startsWith("/shout") && "bg-secondary border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]"
+            )}>
+              <Megaphone className="h-5 w-5" />
+            </div>
+            <span className="text-[9px] font-bold">Shouts</span>
           </Link>
 
           {/* Mumbles */}
@@ -210,14 +230,21 @@ export const NavBar: React.FC = () => {
           <Link
             href="/profile/mumbles"
             className={cn(
-              "flex flex-col items-center justify-center gap-1 flex-1 h-full text-muted-foreground hover:text-foreground relative transition-colors tap-interactive",
-              pathname.startsWith("/profile") && "text-indigo-400 hover:text-indigo-400"
+              "flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-all duration-150 tap-interactive",
+              pathname.startsWith("/profile")
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <User className="h-5 w-5" />
-            <span className="text-[9px] font-medium">Profile</span>
+            <div className={cn(
+              "flex items-center justify-center w-10 h-10 rounded-xl transition-all",
+              pathname.startsWith("/profile") && "bg-nb-accent border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]"
+            )}>
+              <User className="h-5 w-5" />
+            </div>
+            <span className="text-[9px] font-bold">Profile</span>
             {badgeOfPendingRequests > 0 && (
-              <span className="absolute top-2.5 right-6 bg-indigo-650 text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold shadow-md">
+              <span className="absolute top-1 right-4 bg-nb-warning text-foreground rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold border-[2px] border-[var(--nb-border-color)]">
                 {badgeOfPendingRequests}
               </span>
             )}

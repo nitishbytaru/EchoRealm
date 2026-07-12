@@ -24,7 +24,7 @@ export const ChatHistoryBox: React.FC<ChatHistoryBoxProps> = ({
   const { user } = useSelector((state: RootState) => state.auth);
 
   return (
-    <div className="flex-grow bg-zinc-900/10 border border-zinc-900 sm:p-4 p-3 rounded-xl overflow-hidden flex flex-col min-h-[400px]">
+    <div className="flex-grow bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] sm:p-5 p-4 rounded-2xl overflow-hidden flex flex-col min-h-[400px]">
       <div
         className="flex-grow overflow-y-auto pr-1 hide-scrollBar max-h-[500px]"
         ref={shoutScrollRef}

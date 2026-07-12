@@ -47,24 +47,14 @@ export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
   const isOverLimit = message.value.length > CHARACTER_LIMIT;
 
   return (
-    <div
-      className="py-2 flex-none border-0"
-      style={{
-        background: "var(--background)",
-        boxShadow: "0 -4px 12px var(--nm-dark, rgba(0,0,0,0.12)), 0 -1px 0 var(--nm-light, rgba(255,255,255,0.7))",
-      }}
-    >
-      <div className="flex items-center gap-2 max-w-4xl mx-auto px-4">
+    <div className="py-3 flex-none bg-card border-t-[3px] border-[var(--nb-border-color)]">
+      <div className="flex items-center gap-3 max-w-4xl mx-auto px-4">
         <div className="relative flex-shrink-0">
           <label
             htmlFor="attachments-file-input"
-            className="inline-flex items-center justify-center rounded-lg text-muted-foreground size-9 cursor-pointer hover:text-foreground transition-all tap-interactive border-0"
-            style={{
-              background: "var(--background)",
-              boxShadow: "var(--nm-raised, 3px 3px 8px rgba(0,0,0,0.12), -2px -2px 6px rgba(255,255,255,0.8))",
-            }}
+            className="inline-flex items-center justify-center rounded-xl text-muted-foreground size-10 cursor-pointer hover:text-foreground transition-all tap-interactive bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
           >
-            <Paperclip className="h-4 w-4" />
+            <Paperclip className="h-5 w-5" />
           </label>
           <input
             id="attachments-file-input"
@@ -75,22 +65,16 @@ export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
             className="absolute inset-0 w-0 h-0 opacity-0 pointer-events-none"
           />
           {attachments.file && (
-            <span className="absolute -top-1 -right-1 bg-indigo-500 rounded-full w-2.5 h-2.5 shadow-lg" />
+            <span className="absolute -top-1 -right-1 bg-nb-success rounded-full w-3 h-3 border-[2px] border-[var(--nb-border-color)]" />
           )}
         </div>
 
         <div className="grow relative">
           <Input
             type="text"
-            className={`w-full text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-indigo-500 pr-9 rounded-lg h-9 text-xs border-0 ${
-              isOverLimit ? "focus-visible:ring-red-500" : ""
+            className={`w-full text-foreground placeholder:text-muted-foreground/70 pr-9 h-10 text-sm ${
+              isOverLimit ? "border-destructive focus-visible:ring-destructive/30" : ""
             }`}
-            style={{
-              background: "var(--background)",
-              boxShadow: isOverLimit
-                ? "var(--nm-inset, inset 2px 2px 6px rgba(0,0,0,0.15)), 0 0 0 2px rgba(239,68,68,0.3)"
-                : "var(--nm-inset, inset 2px 2px 6px rgba(0,0,0,0.15))",
-            }}
             placeholder={
               attachments.file ? `File: ${attachments.file.name}` : "Type a message..."
             }
@@ -103,7 +87,7 @@ export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground tap-interactive"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground border-0 shadow-none hover:shadow-none"
               onClick={() => attachments.clear()}
             >
               <X className="h-4 w-4" />
@@ -113,8 +97,8 @@ export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
 
         <div className="flex flex-col items-end justify-center min-w-[40px]">
           <span
-            className={`text-[9px] font-mono ${
-              isOverLimit ? "text-red-500 font-bold" : "text-muted-foreground"
+            className={`text-[10px] font-bold font-mono ${
+              isOverLimit ? "text-destructive" : "text-muted-foreground"
             }`}
           >
             {message.value.length}/{CHARACTER_LIMIT}
@@ -126,9 +110,9 @@ export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
           size="icon"
           onClick={sendCurrentMessage}
           disabled={isOverLimit || (!message.value && !attachments.file)}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white flex-shrink-0 h-9 w-9 rounded-lg shadow-sm shadow-indigo-950/30 tap-interactive border-0"
+          className="bg-primary text-primary-foreground flex-shrink-0 h-10 w-10 rounded-xl"
         >
-          <Send className="h-4 w-4" />
+          <Send className="h-5 w-5" />
         </Button>
       </div>
     </div>

@@ -2,7 +2,6 @@
 
 import React from "react";
 import { Sun, Moon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface ThemeToggleProps {
   isChecked: boolean;
@@ -19,9 +18,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ isChecked, handleToggl
   if (!mounted) {
     return (
       <div className="flex items-center space-x-2">
-        <div className="w-14 h-8 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-between px-2 opacity-50">
-          <Sun className="h-4 w-4 text-amber-400 z-10 pointer-events-none" />
-          <Moon className="h-4 w-4 text-indigo-400 z-10 pointer-events-none" />
+        <div className="w-16 h-9 bg-muted rounded-full border-[3px] border-[var(--nb-border-color)] flex items-center justify-between px-2 opacity-50">
+          <Sun className="h-4 w-4 text-nb-warning z-10 pointer-events-none" />
+          <Moon className="h-4 w-4 text-nb-accent z-10 pointer-events-none" />
         </div>
       </div>
     );
@@ -36,9 +35,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ isChecked, handleToggl
           onChange={handleToggle}
           className="sr-only peer"
         />
-        <div className="w-14 h-8 bg-zinc-200 dark:bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:start-[4px] after:bg-white dark:after:bg-zinc-200 after:border-zinc-300 dark:after:border-zinc-700 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-zinc-800 peer-checked:bg-zinc-950 flex items-center justify-between px-2 shadow-inner">
-          <Sun className="h-4 w-4 text-amber-500 dark:text-amber-400/50 z-10 pointer-events-none" />
-          <Moon className="h-4 w-4 text-indigo-300 dark:text-indigo-400 z-10 pointer-events-none" />
+        <div className="w-16 h-9 bg-card rounded-full border-[3px] border-[var(--nb-border-color)] shadow-[3px_3px_0px_var(--nb-shadow-color)] peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[5px] after:start-[5px] after:bg-primary after:border-[2px] after:border-[var(--nb-border-color)] after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-muted flex items-center justify-between px-2 transition-all duration-150">
+          <Sun className="h-4 w-4 text-nb-warning z-10 pointer-events-none" />
+          <Moon className="h-4 w-4 text-nb-accent z-10 pointer-events-none" />
         </div>
       </label>
     </div>

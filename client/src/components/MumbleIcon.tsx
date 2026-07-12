@@ -23,7 +23,6 @@ export const MumbleIcon: React.FC<MumbleIconProps> = ({ isBottomNav = false }) =
   const { isLoggedIn, isMobile } = useSelector((state: RootState) => state.auth);
   const { unReadMumbles } = useSelector((state: RootState) => state.echoMumble);
   const [open, setOpen] = useState(false);
-  const [pressedBtn, setPressedBtn] = useState<"read" | "send" | null>(null);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -34,34 +33,27 @@ export const MumbleIcon: React.FC<MumbleIconProps> = ({ isBottomNav = false }) =
         <div className="relative">
           <MessageCircle className="h-5 w-5" />
           {unReadMumbles > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 bg-indigo-600 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[8px] font-bold shadow-md">
+            <span className="absolute -top-2 -right-2 bg-nb-accent text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] font-bold border-[2px] border-[var(--nb-border-color)]">
               {unReadMumbles}
             </span>
           )}
         </div>
         {isBottomNav ? (
-          <span className="text-[10px] font-medium">Mumbles</span>
+          <span className="text-[10px] font-bold">Mumbles</span>
         ) : (
-          !isMobile && <span className="ml-2">EchoMumble</span>
+          !isMobile && <span className="ml-2 font-bold">EchoMumble</span>
         )}
       </DialogTrigger>
 
-      {/* Dialog panel — nm-raised in light, default dark shadow in dark */}
-      <DialogContent
-        className="sm:max-w-md rounded-2xl border-0 text-foreground"
-        style={{
-          background: "var(--background)",
-          boxShadow: "var(--nm-raised, 0 8px 32px rgba(0,0,0,0.25))",
-        }}
-      >
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center text-sm font-bold text-foreground tracking-tight">
+          <DialogTitle className="text-center text-base font-extrabold text-foreground tracking-tight">
             EchoMumble
           </DialogTitle>
         </DialogHeader>
 
         {/* Subtitle */}
-        <p className="text-center text-[10px] text-muted-foreground -mt-2 pb-1">
+        <p className="text-center text-xs text-muted-foreground font-medium -mt-2 pb-1">
           Choose an action
         </p>
 
@@ -69,62 +61,26 @@ export const MumbleIcon: React.FC<MumbleIconProps> = ({ isBottomNav = false }) =
           {isLoggedIn && (
             <Link href="/mumbles/read" className="flex-1" onClick={() => setOpen(false)}>
               <button
-                onMouseDown={() => setPressedBtn("read")}
-                onMouseUp={() => setPressedBtn(null)}
-                onMouseLeave={() => setPressedBtn(null)}
-                className="w-full h-20 flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-150 tap-interactive"
-                style={{
-                  background: "var(--background)",
-                  boxShadow:
-                    pressedBtn === "read"
-                      ? "var(--nm-inset, inset 0 2px 8px rgba(0,0,0,0.2))"
-                      : "var(--nm-raised, 0 4px 12px rgba(0,0,0,0.15))",
-                  color: "var(--foreground)",
-                  border: "none",
-                }}
+                className="w-full h-24 flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-150 tap-interactive bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] hover:shadow-[var(--nb-shadow)] text-foreground"
               >
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center"
-                  style={{
-                    background: "var(--background)",
-                    boxShadow: "var(--nm-flat, 0 2px 6px rgba(0,0,0,0.12))",
-                  }}
-                >
-                  <Mail className="h-4 w-4 text-indigo-500" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-secondary/20 border-[2px] border-[var(--nb-border-color)]">
+                  <Mail className="h-5 w-5 text-secondary" />
                 </div>
-                <span className="text-[11px] font-semibold text-foreground">Inbox</span>
-                <span className="text-[9px] text-muted-foreground -mt-1">Read your mumbles</span>
+                <span className="text-xs font-bold text-foreground">Inbox</span>
+                <span className="text-[9px] text-muted-foreground font-medium -mt-1">Read your mumbles</span>
               </button>
             </Link>
           )}
 
           <Link href="/mumbles/send" className="flex-1" onClick={() => setOpen(false)}>
             <button
-              onMouseDown={() => setPressedBtn("send")}
-              onMouseUp={() => setPressedBtn(null)}
-              onMouseLeave={() => setPressedBtn(null)}
-              className="w-full h-20 flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-150 tap-interactive"
-              style={{
-                background: "var(--background)",
-                boxShadow:
-                  pressedBtn === "send"
-                    ? "var(--nm-inset, inset 0 2px 8px rgba(0,0,0,0.2))"
-                    : "var(--nm-raised, 0 4px 12px rgba(0,0,0,0.15))",
-                color: "var(--foreground)",
-                border: "none",
-              }}
+              className="w-full h-24 flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-150 tap-interactive bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] hover:shadow-[var(--nb-shadow)] text-foreground"
             >
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center"
-                style={{
-                  background: "var(--background)",
-                  boxShadow: "var(--nm-flat, 0 2px 6px rgba(0,0,0,0.12))",
-                }}
-              >
-                <Send className="h-4 w-4 text-indigo-500" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-nb-accent/20 border-[2px] border-[var(--nb-border-color)]">
+                <Send className="h-5 w-5 text-nb-accent" />
               </div>
-              <span className="text-[11px] font-semibold text-foreground">Send</span>
-              <span className="text-[9px] text-muted-foreground -mt-1">Whisper to someone</span>
+              <span className="text-xs font-bold text-foreground">Send</span>
+              <span className="text-[9px] text-muted-foreground font-medium -mt-1">Whisper to someone</span>
             </button>
           </Link>
         </div>
@@ -132,16 +88,9 @@ export const MumbleIcon: React.FC<MumbleIconProps> = ({ isBottomNav = false }) =
         <div className="flex justify-end pt-1">
           <DialogClose
             render={
-              <button
-                className="text-[11px] text-muted-foreground hover:text-foreground px-4 h-8 rounded-lg transition-all duration-150 tap-interactive"
-                style={{
-                  background: "var(--background)",
-                  boxShadow: "var(--nm-flat, 0 2px 5px rgba(0,0,0,0.1))",
-                  border: "none",
-                }}
-              >
+              <Button variant="outline" size="sm">
                 Close
-              </button>
+              </Button>
             }
           />
         </div>

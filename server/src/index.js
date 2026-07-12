@@ -10,7 +10,7 @@ const httpServer = createServer(app);
 // Initialize Socket.IO with CORS configuration
 export const io = new Server(httpServer, {
   cors: {
-    origin: [process.env.FRONTEND_URL, "http://localhost:5173", "http://127.0.0.1:5173"].filter(Boolean),
+    origin: [process.env.FRONTEND_URL, "http://localhost:5000", "http://127.0.0.1:5000"].filter(Boolean),
     credentials: true,
   },
 });

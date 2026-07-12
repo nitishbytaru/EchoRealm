@@ -176,19 +176,19 @@ export const ChatRooms: React.FC = () => {
   return (
     <div className="h-full flex flex-col space-y-4">
       {/* Search Header */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-555" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search active chats..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-background border-border focus-visible:ring-indigo-500 text-foreground placeholder:text-muted-foreground rounded-lg h-9 w-full text-xs"
+            className="pl-10 text-sm"
           />
 
           {search && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-lg shadow-2xl max-h-60 overflow-y-auto z-50 p-1 divide-y divide-border">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-card border-[3px] border-[var(--nb-border-color)] rounded-xl shadow-[var(--nb-shadow)] max-h-60 overflow-y-auto z-50 p-2 space-y-1">
               {searchResults && searchResults.length > 0 ? (
                 searchResults.map((searchUser) => (
                   <div
@@ -202,22 +202,22 @@ export const ChatRooms: React.FC = () => {
                       }
                       setSearch("");
                     }}
-                    className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer transition-colors tap-interactive"
+                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-primary/20 cursor-pointer transition-colors font-medium tap-interactive"
                   >
-                    <Avatar className="h-7 w-7">
+                    <Avatar className="h-8 w-8">
                       <AvatarImage src={searchUser?.avatar?.url} />
-                      <AvatarFallback className="bg-muted text-indigo-400 text-[10px] border border-border">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">
                         {searchUser.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-xs font-semibold text-foreground">@{searchUser.username}</span>
+                    <span className="text-sm font-bold text-foreground">@{searchUser.username}</span>
                   </div>
                 ))
               ) : (
-                <div className="p-3 text-center text-[10px] text-zinc-500 flex flex-col items-center gap-2">
-                  <span>No user found</span>
+                <div className="p-3 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
+                  <span className="font-medium">No user found</span>
                   <Link href="/profile/find-users">
-                    <Button size="sm" className="bg-indigo-660 hover:bg-indigo-500 text-white text-[9px] h-6 px-3 rounded-md tap-interactive">
+                    <Button size="sm" className="bg-secondary text-secondary-foreground">
                       Find Friends
                     </Button>
                   </Link>
@@ -230,10 +230,10 @@ export const ChatRooms: React.FC = () => {
         <Button
           size="icon"
           onClick={() => setOpenCreateGroup(true)}
-          className="bg-background border border-border hover:bg-muted text-indigo-400 hover:text-foreground rounded-lg h-9 w-9 flex-shrink-0 tap-interactive"
+          className="bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] text-nb-accent hover:text-foreground rounded-xl h-11 w-11 flex-shrink-0 tap-interactive"
           title="Create New Group"
         >
-          <MessageSquarePlus className="h-4 w-4" />
+          <MessageSquarePlus className="h-5 w-5" />
         </Button>
       </div>
 
@@ -245,7 +245,7 @@ export const ChatRooms: React.FC = () => {
       />
 
       {/* Scrollable list */}
-      <div className="flex-1 overflow-y-auto pr-0.5 space-y-1 hide-scrollBar">
+      <div className="flex-1 overflow-y-auto pr-0.5 space-y-2 hide-scrollBar">
         {myPrivateChatRooms?.map((receiver: any, index: number) => {
           const isSelected = recieverId === receiver._id;
           const isUnread =
@@ -266,34 +266,34 @@ export const ChatRooms: React.FC = () => {
                   markAsRead(dispatch, setLatestMessageAsRead, receiver);
                 }
               }}
-              className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all duration-150 border tap-interactive ${
+              className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-150 border-[3px] tap-interactive ${
                 isSelected
-                  ? "bg-muted border-border text-foreground"
-                  : "bg-transparent border-transparent hover:bg-muted/50 hover:border-border/30 text-muted-foreground"
+                  ? "bg-primary/10 border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] text-foreground"
+                  : "bg-transparent border-transparent hover:bg-muted hover:border-[var(--nb-border-color)] text-foreground"
               }`}
             >
-              <div className="flex items-center gap-2 overflow-hidden flex-1">
-                <Avatar className="h-9 w-9 border border-border">
+              <div className="flex items-center gap-3 overflow-hidden flex-1">
+                <Avatar className="h-10 w-10">
                   <AvatarImage src={receiver?.avatar?.url || receiver?.groupProfile?.url} />
-                  <AvatarFallback className="bg-background text-indigo-400 text-xs border border-border">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                     {(receiver?.username || receiver?.groupName)?.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="overflow-hidden flex-1">
-                  <h4 className="text-[11px] font-semibold text-foreground truncate">
+                  <h4 className="text-sm font-bold text-foreground truncate">
                     {receiver?.username ? `@${receiver.username}` : receiver?.groupName}
                   </h4>
                   {receiver.latestMessage ? (
                     <p
-                      className={`text-[10px] mt-0.5 truncate ${
-                        isUnread ? "text-indigo-400 font-bold" : "text-muted-foreground"
+                      className={`text-xs mt-0.5 truncate font-medium ${
+                        isUnread ? "text-secondary font-bold" : "text-muted-foreground"
                       }`}
                     >
                       {truncateMessage(receiver?.latestMessage?.message, 30)}
                     </p>
                   ) : (
-                    <p className="text-[10px] text-zinc-500 mt-0.5 truncate">
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate font-medium">
                       {truncateMessage(
                         receiver?.groupChatRoomMembers?.map((m: any) => m.username).join(", ") || "",
                         30
@@ -305,14 +305,14 @@ export const ChatRooms: React.FC = () => {
 
               {/* Notification Dot */}
               {isUnread && (
-                <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-sm shadow-indigo-500/40 ml-2 flex-shrink-0" />
+                <div className="h-3 w-3 rounded-full bg-secondary border-[2px] border-[var(--nb-border-color)] ml-2 flex-shrink-0" />
               )}
             </div>
           );
         })}
 
         {myPrivateChatRooms?.length === 0 && (
-          <div className="text-center py-8 text-[11px] text-muted-foreground">
+          <div className="text-center py-8 text-sm text-muted-foreground font-medium">
             No active conversations. Start one!
           </div>
         )}

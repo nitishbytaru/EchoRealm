@@ -33,35 +33,35 @@ export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(({
   isMe,
 }) => {
   return (
-    <div className={`flex flex-col mb-3 animate-scale-in ${isMe ? "items-end" : "items-start"}`}>
-      <span className="text-[10px] text-zinc-550 font-semibold mb-1 px-1">@{sender}</span>
+    <div className={`flex flex-col mb-4 animate-scale-in ${isMe ? "items-end" : "items-start"}`}>
+      <span className="text-xs text-muted-foreground font-bold mb-1 px-1">@{sender}</span>
       <div
-        className={`max-w-[80%] rounded-xl px-3.5 py-2 shadow-sm border ${
+        className={`max-w-[80%] rounded-2xl px-4 py-3 border-[3px] border-[var(--nb-border-color)] ${
           isMe
-            ? "bg-indigo-650 border-indigo-700 text-zinc-50 rounded-tr-none shadow-indigo-950/20"
-            : "bg-zinc-900 border-zinc-800 text-zinc-200 rounded-tl-none shadow-black/10"
+            ? "bg-primary text-primary-foreground rounded-tr-none shadow-[4px_4px_0px_var(--nb-shadow-color)]"
+            : "bg-card text-foreground rounded-tl-none shadow-[4px_4px_0px_var(--nb-shadow-color)]"
         }`}
       >
         {attachments && attachments[0]?.url && (
-          <div className="relative mb-2 rounded-md overflow-hidden border border-zinc-800 bg-zinc-950 max-w-[200px]">
+          <div className="relative mb-2 rounded-xl overflow-hidden border-[2px] border-[var(--nb-border-color)] bg-muted max-w-[200px]">
             <img
               src={attachments[0].url}
               alt="attachment"
-              className="object-cover w-full h-auto max-h-[160px] rounded-md transition-transform hover:scale-102"
+              className="object-cover w-full h-auto max-h-[160px] rounded-lg transition-transform hover:scale-102"
               loading="lazy"
             />
           </div>
         )}
         <div className="flex flex-wrap items-center gap-1.5">
           {mentions && mentions.length > 0 && (
-            <span className="text-xs font-semibold text-indigo-300">
+            <span className="text-sm font-bold text-secondary">
               {mentions.map((mention) => `@${mention?.username}`).join(" ")}{" "}
             </span>
           )}
-          <p className="text-xs leading-relaxed whitespace-pre-wrap break-words">{message}</p>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap break-words font-medium">{message}</p>
         </div>
       </div>
-      <span className="text-[9px] text-zinc-550 mt-1.5 px-1 font-medium">{moment(updatedAt).fromNow()}</span>
+      <span className="text-[10px] text-muted-foreground mt-1.5 px-1 font-bold">{moment(updatedAt).fromNow()}</span>
     </div>
   );
 });

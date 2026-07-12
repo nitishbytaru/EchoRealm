@@ -163,26 +163,26 @@ export default function EchoShoutPage() {
                 i % 2 === 0 ? "self-start" : "self-end flex-row-reverse"
               }`}
             >
-              <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
-              <div className="space-y-1.5 w-48">
-                <Skeleton className="h-3.5 w-16 rounded-md" />
-                <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-9 w-9 rounded-full flex-shrink-0" />
+              <div className="space-y-2 w-48">
+                <Skeleton className="h-4 w-16 rounded-lg" />
+                <Skeleton className="h-14 w-full rounded-xl" />
               </div>
             </div>
           ))}
         </div>
 
         {/* MessageBar placeholder */}
-        <div className="bg-zinc-950/85 backdrop-blur-md rounded-xl border border-zinc-900/80 p-2 mt-4 flex items-center gap-2">
-          <Skeleton className="h-8 w-8 rounded-lg" />
-          <Skeleton className="h-8 flex-1 rounded-lg" />
+        <div className="bg-card rounded-2xl border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] p-3 mt-4 flex items-center gap-3">
+          <Skeleton className="h-10 w-10 rounded-xl" />
+          <Skeleton className="h-10 flex-1 rounded-xl" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-zinc-950/10 max-w-4xl mx-auto w-full relative">
+    <div className="flex-1 flex flex-col h-full max-w-4xl mx-auto w-full relative">
       {/* Scrollable Messages Section */}
       <div className="flex-1 flex flex-col min-h-0">
         <ChatHistoryBox
@@ -197,18 +197,18 @@ export default function EchoShoutPage() {
       {isLoggedIn && (
         <div className="relative mt-4 z-20">
           {selectSearchBar && (
-            <div className="absolute bottom-18 left-0 right-0 max-w-sm mx-auto bg-zinc-900 border border-zinc-800 rounded-lg p-3 shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-5">
-              <div className="space-y-2">
+            <div className="absolute bottom-18 left-0 right-0 max-w-sm mx-auto bg-card border-[3px] border-[var(--nb-border-color)] rounded-xl p-4 shadow-[var(--nb-shadow)] animate-in slide-in-from-bottom-5">
+              <div className="space-y-3">
                 <Input
                   type="text"
                   placeholder="Search users to mention..."
                   value={search.value}
                   onChange={search.changeHandler}
-                  className="bg-zinc-950 border-zinc-800 focus-visible:ring-indigo-500 text-zinc-100 placeholder:text-zinc-650 text-xs h-9 rounded-lg"
+                  className="text-sm"
                 />
                 
                 {searchResults?.length > 0 && (
-                  <ul className="max-h-40 overflow-y-auto divide-y divide-zinc-850 pr-0.5 hide-scrollBar">
+                  <ul className="max-h-40 overflow-y-auto space-y-1 hide-scrollBar">
                     {searchResults.map(({ user }) => (
                       <li
                         key={user._id}
@@ -216,15 +216,15 @@ export default function EchoShoutPage() {
                           addMentionFunc(user);
                           search.clear();
                         }}
-                        className="flex items-center gap-2 p-2 rounded-md hover:bg-zinc-800 cursor-pointer transition-colors"
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/20 cursor-pointer transition-colors"
                       >
-                        <Avatar className="h-7 w-7">
+                        <Avatar className="h-8 w-8">
                           <AvatarImage src={user?.avatar?.url} />
-                          <AvatarFallback className="bg-zinc-950 text-indigo-400 text-[10px] border border-zinc-850">{user.username.slice(0,2).toUpperCase()}</AvatarFallback>
+                          <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">{user.username.slice(0,2).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="text-xs font-semibold text-zinc-200">@{user.username}</p>
-                          <p className="text-[9px] text-zinc-500">{user.email}</p>
+                          <p className="text-sm font-bold text-foreground">@{user.username}</p>
+                          <p className="text-[10px] text-muted-foreground font-medium">{user.email}</p>
                         </div>
                       </li>
                     ))}
@@ -234,13 +234,13 @@ export default function EchoShoutPage() {
             </div>
           )}
 
-          <div className="flex items-center gap-2 bg-zinc-950/80 backdrop-blur-md rounded-xl border border-zinc-900/80 p-2">
+          <div className="flex items-center gap-3 bg-card rounded-2xl border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] p-3">
             {mentions.length > 0 && (
-              <div className="absolute -top-9 left-2 flex gap-2 flex-wrap z-10 animate-in fade-in">
+              <div className="absolute -top-10 left-3 flex gap-2 flex-wrap z-10 animate-in fade-in">
                 {mentions.map((mention, index) => (
                   <span
                     key={index}
-                    className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full text-[10px] font-medium"
+                    className="bg-nb-accent/20 border-[2px] border-[var(--nb-border-color)] text-nb-accent px-3 py-1 rounded-xl text-xs font-bold"
                   >
                     @{mention?.username}
                   </span>
@@ -252,10 +252,10 @@ export default function EchoShoutPage() {
               type="button"
               variant={selectSearchBar ? "default" : "outline"}
               onClick={() => setSelectSearchBar((prev) => !prev)}
-              className={`font-semibold h-8 w-8 p-0 rounded-lg flex-shrink-0 text-xs ${
+              className={`font-extrabold h-10 w-10 p-0 rounded-xl flex-shrink-0 text-sm ${
                 selectSearchBar 
-                  ? "bg-indigo-650 hover:bg-indigo-600 text-zinc-50" 
-                  : "bg-zinc-900 border-zinc-800 hover:bg-zinc-850 text-indigo-400"
+                  ? "bg-primary text-primary-foreground" 
+                  : "bg-card text-nb-accent"
               }`}
             >
               @
@@ -263,8 +263,8 @@ export default function EchoShoutPage() {
 
             <div className="w-full">
               {isUploading ? (
-                <div className="flex items-center justify-center h-8">
-                  <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />
+                <div className="flex items-center justify-center h-10">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
               ) : (
                 <MessageBar setMessageData={setEchoShoutMessageData} />

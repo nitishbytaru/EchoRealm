@@ -55,7 +55,7 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-zinc-950">
+      <div className="h-screen w-screen flex items-center justify-center bg-background">
         <Loading />
       </div>
     );

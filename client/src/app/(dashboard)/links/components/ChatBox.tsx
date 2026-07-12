@@ -181,9 +181,9 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
   if (isPendingGetMessage) return <Loading />;
   if (isPendingOperation) {
     return (
-      <div className="h-full flex flex-col justify-center items-center gap-2 p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-        <p className="text-xs text-slate-400">Performing operation...</p>
+      <div className="h-full flex flex-col justify-center items-center gap-3 p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground font-bold">Performing operation...</p>
       </div>
     );
   }
@@ -191,14 +191,8 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
   return (
     <>
       {!recieverId ? (
-        <div
-          className="h-full flex justify-center items-center text-center rounded-2xl min-h-[400px] border-0"
-          style={{
-            background: "var(--background)",
-            boxShadow: "var(--nm-inset, inset 0 4px 12px rgba(0,0,0,0.1))",
-          }}
-        >
-          <p className="text-xs font-medium text-muted-foreground">
+        <div className="h-full flex justify-center items-center text-center rounded-2xl min-h-[400px] bg-muted/30 border-[3px] border-[var(--nb-border-color)]">
+          <p className="text-sm font-bold text-muted-foreground">
             Select a user or group to open chat
           </p>
         </div>
@@ -224,17 +218,11 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           )}
 
           {/* Chat area */}
-          <div
-            className="flex-1 overflow-y-auto mt-4 p-4 rounded-2xl relative min-h-[300px] border-0"
-            style={{
-              background: "var(--background)",
-              boxShadow: "var(--nm-inset, inset 0 4px 12px rgba(0,0,0,0.12))",
-            }}
-          >
+          <div className="flex-1 overflow-y-auto mt-4 p-4 rounded-2xl relative min-h-[300px] bg-muted/20 border-[3px] border-[var(--nb-border-color)]">
             <div className="h-full overflow-y-auto hide-scrollBar" ref={scrollRef}>
               {gettingOldMessages && (
                 <div className="flex justify-center p-2">
-                  <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
               )}
               {privateMessages?.map((message, index) => (
@@ -248,7 +236,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           <div className="mt-4">
             {isPendingSendMessage ? (
               <div className="w-full flex justify-center items-center py-4">
-                <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
             ) : (
               <MessageBar setMessageData={setEchoLinkMessageData} />

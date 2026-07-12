@@ -71,24 +71,24 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
   return (
     <div className="flex-1 flex flex-col md:flex-row gap-4 max-w-6xl mx-auto w-full min-h-[calc(100vh-140px)]">
       {/* Sidebar navigation */}
-      <div className="w-full md:w-56 bg-zinc-900/10 border border-zinc-900 rounded-xl p-4 backdrop-blur-xl flex flex-col justify-between shrink-0 h-fit md:sticky md:top-20">
+      <div className="w-full md:w-60 bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-5 flex flex-col justify-between shrink-0 h-fit md:sticky md:top-20">
         <div className="space-y-4">
           {/* User Header */}
-          <div className="flex flex-row md:flex-col items-center gap-3 md:text-center md:pb-3 md:border-b md:border-zinc-900">
-            <Avatar className="h-12 w-12 md:h-16 md:w-16 border border-zinc-800 mx-auto">
+          <div className="flex flex-row md:flex-col items-center gap-3 md:text-center md:pb-4 md:border-b-[3px] md:border-[var(--nb-border-color)]">
+            <Avatar className="h-14 w-14 md:h-18 md:w-18 mx-auto" size="lg">
               <AvatarImage src={user?.avatar?.url} />
-              <AvatarFallback className="bg-zinc-950 text-indigo-400 text-sm">
+              <AvatarFallback className="bg-primary text-primary-foreground text-base font-extrabold">
                 {user?.username?.slice(0, 2).toUpperCase() || "ME"}
               </AvatarFallback>
             </Avatar>
-            <div className="space-y-0.5">
-              <h3 className="text-xs font-bold text-zinc-200 leading-tight">@{user?.username}</h3>
-              <p className="text-[9px] text-zinc-500">{user?.email}</p>
+            <div className="space-y-1">
+              <h3 className="text-sm font-extrabold text-foreground leading-tight">@{user?.username}</h3>
+              <p className="text-xs text-muted-foreground font-medium">{user?.email}</p>
             </div>
           </div>
 
           {/* Nav links */}
-          <nav className="flex flex-row md:flex-col flex-wrap gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+          <nav className="flex flex-row md:flex-col flex-wrap gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -96,16 +96,16 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap relative tap-interactive ${
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap relative tap-interactive border-[3px] ${
                     isActive
-                      ? "bg-indigo-650/10 text-indigo-400 border border-indigo-500/20"
-                      : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 border border-transparent"
+                      ? "bg-primary/20 text-foreground border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted border-transparent hover:border-[var(--nb-border-color)]"
                   }`}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
+                  <Icon className="h-5 w-5 shrink-0" />
                   <span>{item.label}</span>
                   {item.badge && item.badge > 0 ? (
-                    <span className="absolute right-2 bg-indigo-650 text-white text-[8px] font-bold h-4 min-w-[16px] px-1 rounded-md flex items-center justify-center">
+                    <span className="absolute right-2 bg-nb-warning text-foreground text-[9px] font-extrabold h-5 min-w-[20px] px-1 rounded-lg flex items-center justify-center border-[2px] border-[var(--nb-border-color)]">
                       {item.badge}
                     </span>
                   ) : null}
@@ -116,16 +116,16 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
         </div>
 
         {/* Logout Button */}
-        <div className="mt-4 border-t border-zinc-900 pt-4">
+        <div className="mt-4 border-t-[3px] border-[var(--nb-border-color)] pt-4">
           <button
             onClick={handleLogout}
             disabled={isPending}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-rose-400 hover:text-rose-350 hover:bg-rose-500/5 border border-transparent transition-all w-full tap-interactive"
+            className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-destructive border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] hover:-translate-y-0.5 hover:shadow-[var(--nb-shadow)] active:translate-y-0.5 active:shadow-[var(--nb-shadow-active)] transition-all w-full"
           >
             {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin text-rose-400" />
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-5 w-5" />
             )}
             <span>Log out</span>
           </button>
@@ -133,7 +133,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
       </div>
 
       {/* Main dynamic profile page container */}
-      <div className="flex-1 bg-zinc-900/10 border border-zinc-900 rounded-xl p-4 sm:p-5 md:p-6 overflow-y-auto hide-scrollBar">
+      <div className="flex-1 bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-5 sm:p-6 md:p-8 overflow-y-auto hide-scrollBar">
         <div key={pathname} className="animate-fade-in-up">
           {children}
         </div>
