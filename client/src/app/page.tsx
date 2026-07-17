@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "@/hooks/use-toast";
@@ -211,8 +212,15 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
-            EchoRealm
+          <h1 className="flex justify-center mb-2">
+            <Image
+              src="https://res.cloudinary.com/dhysbx7mk/image/upload/v1784275596/echorealm/logos/echorealm_logo_without_text_fqp9sj.png"
+              alt="EchoRealm"
+              width={200}
+              height={100}
+              priority
+              className="object-contain"
+            />
           </h1>
           <p className="text-sm text-muted-foreground font-medium">
             Connecting voices in a modern, secure workspace
@@ -225,11 +233,10 @@ export default function RegisterPage() {
               <button
                 id="tab-register"
                 type="button"
-                className={`flex-1 py-2 text-center text-sm font-bold transition-all duration-150 rounded-xl mx-1 ${
-                  isSignUp
-                    ? "bg-primary text-primary-foreground border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
-                    : "text-muted-foreground border-[3px] border-transparent hover:text-foreground hover:bg-muted"
-                }`}
+                className={`flex-1 py-2 text-center text-sm font-bold transition-all duration-150 rounded-xl mx-1 ${isSignUp
+                  ? "bg-primary text-primary-foreground border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
+                  : "text-muted-foreground border-[3px] border-transparent hover:text-foreground hover:bg-muted"
+                  }`}
                 onClick={() => setIsSignUp(true)}
               >
                 Register
@@ -237,11 +244,10 @@ export default function RegisterPage() {
               <button
                 id="tab-login"
                 type="button"
-                className={`flex-1 py-2 text-center text-sm font-bold transition-all duration-150 rounded-xl mx-1 ${
-                  !isSignUp
-                    ? "bg-secondary text-secondary-foreground border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
-                    : "text-muted-foreground border-[3px] border-transparent hover:text-foreground hover:bg-muted"
-                }`}
+                className={`flex-1 py-2 text-center text-sm font-bold transition-all duration-150 rounded-xl mx-1 ${!isSignUp
+                  ? "bg-secondary text-secondary-foreground border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
+                  : "text-muted-foreground border-[3px] border-transparent hover:text-foreground hover:bg-muted"
+                  }`}
                 onClick={() => setIsSignUp(false)}
               >
                 Log In
@@ -303,7 +309,7 @@ export default function RegisterPage() {
               </Button>
             </form>
 
-            <div className="relative flex py-3 items-center">
+            {/* <div className="relative flex py-3 items-center">
               <div className="flex-grow h-[3px] bg-[var(--nb-border-color)]"></div>
               <span className="flex-shrink mx-4 text-muted-foreground text-xs font-bold uppercase tracking-wider">Or continue with</span>
               <div className="flex-grow h-[3px] bg-[var(--nb-border-color)]"></div>
@@ -316,7 +322,7 @@ export default function RegisterPage() {
                 theme={isDark ? "filled_black" : "outline"}
                 shape="pill"
               />
-            </div>
+            </div> */}
           </CardContent>
         </Card>
       </div>

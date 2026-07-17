@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { Home, MessageSquare, Megaphone, Menu, User } from "lucide-react";
@@ -55,11 +56,18 @@ export const NavBar: React.FC = () => {
     <>
       <header className="sticky top-0 z-50 w-full border-b-[3px] border-[var(--nb-border-color)] bg-card text-foreground">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          
+
           {/* Brand/Home Logo */}
           <div className="flex items-center">
-            <Link href="/links" className="text-lg font-extrabold tracking-tight text-foreground transition-opacity hover:opacity-90">
-              EchoRealm
+            <Link href="/links" className="transition-opacity hover:opacity-90 flex items-center">
+              <Image
+                src="https://res.cloudinary.com/dhysbx7mk/image/upload/v1784275596/echorealm/logos/text_logo_echorealm_ixkbqk.png"
+                alt="EchoRealm"
+                width={125}
+                height={75}
+                priority
+                className="object-contain"
+              />
             </Link>
           </div>
 

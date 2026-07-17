@@ -10,7 +10,7 @@ const httpServer = createServer(app);
 // Initialize Socket.IO with CORS configuration
 export const io = new Server(httpServer, {
   cors: {
-    origin: [process.env.FRONTEND_URL, "http://localhost:5000", "http://127.0.0.1:5000"].filter(Boolean),
+    origin: [process.env.FRONTEND_URL, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5000", "http://127.0.0.1:5000"].filter(Boolean),
     credentials: true,
   },
 });
@@ -40,8 +40,8 @@ io.on("connection", (socket) => {
 connectDB()
   .then(() => {
     // Listen on httpServer instead of app
-    httpServer.listen(process.env.PORT || 3000, () => {
-      console.log(`Server is running on port ${process.env.PORT || 3000}`);
+    httpServer.listen(process.env.PORT || 8000, () => {
+      console.log(`Server is running on port ${process.env.PORT || 8000}`);
     });
   })
   .catch((err) => {
