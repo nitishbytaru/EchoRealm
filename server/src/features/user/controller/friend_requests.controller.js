@@ -193,7 +193,7 @@ export const removeOrBlockMyFriend = asyncHandler(async (req, res) => {
       {
         $addToSet: { blockedUsers: friendId },
       },
-      { new: true }
+      { new: true, upsert: true }
     );
   }
 
@@ -213,6 +213,6 @@ export const removeOrBlockMyFriend = asyncHandler(async (req, res) => {
   );
 
   res.status(209).json({
-    message: `Friend ${block ? "removed" : "blocked"}`,
+    message: `Friend ${block ? "blocked" : "removed"}`,
   });
 });

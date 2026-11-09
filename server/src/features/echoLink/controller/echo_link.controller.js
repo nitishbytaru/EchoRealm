@@ -79,7 +79,8 @@ export const sendEchoLinkMessage = asyncHandler(async (req, res) => {
 export const getMyPrivateFriends = asyncHandler(async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.user);
 
-  const { blockedUsers } = await User.findById(userId);
+  const userFriendData = await UserFriend.findOne({ userId });
+  const blockedUsers = userFriendData?.blockedUsers;
 
   const blockedUsersForThisCurrentUser = blockedUsers || [];
 

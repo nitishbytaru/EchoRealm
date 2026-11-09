@@ -17,11 +17,12 @@ interface MessageBarProps {
 }
 
 const CHARACTER_LIMIT = 55;
+const COUNTER_THRESHOLD = 40;
 
 export const MessageBar: React.FC<MessageBarProps> = ({
   onSend,
   leading,
-  placeholder = "Type a message...",
+  placeholder = "Message",
   sendLabel = "Send message",
 }) => {
   const attachments = useFileHandler("single");
@@ -96,7 +97,7 @@ export const MessageBar: React.FC<MessageBarProps> = ({
             type="text"
             aria-label={placeholder}
             aria-invalid={isOverLimit || undefined}
-            className="w-full pr-14 text-base md:text-sm"
+            className={`w-full text-base md:text-sm ${attachments.file || message.value.length >= COUNTER_THRESHOLD ? "pr-14" : ""}`}
             placeholder={attachments.file ? `Add a caption for ${attachments.file.name}` : placeholder}
             onChange={message.changeHandler}
             value={message.value}
@@ -112,13 +113,13 @@ export const MessageBar: React.FC<MessageBarProps> = ({
               <X className="h-4 w-4" />
             </button>
           ) : (
-            <span
+            message.value.length >= COUNTER_THRESHOLD && (<span
               className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-xs font-bold ${
                 isOverLimit ? "text-nb-danger-text" : "text-muted-foreground"
               }`}
             >
               {message.value.length}/{CHARACTER_LIMIT}
-            </span>
+            </span>)
           )}
         </div>
 

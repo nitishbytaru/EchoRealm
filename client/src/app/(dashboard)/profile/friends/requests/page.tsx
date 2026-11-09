@@ -56,7 +56,8 @@ export default function MyFriendRequestsPage() {
       });
 
       if (willAccept) {
-        dispatch(addToMyFriendsList(response?.data?.updatedMyFriendRequests));
+        const acceptedUser = myFriendRequests.find((request: any) => request._id === requestedUserId);
+        if (acceptedUser) dispatch(addToMyFriendsList(acceptedUser));
       }
 
       dispatch(removeFromMyFriendRequests(requestedUserId));

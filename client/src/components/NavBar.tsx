@@ -159,7 +159,7 @@ export const NavBar: React.FC = () => {
                           {user.username.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-xs font-bold text-foreground">@{user?.username}</span>
+                      <span className="hidden text-xs font-bold text-foreground lg:inline">@{user?.username}</span>
                     </div>
                   </Link>
                 )}

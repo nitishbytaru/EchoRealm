@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { hash } from "bcrypt";
 import { User } from "../models/user.model.js";
 import {
   deleteFromCloudinary,
@@ -80,7 +81,7 @@ export const searchUsers = asyncHandler(async (req, res) => {
     username: { $regex: username, $options: "i" },
     _id: { $nin: [...currUserwithBlockedUsersList, userId] },
   })
-    .select("-password")
+    .select("-password -email")
     .limit(5);
 
   const searchedUsersWithFriends = await Promise.all(
@@ -172,11 +173,8 @@ export const updateCurrUserData = asyncHandler(async (req, res) => {
   updateFields.isAcceptingMumbles = updatedIsAcceptingMumbles;
   updateFields.isAnonymous = updatedIsAnonymous;
 
-  if (updatedPassword === "") {
-    const { password } = await User.findById(userId).select("password");
-    updateFields.password = password;
-  } else {
-    updateFields.password = updatedPassword;
+  if (updatedPassword) {
+    updateFields.password = await hash(updatedPassword, 10);
   }
 
   const user = await User.findByIdAndUpdate(

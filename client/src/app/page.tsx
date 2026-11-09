@@ -7,7 +7,7 @@ import Image from "next/image";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "@/hooks/use-toast";
-import { Sun, Moon, AlertCircle } from "lucide-react";
+import { Sun, Moon, AlertCircle, Eye, EyeOff } from "lucide-react";
 
 import Loading from "@/components/Loading";
 import { loginApi, registerApi, getProfileApi } from "@/api/auth.api";
@@ -21,6 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 export default function RegisterPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [formError, setFormError] = useState("");
 
@@ -303,15 +304,27 @@ export default function RegisterPage() {
                 <label htmlFor="signin-password" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     Password
                 </label>
-                <Input
-                  id="signin-password"
-                  autoComplete={isSignUp ? "new-password" : "current-password"}
-                  type="password"
-                  placeholder="••••••••"
-                  value={password.value}
-                  onChange={password.changeHandler}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="signin-password"
+                    autoComplete={isSignUp ? "new-password" : "current-password"}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password.value}
+                    onChange={password.changeHandler}
+                    className="pr-12"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
+                    className="absolute right-1 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
 
               {formError && (

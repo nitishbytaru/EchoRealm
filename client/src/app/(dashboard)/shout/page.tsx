@@ -257,7 +257,7 @@ export default function EchoShoutPage() {
 
           <MessageBar
             onSend={sendShout}
-            placeholder="Say it to everyone..."
+            placeholder="Shout something"
             sendLabel="Post to EchoShout"
             leading={
               <Button

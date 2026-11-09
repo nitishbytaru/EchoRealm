@@ -69,7 +69,7 @@ export default function MyProfileDetailsPage() {
     formData.append("updatedEmail", updatedEmail.value);
     formData.append("updatedUsername", updatedUsername.value);
     formData.append("updatedPassword", updatedPassword.value);
-    formData.append("udatedIsAcceptingMumbles", String(udatedIsAcceptingMumbles));
+    formData.append("updatedIsAcceptingMumbles", String(udatedIsAcceptingMumbles));
     formData.append("updatedIsAnonymous", String(updatedIsAnonymous));
     if (avatar.file) {
       formData.append("avatar", avatar.file);

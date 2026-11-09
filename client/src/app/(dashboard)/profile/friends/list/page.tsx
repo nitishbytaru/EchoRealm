@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "@/hooks/use-toast";
-import { Users, UserMinus, ShieldAlert, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Users, UserMinus, ShieldAlert, Loader2, MessageSquare, MoreVertical } from "lucide-react";
 
 import {
   handleRemoveOrBlockMyFriendApi,
@@ -16,7 +17,13 @@ import {
 import { RootState } from "@/store/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -112,8 +119,8 @@ export default function MyFriendsPage() {
       ) : myFriendsList?.length === 0 ? (
         <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl min-h-[250px] animate-fade-in">
           <Users className="h-6 w-6 text-muted-foreground mb-2" />
-          <p className="text-muted-foreground text-xs font-semibold">No friends yet</p>
-          <p className="text-xs text-muted-foreground mt-2">Use the &apos;Find Users&apos; tab to search and add friends.</p>
+          <p className="text-foreground text-sm font-bold">No friends yet</p>
+          <Link href="/profile/find-users" className={buttonVariants({ className: "mt-3" })}>Find Users</Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -128,27 +135,34 @@ export default function MyFriendsPage() {
                 </Avatar>
 
                 <div>
-                  <h4 className="text-xs font-semibold text-foreground">@{friend.username}</h4>
+                  <h4 className="max-w-full truncate text-sm font-bold text-foreground">@{friend.username}</h4>
                 </div>
 
-                <div className="flex items-center gap-2 w-full pt-2">
-                  <Button
-                    onClick={() => setPendingAction({ type: "remove", friend })}
-                    variant="outline"
-                    className="flex-1 text-muted-foreground hover:text-foreground text-xs rounded-lg flex items-center gap-2 tap-interactive"
+                <div className="flex w-full items-center gap-2 pt-2">
+                  <Link
+                    href={`/links/${friend._id}`}
+                    className={buttonVariants({ className: "min-w-0 flex-1" })}
                   >
-                    <UserMinus className="h-4 w-4" />
-                    Unfriend
-                  </Button>
-
-                  <Button
-                    onClick={() => setPendingAction({ type: "block", friend })}
-                    variant="ghost"
-                    className="flex-1 text-nb-danger-text hover:text-nb-danger-text  text-xs rounded-lg flex items-center gap-2 tap-interactive"
-                  >
-                    <ShieldAlert className="h-4 w-4" />
-                    Block
-                  </Button>
+                    <MessageSquare className="h-4 w-4" />
+                    Message
+                  </Link>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger render={
+                      <Button variant="outline" size="icon" aria-label={`More options for @${friend.username}`}>
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    } />
+                    <DropdownMenuContent className="w-44">
+                      <DropdownMenuItem onClick={() => setPendingAction({ type: "remove", friend })}>
+                        <UserMinus className="h-4 w-4" />
+                        Unfriend
+                      </DropdownMenuItem>
+                      <DropdownMenuItem variant="destructive" onClick={() => setPendingAction({ type: "block", friend })}>
+                        <ShieldAlert className="h-4 w-4" />
+                        Block
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </CardContent>
             </Card>

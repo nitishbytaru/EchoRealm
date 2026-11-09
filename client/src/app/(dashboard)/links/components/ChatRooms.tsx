@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { Search, MessageSquarePlus, UserPlus } from "lucide-react";
+import { Search, MessageSquare, MessageSquarePlus, UserPlus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 import socket from "@/sockets/socket";
@@ -184,7 +184,7 @@ export const ChatRooms: React.FC = () => {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search friends"
+            placeholder="Search"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -246,6 +246,14 @@ export const ChatRooms: React.FC = () => {
         </Button>
       </div>
 
+      <Link
+        href="/profile/friends/list"
+        className="flex min-h-11 items-center justify-center gap-2 rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card px-3 text-sm font-bold text-foreground tap-interactive"
+      >
+        <MessageSquare className="h-4 w-4" aria-hidden="true" />
+        New chat
+      </Link>
+
       <CreateGroupDialog
         open={openCreateGroup}
         onOpenChange={setOpenCreateGroup}
@@ -283,7 +291,7 @@ export const ChatRooms: React.FC = () => {
                   : "bg-transparent border-transparent hover:bg-muted hover:border-[var(--nb-border-color)] text-foreground"
               }`}
             >
-              <div className="flex items-center gap-3 overflow-hidden flex-1">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={receiver?.avatar?.url || receiver?.groupProfile?.url} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-xs">

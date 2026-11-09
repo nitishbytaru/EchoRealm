@@ -4,7 +4,7 @@ import React, { use, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
-import { Heart, Pin, ChevronLeft, Loader2, MessageSquare } from "lucide-react";
+import { Heart, Pin, ChevronLeft, Loader2, MessageSquare, MessageCircle, UserPlus, UserCheck } from "lucide-react";
 
 import { likeThisMumbleApi } from "@/api/echo_mumble.api";
 import {
@@ -18,7 +18,8 @@ import {
 import { RootState } from "@/store/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { getMyFriendsListApi, sendFriendRequestApi } from "@/api/friends.api";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface PageProps {
@@ -37,6 +38,28 @@ export default function ViewProfilePage({ params }: PageProps) {
   const [friends, setFriends] = useState(0);
   const [splMumble, setSplMumble] = useState<any>(null);
   const [isPending, setIsPending] = useState(false);
+  const [relationship, setRelationship] = useState<"none" | "friend" | "requested">("none");
+  const isSelf = user?._id === viewProfileUserId;
+
+  useEffect(() => {
+    getMyFriendsListApi()
+      .then(({ data }) => {
+        const isFriend = data?.myFriendList?.friends?.some((f: any) => f._id === viewProfileUserId);
+        setRelationship(isFriend ? "friend" : "none");
+      })
+      .catch((error) => console.error("Error checking friendship:", error));
+  }, [viewProfileUserId]);
+
+  const addFriend = async () => {
+    try {
+      await sendFriendRequestApi(viewProfileUserId);
+      setRelationship("requested");
+      toast.success("Friend request sent.");
+    } catch (error) {
+      console.error("Error sending friend request:", error);
+      toast.error("That request didn't send. Please try again.");
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -132,7 +155,7 @@ export default function ViewProfilePage({ params }: PageProps) {
             <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
               User Profile
             </h2>
-            <p className="text-sm text-muted-foreground font-medium mt-1">View detailed metrics and whispers of this community member</p>
+            <p className="text-sm text-muted-foreground font-medium mt-1">Likes, friends and pinned Mumbles</p>
           </div>
           <Loader2 className="h-4 w-4 animate-spin text-foreground ml-auto" />
         </div>
@@ -194,12 +217,12 @@ export default function ViewProfilePage({ params }: PageProps) {
           <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
             User Profile
           </h2>
-          <p className="text-sm text-muted-foreground font-medium mt-1">View detailed metrics and whispers of this community member</p>
+          <p className="text-sm text-muted-foreground font-medium mt-1">Likes, friends and pinned Mumbles</p>
         </div>
         {isPending && <Loader2 className="h-4 w-4 animate-spin text-foreground ml-auto" />}
       </div>
 
-      <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl p-4 md:p-6">
+      <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-4 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl p-4 md:p-6">
         <div className="flex flex-col items-center text-center space-y-2">
           <Avatar className="h-16 w-16 border">
             <AvatarImage src={viewingProfileUserDetails?.avatar?.url} />
@@ -213,7 +236,7 @@ export default function ViewProfilePage({ params }: PageProps) {
         </div>
 
         {/* Stats card */}
-        <div className="flex gap-4 bg-card border p-4 rounded-lg w-full md:w-auto justify-around md:justify-start">
+        <div className="flex gap-4 bg-card border p-4 rounded-lg w-full lg:w-auto justify-around lg:justify-start">
           <div className="text-center md:text-left px-2">
             <span className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">Total Likes</span>
             <h4 className="text-xl font-black text-foreground mt-0.5">{likes}</h4>
@@ -225,9 +248,9 @@ export default function ViewProfilePage({ params }: PageProps) {
           </div>
         </div>
 
-        <div className="flex w-full flex-col gap-3 md:w-80">
+        <div className="flex w-full flex-col gap-3 lg:w-72">
         {splMumble && (
-          <Card className="bg-nb-accent/15 border border-[var(--nb-border-color)] max-w-sm w-full md:w-80 rounded-lg">
+          <Card className="bg-nb-accent/15 border border-[var(--nb-border-color)] w-full rounded-lg">
             <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
               <span className="text-xs font-bold text-nb-accent-text flex items-center gap-1">
                 <Pin className="h-3 w-3 rotate-45" />
@@ -243,12 +266,24 @@ export default function ViewProfilePage({ params }: PageProps) {
             </CardContent>
           </Card>
         )}
-          <Link href={`/mumbles/send/${viewProfileUserId}`} className="w-full md:w-auto tap-interactive">
-            <Button className="w-full text-xs h-9 px-4  flex items-center justify-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Send Mumble
-            </Button>
-          </Link>
+          {!isSelf && (
+            <div className="flex flex-col gap-2">
+              <Link href={`/links/${viewProfileUserId}`} className={buttonVariants({ className: "w-full" })}>
+                <MessageSquare className="h-4 w-4" />
+                Message
+              </Link>
+              {relationship !== "friend" && (
+                <Button variant="secondary" className="w-full" onClick={addFriend} disabled={relationship === "requested"}>
+                  {relationship === "requested" ? <UserCheck className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
+                  {relationship === "requested" ? "Request sent" : "Add Friend"}
+                </Button>
+              )}
+              <Link href={`/mumbles/send/${viewProfileUserId}`} className={buttonVariants({ variant: "outline", className: "w-full" })}>
+                <MessageCircle className="h-4 w-4" />
+                Send Mumble
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 

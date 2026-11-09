@@ -162,7 +162,7 @@
   --nb-accent-text: #D3A6FF;
   --nb-danger-text: #FF9A9A;
   --nb-border-color: #F5F5F5;
-  --nb-shadow-color: #F5F5F5;
+  --nb-shadow-color: #5F5F5F;
   --nb-shadow: 6px 6px 0px var(--nb-shadow-color);
   --nb-shadow-sm: 4px 4px 0px var(--nb-shadow-color);
   --nb-shadow-lg: 8px 8px 0px var(--nb-shadow-color);

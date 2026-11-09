@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { AlertTriangle, Trash2 } from "lucide-react";
@@ -27,6 +28,7 @@ interface DangerAction {
 export default function MyAccountPage() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.auth);
   const [pendingAction, setPendingAction] = useState<DangerAction | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -141,6 +143,7 @@ export default function MyAccountPage() {
         description={pendingAction?.desc ?? ""}
         confirmLabel={pendingAction?.button ?? "Delete"}
         onConfirm={confirm}
+        requireText={pendingAction?.button === "Delete account" ? user?.username : undefined}
       />
     </div>
   );
