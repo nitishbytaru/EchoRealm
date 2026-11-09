@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
-import { toast } from "@/hooks/use-toast";
-import { Paperclip, X, Send } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { Paperclip, X, Send, AlertCircle } from "lucide-react";
 
 import { useFileHandler } from "@/hooks/useFileHandler";
 import { useInputValidation } from "@/hooks/useInputValidation";
@@ -11,50 +10,72 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 interface MessageBarProps {
-  setMessageData: (data: FormData) => void;
+  onSend: (data: FormData) => Promise<void>;
+  leading?: React.ReactNode;
+  placeholder?: string;
+  sendLabel?: string;
 }
 
-export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
+const CHARACTER_LIMIT = 55;
+
+export const MessageBar: React.FC<MessageBarProps> = ({
+  onSend,
+  leading,
+  placeholder = "Type a message...",
+  sendLabel = "Send message",
+}) => {
   const attachments = useFileHandler("single");
   const message = useInputValidation("");
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [sendFailed, setSendFailed] = useState(false);
+
+  const isOverLimit = message.value.length > CHARACTER_LIMIT;
+  const canSend = !isSending && !isOverLimit && message.value.trim().length > 0;
 
   const sendCurrentMessage = async () => {
-    if (!message.value && !attachments.file) {
-      toast.error("Please enter a message or select a file");
-      return;
-    }
+    if (!canSend) return;
 
+    const text = message.value;
+    const file = attachments.file;
     const formData = new FormData();
-    if (message.value) {
-      formData.append("message", message.value);
-    }
-    if (attachments.file) {
-      formData.append("attachments", attachments.file);
-    }
+    formData.append("message", text);
+    if (file) formData.append("attachments", file);
 
+    message.clear();
+    attachments.clear();
+    setSendFailed(false);
+    setIsSending(true);
     try {
-      setMessageData(formData);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast.error("Failed to send message. Please try again.");
+      await onSend(formData);
+    } catch {
+      message.setValue(text);
+      attachments.setFile(file);
+      setSendFailed(true);
     } finally {
-      message.clear();
-      attachments.clear();
+      setIsSending(false);
+      inputRef.current?.focus();
     }
   };
 
-  const CHARACTER_LIMIT = 55;
-  const isOverLimit = message.value.length > CHARACTER_LIMIT;
-
   return (
-    <div className="py-3 flex-none bg-card border-t-[3px] border-[var(--nb-border-color)]">
-      <div className="flex items-center gap-3 max-w-4xl mx-auto px-4">
-        <div className="relative flex-shrink-0">
+    <div className="flex-none">
+      {sendFailed && (
+        <p role="alert" className="mb-2 flex items-center gap-2 text-sm font-bold text-nb-danger-text">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          That didn&apos;t send. Your message is still here, so you can try again.
+        </p>
+      )}
+      <div className="flex items-center gap-2">
+        {leading}
+        <div className="relative shrink-0">
           <label
             htmlFor="attachments-file-input"
-            className="inline-flex items-center justify-center rounded-xl text-muted-foreground size-10 cursor-pointer hover:text-foreground transition-all tap-interactive bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
+            title="Attach an image"
+            className="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card text-foreground has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-foreground tap-interactive"
           >
-            <Paperclip className="h-5 w-5" />
+            <Paperclip className="h-5 w-5" aria-hidden="true" />
+            <span className="sr-only">Attach an image</span>
           </label>
           <input
             id="attachments-file-input"
@@ -62,57 +83,55 @@ export const MessageBar: React.FC<MessageBarProps> = ({ setMessageData }) => {
             type="file"
             accept="image/*"
             onChange={attachments.changeHandler}
-            className="absolute inset-0 w-0 h-0 opacity-0 pointer-events-none"
+            className="sr-only"
           />
           {attachments.file && (
-            <span className="absolute -top-1 -right-1 bg-nb-success rounded-full w-3 h-3 border-[2px] border-[var(--nb-border-color)]" />
+            <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full border-[2px] border-[var(--nb-border-color)] bg-nb-success" />
           )}
         </div>
 
-        <div className="grow relative">
+        <div className="relative min-w-0 grow">
           <Input
+            ref={inputRef}
             type="text"
-            className={`w-full text-foreground placeholder:text-muted-foreground/70 pr-9 h-10 text-sm ${
-              isOverLimit ? "border-destructive focus-visible:ring-destructive/30" : ""
-            }`}
-            placeholder={
-              attachments.file ? `File: ${attachments.file.name}` : "Type a message..."
-            }
+            aria-label={placeholder}
+            aria-invalid={isOverLimit || undefined}
+            className="w-full pr-14 text-base md:text-sm"
+            placeholder={attachments.file ? `Add a caption for ${attachments.file.name}` : placeholder}
             onChange={message.changeHandler}
             value={message.value}
             onKeyDown={(e) => handleKeyPress(e, sendCurrentMessage)}
           />
-          {attachments.file && (
-            <Button
+          {attachments.file ? (
+            <button
               type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground border-0 shadow-none hover:shadow-none"
+              aria-label="Remove attached image"
+              className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
               onClick={() => attachments.clear()}
             >
               <X className="h-4 w-4" />
-            </Button>
+            </button>
+          ) : (
+            <span
+              className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-xs font-bold ${
+                isOverLimit ? "text-nb-danger-text" : "text-muted-foreground"
+              }`}
+            >
+              {message.value.length}/{CHARACTER_LIMIT}
+            </span>
           )}
-        </div>
-
-        <div className="flex flex-col items-end justify-center min-w-[40px]">
-          <span
-            className={`text-[10px] font-bold font-mono ${
-              isOverLimit ? "text-destructive" : "text-muted-foreground"
-            }`}
-          >
-            {message.value.length}/{CHARACTER_LIMIT}
-          </span>
         </div>
 
         <Button
           type="button"
-          size="icon"
+          size="icon-lg"
           onClick={sendCurrentMessage}
-          disabled={isOverLimit || (!message.value && !attachments.file)}
-          className="bg-primary text-primary-foreground flex-shrink-0 h-10 w-10 rounded-xl"
+          disabled={!canSend}
+          loading={isSending}
+          aria-label={sendLabel}
+          className="shrink-0 rounded-xl"
         >
-          <Send className="h-5 w-5" />
+          {!isSending && <Send className="h-5 w-5" />}
         </Button>
       </div>
     </div>

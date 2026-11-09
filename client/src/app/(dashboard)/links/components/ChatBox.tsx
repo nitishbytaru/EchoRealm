@@ -57,10 +57,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
 
   const messagesEndRef = useAutoScroll(privateMessages, shouldScrollToBottom);
 
-  const [echoLinkMessageData, setEchoLinkMessageData] = useState<FormData | null>(null);
-
   const [isPendingOperation, setIsPendingOperation] = useState(false);
-  const [isPendingSendMessage, setIsPendingSendMessage] = useState(false);
   const [isPendingGetMessage, setIsPendingGetMessage] = useState(false);
 
   // Group action dialog states
@@ -118,36 +115,20 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
     };
   }, [dispatch, recieverId, setShouldScrollToBottom]);
 
-  useEffect(() => {
+  const sendMessage = async (data: FormData) => {
     if (!recieverId) return;
-
-    if (echoLinkMessageData && !echoLinkMessageData.has("receiver")) {
-      echoLinkMessageData.append("receiver", recieverId);
+    data.append("receiver", recieverId);
+    const response = selectedChat?.groupName
+      ? await sendGroupChatMessageApi(data)
+      : await sendEchoLinkMessageApi(data);
+    if (!selectedChat?.groupName) {
+      dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
     }
+  };
 
-    const sendMessage = async () => {
-      try {
-        setIsPendingSendMessage(true);
-        if (!echoLinkMessageData) return;
-
-        const response = selectedChat?.groupName
-          ? await sendGroupChatMessageApi(echoLinkMessageData)
-          : await sendEchoLinkMessageApi(echoLinkMessageData);
-
-        if (!selectedChat?.groupName) {
-          dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
-        }
-      } catch (error: any) {
-        console.error("Error sending message:", error);
-        toast.error(error?.response?.data?.message || "Failed to send message.");
-      } finally {
-        setIsPendingSendMessage(false);
-        setEchoLinkMessageData(null);
-      }
-    };
-
-    if (echoLinkMessageData) sendMessage();
-  }, [dispatch, echoLinkMessageData, recieverId, selectedChat?.groupName]);
+  const groupMemberNames: Record<string, string> = Object.fromEntries(
+    (selectedChat?.groupChatRoomMembers || []).map((member: any) => [member._id, member.username])
+  );
 
   useEffect(() => {
     const getMessages = async () => {
@@ -218,29 +199,28 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           )}
 
           {/* Chat area */}
-          <div className="flex-1 overflow-y-auto mt-4 p-4 rounded-2xl relative min-h-[300px] bg-muted/20 border-[3px] border-[var(--nb-border-color)]">
-            <div className="h-full overflow-y-auto hide-scrollBar" ref={scrollRef}>
+          <div className="relative min-h-0 flex-1 py-4">
+            <div role="log" aria-label="Messages" aria-live="polite" className="h-full overflow-y-auto pr-2 hide-scrollBar" ref={scrollRef}>
               {gettingOldMessages && (
                 <div className="flex justify-center p-2">
                   <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
               )}
               {privateMessages?.map((message, index) => (
-                <MessageBubble key={index} messages={message} user={user} />
+                <MessageBubble
+                  key={index}
+                  messages={message}
+                  user={user}
+                  senderName={selectedChat?.groupName ? groupMemberNames[message?.sender] ?? "Former member" : undefined}
+                />
               ))}
               <div ref={messagesEndRef} />
             </div>
           </div>
 
           {/* Message input bar */}
-          <div className="mt-4">
-            {isPendingSendMessage ? (
-              <div className="w-full flex justify-center items-center py-4">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : (
-              <MessageBar setMessageData={setEchoLinkMessageData} />
-            )}
+          <div className="border-t-[3px] border-[var(--nb-border-color)] pt-3">
+            <MessageBar onSend={sendMessage} />
           </div>
         </div>
       )}

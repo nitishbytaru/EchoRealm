@@ -75,22 +75,23 @@ export const RemoveFromGroupDialog: React.FC<RemoveFromGroupDialogProps> = ({
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          <p className="text-[10px] text-muted-foreground">Click &apos;X&apos; next to the member you wish to remove, then update.</p>
+          <p className="text-sm text-muted-foreground">Remove anyone you like below, then choose Update Group.</p>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Group Members ({groupMembers.length})</label>
-            <div className="bg-muted border border-border rounded-xl max-h-60 overflow-y-auto p-2 space-y-1.5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Group Members ({groupMembers.length})</label>
+            <div className="bg-muted border-[3px] border-[var(--nb-border-color)] rounded-xl max-h-60 overflow-y-auto p-2 space-y-1.5">
               {groupMembers.map((member) => (
                 <div
                   key={member._id}
-                  className="flex items-center justify-between p-2 rounded-lg bg-background border border-border"
+                  className="flex items-center justify-between p-2 rounded-lg bg-background border-[3px] border-[var(--nb-border-color)]"
                 >
                   <span className="text-xs font-medium text-foreground">@{member.username}</span>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => removeGroupMember(member)}
-                    className="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-full tap-interactive"
+                    aria-label={`Remove @${member.username}`}
+                    className="text-nb-danger-text"
                   >
                     <X className="h-3.5 w-3.5" />
                   </Button>
@@ -113,7 +114,7 @@ export const RemoveFromGroupDialog: React.FC<RemoveFromGroupDialogProps> = ({
             onClick={removeMemberFromGroup}
             loading={isPending}
             disabled={groupMembers.length === 0}
-            className="bg-indigo-650 hover:bg-indigo-600 text-white text-xs px-4 rounded-lg shadow-sm shadow-indigo-950/20 h-9 tap-interactive"
+            className=" text-xs px-4 rounded-lg h-9 tap-interactive"
           >
             Update Group
           </Button>

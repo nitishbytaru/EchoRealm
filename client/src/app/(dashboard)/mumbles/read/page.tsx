@@ -18,15 +18,12 @@ import {
   handleRemoveOrBlockMyFriendApi,
 } from "@/api/friends.api";
 import {
-  increaseNumberOfPinnedMumbles,
   removeMumble,
   setMumbles,
-  setNumberOfPinnedMumbles,
   updateMumbles,
   setUnReadMumbles,
 } from "@/store/slices/echo_mumble.slice";
 import { RootState } from "@/store/store";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 export default function ListenMumblesPage() {
   const isFirstRender = useRef(true);
@@ -41,11 +39,13 @@ export default function ListenMumblesPage() {
   const router = useRouter();
 
   const { user } = useSelector((state: RootState) => state.auth);
-  const { Mumbles, numberOfPinnedMumbles } = useSelector(
+  const { Mumbles } = useSelector(
     (state: RootState) => state.echoMumble
   );
 
   const [isPending, setIsPending] = useState(false);
+  const [mumbleToDelete, setMumbleToDelete] = useState<any>(null);
+  const [senderToBlock, setSenderToBlock] = useState<any>(null);
 
   useEffect(() => {
     const fetchMumblesAndBlocked = async () => {
@@ -64,11 +64,6 @@ export default function ListenMumblesPage() {
           (mumble: any) => !blockedList.includes(mumble?.sender)
         );
 
-        const pinnedMumbles = response?.data?.mumbles?.filter(
-          (mumble: any) => mumble?.pinned
-        );
-
-        dispatch(setNumberOfPinnedMumbles(pinnedMumbles?.length || 0));
         dispatch(
           setUnReadMumbles(
             responseMumbles?.filter((mumble: any) => mumble.mumbleStatus !== "read")
@@ -124,18 +119,9 @@ export default function ListenMumblesPage() {
     }
   };
 
-  const callDeleteMumbleFunc = (mumble: any) => {
-    toast(`Delete mumble from @${mumble?.sender?.username || "anonymous"}?`, {
-      action: {
-        label: "Delete",
-        onClick: () => confirmDeleteMumbleApiFunc(mumble._id),
-      },
-    });
-  };
-
   const pinMumbleApiFunc = async (mumble: any) => {
-    if (!mumble?.pinned && numberOfPinnedMumbles >= 5) {
-      toast.error("Only 5 mumbles can be Pinned");
+    if (!mumble?.pinned && Mumbles.filter((m: any) => m.pinned).length >= 4) {
+      toast.error("You can pin up to 4 Mumbles. Unpin one to add another.");
       return;
     }
     try {
@@ -143,8 +129,7 @@ export default function ListenMumblesPage() {
       const response = await pinMumbleApi(mumble._id);
       if (response?.data) {
         dispatch(updateMumbles(response.data.updatedMumble));
-        dispatch(increaseNumberOfPinnedMumbles());
-        toast.success(response.data.message || "Pin status updated!");
+        toast.success(mumble?.pinned ? "Unpinned from your profile." : "Pinned to your profile.");
       }
     } catch (error) {
       console.error("Error pinning mumble:", error);
@@ -176,108 +161,95 @@ export default function ListenMumblesPage() {
   if (isPending && Mumbles.length === 0) return <Loading />;
 
   return (
-    <div className="flex-1 flex flex-col w-full max-w-5xl mx-auto space-y-5">
-      <div className="flex justify-between items-center border-b border-border pb-4">
+    <div className="flex-1 flex flex-col w-full max-w-3xl mx-auto space-y-6">
+      <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-foreground">
-            Inbox Mumbles
-          </h2>
-          <p className="text-[10px] text-muted-foreground mt-0.5">View whispers received from other users</p>
+          <h1 className="text-xl font-bold tracking-tight text-muted-foreground">Mumbles</h1>
+          <p className="text-sm text-muted-foreground font-medium mt-1">Quiet notes people left for you</p>
         </div>
-        {isPending && <Loader2 className="h-4.5 w-4.5 animate-spin text-indigo-500" />}
+        {isPending && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-label="Loading" />}
       </div>
 
       {Mumbles.length === 0 ? (
-        <div className="flex-1 flex flex-col justify-center items-center text-center p-8 bg-card border border-border rounded-xl min-h-[300px]">
-          <p className="text-muted-foreground text-xs font-semibold">Your inbox is empty</p>
-          <p className="text-[10px] text-muted-foreground/80 mt-1">No one has mumbled to you yet.</p>
+        <div className="flex-1 flex flex-col justify-center items-center text-center p-8 border-2 border-dashed border-muted-foreground/50 rounded-2xl min-h-[280px]">
+          <p className="text-foreground text-sm font-bold">It&apos;s quiet in here</p>
+          <p className="text-sm text-muted-foreground font-medium mt-1">When someone sends you a Mumble, it will appear here.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {Mumbles.map((mumble: any) => {
             const isUnread = mumble.mumbleStatus === "sent";
+            const isAnonymous = !mumble?.sender?.senderId;
             return (
-              <Card
+              <li
                 key={mumble._id}
-                className={`relative overflow-hidden rounded-xl transition-all duration-200 border ${
-                  isUnread
-                    ? "bg-muted/40 border-indigo-500/20 shadow-sm shadow-indigo-950/5"
-                    : "bg-card border-border"
+                className={`rounded-xl border-2 p-3 pl-4 ${isAnonymous ? "border-dashed" : "border-solid"} ${
+                  isUnread ? "border-nb-accent bg-nb-accent/10" : "border-muted-foreground/50 bg-muted/30"
                 }`}
               >
-                {/* Pin indicator */}
-                {mumble?.pinned && (
-                  <div className="absolute top-3.5 left-3.5 text-indigo-400">
-                    <Pin className="h-3.5 w-3.5 rotate-45 fill-indigo-400/20" />
-                  </div>
-                )}
-
-                <CardHeader className="flex flex-row items-center justify-between pb-1.5 pt-3.5 px-3.5">
-                  <div className={`flex items-center space-x-2 ${mumble?.pinned ? "pl-5" : ""}`}>
-                    <span className="text-[11px] font-semibold text-muted-foreground">
-                      @{mumble?.sender?.username || "anonymous"}
-                    </span>
-                    {isUnread && (
-                      <span className="bg-indigo-650 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider scale-90">
-                        New
-                      </span>
-                    )}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2 text-sm font-bold text-muted-foreground">
+                    {mumble?.pinned && <Pin className="h-4 w-4 shrink-0 rotate-45 text-nb-accent-text" aria-label="Pinned" />}
+                    <span className="truncate">{isAnonymous ? "Someone" : `@${mumble?.sender?.username}`}</span>
+                    {isUnread && <span className="shrink-0 text-xs font-bold text-nb-accent-text">New</span>}
                   </div>
 
-                  {/* Settings / Actions Dropdown */}
                   <DropdownMenu>
                     <DropdownMenuTrigger render={
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground rounded-lg">
+                      <Button variant="ghost" size="icon" aria-label="Mumble options" className="text-muted-foreground hover:text-foreground">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     } />
-                    <DropdownMenuContent className="bg-popover border-border text-popover-foreground w-44 rounded-lg">
-                      <DropdownMenuItem
-                        onClick={() => pinMumbleApiFunc(mumble)}
-                        className="hover:bg-accent cursor-pointer text-xs flex gap-2"
-                      >
-                        <Pin className="h-3.5 w-3.5" />
-                        {mumble?.pinned ? "Unpin this Mumble" : "Pin this Mumble"}
+                    <DropdownMenuContent className="w-48">
+                      <DropdownMenuItem onClick={() => pinMumbleApiFunc(mumble)}>
+                        <Pin className="h-4 w-4" />
+                        {mumble?.pinned ? "Unpin from profile" : "Pin to profile"}
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => callDeleteMumbleFunc(mumble)}
-                        className="hover:bg-accent cursor-pointer text-xs text-rose-500 hover:text-rose-450 flex gap-2"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
+                      {!isAnonymous && (
+                        <DropdownMenuItem onClick={() => router.push(`/links/${mumble?.sender?.senderId}`)}>
+                          <MessageSquare className="h-4 w-4" />
+                          Message @{mumble?.sender?.username}
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem variant="destructive" onClick={() => setMumbleToDelete(mumble)}>
+                        <Trash2 className="h-4 w-4" />
                         Delete Mumble
                       </DropdownMenuItem>
-                      {mumble?.sender?.senderId && (
-                        <>
-                          <DropdownMenuItem
-                            onClick={() => router.push(`/links/${mumble?.sender?.senderId}`)}
-                            className="hover:bg-accent cursor-pointer text-xs flex gap-2"
-                          >
-                            <MessageSquare className="h-3.5 w-3.5" />
-                            Direct Message
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => blockSenderApiFunc(mumble?._id, mumble?.sender?.senderId)}
-                            className="hover:bg-accent cursor-pointer text-xs text-red-500 flex gap-2"
-                          >
-                            <ShieldAlert className="h-3.5 w-3.5" />
-                            Block @{mumble?.sender?.username}
-                          </DropdownMenuItem>
-                        </>
+                      {!isAnonymous && (
+                        <DropdownMenuItem variant="destructive" onClick={() => setSenderToBlock(mumble)}>
+                          <ShieldAlert className="h-4 w-4" />
+                          Block @{mumble?.sender?.username}
+                        </DropdownMenuItem>
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </CardHeader>
+                </div>
 
-                <CardContent className="px-3.5 pb-3.5 pt-1">
-                  <p className="text-xs text-foreground leading-relaxed font-light whitespace-pre-wrap break-words">
-                    {mumble?.message}
-                  </p>
-                </CardContent>
-              </Card>
+                <p className="mt-1 pb-1 text-base leading-relaxed text-foreground font-medium whitespace-pre-wrap break-words">
+                  {mumble?.message}
+                </p>
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
+
+      <ConfirmDialog
+        open={Boolean(mumbleToDelete)}
+        onOpenChange={(open) => !open && setMumbleToDelete(null)}
+        title="Delete this Mumble?"
+        description="It will be removed from your inbox and your profile. This can't be undone."
+        confirmLabel="Delete Mumble"
+        onConfirm={() => confirmDeleteMumbleApiFunc(mumbleToDelete._id)}
+      />
+      <ConfirmDialog
+        open={Boolean(senderToBlock)}
+        onOpenChange={(open) => !open && setSenderToBlock(null)}
+        title={`Block @${senderToBlock?.sender?.username ?? "this person"}?`}
+        description="They'll be removed from your friends and hidden from your search and inbox. You can unblock them under Blocked Users."
+        confirmLabel="Block"
+        onConfirm={() => blockSenderApiFunc(senderToBlock._id, senderToBlock.sender.senderId)}
+      />
     </div>
   );
 }

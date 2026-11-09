@@ -45,29 +45,12 @@ export const createUniquechatRoom = (senderId: string, recieverId: string): stri
   return [senderId, recieverId].sort().join("-");
 };
 
-//to send a echoshout message
-export const sendEchoShoutMessage = async (
-  setSelectSearchBar: (val: boolean) => void,
-  mentions: any[],
-  echoShoutMessageData: FormData,
-  setMentions: (val: any[]) => void,
-  setEchoShoutMessageData: (val: any) => void,
-  setIsUploading: (val: boolean) => void
-) => {
-  setSelectSearchBar(false);
+// send an EchoShout post; rejects so the composer can restore the message
+export const sendEchoShoutMessage = async (mentions: any[], data: FormData) => {
   if (mentions.length > 0) {
-    echoShoutMessageData.append("mentions", JSON.stringify(mentions));
+    data.append("mentions", JSON.stringify(mentions));
   }
-
-  try {
-    await sendEchoShoutApi(echoShoutMessageData);
-  } catch (error) {
-    console.error("Error sending shout:", error);
-  } finally {
-    setMentions([]);
-    setEchoShoutMessageData("");
-    setIsUploading(false);
-  }
+  await sendEchoShoutApi(data);
 };
 
 // to mark the latest message as read

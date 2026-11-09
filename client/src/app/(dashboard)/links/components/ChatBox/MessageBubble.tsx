@@ -7,9 +7,10 @@ import { User } from "@/store/slices/auth.slice";
 interface MessageBubbleProps {
   messages: any;
   user: User | null;
+  senderName?: string;
 }
 
-export const MessageBubble: React.FC<MessageBubbleProps> = ({ messages, user }) => {
+export const MessageBubble: React.FC<MessageBubbleProps> = ({ messages, user, senderName }) => {
   const isOwnMessage = messages?.sender === user?._id;
 
   const hasAttachments = messages?.attachments && messages?.attachments.length > 0;
@@ -17,8 +18,11 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ messages, user }) 
 
   return (
     <div className={`flex flex-col mb-4 animate-scale-in ${isOwnMessage ? "items-end" : "items-start"}`}>
+      {senderName && !isOwnMessage && (
+        <span className="mb-1 px-1 text-xs font-bold text-muted-foreground">@{senderName}</span>
+      )}
       <div
-        className={`max-w-[70%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap break-words border-[3px] border-[var(--nb-border-color)] font-medium ${
+        className={`max-w-[85%] md:max-w-[70%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap break-words border-[3px] border-[var(--nb-border-color)] font-medium ${
           isOwnMessage
             ? "bg-primary text-primary-foreground rounded-br-none shadow-[4px_4px_0px_var(--nb-shadow-color)]"
             : "bg-card text-foreground rounded-bl-none shadow-[4px_4px_0px_var(--nb-shadow-color)]"
@@ -28,7 +32,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ messages, user }) 
           <div className="mb-2 max-w-full overflow-hidden rounded-xl border-[2px] border-[var(--nb-border-color)]">
             <img
               src={attachmentUrl}
-              alt="Attachment"
+              alt={senderName ? `Image from ${senderName}` : "Shared image"}
               className="w-full h-auto max-h-60 object-cover hover:scale-102 transition-transform duration-300"
             />
           </div>
@@ -37,7 +41,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ messages, user }) 
         <p>{messages?.message}</p>
       </div>
 
-      <span className="text-[10px] text-muted-foreground mt-1.5 px-1 font-bold">
+      <span title={moment(messages?.createdAt).format("LLL")} className="text-xs text-muted-foreground mt-1.5 px-1 font-bold">
         {moment(messages?.createdAt).fromNow()}
       </span>
     </div>

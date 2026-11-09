@@ -39,6 +39,7 @@ export default function MyFriendRequestsPage() {
         }
       } catch (error) {
         console.error("Error fetching friend requests:", error);
+        toast.error("We couldn't load your friend requests. Refresh to try again.");
       } finally {
         setIsPending(false);
       }
@@ -75,20 +76,20 @@ export default function MyFriendRequestsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
+      <div className="flex justify-between items-center border-b-[3px] border-[var(--nb-border-color)] pb-4">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-zinc-100">
+          <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
             Friend Requests
           </h2>
-          <p className="text-[10px] text-zinc-555 mt-0.5">Respond to incoming friend invitations</p>
+          <p className="text-sm text-muted-foreground font-medium mt-1">Respond to incoming friend invitations</p>
         </div>
-        {isPending && <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />}
+        {isPending && <Loader2 className="h-4 w-4 animate-spin text-foreground" />}
       </div>
 
       {isPending && (!myFriendRequests || myFriendRequests.length === 0) ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i} className="bg-zinc-900/10 border border-zinc-900 overflow-hidden rounded-xl">
+            <Card key={i} className="overflow-hidden shadow-[var(--nb-shadow-sm)]">
               <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
                 <Skeleton className="h-14 w-14 rounded-full" />
                 <div className="space-y-2 w-full flex flex-col items-center">
@@ -104,33 +105,32 @@ export default function MyFriendRequestsPage() {
           ))}
         </div>
       ) : myFriendRequests?.length === 0 ? (
-        <div className="flex flex-col justify-center items-center text-center p-8 bg-zinc-900/10 border border-zinc-900 rounded-xl min-h-[250px] animate-fade-in">
-          <UserPlus2 className="h-6 w-6 text-zinc-650 mb-2" />
-          <p className="text-zinc-500 text-xs font-semibold">No pending requests</p>
-          <p className="text-[9px] text-zinc-650 mt-2">You will see new friend requests here when someone adds you.</p>
+        <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl min-h-[250px] animate-fade-in">
+          <UserPlus2 className="h-6 w-6 text-muted-foreground mb-2" />
+          <p className="text-muted-foreground text-xs font-semibold">No pending requests</p>
+          <p className="text-xs text-muted-foreground mt-2">You will see new friend requests here when someone adds you.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {myFriendRequests?.map((requestUser: any) => (
-            <Card key={requestUser._id} className="bg-zinc-900/10 border border-zinc-900 overflow-hidden rounded-xl card-interactive">
+            <Card key={requestUser._id} className="overflow-hidden shadow-[var(--nb-shadow-sm)] card-interactive">
               <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
-                <Avatar className="h-14 w-14 border border-zinc-800">
+                <Avatar className="h-14 w-14 border">
                   <AvatarImage src={requestUser?.avatar?.url} />
-                  <AvatarFallback className="bg-zinc-950 text-indigo-400 text-sm border border-zinc-900">
+                  <AvatarFallback className="bg-card text-nb-accent-text text-sm border">
                     {requestUser.username.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
 
                 <div>
-                  <h4 className="text-xs font-semibold text-zinc-200">@{requestUser.username}</h4>
-                  <p className="text-[9px] text-zinc-500 mt-0.5">{requestUser.email}</p>
+                  <h4 className="text-xs font-semibold text-foreground">@{requestUser.username}</h4>
                 </div>
 
                 <div className="flex flex-col gap-2 w-full pt-2">
                   <div className="flex gap-2 w-full">
                     <Button
                       onClick={() => handleFriendRequest(requestUser._id, true)}
-                      className="flex-1 bg-indigo-650 hover:bg-indigo-600 text-zinc-50 text-[10px] h-8 rounded-lg flex items-center justify-center gap-2 shadow-sm shadow-indigo-950/20 tap-interactive"
+                      className="flex-1 text-xs  flex items-center justify-center gap-2 tap-interactive"
                     >
                       <UserCheck className="h-4 w-4" />
                       Accept
@@ -138,7 +138,7 @@ export default function MyFriendRequestsPage() {
                     <Button
                       onClick={() => handleFriendRequest(requestUser._id, false)}
                       variant="ghost"
-                      className="flex-1 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 text-[10px] h-8 rounded-lg flex items-center justify-center gap-2 border border-zinc-800 tap-interactive"
+                      className="flex-1 text-muted-foreground hover:text-foreground text-xs  flex items-center justify-center gap-2 border tap-interactive"
                     >
                       <UserX2 className="h-4 w-4" />
                       Reject
@@ -148,7 +148,7 @@ export default function MyFriendRequestsPage() {
                   <Button
                     onClick={() => viewProfileFunc(requestUser._id)}
                     variant="outline"
-                    className="w-full bg-transparent border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-100 text-[10px] h-8 rounded-lg flex items-center justify-center gap-2 tap-interactive"
+                    className="w-full text-muted-foreground hover:text-foreground text-xs  flex items-center justify-center gap-2 tap-interactive"
                   >
                     <Eye className="h-4 w-4" />
                     View Profile

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { Send, Search, Loader2 } from "lucide-react";
+import { Send, Search, EyeOff, User as UserIcon } from "lucide-react";
 
 import { sendMumbleApi } from "@/api/echo_mumble.api";
 import { searchUserByIdApi } from "@/api/user.api";
@@ -20,194 +20,212 @@ interface CreateMumbleProps {
   mumbleTo?: string;
 }
 
+const CHARACTER_LIMIT = 55;
+
 export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
   const router = useRouter();
   const { user } = useSelector((state: RootState) => state.auth);
 
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [isAnonymous, setIsAnonymous] = useState(Boolean(user?.isAnonymous));
+  const [isPending, setIsPending] = useState(false);
   const search = useInputValidation("");
   const message = useInputValidation("");
   const searchResults = useDebouncedSearchResults(search.value);
 
-  const [isPending, setIsPending] = useState(false);
+  const recipients = (searchResults || [])
+    .map((result: any) => result?.user)
+    .filter((candidate: any) => candidate?.isAcceptingMumbles);
 
-  const searchUserByIdFunc = async () => {
+  useEffect(() => {
+    setIsAnonymous(Boolean(user?.isAnonymous));
+  }, [user?.isAnonymous]);
+
+  useEffect(() => {
     if (!mumbleTo) return;
+    (async () => {
+      try {
+        setIsPending(true);
+        const response = await searchUserByIdApi(mumbleTo);
+        setSelectedUser(response?.data?.searchedUser);
+        search.clear();
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        toast.error("We couldn't load that person. Search for them instead.");
+      } finally {
+        setIsPending(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mumbleTo]);
 
-    try {
-      setIsPending(true);
-      const response = await searchUserByIdApi(mumbleTo);
-      setSelectedUser(response?.data?.searchedUser);
-      search.clear();
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      toast.error("Failed to fetch user data.");
-    } finally {
-      setIsPending(false);
-    }
-  };
+  const isOverLimit = message.value.length > CHARACTER_LIMIT;
+  const canSend = !isPending && !isOverLimit && Boolean(selectedUser) && message.value.trim().length > 0;
 
   const sendCurrentMumble = async () => {
-    if (!selectedUser) {
-      toast.error("Please select a user to send a Mumble");
-      return;
-    }
-
-    if (!message.value) {
-      toast.error("Enter a message to send a Mumble");
-      return;
-    }
-
-    const data = {
-      message: message.value,
-      receiver: selectedUser._id,
-      sender: user?.username || null,
-    };
-
+    if (!canSend) return;
     try {
       setIsPending(true);
-      const response = await sendMumbleApi(data);
-      toast.success(response?.data?.message || "Mumble sent successfully!");
+      await sendMumbleApi({ message: message.value, receiver: selectedUser._id, isAnonymous });
+      toast.success(isAnonymous ? "Mumble sent anonymously." : "Mumble sent.");
       message.clear();
       setSelectedUser(null);
       router.push("/mumbles/send");
     } catch (error) {
       console.error("Error sending mumble:", error);
-      toast.error("Failed to send Mumble. Please try again.");
+      toast.error("That Mumble didn't send. It's still here, so you can try again.");
     } finally {
       setIsPending(false);
     }
   };
 
-  useEffect(() => {
-    if (mumbleTo) {
-      searchUserByIdFunc();
-    }
-  }, [mumbleTo]);
-
-  const CHARACTER_LIMIT = 55;
-  const isOverLimit = message.value.length > CHARACTER_LIMIT;
+  const identityOptions = [
+    { value: false, label: `@${user?.username ?? "you"}`, icon: UserIcon },
+    { value: true, label: "Anonymous", icon: EyeOff },
+  ];
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full relative p-4">
-      <div className="w-full bg-card border border-border rounded-xl p-5 shadow-xl shadow-black/5 dark:shadow-black/30 space-y-5">
-        
-        <div className="text-center space-y-0.5">
-          <h2 className="text-xl font-bold tracking-tight text-foreground">
-            Send a Mumble
-          </h2>
-          <p className="text-[10px] text-muted-foreground">Send an anonymous or public whisper to another user</p>
-        </div>
+    <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 py-6">
+      <div>
+        <h1 className="text-lg font-bold text-foreground">Send a Mumble</h1>
+        <p className="text-sm font-medium text-muted-foreground">A short, quiet note for one person.</p>
+      </div>
 
-        {/* Search section */}
-        <div className="relative">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
-            <Input
-              type="text"
-              placeholder="Search user by username..."
-              value={search.value}
-              onChange={search.changeHandler}
-              className="pl-9 bg-background border-border focus-visible:ring-indigo-500 text-foreground placeholder:text-muted-foreground w-full rounded-lg h-9 text-xs"
-            />
-          </div>
-
-          {search.value && (
-            <div className="absolute top-full left-0 right-0 mt-1.5 bg-popover border border-border rounded-lg shadow-2xl max-h-60 overflow-y-auto z-50 divide-y divide-border p-1">
-              {searchResults?.length > 0 ? (
-                searchResults.map((result) => {
-                  const targetUser = result?.user;
-                  if (!targetUser?.isAcceptingMumbles) return null;
-                  return (
-                    <div
-                      key={targetUser._id}
-                      onClick={() => router.push(`/mumbles/send/${targetUser._id}`)}
-                      className="flex items-center gap-2.5 p-1.5 rounded-md hover:bg-accent cursor-pointer transition-colors"
-                    >
-                      <Avatar className="h-7 w-7 border border-border">
-                        <AvatarImage src={targetUser?.avatar?.url} />
-                        <AvatarFallback className="bg-muted text-indigo-400 text-[10px]">
-                          {targetUser.username.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-xs font-semibold text-foreground">@{targetUser.username}</p>
-                        <p className="text-[9px] text-indigo-400">Accepts whispers</p>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="p-3 text-center text-xs text-muted-foreground">
-                  No user found with username &quot;{search.value}&quot;
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Selected User Display */}
-        <div className="flex flex-col items-center justify-center min-h-[140px] py-4 bg-muted/30 border border-border rounded-xl">
-          {selectedUser ? (
-            <div className="flex flex-col items-center space-y-2 animate-in zoom-in-95 duration-200">
-              <Avatar className="h-16 w-16 border border-indigo-500/30 shadow-md">
-                <AvatarImage src={selectedUser?.avatar?.url} />
-                <AvatarFallback className="bg-background text-indigo-400 text-sm">
-                  {selectedUser.username.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="text-center">
-                <h3 className="text-xs font-bold text-foreground">@{selectedUser.username}</h3>
-                <p className="text-[9px] text-muted-foreground">Mumbling to this user</p>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center space-y-0.5">
-              <p className="text-muted-foreground text-xs">No user selected</p>
-              <p className="text-[9px] text-muted-foreground/70">Search above and select a profile</p>
-            </div>
-          )}
-        </div>
-
-        {/* Message Input bar */}
-        <div className="flex items-center gap-2 bg-background rounded-lg border border-border p-1.5 relative">
-          <Input
-            type="text"
-            className={`w-full bg-transparent border-none text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 pr-10 text-xs h-8.5 ${
-              isOverLimit ? "text-red-400" : ""
-            }`}
-            placeholder={selectedUser ? `Whisper to @${selectedUser.username}...` : "Please select a user first..."}
-            onChange={message.changeHandler}
-            value={message.value}
-            disabled={!selectedUser}
-            onKeyDown={(e) => handleKeyPress(e, sendCurrentMumble)}
-          />
-
-          <div className="flex items-center gap-2.5">
-            <span
-              className={`text-[9px] font-mono ${
-                isOverLimit ? "text-red-500 font-bold" : "text-muted-foreground"
-              }`}
-            >
-              {message.value.length}/{CHARACTER_LIMIT}
-            </span>
-
+      <div className="relative">
+        {selectedUser ? (
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={selectedUser?.avatar?.url} alt="" />
+              <AvatarFallback className="bg-nb-accent text-sm text-on-color">
+                {selectedUser.username.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <p className="min-w-0 flex-1 truncate text-sm font-bold text-foreground">To @{selectedUser.username}</p>
             <Button
-              type="button"
-              size="icon"
-              onClick={sendCurrentMumble}
-              disabled={isPending || isOverLimit || !selectedUser || !message.value}
-              className="bg-indigo-650 hover:bg-indigo-600 text-zinc-50 rounded-lg h-8.5 w-8.5 flex-shrink-0"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSelectedUser(null);
+                if (mumbleTo) router.push("/mumbles/send");
+              }}
             >
-              {isPending ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Send className="h-3.5 w-3.5" />
-              )}
+              Change
             </Button>
           </div>
-        </div>
+        ) : (
+          <>
+            <label htmlFor="mumble-recipient" className="mb-2 block text-sm font-bold text-foreground">
+              Who is it for?
+            </label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <Input
+                id="mumble-recipient"
+                type="text"
+                placeholder="Search by username"
+                value={search.value}
+                onChange={search.changeHandler}
+                className="w-full pl-9 text-base md:text-sm"
+              />
+            </div>
+            {search.value && (
+              <ul className="absolute top-full right-0 left-0 z-50 mt-2 max-h-60 space-y-1 overflow-y-auto rounded-xl border-[3px] border-[var(--nb-border-color)] bg-popover p-1 shadow-[var(--nb-shadow-sm)]">
+                {recipients.length > 0 ? (
+                  recipients.map((candidate: any) => (
+                    <li key={candidate._id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          search.clear();
+                          setSelectedUser(candidate);
+                        }}
+                        className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-muted"
+                      >
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={candidate?.avatar?.url} alt="" />
+                          <AvatarFallback className="bg-nb-accent text-xs text-on-color">
+                            {candidate.username.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="min-w-0 truncate text-sm font-bold text-foreground">@{candidate.username}</span>
+                      </button>
+                    </li>
+                  ))
+                ) : (
+                  <li className="p-3 text-center text-sm font-medium text-muted-foreground">
+                    Nobody with that name is accepting Mumbles.
+                  </li>
+                )}
+              </ul>
+            )}
+          </>
+        )}
+      </div>
 
+      <fieldset>
+        <legend className="mb-2 text-sm font-bold text-foreground">Send as</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {identityOptions.map(({ value, label, icon: Icon }) => (
+            <label
+              key={label}
+              className={`flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border-[3px] px-2 text-sm font-bold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-foreground ${
+                isAnonymous === value
+                  ? "border-[var(--nb-border-color)] bg-nb-accent text-on-color"
+                  : "border-dashed border-muted-foreground text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <input
+                type="radio"
+                name="mumble-identity"
+                checked={isAnonymous === value}
+                onChange={() => setIsAnonymous(value)}
+                className="sr-only"
+              />
+              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="min-w-0 truncate">{label}</span>
+            </label>
+          ))}
+        </div>
+        <p className="mt-2 text-sm font-medium text-muted-foreground">
+          {isAnonymous
+            ? "They won't see who sent this, and it can't be traced back to you."
+            : "They'll see your username on this Mumble."}
+        </p>
+      </fieldset>
+
+      <div>
+        <label htmlFor="mumble-message" className="sr-only">
+          Your Mumble
+        </label>
+        <div className="flex items-center gap-2">
+          <div className="relative min-w-0 grow">
+            <Input
+              id="mumble-message"
+              type="text"
+              aria-invalid={isOverLimit || undefined}
+              className="w-full border-dashed pr-14 text-base md:text-sm"
+              placeholder={selectedUser ? `Mumble to @${selectedUser.username}` : "Choose someone first"}
+              onChange={message.changeHandler}
+              value={message.value}
+              disabled={!selectedUser}
+              onKeyDown={(e) => handleKeyPress(e, sendCurrentMumble)}
+            />
+            <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-xs font-bold ${isOverLimit ? "text-nb-danger-text" : "text-muted-foreground"}`}>
+              {message.value.length}/{CHARACTER_LIMIT}
+            </span>
+          </div>
+          <Button
+            type="button"
+            size="icon-lg"
+            onClick={sendCurrentMumble}
+            disabled={!canSend}
+            loading={isPending}
+            aria-label="Send Mumble"
+            className="shrink-0 rounded-xl bg-nb-accent text-on-color"
+          >
+            {!isPending && <Send className="h-5 w-5" />}
+          </Button>
+        </div>
       </div>
     </div>
   );

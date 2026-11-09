@@ -2,8 +2,6 @@
 
 import React from "react";
 import moment from "moment";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
 
 interface Attachment {
   url?: string;
@@ -24,47 +22,46 @@ interface MessageBubbleProps {
   isMe: boolean;
 }
 
-export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(({
-  sender,
-  attachments,
-  mentions,
-  message,
-  updatedAt,
-  isMe,
-}) => {
-  return (
-    <div className={`flex flex-col mb-4 animate-scale-in ${isMe ? "items-end" : "items-start"}`}>
-      <span className="text-xs text-muted-foreground font-bold mb-1 px-1">@{sender}</span>
-      <div
-        className={`max-w-[80%] rounded-2xl px-4 py-3 border-[3px] border-[var(--nb-border-color)] ${
-          isMe
-            ? "bg-primary text-primary-foreground rounded-tr-none shadow-[4px_4px_0px_var(--nb-shadow-color)]"
-            : "bg-card text-foreground rounded-tl-none shadow-[4px_4px_0px_var(--nb-shadow-color)]"
+// A shout is a poster, not a bubble: the shorter it is, the louder it gets.
+const volumeClass = (length: number) => {
+  if (length <= 18) return "text-4xl sm:text-5xl";
+  if (length <= 36) return "text-3xl sm:text-4xl";
+  return "text-2xl sm:text-3xl";
+};
+
+export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
+  ({ sender, attachments, mentions, message, updatedAt, isMe }) => {
+    return (
+      <article
+        className={`mb-5 animate-scale-in rounded-2xl border-[3px] border-[var(--nb-border-color)] p-4 shadow-[var(--nb-shadow)] sm:p-5 ${
+          isMe ? "bg-primary text-primary-foreground" : "bg-card text-foreground"
         }`}
       >
+        <header className="mb-2 flex items-baseline justify-between gap-3 text-sm font-bold">
+          <span className="min-w-0 truncate">@{sender}</span>
+          <time dateTime={updatedAt} title={moment(updatedAt).format("LLL")} className="shrink-0 text-xs">
+            {moment(updatedAt).fromNow()}
+          </time>
+        </header>
+
         {attachments && attachments[0]?.url && (
-          <div className="relative mb-2 rounded-xl overflow-hidden border-[2px] border-[var(--nb-border-color)] bg-muted max-w-[200px]">
-            <img
-              src={attachments[0].url}
-              alt="attachment"
-              className="object-cover w-full h-auto max-h-[160px] rounded-lg transition-transform hover:scale-102"
-              loading="lazy"
-            />
+          <div className="mb-3 overflow-hidden rounded-xl border-[3px] border-[var(--nb-border-color)]">
+            <img src={attachments[0].url} alt={`Image shared by ${sender}`} className="max-h-80 w-full object-cover" loading="lazy" />
           </div>
         )}
-        <div className="flex flex-wrap items-center gap-1.5">
-          {mentions && mentions.length > 0 && (
-            <span className="text-sm font-bold text-secondary">
+
+        <p className={`font-extrabold leading-[1.05] tracking-tight break-words ${volumeClass(message?.length ?? 0)}`}>
+          {mentions?.length > 0 && (
+            <span className="underline decoration-[3px] underline-offset-4">
               {mentions.map((mention) => `@${mention?.username}`).join(" ")}{" "}
             </span>
           )}
-          <p className="text-sm leading-relaxed whitespace-pre-wrap break-words font-medium">{message}</p>
-        </div>
-      </div>
-      <span className="text-[10px] text-muted-foreground mt-1.5 px-1 font-bold">{moment(updatedAt).fromNow()}</span>
-    </div>
-  );
-});
+          {message}
+        </p>
+      </article>
+    );
+  }
+);
 
 MessageBubble.displayName = "MessageBubble";
 

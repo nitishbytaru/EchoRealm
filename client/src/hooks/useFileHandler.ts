@@ -15,6 +15,7 @@ export const useFileHandler = (type: "single" | "multiple" = "single") => {
 
   return {
     file,
+    setFile,
     changeHandler,
     clear,
   };

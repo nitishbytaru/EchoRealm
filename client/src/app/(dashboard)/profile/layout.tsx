@@ -20,6 +20,7 @@ import {
 import { logoutApi } from "@/api/auth.api";
 import { setUser, setIsLoggedIn } from "@/store/slices/auth.slice";
 import { RootState } from "@/store/store";
+import CountBadge from "@/components/CountBadge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ProfileLayoutProps {
@@ -55,7 +56,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
 
   const navItems = [
     { href: "/profile/edit", label: "Profile", icon: UserIcon },
-    { href: "/profile/mumbles", label: "My Mumbles", icon: Shield },
+    { href: "/profile/mumbles", label: "Pinned Mumbles", icon: Shield },
     { href: "/profile/friends/list", label: "My Friends", icon: Users },
     {
       href: "/profile/friends/requests",
@@ -65,16 +66,16 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
     },
     { href: "/profile/blocked-users", label: "Blocked Users", icon: UserX },
     { href: "/profile/find-users", label: "Find Users", icon: Search },
-    { href: "/profile/account", label: "Account Settings", icon: Settings },
+    { href: "/profile/account", label: "Account", icon: Settings },
   ];
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row gap-4 max-w-6xl mx-auto w-full min-h-[calc(100vh-140px)]">
+    <div className="flex-1 flex flex-col md:flex-row gap-4 max-w-6xl mx-auto w-full min-h-[calc(100dvh-168px)]">
       {/* Sidebar navigation */}
       <div className="w-full md:w-60 bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-5 flex flex-col justify-between shrink-0 h-fit md:sticky md:top-20">
         <div className="space-y-4">
           {/* User Header */}
-          <div className="flex flex-row md:flex-col items-center gap-3 md:text-center md:pb-4 md:border-b-[3px] md:border-[var(--nb-border-color)]">
+          <div className="hidden md:flex md:flex-col items-center gap-3 md:text-center md:pb-4 md:border-b-[3px] md:border-[var(--nb-border-color)]">
             <Avatar className="h-14 w-14 md:h-18 md:w-18 mx-auto" size="lg">
               <AvatarImage src={user?.avatar?.url} />
               <AvatarFallback className="bg-primary text-primary-foreground text-base font-extrabold">
@@ -88,7 +89,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
           </div>
 
           {/* Nav links */}
-          <nav className="flex flex-row md:flex-col flex-wrap gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+          <nav aria-label="Profile sections" className="flex md:flex-col gap-1.5 overflow-x-auto pb-1 md:pb-0">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -104,11 +105,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
                 >
                   <Icon className="h-5 w-5 shrink-0" />
                   <span>{item.label}</span>
-                  {item.badge && item.badge > 0 ? (
-                    <span className="absolute right-2 bg-nb-warning text-foreground text-[9px] font-extrabold h-5 min-w-[20px] px-1 rounded-lg flex items-center justify-center border-[2px] border-[var(--nb-border-color)]">
-                      {item.badge}
-                    </span>
-                  ) : null}
+                  {item.badge ? <CountBadge count={item.badge} label="pending friend requests" className="relative ml-auto bg-nb-warning" /> : null}
                 </Link>
               );
             })}
@@ -116,11 +113,11 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
         </div>
 
         {/* Logout Button */}
-        <div className="mt-4 border-t-[3px] border-[var(--nb-border-color)] pt-4">
+        <div className="mt-4 hidden md:block border-t-[3px] border-[var(--nb-border-color)] pt-4">
           <button
             onClick={handleLogout}
             disabled={isPending}
-            className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-destructive border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] hover:-translate-y-0.5 hover:shadow-[var(--nb-shadow)] active:translate-y-0.5 active:shadow-[var(--nb-shadow-active)] transition-all w-full"
+            className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-foreground border-[3px] border-[var(--nb-border-color)] hover:bg-muted transition-all w-full"
           >
             {isPending ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -132,11 +129,18 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
         </div>
       </div>
 
-      {/* Main dynamic profile page container */}
       <div className="flex-1 bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-5 sm:p-6 md:p-8 overflow-y-auto hide-scrollBar">
         <div key={pathname} className="animate-fade-in-up">
           {children}
         </div>
+        <button
+          onClick={handleLogout}
+          disabled={isPending}
+          className="mt-8 flex h-11 w-full items-center justify-center gap-2 rounded-xl border-[3px] border-[var(--nb-border-color)] text-sm font-bold text-foreground md:hidden"
+        >
+          {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
+          Log out
+        </button>
       </div>
     </div>
   );

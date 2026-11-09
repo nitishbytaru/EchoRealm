@@ -128,10 +128,13 @@ export const likeThisMumble = asyncHandler(async (req, res) => {
 });
 
 export const sendMumble = asyncHandler(async (req, res) => {
-  const { message, receiver } = req.body;
+  const { message, receiver, isAnonymous } = req.body;
   let senderDoc = await User.findById(req.user).select("-password");
 
-  const sender = senderDoc.isAnonymous
+  const sendAnonymously =
+    typeof isAnonymous === "boolean" ? isAnonymous : senderDoc.isAnonymous;
+
+  const sender = sendAnonymously
     ? { senderId: null, username: "anonymous" }
     : { senderId: req.user, username: senderDoc.username };
 

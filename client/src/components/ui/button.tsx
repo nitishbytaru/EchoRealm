@@ -17,7 +17,7 @@ const buttonVariants = cva(
         ghost:
           "border-transparent shadow-none hover:bg-muted hover:border-[var(--nb-border-color)] hover:shadow-[var(--nb-shadow-sm)]",
         destructive:
-          "bg-destructive text-white shadow-[var(--nb-shadow-sm)]",
+          "bg-destructive text-on-color shadow-[var(--nb-shadow-sm)]",
         link: "text-primary border-transparent shadow-none underline-offset-4 hover:underline hover:shadow-none hover:translate-y-0",
       },
       size: {

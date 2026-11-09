@@ -20,7 +20,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ isChecked, handleToggl
       <div className="flex items-center space-x-2">
         <div className="w-16 h-9 bg-muted rounded-full border-[3px] border-[var(--nb-border-color)] flex items-center justify-between px-2 opacity-50">
           <Sun className="h-4 w-4 text-nb-warning z-10 pointer-events-none" />
-          <Moon className="h-4 w-4 text-nb-accent z-10 pointer-events-none" />
+          <Moon className="h-4 w-4 text-nb-accent-text z-10 pointer-events-none" />
         </div>
       </div>
     );
@@ -33,11 +33,12 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ isChecked, handleToggl
           type="checkbox"
           checked={isChecked}
           onChange={handleToggle}
+          aria-label="Dark mode"
           className="sr-only peer"
         />
         <div className="w-16 h-9 bg-card rounded-full border-[3px] border-[var(--nb-border-color)] shadow-[3px_3px_0px_var(--nb-shadow-color)] peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[5px] after:start-[5px] after:bg-primary after:border-[2px] after:border-[var(--nb-border-color)] after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-muted flex items-center justify-between px-2 transition-all duration-150">
           <Sun className="h-4 w-4 text-nb-warning z-10 pointer-events-none" />
-          <Moon className="h-4 w-4 text-nb-accent z-10 pointer-events-none" />
+          <Moon className="h-4 w-4 text-nb-accent-text z-10 pointer-events-none" />
         </div>
       </label>
     </div>

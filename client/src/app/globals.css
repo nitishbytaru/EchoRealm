@@ -54,6 +54,10 @@
   --color-nb-danger: var(--nb-danger);
   --color-nb-warning: var(--nb-warning);
   --color-nb-accent: var(--nb-accent);
+  --color-on-color: var(--on-color);
+  --color-nb-link: var(--nb-link);
+  --color-nb-accent-text: var(--nb-accent-text);
+  --color-nb-danger-text: var(--nb-danger-text);
 }
 
 :root {
@@ -67,7 +71,7 @@
   --primary: #FFD43B;
   --primary-foreground: #111111;
   --secondary: #4D96FF;
-  --secondary-foreground: #FFFFFF;
+  --secondary-foreground: #111111;
   --muted: #F0EBE3;
   --muted-foreground: #555555;
   --accent: #B983FF;
@@ -98,6 +102,10 @@
   --nb-danger: #FF6B6B;
   --nb-warning: #FFB84C;
   --nb-accent: #B983FF;
+  --on-color: #111111;
+  --nb-link: #1D5FC4;
+  --nb-accent-text: #6B2FD9;
+  --nb-danger-text: #C62828;
   --nb-border-width: 3px;
   --nb-border-color: #000000;
   --nb-shadow-color: #000000;
@@ -119,7 +127,7 @@
   --primary: #FFD43B;
   --primary-foreground: #111111;
   --secondary: #4D96FF;
-  --secondary-foreground: #FFFFFF;
+  --secondary-foreground: #111111;
   --muted: #2A2A2A;
   --muted-foreground: #AAAAAA;
   --accent: #C77DFF;
@@ -149,6 +157,10 @@
   --nb-danger: #FF6B6B;
   --nb-warning: #FFB84C;
   --nb-accent: #C77DFF;
+  --on-color: #111111;
+  --nb-link: #7DB2FF;
+  --nb-accent-text: #D3A6FF;
+  --nb-danger-text: #FF9A9A;
   --nb-border-color: #F5F5F5;
   --nb-shadow-color: #F5F5F5;
   --nb-shadow: 6px 6px 0px var(--nb-shadow-color);
@@ -238,9 +250,11 @@
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 0.15s ease;
 }
-.tap-interactive:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--nb-shadow-hover);
+@media (hover: hover) {
+  .tap-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--nb-shadow-hover);
+  }
 }
 .tap-interactive:active {
   transform: translateY(1px);
@@ -251,9 +265,11 @@
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 0.2s ease;
 }
-.card-interactive:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--nb-shadow-lg);
+@media (hover: hover) {
+  .card-interactive:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--nb-shadow-lg);
+  }
 }
 .card-interactive:active {
   transform: translateY(1px);
@@ -289,9 +305,11 @@
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 0.2s ease;
 }
-.nb-card-hover:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--nb-shadow-lg);
+@media (hover: hover) {
+  .nb-card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--nb-shadow-lg);
+  }
 }
 .nb-card-hover:active {
   transform: translateY(1px);
@@ -301,12 +319,8 @@
 /* ─── Scrollbar Utilities ─── */
 
 .hide-scrollBar {
-  scrollbar-width: none; /* For Firefox */
-  -ms-overflow-style: none; /* For Internet Explorer and Edge */
-}
-
-.hide-scrollBar::-webkit-scrollbar {
-  display: none; /* For Chrome, Safari, and other WebKit browsers */
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) transparent;
 }
 
 /* ─── Neo-Brutalism Loading Animation ─── */
@@ -533,5 +547,33 @@
   }
   100% {
     background-color: transparent;
+  }
+}
+
+/* ─── Browser surfaces and accessibility ─── */
+
+:focus-visible {
+  outline: 3px solid var(--foreground);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--on-color);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(4rem + env(safe-area-inset-bottom));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

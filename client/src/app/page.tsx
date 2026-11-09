@@ -7,7 +7,7 @@ import Image from "next/image";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "@/hooks/use-toast";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, AlertCircle } from "lucide-react";
 
 import Loading from "@/components/Loading";
 import { loginApi, registerApi, getProfileApi } from "@/api/auth.api";
@@ -22,6 +22,7 @@ export default function RegisterPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [formError, setFormError] = useState("");
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function RegisterPage() {
   const isDark = theme === "dark" || theme === "business";
 
   const toggleTheme = () => {
-    const newTheme = isDark ? "light" : "business";
+    const newTheme = isDark ? "wireframe" : "business";
     dispatch(setTheme(newTheme));
     dispatch(setIsChecked(!isDark));
     localStorage.setItem("theme", newTheme);
@@ -72,9 +73,10 @@ export default function RegisterPage() {
   const registerApiFunc = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.value || !username.value || !password.value) {
-      toast.error("All fields are required for registration.");
+      setFormError("Enter an email, username and password to register.");
       return;
     }
+    setFormError("");
     setIsPending(true);
     try {
       const response = await registerApi({
@@ -91,11 +93,9 @@ export default function RegisterPage() {
       }
     } catch (error: any) {
       console.error("Error during registration:", error);
-      toast.error(error?.response?.data?.message || "Failed to register. Please try again.");
+      setFormError(error?.response?.data?.message || "We couldn't create your account. Please try again.");
     } finally {
       setIsPending(false);
-      email.clear();
-      username.clear();
       password.clear();
     }
   };
@@ -103,10 +103,11 @@ export default function RegisterPage() {
   const loginApiFunc = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.value || !password.value) {
-      toast.error("Username and password are required.");
+      setFormError("Enter your username and password to log in.");
       return;
     }
 
+    setFormError("");
     setIsPending(true);
     try {
       const response = await loginApi({
@@ -122,10 +123,9 @@ export default function RegisterPage() {
       }
     } catch (error: any) {
       console.error("Error during login:", error);
-      toast.error(error?.response?.data?.message || "Failed to log in. Please check your credentials.");
+      setFormError(error?.response?.data?.message || "We couldn't log you in. Check your details and try again.");
     } finally {
       setIsPending(false);
-      username.clear();
       password.clear();
     }
   };
@@ -186,7 +186,7 @@ export default function RegisterPage() {
     toast.error("Google login failed");
   };
 
-  if (isCheckingAuth || isPending) {
+  if (isCheckingAuth) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-background">
         <Loading />
@@ -223,7 +223,7 @@ export default function RegisterPage() {
             />
           </h1>
           <p className="text-sm text-muted-foreground font-medium">
-            Connecting voices in a modern, secure workspace
+            Chat close. Shout loud. Mumble quietly.
           </p>
         </div>
 
@@ -237,7 +237,11 @@ export default function RegisterPage() {
                   ? "bg-primary text-primary-foreground border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
                   : "text-muted-foreground border-[3px] border-transparent hover:text-foreground hover:bg-muted"
                   }`}
-                onClick={() => setIsSignUp(true)}
+                aria-pressed={isSignUp}
+                onClick={() => {
+                  setIsSignUp(true);
+                  setFormError("");
+                }}
               >
                 Register
               </button>
@@ -245,10 +249,14 @@ export default function RegisterPage() {
                 id="tab-login"
                 type="button"
                 className={`flex-1 py-2 text-center text-sm font-bold transition-all duration-150 rounded-xl mx-1 ${!isSignUp
-                  ? "bg-secondary text-secondary-foreground border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
+                  ? "bg-primary text-primary-foreground border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
                   : "text-muted-foreground border-[3px] border-transparent hover:text-foreground hover:bg-muted"
                   }`}
-                onClick={() => setIsSignUp(false)}
+                aria-pressed={!isSignUp}
+                onClick={() => {
+                  setIsSignUp(false);
+                  setFormError("");
+                }}
               >
                 Log In
               </button>
@@ -261,12 +269,14 @@ export default function RegisterPage() {
             <form onSubmit={isSignUp ? registerApiFunc : loginApiFunc} className="space-y-4">
               {isSignUp && (
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  <label htmlFor="signin-email" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     Email Address
                   </label>
                   <Input
+                    id="signin-email"
+                    autoComplete="email"
                     type="email"
-                    placeholder="daisy@site.com"
+                    placeholder="you@example.com"
                     value={email.value}
                     onChange={email.changeHandler}
                     required
@@ -275,12 +285,14 @@ export default function RegisterPage() {
               )}
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  Username
+                <label htmlFor="signin-username" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    Username
                 </label>
                 <Input
+                  id="signin-username"
+                  autoComplete="username"
                   type="text"
-                  placeholder="user24"
+                  placeholder="your_username"
                   value={username.value}
                   onChange={username.changeHandler}
                   required
@@ -288,10 +300,12 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  Password
+                <label htmlFor="signin-password" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    Password
                 </label>
                 <Input
+                  id="signin-password"
+                  autoComplete={isSignUp ? "new-password" : "current-password"}
                   type="password"
                   placeholder="••••••••"
                   value={password.value}
@@ -300,12 +314,20 @@ export default function RegisterPage() {
                 />
               </div>
 
+              {formError && (
+                <p role="alert" className="flex items-start gap-2 text-sm font-bold text-nb-danger-text">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  {formError}
+                </p>
+              )}
+
               <Button
                 type="submit"
                 className="w-full mt-3"
                 size="lg"
+                loading={isPending}
               >
-                {isSignUp ? "Register" : "Login"}
+                {isSignUp ? "Register" : "Log In"}
               </Button>
             </form>
 

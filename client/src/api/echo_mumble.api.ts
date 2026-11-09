@@ -27,7 +27,7 @@ export const likeThisMumbleApi = async (mumbleId: string) => {
   }
 };
 
-export const sendMumbleApi = async (data: { message: string; receiver: string; sender: string | null }) => {
+export const sendMumbleApi = async (data: { message: string; receiver: string; isAnonymous: boolean }) => {
   try {
     return await api.post("/api/echoMumble/mumbles", data);
   } catch (error) {

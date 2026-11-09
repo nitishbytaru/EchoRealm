@@ -2,7 +2,9 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Loader2 } from "lucide-react";
+import { X } from "lucide-react";
+import Link from "next/link";
+import { toast } from "@/hooks/use-toast";
 
 import socket from "@/sockets/socket";
 import Loading from "@/components/Loading";
@@ -27,13 +29,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function EchoShoutPage() {
   const dispatch = useDispatch();
 
-  const { isLoggedIn } = useSelector((state: RootState) => state.auth);
+  const { isLoggedIn, user } = useSelector((state: RootState) => state.auth);
   const { messages, pagination } = useSelector((state: RootState) => state.echoShout);
 
   const [mentions, setMentions] = useState<any[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
   const [selectSearchBar, setSelectSearchBar] = useState(false);
-  const [echoShoutMessageData, setEchoShoutMessageData] = useState<any>(null);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
   const loading = useRef(false);
@@ -75,6 +75,7 @@ export default function EchoShoutPage() {
         setShouldScrollToBottom(true);
       } catch (error) {
         console.error("Error fetching messages:", error);
+        toast.error("We couldn't load EchoShout. Refresh to try again.");
       } finally {
         setIsFetching(false);
       }
@@ -83,23 +84,14 @@ export default function EchoShoutPage() {
     fetchMessages();
   }, [dispatch]);
 
-  // Handle sending new messages
-  useEffect(() => {
-    if (echoShoutMessageData) {
-      setIsUploading(true);
-      sendEchoShoutMessage(
-        setSelectSearchBar,
-        mentions,
-        echoShoutMessageData,
-        setMentions,
-        setEchoShoutMessageData,
-        setIsUploading
-      );
-    }
-  }, [dispatch, echoShoutMessageData, mentions]);
+  const sendShout = async (data: FormData) => {
+    await sendEchoShoutMessage(mentions, data);
+    setMentions([]);
+    setSelectSearchBar(false);
+  };
 
   function addMentionFunc(mentionedUser: any) {
-    setMentions((prev) => [...prev, mentionedUser]);
+    setMentions((prev) => (prev.some((m) => m._id === mentionedUser._id) ? prev : [...prev, mentionedUser]));
     setSelectSearchBar(false);
   }
 
@@ -153,7 +145,7 @@ export default function EchoShoutPage() {
 
   if (isFetching) {
     return (
-      <div className="flex-1 flex flex-col h-full max-w-4xl mx-auto w-full relative">
+      <div className="flex-1 flex flex-col h-[calc(100dvh-168px)] md:h-[calc(100dvh-112px)] lg:h-[calc(100dvh-128px)] max-w-3xl mx-auto w-full relative">
         {/* Skeleton message list */}
         <div className="flex-1 space-y-4 py-4 overflow-hidden flex flex-col justify-end">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -173,7 +165,7 @@ export default function EchoShoutPage() {
         </div>
 
         {/* MessageBar placeholder */}
-        <div className="bg-card rounded-2xl border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] p-3 mt-4 flex items-center gap-3">
+        <div className="mt-3 flex items-center gap-3 border-t-[3px] border-[var(--nb-border-color)] pt-3">
           <Skeleton className="h-10 w-10 rounded-xl" />
           <Skeleton className="h-10 flex-1 rounded-xl" />
         </div>
@@ -182,7 +174,9 @@ export default function EchoShoutPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full max-w-4xl mx-auto w-full relative">
+    <div className="flex-1 flex flex-col h-[calc(100dvh-168px)] md:h-[calc(100dvh-112px)] lg:h-[calc(100dvh-128px)] max-w-3xl mx-auto w-full relative">
+      <h1 className="mb-3 text-3xl font-black uppercase tracking-tight text-foreground sm:text-4xl">Everyone hears this</h1>
+
       {/* Scrollable Messages Section */}
       <div className="flex-1 flex flex-col min-h-0">
         <ChatHistoryBox
@@ -193,84 +187,92 @@ export default function EchoShoutPage() {
         />
       </div>
 
-      {/* MessageBar for Sending Messages */}
       {isLoggedIn && (
-        <div className="relative mt-4 z-20">
+        <div className="relative z-20 mt-3 border-t-[3px] border-[var(--nb-border-color)] pt-3">
           {selectSearchBar && (
-            <div className="absolute bottom-18 left-0 right-0 max-w-sm mx-auto bg-card border-[3px] border-[var(--nb-border-color)] rounded-xl p-4 shadow-[var(--nb-shadow)] animate-in slide-in-from-bottom-5">
-              <div className="space-y-3">
-                <Input
-                  type="text"
-                  placeholder="Search users to mention..."
-                  value={search.value}
-                  onChange={search.changeHandler}
-                  className="text-sm"
-                />
-                
-                {searchResults?.length > 0 && (
-                  <ul className="max-h-40 overflow-y-auto space-y-1 hide-scrollBar">
-                    {searchResults.map(({ user }) => (
-                      <li
-                        key={user._id}
+            <div className="absolute right-0 bottom-full left-0 z-30 mx-auto mb-2 max-w-sm rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card p-3 shadow-[var(--nb-shadow)]">
+              <label htmlFor="mention-search" className="mb-2 block text-sm font-bold text-foreground">
+                Mention someone
+              </label>
+              <Input
+                id="mention-search"
+                type="text"
+                autoFocus
+                placeholder="Search by username"
+                value={search.value}
+                onChange={search.changeHandler}
+                className="text-base md:text-sm"
+              />
+              {searchResults?.length > 0 && (
+                <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto hide-scrollBar">
+                  {searchResults.map(({ user: candidate }) => (
+                    <li key={candidate._id}>
+                      <button
+                        type="button"
                         onClick={() => {
-                          addMentionFunc(user);
+                          addMentionFunc(candidate);
                           search.clear();
                         }}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/20 cursor-pointer transition-colors"
+                        className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-muted"
                       >
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={user?.avatar?.url} />
-                          <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">{user.username.slice(0,2).toUpperCase()}</AvatarFallback>
+                          <AvatarImage src={candidate?.avatar?.url} alt="" />
+                          <AvatarFallback className="bg-primary text-xs text-primary-foreground">
+                            {candidate.username.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <p className="text-sm font-bold text-foreground">@{user.username}</p>
-                          <p className="text-[10px] text-muted-foreground font-medium">{user.email}</p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+                        <span className="min-w-0 truncate text-sm font-bold text-foreground">@{candidate.username}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
 
-          <div className="flex items-center gap-3 bg-card rounded-2xl border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] p-3">
-            {mentions.length > 0 && (
-              <div className="absolute -top-10 left-3 flex gap-2 flex-wrap z-10 animate-in fade-in">
-                {mentions.map((mention, index) => (
-                  <span
-                    key={index}
-                    className="bg-nb-accent/20 border-[2px] border-[var(--nb-border-color)] text-nb-accent px-3 py-1 rounded-xl text-xs font-bold"
-                  >
-                    @{mention?.username}
-                  </span>
-                ))}
-              </div>
-            )}
-            
-            <Button
-              type="button"
-              variant={selectSearchBar ? "default" : "outline"}
-              onClick={() => setSelectSearchBar((prev) => !prev)}
-              className={`font-extrabold h-10 w-10 p-0 rounded-xl flex-shrink-0 text-sm ${
-                selectSearchBar 
-                  ? "bg-primary text-primary-foreground" 
-                  : "bg-card text-nb-accent"
-              }`}
-            >
-              @
-            </Button>
-
-            <div className="w-full">
-              {isUploading ? (
-                <div className="flex items-center justify-center h-10">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                </div>
-              ) : (
-                <MessageBar setMessageData={setEchoShoutMessageData} />
-              )}
-            </div>
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <p className="text-sm font-bold text-muted-foreground">
+              Posting as {user?.isAnonymous ? "anonymous" : `@${user?.username}`}{" "}
+              <Link href="/profile/edit" className="underline underline-offset-2 hover:text-foreground">
+                Change
+              </Link>
+            </p>
+            {mentions.map((mention) => (
+              <span
+                key={mention._id}
+                className="inline-flex items-center gap-1 rounded-xl border-[2px] border-[var(--nb-border-color)] bg-secondary pl-2 text-xs font-bold text-secondary-foreground"
+              >
+                @{mention?.username}
+                <button
+                  type="button"
+                  aria-label={`Remove mention of ${mention?.username}`}
+                  onClick={() => setMentions((prev) => prev.filter((m) => m._id !== mention._id))}
+                  className="flex size-7 items-center justify-center"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
           </div>
+
+          <MessageBar
+            onSend={sendShout}
+            placeholder="Say it to everyone..."
+            sendLabel="Post to EchoShout"
+            leading={
+              <Button
+                type="button"
+                variant={selectSearchBar ? "default" : "outline"}
+                size="icon-lg"
+                aria-label="Mention someone"
+                aria-expanded={selectSearchBar}
+                onClick={() => setSelectSearchBar((prev) => !prev)}
+                className="shrink-0 rounded-xl text-base font-extrabold"
+              >
+                @
+              </Button>
+            }
+          />
         </div>
       )}
     </div>

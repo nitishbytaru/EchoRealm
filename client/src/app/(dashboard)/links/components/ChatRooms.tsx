@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { Search, Plus, Loader2, MessageSquarePlus } from "lucide-react";
+import { Search, MessageSquarePlus, UserPlus } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 import socket from "@/sockets/socket";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -41,6 +42,7 @@ export const ChatRooms: React.FC = () => {
 
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
+  const isSearching = Boolean(search) && searchResults === null;
 
   const [isPending, setIsPending] = useState(false);
   const [isGroupPending, setIsGroupPending] = useState(false);
@@ -72,6 +74,7 @@ export const ChatRooms: React.FC = () => {
         dispatch(setMyPrivateChatRooms(sortedRooms));
       } catch (error) {
         console.error("Error fetching friends rooms:", error);
+        toast.error("We couldn't load your chats. Refresh to try again.");
       } finally {
         setIsPending(false);
       }
@@ -181,17 +184,24 @@ export const ChatRooms: React.FC = () => {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search active chats..."
+            placeholder="Search friends"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 text-sm"
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setSearchResults(null);
+            }}
+            aria-label="Search your friends"
+            className="pl-10 text-base md:text-sm"
           />
 
           {search && (
             <div className="absolute top-full left-0 right-0 mt-2 bg-card border-[3px] border-[var(--nb-border-color)] rounded-xl shadow-[var(--nb-shadow)] max-h-60 overflow-y-auto z-50 p-2 space-y-1">
-              {searchResults && searchResults.length > 0 ? (
+              {isSearching ? (
+                <p className="p-3 text-center text-sm font-medium text-muted-foreground">Searching...</p>
+              ) : searchResults && searchResults.length > 0 ? (
                 searchResults.map((searchUser) => (
-                  <div
+                  <button
+                    type="button"
                     key={searchUser._id}
                     onClick={() => {
                       router.push(`/links/${searchUser._id}`);
@@ -202,24 +212,22 @@ export const ChatRooms: React.FC = () => {
                       }
                       setSearch("");
                     }}
-                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-primary/20 cursor-pointer transition-colors font-medium tap-interactive"
+                    className="flex w-full items-center gap-2 rounded-lg p-2 text-left font-medium transition-colors hover:bg-muted"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={searchUser?.avatar?.url} />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">
+                      <AvatarImage src={searchUser?.avatar?.url} alt="" />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                         {searchUser.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-sm font-bold text-foreground">@{searchUser.username}</span>
-                  </div>
+                  </button>
                 ))
               ) : (
                 <div className="p-3 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
-                  <span className="font-medium">No user found</span>
-                  <Link href="/profile/find-users">
-                    <Button size="sm" className="bg-secondary text-secondary-foreground">
-                      Find Friends
-                    </Button>
+                  <span className="font-medium">No friends match that name.</span>
+                  <Link href="/profile/find-users" className="font-bold underline underline-offset-2">
+                    Find new people
                   </Link>
                 </div>
               )}
@@ -230,8 +238,9 @@ export const ChatRooms: React.FC = () => {
         <Button
           size="icon"
           onClick={() => setOpenCreateGroup(true)}
-          className="bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] text-nb-accent hover:text-foreground rounded-xl h-11 w-11 flex-shrink-0 tap-interactive"
-          title="Create New Group"
+          className="bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] text-foreground rounded-xl h-11 w-11 flex-shrink-0 tap-interactive"
+          title="Create a group"
+          aria-label="Create a group"
         >
           <MessageSquarePlus className="h-5 w-5" />
         </Button>
@@ -245,7 +254,7 @@ export const ChatRooms: React.FC = () => {
       />
 
       {/* Scrollable list */}
-      <div className="flex-1 overflow-y-auto pr-0.5 space-y-2 hide-scrollBar">
+      <ul className="flex-1 overflow-y-auto pr-1 space-y-2 hide-scrollBar">
         {myPrivateChatRooms?.map((receiver: any, index: number) => {
           const isSelected = recieverId === receiver._id;
           const isUnread =
@@ -253,8 +262,10 @@ export const ChatRooms: React.FC = () => {
               receiver?.latestMessage?.sender !== user?._id;
 
           return (
-            <div
-              key={index}
+            <li key={index}>
+            <button
+              type="button"
+              aria-current={isSelected ? "page" : undefined}
               onClick={() => {
                 router.push(`/links/${receiver._id}`);
                 if (receiver?.groupProfile) {
@@ -266,7 +277,7 @@ export const ChatRooms: React.FC = () => {
                   markAsRead(dispatch, setLatestMessageAsRead, receiver);
                 }
               }}
-              className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-150 border-[3px] tap-interactive ${
+              className={`flex w-full items-center justify-between p-3 text-left rounded-xl cursor-pointer transition-all duration-150 border-[3px] ${
                 isSelected
                   ? "bg-primary/10 border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] text-foreground"
                   : "bg-transparent border-transparent hover:bg-muted hover:border-[var(--nb-border-color)] text-foreground"
@@ -287,7 +298,7 @@ export const ChatRooms: React.FC = () => {
                   {receiver.latestMessage ? (
                     <p
                       className={`text-xs mt-0.5 truncate font-medium ${
-                        isUnread ? "text-secondary font-bold" : "text-muted-foreground"
+                        isUnread ? "text-foreground font-bold" : "text-muted-foreground"
                       }`}
                     >
                       {truncateMessage(receiver?.latestMessage?.message, 30)}
@@ -307,16 +318,24 @@ export const ChatRooms: React.FC = () => {
               {isUnread && (
                 <div className="h-3 w-3 rounded-full bg-secondary border-[2px] border-[var(--nb-border-color)] ml-2 flex-shrink-0" />
               )}
-            </div>
+            </button>
+            </li>
           );
         })}
 
         {myPrivateChatRooms?.length === 0 && (
-          <div className="text-center py-8 text-sm text-muted-foreground font-medium">
-            No active conversations. Start one!
-          </div>
+          <li className="space-y-3 py-8 text-center">
+            <p className="text-sm font-medium text-muted-foreground">No chats yet. Add a friend to get started.</p>
+            <Link
+              href="/profile/find-users"
+              className="inline-flex h-10 items-center gap-2 rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-primary px-4 text-sm font-bold text-primary-foreground shadow-[var(--nb-shadow-sm)] tap-interactive"
+            >
+              <UserPlus className="h-4 w-4" />
+              Find friends
+            </Link>
+          </li>
         )}
-      </div>
+      </ul>
     </div>
   );
 };

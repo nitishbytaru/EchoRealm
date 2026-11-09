@@ -110,36 +110,37 @@ export default function MyProfileDetailsPage() {
           type="file"
           accept="image/*"
           onChange={avatar.changeHandler}
-          className="hidden"
+          className="sr-only"
         />
 
         <div className="relative group">
-          <label htmlFor="avatarUpload" className="cursor-pointer block relative">
+          <label htmlFor="avatarUpload" aria-label="Choose a new profile picture" className="cursor-pointer block relative has-[:focus-visible]:outline-3">
             <Avatar className="h-24 w-24" size="lg">
               <AvatarImage src={avatarPreview || user?.avatar?.url} className="object-cover" />
               <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-extrabold">
                 {user?.username?.slice(0, 2).toUpperCase() || "ME"}
               </AvatarFallback>
             </Avatar>
-            <div className="absolute inset-0 bg-foreground/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity border-[3px] border-[var(--nb-border-color)]">
-              <Camera className="h-5 w-5 text-background" />
+            <div className="absolute -bottom-1 -right-1 flex size-9 items-center justify-center rounded-full bg-primary text-on-color border-[3px] border-[var(--nb-border-color)]">
+              <Camera className="h-4 w-4" aria-hidden="true" />
             </div>
           </label>
         </div>
 
         <div className="text-center">
           <h3 className="text-sm font-bold text-foreground">@{user?.username}</h3>
-          <p className="text-xs text-muted-foreground font-medium">Click avatar to select a new image</p>
+          <p className="text-xs text-muted-foreground font-medium">Tap your picture to change it</p>
         </div>
       </div>
 
       <div className="space-y-5 pt-2">
         {/* Email */}
         <div className="space-y-2">
-          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Email Address</label>
+          <label htmlFor="profile-updatedEmail" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Email Address</label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
+              id="profile-updatedEmail"
               type="email"
               value={updatedEmail.value}
               onChange={updatedEmail.changeHandler}
@@ -150,10 +151,11 @@ export default function MyProfileDetailsPage() {
 
         {/* Username */}
         <div className="space-y-2">
-          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Username</label>
+          <label htmlFor="profile-updatedUsername" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Username</label>
           <div className="relative">
             <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
+              id="profile-updatedUsername"
               type="text"
               value={updatedUsername.value}
               onChange={updatedUsername.changeHandler}
@@ -164,10 +166,11 @@ export default function MyProfileDetailsPage() {
 
         {/* New Password */}
         <div className="space-y-2">
-          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">New Password (leave blank if unchanged)</label>
+          <label htmlFor="profile-password" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">New Password (leave blank if unchanged)</label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
+              id="profile-password"
               type="password"
               placeholder="Enter new password"
               value={updatedPassword.value}
@@ -179,24 +182,26 @@ export default function MyProfileDetailsPage() {
 
         <div className="border-t-[3px] border-[var(--nb-border-color)] pt-5 mt-6 space-y-5">
           {/* Become Anonymous Toggle */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div>
               <h4 className="text-sm font-bold text-foreground">Become Anonymous</h4>
-              <p className="text-xs text-muted-foreground font-medium">Hide your active identity details from public posts</p>
+              <p className="text-xs text-muted-foreground font-medium">Post to EchoShout as anonymous, and start each Mumble as anonymous</p>
             </div>
             <Switch
+              aria-label="Become Anonymous"
               checked={updatedIsAnonymous}
               onCheckedChange={setUpdatedIsAnonymous}
             />
           </div>
 
           {/* Accept Mumbles Toggle */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div>
               <h4 className="text-sm font-bold text-foreground">Accept Mumbles</h4>
-              <p className="text-xs text-muted-foreground font-medium">Allow other members to send anonymous whispers to you</p>
+              <p className="text-xs text-muted-foreground font-medium">Let other people send you Mumbles</p>
             </div>
             <Switch
+              aria-label="Accept Mumbles"
               checked={udatedIsAcceptingMumbles}
               onCheckedChange={setUpdatedIsAcceptingMumbles}
             />

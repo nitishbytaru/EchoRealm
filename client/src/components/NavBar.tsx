@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { Home, MessageSquare, Megaphone, Menu, User } from "lucide-react";
+import { MessageSquare, Megaphone, User } from "lucide-react";
 
 import socket from "@/sockets/socket";
 import { handleToggle } from "@/utils/helpers/micro_funcs";
@@ -13,6 +13,7 @@ import { useFriendRequests } from "@/hooks/useFriendRequests";
 import { useJoinRoomSocket } from "@/hooks/useJoinRoomSocket";
 import { useGetRequestsSocket } from "@/hooks/useGetRequestsSocket";
 import MumbleIcon from "@/components/MumbleIcon";
+import CountBadge from "@/components/CountBadge";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { setIsMobile, setTheme, setIsChecked } from "@/store/slices/auth.slice";
@@ -33,7 +34,7 @@ export const NavBar: React.FC = () => {
   // Update the isMobile state based on window size
   useEffect(() => {
     const handleResize = () => {
-      dispatch(setIsMobile(window.innerWidth < 670));
+      dispatch(setIsMobile(window.innerWidth < 768));
     };
 
     handleResize(); // run initially
@@ -72,7 +73,7 @@ export const NavBar: React.FC = () => {
           </div>
 
           {/* Navigation Items (Desktop Only) */}
-          <nav className="hidden md:flex items-center space-x-2">
+          <nav aria-label="Main" className="hidden md:flex items-center space-x-2">
             {isLoggedIn && (
               <div className="relative">
                 <Link
@@ -87,11 +88,7 @@ export const NavBar: React.FC = () => {
                   <MessageSquare className="h-5 w-5" />
                   <span>EchoLink</span>
                 </Link>
-                {newUnreadMessages > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]">
-                    {newUnreadMessages}
-                  </span>
-                )}
+                <CountBadge count={newUnreadMessages} label="conversations with unread messages" className="-top-2 -right-2 bg-destructive" />
               </div>
             )}
 
@@ -112,14 +109,7 @@ export const NavBar: React.FC = () => {
 
             {isLoggedIn && (
               <>
-                <div className="relative px-4 py-2 text-sm font-bold rounded-xl border-[3px] border-transparent hover:bg-muted hover:border-[var(--nb-border-color)] transition-all text-muted-foreground hover:text-foreground cursor-pointer tap-interactive">
-                  <MumbleIcon />
-                  {unReadMumbles > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-nb-accent text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]">
-                      {unReadMumbles}
-                    </span>
-                  )}
-                </div>
+                <MumbleIcon />
 
                 <div className="relative">
                   <Link
@@ -127,18 +117,14 @@ export const NavBar: React.FC = () => {
                     className={cn(
                       "flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl border-[3px] transition-all duration-150 tap-interactive",
                       pathname.startsWith("/profile")
-                        ? "bg-nb-accent text-white border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
+                        ? "bg-nb-accent text-on-color border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
                         : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted hover:border-[var(--nb-border-color)]"
                     )}
                   >
-                    <Menu className="h-5 w-5" />
-                    <span>About</span>
+                    <User className="h-5 w-5" />
+                    <span>Profile</span>
                   </Link>
-                  {badgeOfPendingRequests > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-nb-warning text-foreground rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]">
-                      {badgeOfPendingRequests}
-                    </span>
-                  )}
+                  <CountBadge count={badgeOfPendingRequests} label="pending friend requests" className="-top-2 -right-2 bg-nb-warning" />
                 </div>
               </>
             )}
@@ -156,20 +142,20 @@ export const NavBar: React.FC = () => {
             {user && (
               <div className="flex items-center">
                 {isMobile ? (
-                  <Link href="/profile/edit" className="tap-interactive">
+                  <Link href="/profile/edit" aria-label="Edit your profile" className="tap-interactive">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={user?.avatar?.url} />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                         {user.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Link>
                 ) : (
-                  <Link href="/profile/mumbles" className="tap-interactive">
+                  <Link href="/profile/edit" aria-label="Edit your profile" className="tap-interactive">
                     <div className="flex items-center gap-2 bg-card pl-2 pr-3 py-1.5 rounded-xl border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] hover:shadow-[var(--nb-shadow)] transition-all">
                       <Avatar className="h-6 w-6 border-[2px]">
                         <AvatarImage src={user?.avatar?.url} />
-                        <AvatarFallback className="bg-primary text-primary-foreground text-[9px]">
+                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                           {user.username.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -185,7 +171,7 @@ export const NavBar: React.FC = () => {
 
       {/* Mobile Bottom Navigation Bar */}
       {isLoggedIn && (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card border-t-[3px] border-[var(--nb-border-color)] flex items-center justify-around h-16 pb-safe">
+        <nav aria-label="Main" className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card border-t-[3px] border-[var(--nb-border-color)] flex items-stretch justify-around pb-safe">
           {/* Chats */}
           <Link
             href="/links"
@@ -202,12 +188,8 @@ export const NavBar: React.FC = () => {
             )}>
               <MessageSquare className="h-5 w-5" />
             </div>
-            <span className="text-[9px] font-bold">Chats</span>
-            {newUnreadMessages > 0 && (
-              <span className="absolute top-1 right-4 bg-destructive text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold border-[2px] border-[var(--nb-border-color)]">
-                {newUnreadMessages}
-              </span>
-            )}
+            <span className="text-xs font-bold">EchoLink</span>
+            <CountBadge count={newUnreadMessages} label="conversations with unread messages" className="top-1 right-3 bg-destructive" />
           </Link>
 
           {/* Shouts */}
@@ -226,13 +208,11 @@ export const NavBar: React.FC = () => {
             )}>
               <Megaphone className="h-5 w-5" />
             </div>
-            <span className="text-[9px] font-bold">Shouts</span>
+            <span className="text-xs font-bold">EchoShout</span>
           </Link>
 
           {/* Mumbles */}
-          <div className="flex-1 h-full flex items-center justify-center">
-            <MumbleIcon isBottomNav={true} />
-          </div>
+          <MumbleIcon isBottomNav />
 
           {/* Profile */}
           <Link
@@ -250,12 +230,8 @@ export const NavBar: React.FC = () => {
             )}>
               <User className="h-5 w-5" />
             </div>
-            <span className="text-[9px] font-bold">Profile</span>
-            {badgeOfPendingRequests > 0 && (
-              <span className="absolute top-1 right-4 bg-nb-warning text-foreground rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold border-[2px] border-[var(--nb-border-color)]">
-                {badgeOfPendingRequests}
-              </span>
-            )}
+            <span className="text-xs font-bold">Profile</span>
+            <CountBadge count={badgeOfPendingRequests} label="pending friend requests" className="top-1 right-3 bg-nb-warning" />
           </Link>
         </nav>
       )}

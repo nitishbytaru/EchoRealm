@@ -28,8 +28,7 @@ export default function FindUsersPage() {
   const { user } = useSelector((state: RootState) => state.auth);
   const { resultOfSearchedUsers } = useSelector((state: RootState) => state.user);
 
-  // Initialize with 'a' to show some users initially, like in the original app
-  const search = useInputValidation("a");
+  const search = useInputValidation("");
   const searchResults = useDebouncedSearchResults(search.value);
   const [isPending, setIsPending] = useState(false);
 
@@ -71,29 +70,29 @@ export default function FindUsersPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-0.5 border-b border-zinc-900 pb-4">
-        <h2 className="text-xl font-bold tracking-tight text-zinc-100">
+      <div className="flex flex-col gap-0.5 border-b-[3px] border-[var(--nb-border-color)] pb-4">
+        <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
           Find Users
         </h2>
-        <p className="text-[10px] text-zinc-555 mt-0.5">Discover new connections and expand your circles</p>
+        <p className="text-sm text-muted-foreground font-medium mt-1">Discover new connections and expand your circles</p>
       </div>
 
       {/* Search Input Bar */}
       <div className="relative max-w-xs">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-500" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="text"
           placeholder="Search members by username..."
           value={search.value}
           onChange={search.changeHandler}
-          className="pl-9 bg-zinc-900 border-zinc-800 focus-visible:ring-indigo-500 text-zinc-50 placeholder:text-zinc-650 rounded-lg h-9 w-full text-xs"
+          className="pl-9 bg-muted text-foreground placeholder:text-muted-foreground rounded-lg h-9 w-full text-xs"
         />
       </div>
 
       {isPending ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i} className="bg-zinc-900/10 border border-zinc-900 overflow-hidden rounded-xl">
+            <Card key={i} className="overflow-hidden shadow-[var(--nb-shadow-sm)]">
               <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
                 <Skeleton className="h-14 w-14 rounded-full" />
                 <div className="space-y-2 w-full flex flex-col items-center">
@@ -116,18 +115,17 @@ export default function FindUsersPage() {
               const hasSentRequest = currUser?.userFriendData?.pendingFriendRequests?.includes(user?._id);
 
               return (
-                <Card key={index} className="bg-zinc-900/10 border border-zinc-900 overflow-hidden rounded-xl card-interactive">
+                <Card key={index} className="overflow-hidden shadow-[var(--nb-shadow-sm)] card-interactive">
                   <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
-                    <Avatar className="h-14 w-14 border border-zinc-800">
+                    <Avatar className="h-14 w-14 border">
                       <AvatarImage src={currUser?.user?.avatar?.url} />
-                      <AvatarFallback className="bg-zinc-950 text-indigo-400 text-sm border border-zinc-900">
+                      <AvatarFallback className="bg-card text-nb-accent-text text-sm border">
                         {currUser?.user?.username?.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
 
                     <div>
-                      <h4 className="text-xs font-semibold text-zinc-200">@{currUser?.user?.username}</h4>
-                      <p className="text-[9px] text-zinc-500 mt-0.5">{currUser?.user?.email}</p>
+                      <h4 className="text-xs font-semibold text-foreground">@{currUser?.user?.username}</h4>
                     </div>
 
                     <div className="flex flex-col gap-2 w-full pt-2">
@@ -135,7 +133,7 @@ export default function FindUsersPage() {
                         <Button
                           disabled
                           variant="outline"
-                          className="w-full text-[10px] h-8 rounded-lg flex items-center justify-center gap-2"
+                          className="w-full text-xs  flex items-center justify-center gap-2"
                         >
                           <UserCheck className="h-4 w-4" />
                           Already Friends
@@ -144,7 +142,7 @@ export default function FindUsersPage() {
                         <Button
                           disabled
                           variant="outline"
-                          className="w-full text-indigo-400/80 text-[10px] h-8 rounded-lg flex items-center justify-center gap-2"
+                          className="w-full text-nb-accent-text/80 text-xs  flex items-center justify-center gap-2"
                         >
                           <UserCheck className="h-4 w-4" />
                           Request Sent
@@ -152,7 +150,7 @@ export default function FindUsersPage() {
                       ) : (
                         <Button
                           onClick={() => addFriendFunc(currUser.user)}
-                          className="w-full bg-indigo-650 hover:bg-indigo-600 text-zinc-50 text-[10px] h-8 rounded-lg flex items-center justify-center gap-2 shadow-sm shadow-indigo-950/20 tap-interactive"
+                          className="w-full text-xs  flex items-center justify-center gap-2 tap-interactive"
                         >
                           <UserPlus className="h-4 w-4" />
                           Add Friend
@@ -162,7 +160,7 @@ export default function FindUsersPage() {
                       <Button
                         onClick={() => viewProfileFunc(currUser.user._id)}
                         variant="outline"
-                        className="w-full bg-transparent border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-100 text-[10px] h-8 rounded-lg flex items-center justify-center gap-2 tap-interactive"
+                        className="w-full text-muted-foreground hover:text-foreground text-xs  flex items-center justify-center gap-2 tap-interactive"
                       >
                         <Eye className="h-4 w-4" />
                         View Profile
@@ -174,11 +172,16 @@ export default function FindUsersPage() {
             })}
           </div>
         ) : (
-          <div className="flex flex-col justify-center items-center text-center p-8 bg-zinc-900/10 border border-zinc-900 rounded-xl min-h-[200px] animate-fade-in">
-            <p className="text-zinc-500 text-xs">No member found with username &quot;{search.value}&quot;</p>
+          <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl min-h-[200px] animate-fade-in">
+            <p className="text-muted-foreground text-xs">No member found with username &quot;{search.value}&quot;</p>
           </div>
         )
-      ) : null}
+      ) : (
+        <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl min-h-[200px]">
+          <p className="text-foreground text-sm font-bold">Find someone to talk to</p>
+          <p className="text-sm text-muted-foreground font-medium mt-1">Type a username above to see who&apos;s here.</p>
+        </div>
+      )}
     </div>
   );
 }

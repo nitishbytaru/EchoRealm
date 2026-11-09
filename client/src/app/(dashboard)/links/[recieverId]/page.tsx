@@ -17,7 +17,7 @@ export default function LinkDetailPage({ params }: PageProps) {
   const [gettingOldMessages, setGettingOldMessages] = useState(false);
 
   return (
-    <div className="h-[calc(100vh-140px)] w-full flex overflow-hidden">
+    <div className="h-[calc(100dvh-168px)] md:h-[calc(100dvh-112px)] lg:h-[calc(100dvh-128px)] w-full flex overflow-hidden">
       {/* Grid Layout */}
       <div className="grid grid-cols-12 w-full h-full gap-4">
         {/* Left Side: Chat Rooms List */}
