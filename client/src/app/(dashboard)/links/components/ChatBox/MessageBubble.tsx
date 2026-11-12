@@ -33,7 +33,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ messages, user, se
             <img
               src={attachmentUrl}
               alt={senderName ? `Image from ${senderName}` : "Shared image"}
-              className="w-full h-auto max-h-60 object-cover hover:scale-102 transition-transform duration-300"
+              loading="lazy"
+              decoding="async"
+              className="w-full h-auto max-h-60 object-cover motion-safe:hover:scale-102 transition-transform duration-300"
             />
           </div>
         )}

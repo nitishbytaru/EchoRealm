@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "@/hooks/use-toast";
@@ -16,7 +15,8 @@ import { RootState } from "@/store/store";
 import { useInputValidation } from "@/hooks/useInputValidation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { AuthBackdrop, AuthStage, AuthStageCompact, PerchedMark } from "@/components/auth/AuthDecor";
 
 export default function RegisterPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -91,12 +91,14 @@ export default function RegisterPage() {
         localStorage.setItem("allowFetch", "true");
         toast.success("Registration successful");
         router.push("/links");
+      } else {
+        setIsPending(false);
       }
     } catch (error: any) {
       console.error("Error during registration:", error);
       setFormError(error?.response?.data?.message || "We couldn't create your account. Please try again.");
-    } finally {
       setIsPending(false);
+    } finally {
       password.clear();
     }
   };
@@ -121,12 +123,14 @@ export default function RegisterPage() {
         localStorage.setItem("allowFetch", "true");
         toast.success(response.data.message || "Logged in successfully");
         router.push("/links");
+      } else {
+        setIsPending(false);
       }
     } catch (error: any) {
       console.error("Error during login:", error);
       setFormError(error?.response?.data?.message || "We couldn't log you in. Check your details and try again.");
-    } finally {
       setIsPending(false);
+    } finally {
       password.clear();
     }
   };
@@ -195,81 +199,80 @@ export default function RegisterPage() {
     );
   }
 
+  const switchMode = (signUp: boolean) => {
+    setIsSignUp(signUp);
+    setFormError("");
+  };
+
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-6 bg-background text-foreground">
-      {/* Theme toggle — top right corner */}
+    <div className="relative min-h-dvh w-full overflow-hidden bg-background text-foreground">
+      <AuthBackdrop />
+
       <button
         id="theme-toggle-btn"
+        type="button"
         onClick={toggleTheme}
-        aria-label="Toggle theme"
-        className="fixed top-4 right-4 z-50 flex items-center justify-center w-10 h-10 rounded-xl bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] hover:-translate-y-0.5 hover:shadow-[var(--nb-shadow)] active:translate-y-0.5 active:shadow-[var(--nb-shadow-active)] transition-all duration-150 text-foreground"
+        aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+        className="fixed top-4 right-4 z-50 flex size-11 items-center justify-center rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card text-foreground shadow-[var(--nb-shadow-sm)] tap-interactive"
       >
-        {isDark ? (
-          <Sun className="w-5 h-5" />
-        ) : (
-          <Moon className="w-5 h-5" />
-        )}
+        {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
       </button>
 
-      <div className="w-full max-w-sm space-y-8">
-        <div className="text-center space-y-2">
-          <h1 className="flex justify-center mb-2">
-            <Image
-              src="https://res.cloudinary.com/dhysbx7mk/image/upload/v1784275596/echorealm/logos/echorealm_logo_without_text_fqp9sj.png"
-              alt="EchoRealm"
-              width={200}
-              height={100}
-              priority
-              className="object-contain"
-            />
-          </h1>
-          <p className="text-sm text-muted-foreground font-medium">
-            Chat close. Shout loud. Mumble quietly.
-          </p>
-        </div>
+      <main className="relative z-10 mx-auto grid min-h-dvh w-full max-w-6xl items-start gap-10 lg:items-center px-4 pt-16 pb-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] lg:gap-20 lg:py-16">
+        <AuthStage />
 
+        <div className="mx-auto flex w-full max-w-sm flex-col sm:max-w-md lg:max-w-none lg:self-start lg:pt-[max(6rem,calc(50dvh-19rem))]">
+          <AuthStageCompact />
+
+          <div className="auth-card-in relative">
+            <PerchedMark />
         <Card className="bg-card">
-          <CardHeader className="space-y-4 pb-4">
-            <div className="relative flex justify-center border-b-[3px] border-[var(--nb-border-color)] pb-3">
+          <CardHeader className="space-y-5 pb-4">
+            <div className="relative grid grid-cols-2 rounded-xl bg-muted p-1">
+              <span
+                aria-hidden="true"
+                className="auth-tab-pill absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg border-[3px] border-[var(--nb-border-color)] bg-primary shadow-[var(--nb-shadow-active)]"
+                style={{ transform: isSignUp ? "translateX(0)" : "translateX(100%)" }}
+              />
               <button
                 id="tab-register"
                 type="button"
-                className={`flex-1 py-2 text-center text-sm font-bold transition-all duration-150 rounded-xl mx-1 ${isSignUp
-                  ? "bg-primary text-primary-foreground border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
-                  : "text-muted-foreground border-[3px] border-transparent hover:text-foreground hover:bg-muted"
-                  }`}
                 aria-pressed={isSignUp}
-                onClick={() => {
-                  setIsSignUp(true);
-                  setFormError("");
-                }}
+                onClick={() => switchMode(true)}
+                className={`relative z-10 h-10 rounded-lg text-sm font-bold transition-colors duration-200 ${isSignUp ? "text-on-color" : "text-muted-foreground hover:text-foreground"}`}
               >
                 Register
               </button>
               <button
                 id="tab-login"
                 type="button"
-                className={`flex-1 py-2 text-center text-sm font-bold transition-all duration-150 rounded-xl mx-1 ${!isSignUp
-                  ? "bg-primary text-primary-foreground border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
-                  : "text-muted-foreground border-[3px] border-transparent hover:text-foreground hover:bg-muted"
-                  }`}
                 aria-pressed={!isSignUp}
-                onClick={() => {
-                  setIsSignUp(false);
-                  setFormError("");
-                }}
+                onClick={() => switchMode(false)}
+                className={`relative z-10 h-10 rounded-lg text-sm font-bold transition-colors duration-200 ${!isSignUp ? "text-on-color" : "text-muted-foreground hover:text-foreground"}`}
               >
                 Log In
               </button>
             </div>
-            <CardDescription className="text-center text-muted-foreground text-sm font-medium">
-              {isSignUp ? "Create an account to start chatting" : "Welcome back! Please enter your details"}
-            </CardDescription>
+            <div key={isSignUp ? "register" : "login"} className="auth-fade-in space-y-1">
+              <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
+                {isSignUp ? "Join the realm" : "Welcome back"}
+              </h2>
+              <p className="text-sm font-medium text-muted-foreground">
+                {isSignUp ? "Pick a username. Friends find you by it." : "Log in to pick up where you left off."}
+              </p>
+            </div>
           </CardHeader>
           <CardContent className="space-y-5">
-            <form onSubmit={isSignUp ? registerApiFunc : loginApiFunc} className="space-y-4">
-              {isSignUp && (
-                <div className="space-y-2">
+            <form
+              onSubmit={isSignUp ? registerApiFunc : loginApiFunc}
+              aria-busy={isPending}
+              className="space-y-4"
+            >
+              <fieldset disabled={isPending} className="flex flex-col disabled:[&_input]:opacity-70">
+              {/* Email row stays mounted and opens/closes smoothly, so switching modes never jumps. */}
+              <div className={`auth-collapse ${isSignUp ? "is-open" : ""}`} aria-hidden={!isSignUp} inert={!isSignUp}>
+                <div className="min-h-0 overflow-hidden">
+                <div className="space-y-2 pb-4">
                   <label htmlFor="signin-email" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     Email Address
                   </label>
@@ -280,10 +283,11 @@ export default function RegisterPage() {
                     placeholder="you@example.com"
                     value={email.value}
                     onChange={email.changeHandler}
-                    required
+                    required={isSignUp}
                   />
                 </div>
-              )}
+                </div>
+              </div>
 
               <div className="space-y-2">
                 <label htmlFor="signin-username" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
@@ -300,7 +304,7 @@ export default function RegisterPage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="mt-4 space-y-2">
                 <label htmlFor="signin-password" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     Password
                 </label>
@@ -309,7 +313,7 @@ export default function RegisterPage() {
                     id="signin-password"
                     autoComplete={isSignUp ? "new-password" : "current-password"}
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="Your password"
                     value={password.value}
                     onChange={password.changeHandler}
                     className="pr-12"
@@ -328,20 +332,40 @@ export default function RegisterPage() {
               </div>
 
               {formError && (
-                <p role="alert" className="flex items-start gap-2 text-sm font-bold text-nb-danger-text">
+                <p role="alert" className="mt-4 flex items-start gap-2 text-sm font-bold text-nb-danger-text">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                   {formError}
                 </p>
               )}
 
+              </fieldset>
+
               <Button
                 type="submit"
-                className="w-full mt-3"
                 size="lg"
-                loading={isPending}
+                disabled={isPending}
+                aria-busy={isPending}
+                data-pending={isPending || undefined}
+                className="auth-submit relative mt-3 w-full overflow-hidden disabled:opacity-100"
               >
-                {isSignUp ? "Register" : "Log In"}
+                {isPending ? (
+                  <span className="relative z-10 flex items-center gap-3">
+                    <span className="auth-hop" aria-hidden="true">
+                      <span />
+                      <span />
+                      <span />
+                    </span>
+                    <span>{isSignUp ? "Creating your account" : "Logging you in"}</span>
+                  </span>
+                ) : isSignUp ? (
+                  "Register"
+                ) : (
+                  "Log In"
+                )}
               </Button>
+              <p className="sr-only" role="status" aria-live="polite">
+                {isPending ? (isSignUp ? "Creating your account" : "Logging you in") : ""}
+              </p>
             </form>
 
             {/* <div className="relative flex py-3 items-center">
@@ -360,7 +384,20 @@ export default function RegisterPage() {
             </div> */}
           </CardContent>
         </Card>
-      </div>
+          </div>
+
+          <p className="auth-fade-in mt-5 text-center text-sm font-medium text-muted-foreground" style={{ animationDelay: "0.4s" }}>
+            {isSignUp ? "Already have an account?" : "New to EchoRealm?"}{" "}
+            <button
+              type="button"
+              onClick={() => switchMode(!isSignUp)}
+              className="font-bold text-foreground underline decoration-[3px] decoration-primary underline-offset-4 hover:decoration-[var(--nb-border-color)]"
+            >
+              {isSignUp ? "Log in" : "Create an account"}
+            </button>
+          </p>
+        </div>
+      </main>
     </div>
   );
 }

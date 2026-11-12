@@ -12,29 +12,33 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import LoadError from "@/components/LoadError";
 
 export default function BlockedUsersPage() {
   const dispatch = useDispatch();
   const { blockedUsers } = useSelector((state: RootState) => state.user);
   const [isPending, setIsPending] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const fetchBlockedUsers = async () => {
       try {
         setIsPending(true);
+        setLoadError(false);
         const response = await getBlockedUsersApi();
         if (response?.data?.blockedUsers) {
           dispatch(setBlockedUsers(response.data.blockedUsers));
         }
       } catch (error) {
         console.error("Error fetching blocked users:", error);
-        toast.error("We couldn't load your blocked users. Refresh to try again.");
+        setLoadError(true);
       } finally {
         setIsPending(false);
       }
     };
     fetchBlockedUsers();
-  }, [dispatch]);
+  }, [dispatch, reloadKey]);
 
   const unBlockUser = async (userId: string) => {
     try {
@@ -62,7 +66,9 @@ export default function BlockedUsersPage() {
         {isPending && <Loader2 className="h-4 w-4 animate-spin text-foreground" />}
       </div>
 
-      {isPending && (!blockedUsers || blockedUsers.length === 0) ? (
+      {loadError ? (
+        <LoadError what="your blocked users" onRetry={() => setReloadKey((k) => k + 1)} />
+      ) : isPending && (!blockedUsers || blockedUsers.length === 0) ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <Card key={i} className="overflow-hidden shadow-[var(--nb-shadow-sm)]">
@@ -82,8 +88,8 @@ export default function BlockedUsersPage() {
       ) : blockedUsers?.length === 0 ? (
         <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl min-h-[250px] animate-fade-in">
           <ShieldX className="h-6 w-6 text-muted-foreground mb-2" />
-          <p className="text-muted-foreground text-xs font-semibold">No blocked users</p>
-          <p className="text-xs text-muted-foreground mt-2">Users you block will appear in this list for you to manage.</p>
+          <p className="text-foreground text-sm font-bold">No blocked users</p>
+          <p className="text-sm text-muted-foreground mt-2">Users you block will appear in this list for you to manage.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

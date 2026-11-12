@@ -31,7 +31,7 @@ const toastVariants = cva(
       variant: {
         default: "bg-card text-foreground",
         destructive:
-          "destructive group bg-destructive text-white",
+          "destructive group bg-destructive text-on-color",
       },
     },
     defaultVariants: {
@@ -62,7 +62,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-xl border-[2px] border-[var(--nb-border-color)] bg-card px-3 text-xs font-bold transition-all hover:-translate-y-0.5 hover:shadow-[var(--nb-shadow-sm)] active:translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-white/30 group-[.destructive]:hover:border-white group-[.destructive]:hover:bg-white/10",
+      "inline-flex h-8 shrink-0 items-center justify-center rounded-xl border-[2px] border-[var(--nb-border-color)] bg-card px-3 text-xs font-bold transition-all hover:-translate-y-0.5 hover:shadow-[var(--nb-shadow-sm)] active:translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-on-color/30 group-[.destructive]:hover:border-on-color group-[.destructive]:hover:bg-on-color/10",
       className
     )}
     {...props}
@@ -77,7 +77,7 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      "absolute right-2 top-2 rounded-lg p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-white/70 group-[.destructive]:hover:text-white",
+      "absolute right-2 top-2 rounded-lg p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-on-color/70 group-[.destructive]:hover:text-on-color",
       className
     )}
     toast-close=""

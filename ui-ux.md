@@ -1,6 +1,8 @@
 # EchoRealm: UI and UX
 
-This document describes EchoRealm's interface as built: its design language, navigation, screens and interaction patterns, followed by the problems worth fixing. It comes from reading the client code; the app wasn't run, so visual findings are derived from the styles rather than from screenshots.
+This document describes EchoRealm's interface as built: its design language, navigation, screens and interaction patterns, followed by the latest quality audit and what is still open. It comes from reading the client code and from running the Impeccable detector against the running app.
+
+_Last audited: 12 November 2026, on branch `ui-neobrutalist-pass`._
 
 ## Contents
 
@@ -9,7 +11,7 @@ This document describes EchoRealm's interface as built: its design language, nav
 3. [Layout and navigation](#layout-and-navigation)
 4. [Screens](#screens)
 5. [Interaction patterns](#interaction-patterns)
-6. [Issues and recommendations](#issues-and-recommendations)
+6. [Quality audit](#quality-audit)
 
 ---
 
@@ -26,7 +28,9 @@ EchoRealm uses **Neo-Brutalism**: playful, tactile and deliberately loud.
 
 The voice is informal. Private chats are "whispers", public posts are "shouts", and the product areas are named EchoLink, EchoShout and EchoMumble.
 
-**Consistency:** the system is applied fully on the sign-in page, navigation, chat list and chat window, EchoShout, Edit Profile, and the Mumble menu. Twelve other files still carry an older dark zinc-and-indigo look; see [issue 1](#1-two-visual-systems-are-mixed).
+**Consistency:** the system is applied on every screen. No component uses raw palette classes (`zinc`, `indigo`, `rose`) or hardcoded hex colors; everything goes through the tokens below.
+
+**Intentional detector exceptions:** Impeccable flags the hard offset shadows and the overshoot easing as advisories. Both are deliberate parts of the neo-brutalist direction and stay. The overshoot is turned off for people who ask for reduced motion.
 
 ---
 
@@ -38,21 +42,25 @@ Tokens are defined in `client/src/app/globals.css`.
 
 | Token | Light | Dark | Used for |
 |---|---|---|---|
-| `--background` | `#FFF9F0` | `#121212` | Page |
-| `--card` | `#FFFFFF` | `#1E1E1E` | Panels |
-| `--foreground` | `#111111` | `#FFFFFF` | Text |
-| `--muted` | `#F0EBE3` | `#2A2A2A` | Quiet surfaces, hover |
-| `--muted-foreground` | `#555555` | `#AAAAAA` | Secondary text |
+| `--background` | `#FFF9F0` | `#0B0B0B` | Page |
+| `--card` | `#FFFFFF` | `#171717` | Panels |
+| `--foreground` | `#111111` | `#FFF6E8` | Text |
+| `--muted` | `#F0EBE3` | `#232323` | Quiet surfaces, hover |
+| `--muted-foreground` | `#555555` | `#B3ADA4` | Secondary text |
 | `--primary` | `#FFD43B` | `#FFD43B` | Main actions, your own messages, EchoLink active state |
 | `--secondary` | `#4D96FF` | `#4D96FF` | EchoShout active state, unread indicators |
 | `--nb-accent` | `#B983FF` | `#C77DFF` | Profile active state, Mumble badges |
 | `--nb-success` | `#6BCB77` | `#6BCB77` | File-attached dot |
 | `--nb-warning` | `#FFB84C` | `#FFB84C` | Friend request badges |
 | `--destructive` | `#FF6B6B` | `#FF6B6B` | Log out, unread message badge |
-| `--nb-border-color` | `#000000` | `#F5F5F5` | Outlines |
-| `--nb-shadow-color` | `#000000` | `#F5F5F5` | Shadows |
+| `--on-color` | `#111111` | `#111111` | Text on any saturated fill |
+| `--nb-link` | `#1D5FC4` | `#8FB8FF` | Blue text, such as links and mentions |
+| `--nb-accent-text` | `#6B2FD9` | `#D9B8FF` | Purple text |
+| `--nb-danger-text` | `#C62828` | `#FF9A9A` | Error and warning text |
+| `--nb-border-color` | `#000000` | `#FFF1DC` | Outlines |
+| `--nb-shadow-color` | `#000000` | `#FFD43B` | Shadows |
 
-In dark mode, outlines and shadows flip to near-white, which keeps the hard-edged look on a dark background.
+Text never sits directly on the saturated fills. It uses `--on-color` (dark) there, and colored text uses the `-text` variants, which pass 4.5:1 on cards. Dark mode is "true black": a deep neutral black page with warm cream text and outlines, taken from the logo's sticker plate, and a thin brand-yellow hard shadow. Dark-mode shadows are smaller than light-mode ones (4px default, 3px small, 5px large, 1px pressed) so the yellow doesn't overwhelm the page. Both themes set `color-scheme`, so native scrollbars, autofill and form controls match.
 
 ### Typography
 
@@ -70,10 +78,11 @@ In dark mode, outlines and shadows flip to near-white, which keeps the hard-edge
 |---|---|
 | Radius | `1rem`; `rounded-xl` for controls, `rounded-2xl` for panels |
 | Border | 3px standard, 2px on small elements |
-| Shadow small / default | `4px 4px 0` / `6px 6px 0` |
+| Shadow small / default | `4px 4px 0` / `6px 6px 0` (dark: `3px` / `4px`) |
 | Shadow large and hover | `8px 8px 0` |
 | Shadow pressed | `2px 2px 0` |
 | Press motion | 150–200ms with an overshoot curve, `cubic-bezier(0.34, 1.56, 0.64, 1)` |
+| Reduced motion | Entrances become plain fades, press feedback uses the shadow only, and the loader pulses in place |
 
 | Animation | Used on |
 |---|---|
@@ -98,11 +107,11 @@ A sticky 64px header sits above a content area capped at 1280px. Page changes us
 
 ### Desktop header (768px and up)
 
-Logo, then **EchoLink**, **EchoShout**, **EchoMumble** and **About**, then the theme switch and a chip with your avatar and username. Each area has its own active color: yellow for EchoLink, blue for EchoShout and purple for Profile. EchoMumble opens a dialog instead of a page, so it has no active state.
+Logo, then **EchoLink**, **EchoShout**, **EchoMumble** and **Profile**, then the theme switch and your avatar, which links to Edit Profile. Each area has its own active color: yellow for EchoLink, blue for EchoShout and purple for Profile. EchoMumble opens a dialog instead of a page, so it has no active state.
 
 ### Mobile navigation (under 768px)
 
-The links move to a fixed bottom bar: **Chats**, **Shouts**, **Mumbles** and **Profile**. The header keeps the logo, theme switch and avatar.
+The links move to a fixed bottom bar with the same names: **EchoLink**, **EchoShout**, **EchoMumble** and **Profile**. The bar adds the device's safe-area inset at the bottom. The header keeps the logo, theme switch and avatar. CSS and JavaScript both switch layouts at 768px.
 
 ### Badges
 
@@ -110,7 +119,9 @@ The links move to a fixed bottom bar: **Chats**, **Shouts**, **Mumbles** and **P
 |---|---|---|
 | EchoLink / Chats | Red | Conversations with unread messages |
 | EchoMumble / Mumbles | Purple | Unread Mumbles |
-| About / Profile | Orange | Pending friend requests |
+| Profile | Orange | Pending friend requests |
+
+Each badge has screen-reader text, such as "3 pending friend requests", and its number is set at 12px.
 
 ### Responsive behavior
 
@@ -126,11 +137,19 @@ The links move to a fixed bottom bar: **Chats**, **Shouts**, **Mumbles** and **P
 
 ### Sign in (`/`)
 
-A centered 384px column with the logo, tagline and a single card. Two tabs switch between **Register** and **Log In**, with Log In as the default. The theme button is fixed in the corner. Submitting swaps the whole page for the loading animation.
+Built from the two logos, which load through Cloudinary's `e_trim` so their empty margins don't shrink them.
+
+- **Wide screens (1024px and up):** two columns. On the left: the EchoRealm wordmark as a tilted sticker, which is the page's `h1`; the headline "Chat close. Shout loud. Mumble quietly.", with each key word on its product color; and a sample chat. The sample shows a yellow EchoLink bubble, a blue EchoShout bubble and a purple EchoMumble bubble, then a green typing bubble taken from the logo. On the right: the sign-in card.
+- **Phones and tablets:** the wordmark and three colored chips sit above the card.
+- **Bubble mark:** perched on the card's top-right corner at every size. It drops in once, then bobs slowly.
+- **Background:** a faded dot grid with the logo's yellow sparkles twinkling and its "shout" lines at the edges. All of it is hidden from screen readers.
+- **Card:** a yellow pill slides between **Register** and **Log In**, with Log In as the default. Below them are a heading ("Welcome back" or "Join the realm") and the form. Under the card, a link switches to the other mode.
+- **Submitting:** the form stays on screen. The fields lock, and the submit button stays pressed in, with hazard stripes running across it and three outlined blocks hopping beside "Logging you in" or "Creating your account". The button keeps that state through the redirect after a successful sign-in. Errors appear inside the card, and only the password is cleared.
+- **Reduced motion:** the entrances become fades, and the bobbing, twinkling and typing dots stop.
 
 ### Chat list (`/links`)
 
-A search box and a create-group button sit above conversations, each showing avatar, name and a preview cut to 30 characters. Unread rows have blue preview text and a dot. On desktop, the right side shows a prompt until you choose a chat. The empty state reads "No active conversations. Start one!"
+A search box and a create-group button sit above conversations, each showing avatar, name and a preview cut to 30 characters. Unread rows have bold preview text and a dot that screen readers announce as "Unread messages". On desktop, the right side shows a prompt until you choose a chat. The empty state reads "No chats yet. Add a friend to get started." and links to Find Users. If the list fails to load, an inline error with **Try again** appears in its place.
 
 ### Conversation (`/links/[id]`)
 
@@ -140,7 +159,7 @@ A search box and a create-group button sit above conversations, each showing ava
 
 ### EchoShout (`/shout`)
 
-A centered 896px column with one history panel. Bubbles show `@username` above and the time below, and mentions appear in blue before the text. The **@** button opens a floating user search, and chosen mentions appear as chips above the composer. Skeleton bubbles appear while loading.
+A centered 896px column with one history panel. Bubbles show `@username` above and the time below, and mentions appear in blue before the text. Typing `@` at the start of a word, or pressing the **@** button, opens a floating user search. Chosen mentions appear as removable chips above the composer, next to a "Posting as" line. Skeleton bubbles appear while loading.
 
 ### EchoMumble menu
 
@@ -178,136 +197,79 @@ A sidebar with your avatar, name, email and seven links, plus a red **Log out** 
 | **Page load** | Bouncing-ball animation for full pages |
 | **List load** | Skeleton cards that match the final layout |
 | **Small waits** | Spinner in the header or in place of the composer |
-| **Feedback** | Toasts for success and failure |
-| **Sending** | Enter sends; the composer becomes a spinner until the server responds |
+| **Feedback** | Toasts for the result of actions; inline errors with **Try again** when a list fails to load |
+| **Signing in** | Pressed-in button with moving stripes and hopping blocks; with reduced motion, the stripes stop and the blocks blink |
+| **Sending** | Enter sends; the send button shows a spinner. If sending fails, the text and attachment come back with an inline error |
 | **Character limit** | Counter turns red past 55 and send disables |
 | **Search** | Results appear after a 400ms pause |
 | **Attachments** | Green dot on the paperclip; the placeholder shows the file name |
 | **Scrolling** | Jumps to the newest message; scrolling to the top of EchoShout loads older posts |
-| **Destructive actions** | Confirmation dialogs on Account Settings; toast confirmation for deleting a Mumble |
+| **Destructive actions** | Confirmation dialogs that say who is affected: clearing or deleting chats, leaving groups, unfriending, blocking, deleting Mumbles and Account Settings actions |
 | **Theme** | Dark by default, saved per browser |
 
 ---
 
-## Issues and recommendations
+## Quality audit
 
-Ordered by impact on users.
+Scored with Impeccable's technical audit, which rates five areas from 0 to 4. The rendered check ran on the sign-in page at 1280×800 and 390×844. The signed-in screens need an account, so they were audited from source.
 
-### High priority
+### Score
 
-#### 1. Two visual systems are mixed
+| # | Area | Before | After | What decided it |
+|---|---|---|---|---|
+| 1 | Accessibility | 3 | 3 | Placeholder contrast, reduced motion, badge size and the unread dot are fixed. Signed-in screens still haven't had a rendered contrast and keyboard check |
+| 2 | Performance | 3 | 3 | Chat images now lazy-load. The full-page loader and per-message animations remain |
+| 3 | Theming | 4 | 4 | All colors go through tokens, with no raw palette classes or hex values |
+| 4 | Responsive | 3 | 3 | `dvh` heights and safe-area padding work. Signed-in screens weren't checked at phone width |
+| 5 | Implementation integrity | 3 | 4 | Failed loads now look different from empty lists; mentions work from the keyboard |
+| | **Total** | **16/20** | **17/20** | **Good** |
 
-Twelve files use hardcoded `zinc`, `indigo` and `rose` classes in place of the Neo-Brutalist tokens: My Mumbles, My Friends, Requests, Blocked Users, Find Users, Account Settings, User Profile, Mumble inbox, Send Mumble, and all three group dialogs. Moving between tabs in the same sidebar changes the whole look.
+The detector found **0 anti-patterns** on the rendered sign-in page at both sizes, both before and after the fixes. Before the fixes it raised one real advisory, 4.2:1 placeholder contrast, which is now fixed. The remaining advisories are the intentional hard shadows and overshoot easing.
 
-**Fix:** replace them with theme tokens and the standard Card, Button and Input styles.
+### Fixed in this pass
 
-#### 2. Text disappears in light mode
-
-Those screens hardcode pale text meant for dark backgrounds. For example, `text-zinc-100` page titles and `text-zinc-200` names sit on a white card, so they are close to invisible. Issue 1's fix resolves this too.
-
-#### 3. Many color classes don't exist
-
-Tailwind has no `zinc-555`, `zinc-650`, `zinc-350`, `zinc-850`, `indigo-650`, `indigo-450`, `rose-250`, `rose-450`, `red-650` or `red-750`. They produce no CSS. Primary actions such as **Add Friend**, **Accept**, **Unblock** and **Create Group** use `bg-indigo-650`, so they likely lose their fill, leaving pale text on nothing.
-
-#### 4. Text is too small
-
-`text-[9px]` and `text-[10px]` are used for descriptions, emails, helper text and even button labels, including the warnings explaining permanent deletion on Account Settings.
-
-**Fix:** set 12px as the minimum, and use 14px for anything people need to read before acting.
-
-#### 5. Destructive actions have no confirmation
-
-**Clear Chat**, **Delete ChatRoom**, **Block User** and **Unfriend** run with one click. Clear and Delete also affect the other person, which nothing explains.
-
-**Fix:** use the existing alert dialog, and state who is affected.
-
-### Medium priority
-
-#### 6. Keyboard and screen reader support is thin
-
-- Chat rows, search results and mention results are clickable `div` or `li` elements, so keyboards can't reach them.
-- Icon-only buttons such as send, attach, more, and like have no accessible name. Only one `aria-label` exists outside the UI primitives.
-- Form labels aren't tied to their inputs with `htmlFor`.
-- Badges are bare numbers with no text for screen readers.
-- New messages aren't announced.
-
-#### 7. Some color pairs fall short on contrast
-
-| Pair | Ratio | Where |
+| Problem | Fix | Files |
 |---|---|---|
-| White on `#B983FF` | 2.7:1 | Active Profile tab, Mumble badges |
-| White on `#FF6B6B` | 2.8:1 | Log out, message badges |
-| White on `#4D96FF` | 3.0:1 | Active EchoShout state, Log In tab |
-| `#4D96FF` on white | 3.0:1 | Unread preview text |
+| Placeholders at 4.2:1 contrast, under the 4.5:1 minimum | Full `--muted-foreground` on placeholders, about 7:1 | `components/ui/input.tsx`, `AddToGroupDialog.tsx` |
+| Reduced motion killed every animation at once, including loading feedback | Fades instead of movement, shadow-only press feedback, and a pulsing loader | `app/globals.css` |
+| Badge numbers at 11px | 12px | `components/CountBadge.tsx` |
+| A failed load of chats, friends, requests or blocked users looked like an empty list | New `LoadError` panel with **Try again**, shown instead of the empty state | `components/LoadError.tsx`, `ChatRooms.tsx`, `friends/list`, `friends/requests`, `blocked-users` |
+| Empty-state text on Requests and Blocked Users at 12px in muted gray | 14px, with a bold heading line | `friends/requests`, `blocked-users` |
+| The unread dot in the chat list was silent for screen readers | Announced as "Unread messages" | `ChatRooms.tsx` |
+| Typing `@` in EchoShout did nothing | Opens the mention search; the placeholder mentions it | `components/MessageBar.tsx`, `shout/page.tsx` |
+| Chat images loaded eagerly and zoomed on hover even with reduced motion | `loading="lazy"`; zoom only with `motion-safe` | `ChatBox/MessageBubble.tsx` |
 
-WCAG AA asks for 4.5:1 for text. Dark text (`#111111`) passes on all three of these backgrounds.
+### Dark theme rework
 
-#### 8. Motion ignores reduced-motion settings
+The old dark theme used Material Design's neutral gray (`#121212` page, `#1E1E1E` cards). Cards barely separated from the page (1.12:1), stark white outlines did all the work, and shadows were a muddy gray (`#5F5F5F`). It read as a white wireframe and didn't match the warm, colorful brand. It now uses deep black, cream outlines and text, and a thin yellow shadow. Every text token passes 4.5:1 on the page, card and muted surfaces (secondary text is the lowest at 7.1:1). The destructive toast and the online badge now use dark text on color instead of white, which failed contrast.
 
-There is no `prefers-reduced-motion` handling for the bounce animations, page transitions or per-message scale-in.
+### Already fixed before this pass
 
-#### 9. Failed sign-ins lose the form
+The earlier audit's issues were found resolved in the code at commit `2a7868b`:
 
-The form is replaced by the loader on submit and fields are cleared afterward, even on failure. A user with a mistyped password must retype everything.
+- **Mixed visual systems, invisible light-mode text, nonexistent color classes (1–3):** no `zinc`, `indigo` or `rose` classes remain.
+- **Tiny text (4):** no `text-[9px]` or `text-[10px]` remain.
+- **Unconfirmed destructive actions (5):** Clear Chat, Delete ChatRoom, Block, Unfriend and Mumble deletion use `ConfirmDialog`, and each explains who is affected.
+- **Keyboard and screen readers (6):** rows and results are buttons, icon buttons have labels, labels use `htmlFor`, badges have screen-reader text, and messages sit in an `aria-live` log.
+- **Contrast pairs (7):** text on colored fills uses dark `--on-color`, and blue, purple and red text use the darker `-text` tokens.
+- **Sign-in form loss (9):** the form stays, errors show inside the card, and only the password is cleared.
+- **Silent send failures (10, partly):** the composer restores unsent text and shows an inline error. This pass finished the list-load half.
+- **Navigation labels (11):** desktop and mobile use the same names, the avatar goes to Edit Profile on both, and both breakpoints are 768px.
+- **Profile layout (12):** Send Mumble shows alongside the featured Mumble, and the empty email line is gone.
+- **Mobile chat height (13):** `dvh` heights and a defined `pb-safe` with `env(safe-area-inset-bottom)`.
+- **Composer nesting (14), copy (16), Find Users pre-fill (17), removable mention chips (18), hidden scrollbars (19):** all resolved; lists now show a thin themed scrollbar.
 
-**Fix:** keep the form on screen, show progress on the button, and clear only the password. Show errors beside the fields.
+### Still open
 
-#### 10. Failures are often silent
+| Priority | Issue | Why it's open |
+|---|---|---|
+| P2 | Rendered audit of signed-in screens | The detector needs a logged-in session. Run `impeccable detect http://localhost:3000/links` with a signed-in browser, at desktop and 390px width |
+| P2 | 55-character limit on private chats | The same limit applies to chats and Mumbles. Raising it for chats is a product decision and likely needs a server change, which is outside this client-only pass |
+| P3 | Mention search can't be closed with Escape | It closes when you toggle the **@** button or pick someone |
+| P3 | Full-page bouncing loader | Skeletons would show the layout sooner on page loads, as the lists already do |
 
-Fetch errors on Friends, Blocked Users, Requests and the chat list only reach the console, so a failed load can look the same as an empty list. EchoShout send failures also show nothing, and the message is already gone from the box.
+### Next steps
 
-**Fix:** add inline error states with retry, and keep the unsent text.
-
-#### 11. Navigation labels don't match
-
-- The Profile area is **About** on desktop and **Profile** on mobile, and "About" doesn't describe it.
-- EchoLink and EchoShout become Chats and Shouts on mobile.
-- The header's avatar goes to Edit Profile on mobile but My Mumbles on desktop.
-- The app's JavaScript breakpoint is 670px while CSS uses 768px, so screens in between mix the two layouts.
-
-#### 12. Profile layout hides an action
-
-The featured Mumble replaces **Send Mumble**, so that button disappears for exactly the most active users. Show both. The profile also tries to show an email the API doesn't send, leaving an empty line.
-
-#### 13. Mobile chat height is fragile
-
-Chat screens use `h-[calc(100vh-140px)]`, and `100vh` includes the mobile browser's address bar, so the composer can be pushed out of view. The `pb-safe` class on the bottom bar also isn't defined in the project's CSS, so it adds no safe-area padding. Use `dvh` units and `env(safe-area-inset-bottom)`.
-
-### Lower priority
-
-#### 14. Composer nesting on EchoShout
-
-`MessageBar` brings its own background and top border into EchoShout's outlined bar, creating a box in a box.
-
-#### 15. The 55-character limit feels tight
-
-It applies to chats as well as Mumbles. It suits Mumbles, but a private conversation shouldn't stop at one short sentence.
-
-#### 16. Copy needs a pass
-
-- The page description is still "Next.js migration for EchoRealm".
-- The sign-in placeholder uses "daisy@site.com".
-- The tagline "modern, secure workspace" doesn't match a playful social app.
-- Mumbles are described as "anonymous whispers" even though they're only anonymous when you turn that on.
-- Success toasts repeat raw server text such as "cleared the all messages".
-- "Delete All Chat Conversations" promises group chats too, which it doesn't delete.
-
-#### 17. Find Users opens with an arbitrary search
-
-The field is pre-filled with `a`. Suggested people or an empty prompt would explain the page better.
-
-#### 18. Mentions aren't discoverable
-
-Typing `@` in the message box does nothing; only the separate **@** button works. Chips also can't be removed before sending.
-
-#### 19. Hidden scrollbars
-
-`hide-scrollBar` removes visible scrolling cues on all the main lists. Keep a thin scrollbar on desktop.
-
-### Recommended order
-
-1. Migrate the twelve older files to tokens (issues 1–3).
-2. Raise minimum text size and fix contrast (issues 4 and 7).
-3. Add confirmations and error states (issues 5, 9 and 10).
-4. Complete the accessibility pass (issues 6 and 8).
-5. Align navigation, mobile layout and copy (issues 11–13 and 16).
+1. Run the rendered audit on the signed-in screens, then fix what it finds for contrast and touch targets.
+2. Decide the chat character limit with the server owner.
+3. Finish with a polish pass: Escape handling in the mention popover, and skeletons in place of the page loader.

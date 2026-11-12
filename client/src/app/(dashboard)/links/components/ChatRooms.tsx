@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Search, MessageSquare, MessageSquarePlus, UserPlus } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import LoadError from "@/components/LoadError";
 
 import socket from "@/sockets/socket";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -45,6 +45,8 @@ export const ChatRooms: React.FC = () => {
   const isSearching = Boolean(search) && searchResults === null;
 
   const [isPending, setIsPending] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [isGroupPending, setIsGroupPending] = useState(false);
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
 
@@ -52,6 +54,7 @@ export const ChatRooms: React.FC = () => {
     const fetchMyPrivateFriends = async () => {
       try {
         setIsPending(true);
+        setLoadError(false);
         const response = await getMyPrivateFriendsApi();
 
         response?.data?.myPrivateFriendsWithMessages?.forEach((chatRoom: any) => {
@@ -74,14 +77,14 @@ export const ChatRooms: React.FC = () => {
         dispatch(setMyPrivateChatRooms(sortedRooms));
       } catch (error) {
         console.error("Error fetching friends rooms:", error);
-        toast.error("We couldn't load your chats. Refresh to try again.");
+        setLoadError(true);
       } finally {
         setIsPending(false);
       }
     };
 
     fetchMyPrivateFriends();
-  }, [dispatch, user?._id]);
+  }, [dispatch, user?._id, reloadKey]);
 
   useEffect(() => {
     if (!user) return;
@@ -324,14 +327,22 @@ export const ChatRooms: React.FC = () => {
 
               {/* Notification Dot */}
               {isUnread && (
-                <div className="h-3 w-3 rounded-full bg-secondary border-[2px] border-[var(--nb-border-color)] ml-2 flex-shrink-0" />
+                <span className="h-3 w-3 rounded-full bg-secondary border-[2px] border-[var(--nb-border-color)] ml-2 flex-shrink-0">
+                  <span className="sr-only">Unread messages</span>
+                </span>
               )}
             </button>
             </li>
           );
         })}
 
-        {myPrivateChatRooms?.length === 0 && (
+        {loadError && (
+          <li>
+            <LoadError what="your chats" onRetry={() => setReloadKey((k) => k + 1)} />
+          </li>
+        )}
+
+        {!loadError && !isPending && myPrivateChatRooms?.length === 0 && (
           <li className="space-y-3 py-8 text-center">
             <p className="text-sm font-medium text-muted-foreground">No chats yet. Add a friend to get started.</p>
             <Link

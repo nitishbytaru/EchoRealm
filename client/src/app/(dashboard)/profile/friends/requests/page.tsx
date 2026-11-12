@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import LoadError from "@/components/LoadError";
 
 export default function MyFriendRequestsPage() {
   const dispatch = useDispatch();
@@ -28,24 +29,27 @@ export default function MyFriendRequestsPage() {
   const { myFriendRequests } = useSelector((state: RootState) => state.user);
 
   const [isPending, setIsPending] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
         setIsPending(true);
+        setLoadError(false);
         const response = await fetchMyFriendRequestsApi();
         if (response?.data?.requests) {
           dispatch(setMyFriendRequests(response.data.requests));
         }
       } catch (error) {
         console.error("Error fetching friend requests:", error);
-        toast.error("We couldn't load your friend requests. Refresh to try again.");
+        setLoadError(true);
       } finally {
         setIsPending(false);
       }
     };
     fetchRequests();
-  }, [dispatch]);
+  }, [dispatch, reloadKey]);
 
   const handleFriendRequest = async (requestedUserId: string, willAccept: boolean) => {
     try {
@@ -87,7 +91,9 @@ export default function MyFriendRequestsPage() {
         {isPending && <Loader2 className="h-4 w-4 animate-spin text-foreground" />}
       </div>
 
-      {isPending && (!myFriendRequests || myFriendRequests.length === 0) ? (
+      {loadError ? (
+        <LoadError what="your friend requests" onRetry={() => setReloadKey((k) => k + 1)} />
+      ) : isPending && (!myFriendRequests || myFriendRequests.length === 0) ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <Card key={i} className="overflow-hidden shadow-[var(--nb-shadow-sm)]">
@@ -108,8 +114,8 @@ export default function MyFriendRequestsPage() {
       ) : myFriendRequests?.length === 0 ? (
         <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl min-h-[250px] animate-fade-in">
           <UserPlus2 className="h-6 w-6 text-muted-foreground mb-2" />
-          <p className="text-muted-foreground text-xs font-semibold">No pending requests</p>
-          <p className="text-xs text-muted-foreground mt-2">You will see new friend requests here when someone adds you.</p>
+          <p className="text-foreground text-sm font-bold">No pending requests</p>
+          <p className="text-sm text-muted-foreground mt-2">You will see new friend requests here when someone adds you.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -26,31 +26,35 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import LoadError from "@/components/LoadError";
 
 export default function MyFriendsPage() {
   const dispatch = useDispatch();
   const { myFriendsList } = useSelector((state: RootState) => state.user);
 
   const [isPending, setIsPending] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [pendingAction, setPendingAction] = useState<{ type: "remove" | "block"; friend: any } | null>(null);
 
   useEffect(() => {
     const fetchMyFriendsList = async () => {
       try {
         setIsPending(true);
+        setLoadError(false);
         const { data } = await getMyFriendsListApi();
         if (data?.myFriendList?.friends) {
           dispatch(setToMyFriendsList(data.myFriendList.friends));
         }
       } catch (error) {
         console.error("Error fetching friends list:", error);
-        toast.error("We couldn't load your friends. Refresh to try again.");
+        setLoadError(true);
       } finally {
         setIsPending(false);
       }
     };
     fetchMyFriendsList();
-  }, [dispatch]);
+  }, [dispatch, reloadKey]);
 
   const blockSender = async (friendId: string) => {
     try {
@@ -98,7 +102,9 @@ export default function MyFriendsPage() {
         {isPending && <Loader2 className="h-4 w-4 animate-spin text-foreground" />}
       </div>
 
-      {isPending && (!myFriendsList || myFriendsList.length === 0) ? (
+      {loadError ? (
+        <LoadError what="your friends" onRetry={() => setReloadKey((k) => k + 1)} />
+      ) : isPending && (!myFriendsList || myFriendsList.length === 0) ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <Card key={i} className="overflow-hidden shadow-[var(--nb-shadow-sm)]">

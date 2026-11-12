@@ -59,15 +59,17 @@ function Button({
       data-slot="button"
       data-variant={variant}
       disabled={disabled || loading}
-      className={cn(buttonVariants({ variant, size, className }), loading && "relative text-transparent! select-none")}
+      aria-busy={loading || undefined}
+      className={cn(buttonVariants({ variant, size, className }), loading && "relative select-none disabled:opacity-100")}
       {...props}
     >
       {loading && (
-        <span className="absolute inset-0 flex items-center justify-center text-current">
-          <Loader2 className="h-4 w-4 animate-spin text-current" />
+        <span className="absolute inset-0 flex items-center justify-center">
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          <span className="sr-only">Loading</span>
         </span>
       )}
-      {children}
+      <span className={cn("contents", loading && "invisible")}>{children}</span>
     </ButtonPrimitive>
   )
 }

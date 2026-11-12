@@ -14,6 +14,8 @@ interface MessageBarProps {
   leading?: React.ReactNode;
   placeholder?: string;
   sendLabel?: string;
+  /** Called when the user types "@" at the start of a word; the "@" is removed. */
+  onMentionTrigger?: () => void;
 }
 
 const CHARACTER_LIMIT = 55;
@@ -24,12 +26,28 @@ export const MessageBar: React.FC<MessageBarProps> = ({
   leading,
   placeholder = "Message",
   sendLabel = "Send message",
+  onMentionTrigger,
 }) => {
   const attachments = useFileHandler("single");
   const message = useInputValidation("");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [sendFailed, setSendFailed] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const next = e.target.value;
+    const typedAt =
+      onMentionTrigger &&
+      next.length === message.value.length + 1 &&
+      next.endsWith("@") &&
+      (next.length === 1 || /\s/.test(next[next.length - 2]));
+    if (typedAt) {
+      message.setValue(next.slice(0, -1));
+      onMentionTrigger();
+      return;
+    }
+    message.changeHandler(e);
+  };
 
   const isOverLimit = message.value.length > CHARACTER_LIMIT;
   const canSend = !isSending && !isOverLimit && message.value.trim().length > 0;
@@ -99,7 +117,7 @@ export const MessageBar: React.FC<MessageBarProps> = ({
             aria-invalid={isOverLimit || undefined}
             className={`w-full text-base md:text-sm ${attachments.file || message.value.length >= COUNTER_THRESHOLD ? "pr-14" : ""}`}
             placeholder={attachments.file ? `Add a caption for ${attachments.file.name}` : placeholder}
-            onChange={message.changeHandler}
+            onChange={handleChange}
             value={message.value}
             onKeyDown={(e) => handleKeyPress(e, sendCurrentMessage)}
           />

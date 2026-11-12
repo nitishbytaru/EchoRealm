@@ -257,8 +257,9 @@ export default function EchoShoutPage() {
 
           <MessageBar
             onSend={sendShout}
-            placeholder="Shout something"
+            placeholder="Shout something, or type @ to mention"
             sendLabel="Post to EchoShout"
+            onMentionTrigger={() => setSelectSearchBar(true)}
             leading={
               <Button
                 type="button"

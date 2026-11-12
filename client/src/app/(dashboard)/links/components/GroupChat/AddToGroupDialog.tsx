@@ -121,7 +121,7 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
                 placeholder="Search friends..."
                 value={search.value}
                 onChange={search.changeHandler}
-                className="pl-9 bg-background border-border text-foreground placeholder:text-muted-foreground/60 "
+                className="pl-9 bg-background border-border text-foreground placeholder:text-muted-foreground "
               />
             </div>
 
