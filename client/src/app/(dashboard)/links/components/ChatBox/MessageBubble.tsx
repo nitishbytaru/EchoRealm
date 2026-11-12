@@ -22,10 +22,10 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ messages, user, se
         <span className="mb-1 px-1 text-xs font-bold text-muted-foreground">@{senderName}</span>
       )}
       <div
-        className={`max-w-[85%] md:max-w-[70%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap break-words border-[3px] border-[var(--nb-border-color)] font-medium ${
+        className={`max-w-[85%] md:max-w-[70%] rounded-2xl px-4 py-2.5 text-[0.95rem] leading-relaxed whitespace-pre-wrap break-words border-[3px] border-[var(--nb-border-color)] font-medium ${
           isOwnMessage
-            ? "bg-primary text-primary-foreground rounded-br-none shadow-[4px_4px_0px_var(--nb-shadow-color)]"
-            : "bg-card text-foreground rounded-bl-none shadow-[4px_4px_0px_var(--nb-shadow-color)]"
+            ? "bg-primary text-on-color rounded-br-md shadow-[var(--nb-shadow-sm)]"
+            : "bg-card text-foreground rounded-bl-md shadow-[var(--nb-shadow-sm)]"
         }`}
       >
         {attachmentUrl && (

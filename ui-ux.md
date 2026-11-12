@@ -103,23 +103,27 @@ Buttons come in `default`, `outline`, `secondary`, `ghost`, `destructive` and `l
 
 ### Page shell
 
-A sticky 64px header sits above a content area capped at 1280px. Page changes use the `fade-in-up` animation.
+A sticky 64px header sits above a content area capped at 1280px. Every signed-in page sits on the same faint dot grid as the sign-in page. Full-height screens (chats, EchoShout) use one shared `.h-app` height, worked out from the `--app-chrome` variable in `globals.css`, so their composers stay on screen. Page changes use the `fade-in-up` animation.
 
 ### Desktop header (768px and up)
 
-Logo, then **EchoLink**, **EchoShout**, **EchoMumble** and **Profile**, then the theme switch and your avatar, which links to Edit Profile. Each area has its own active color: yellow for EchoLink, blue for EchoShout and purple for Profile. EchoMumble opens a dialog instead of a page, so it has no active state.
+- **Left:** the EchoRealm wordmark, slightly tilted (it straightens on hover), linking to EchoLink.
+- **Center, the sticker dock:** one outlined track with **EchoLink**, **EchoShout** and **EchoMumble**. A pill in the section's color (yellow, blue or purple) slides to the active one. On Profile pages, no pill shows.
+- **Right:** the theme switch and an **avatar menu** (avatar, @username, chevron). The menu shows your name and email, then My profile, Pinned Mumbles, Friends (with a "new" count for requests), Find people and Settings, then **Log out**. The chip turns purple on Profile pages.
+
+There is no separate Profile tab; the avatar menu replaces it.
 
 ### Mobile navigation (under 768px)
 
-The links move to a fixed bottom bar with the same names: **EchoLink**, **EchoShout**, **EchoMumble** and **Profile**. The bar adds the device's safe-area inset at the bottom. The header keeps the logo, theme switch and avatar. CSS and JavaScript both switch layouts at 768px.
+The header keeps the wordmark and theme switch. A fixed bottom dock holds **Link**, **Shout**, **Mumble** and **Me**. Me is your avatar and opens Profile. The active item gets a tile in its section color. The dock adds the device's safe-area inset. CSS and JavaScript both switch layouts at 768px.
 
 ### Badges
 
 | Location | Color | Counts |
 |---|---|---|
-| EchoLink / Chats | Red | Conversations with unread messages |
-| EchoMumble / Mumbles | Purple | Unread Mumbles |
-| Profile | Orange | Pending friend requests |
+| EchoLink | Red | Conversations with unread messages |
+| EchoMumble | Purple | Unread Mumbles |
+| Avatar menu / Me | Orange | Pending friend requests |
 
 Each badge has screen-reader text, such as "3 pending friend requests", and its number is set at 12px.
 
@@ -128,7 +132,9 @@ Each badge has screen-reader text, such as "3 pending friend requests", and its 
 | Screen | Mobile | Tablet and desktop |
 |---|---|---|
 | Chat | List and conversation are separate views, with a back arrow | List beside conversation; list is 4 of 12 columns, then 3 on large screens |
-| Profile | Sidebar stacks above content, links wrap | 240px sticky sidebar |
+| Profile | Member card stacks; section tabs scroll sideways | Member card banner with tabs in one row |
+| EchoShout | Feed only | Feed plus a right rail |
+| EchoMumble | Compact panel above the content | Sticky "Mumble HQ" panel beside the content |
 | Card grids | 1 column | 2–3 columns |
 
 ---
@@ -149,43 +155,74 @@ Built from the two logos, which load through Cloudinary's `e_trim` so their empt
 
 ### Chat list (`/links`)
 
-A search box and a create-group button sit above conversations, each showing avatar, name and a preview cut to 30 characters. Unread rows have bold preview text and a dot that screen readers announce as "Unread messages". On desktop, the right side shows a prompt until you choose a chat. The empty state reads "No chats yet. Add a friend to get started." and links to Find Users. If the list fails to load, an inline error with **Try again** appears in its place.
+- **Header:** "Your **chats.**" with a conversation and unread count, plus two sticker buttons: new chat (yellow) and new group.
+- **Search:** searches your friends. Escape clears it.
+- **Filters:** All, Unread (with a red count) and Groups.
+- **Rows:**
+  - an avatar in a brand color, with a green group badge for group chats;
+  - the name and the time of the last message (a time for today, a weekday this week, a date before that);
+  - a preview starting with "You:" when you sent the last message.
+  - Unread chats are outlined, with bold text and a blue **New** sticker. The open chat is a yellow sticker.
+- **States:** skeleton rows while loading, an inline **Try again** if the list fails, and "You're all caught up" or "No group chats yet" for empty filters.
+- **Before you pick a chat (desktop):** the right side shows the bubble mark with a typing bubble, "Pick a **chat.**", and **Find friends** and **Shout to everyone** buttons.
+- **Layout:** the list column is a fixed 19–22rem; the conversation takes the rest.
 
 ### Conversation (`/links/[id]`)
 
-- A header card with avatar, name, and a three-dot menu
-- Bubbles with hard shadows: yours are yellow on the right, theirs are card-colored on the left, with a relative time under each
-- A composer with an attach button, text field, character counter and send button
+- A header with avatar, a larger @name, "Private chat · only you two", and a three-dot menu.
+- Messages sit on a faint dot grid. Yours are yellow on the right and theirs are card-colored on the left, each with a small hard shadow and a relative time under it.
+- The composer (attach, text field, character counter, send) stays pinned to the bottom.
 
 ### EchoShout (`/shout`)
 
-A centered 896px column with one history panel. Bubbles show `@username` above and the time below, and mentions appear in blue before the text. Typing `@` at the start of a word, or pressing the **@** button, opens a floating user search. Chosen mentions appear as removable chips above the composer, next to a "Posting as" line. Skeleton bubbles appear while loading.
+- **Header:** "Everyone hears **this.**", with "this." on a blue sticker.
+- **Feed:** one outlined card whose log scrolls on its own, while the composer stays pinned to the card's bottom edge.
+  - Posts are chat-sized stickers: 15px text with a small header line (initial chip, @name, time), the same size as EchoLink messages. Others' posts sit left on the card color; yours sit right in yellow, labelled "You", with a slight tilt.
+  - Mentions show in blue.
+- **Composer:** typing `@` at the start of a word, or pressing **@**, opens a user search (Escape closes it). Chosen mentions appear as removable chips. On phones a "Posting as" line sits above the composer.
+- **Right rail (1024px and up):** a "Posting as" card with a link to change it, and a blue "How shouting works" card covering who sees shouts, the 55-character limit, mentions and images, with the logo's typing bubbles and sparkles below.
+- Skeleton bubbles show while loading.
 
-### EchoMumble menu
+### EchoMumble (`/mumbles/*`)
 
-A dialog with two large choices: **Inbox** and **Send**.
+Mumbles are treated as small paper notes.
 
-### Send Mumble
-
-A centered card with user search, a panel showing the selected person, and a message bar that stays disabled until someone is selected.
-
-### Mumble inbox
-
-A responsive card grid. Unread cards are tinted and tagged **New**, pinned cards show a pin, and actions sit in a three-dot menu. The empty state reads "Your inbox is empty."
+- **Mumble HQ panel:** sticky on the left from 1024px; compact above the content on phones. It contains:
+  - a purple speech bubble with the logo's green typing dots and sparkles;
+  - "Mumble **quietly.**";
+  - stats for new, in inbox, and pinned out of 4, shown only once inbox data is loaded;
+  - an Inbox / Send switch with a sliding purple pill.
+- **Inbox:** notes in a masonry grid with one to three columns. Each note is tilted slightly and straightens when hovered.
+  - New notes are purple with a yellow **New** sticker; read ones are card-colored with a purple strip.
+  - Anonymous notes have a dashed outline and say "Someone".
+  - Pinned notes carry a yellow pin sticker.
+  - Actions (pin, message, delete, block) sit in each note's menu.
+  - The empty state is a tilted dashed note, "It's quiet in here", with a **Send a Mumble** button.
+- **Send:** the form in one card (recipient search, Send as yourself or Anonymous, message), with a **live preview** beside it that updates as you type and matches the identity you chose.
 
 ### Profile area
 
-A sidebar with your avatar, name, email and seven links, plus a red **Log out** button.
+- **Member card:** a purple banner with the logo's yellow typing bubble and a sparkle. Below it:
+  - your avatar as a tilted sticker, @username and email;
+  - real stats: friends, likes and pending requests;
+  - **Edit profile** and **Public view** buttons.
+- **Section tabs**, grouped:
+  - **You:** Profile, Pinned
+  - **People:** Friends, Requests (with a count), Find people, Blocked
+  - **Account:** Settings
+
+  The active tab is yellow. On phones the row scrolls sideways.
+- **Content:** a full-width panel. Every section uses the same header style as the rest of the app, with a key word on a sticker.
 
 | Page | Contents |
 |---|---|
-| **Edit Profile** | Avatar with hover camera, three fields, two switches, Save |
-| **My Mumbles** | Pinned cards with like counts |
-| **My Friends** | User cards with Unfriend and Block |
+| **Profile** | Avatar uploader card beside the fields; the two privacy toggles as outlined setting cards; Save |
+| **Pinned** | Pinned notes (the same note style as the inbox) with like counts and Unpin |
+| **Friends** | User cards with Message and a menu for Unfriend and Block |
 | **Requests** | User cards with Accept, Reject and View Profile |
-| **Blocked Users** | User cards with Unblock |
-| **Find Users** | Search with user cards |
-| **Account Settings** | Danger Zone banner, four clear-data rows, Delete Account |
+| **Blocked** | User cards with Unblock |
+| **Find people** | Search with user cards |
+| **Settings** | Log out row, Danger zone banner, four clear-data rows, Delete Account |
 | **User Profile** | Identity, stats, featured Mumble, Mumble grid with likes |
 
 ---

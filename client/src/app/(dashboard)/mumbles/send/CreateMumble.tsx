@@ -15,6 +15,8 @@ import { RootState } from "@/store/store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import PageHeader from "@/components/PageHeader";
+import MumbleNote from "../components/MumbleNote";
 
 interface CreateMumbleProps {
   mumbleTo?: string;
@@ -85,11 +87,11 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
   ];
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 py-6">
-      <div>
-        <h1 className="text-lg font-bold text-foreground">Send a Mumble</h1>
-        <p className="text-sm font-medium text-muted-foreground">A short, quiet note for one person.</p>
-      </div>
+    <div className="flex w-full flex-col gap-6">
+      <PageHeader as="h2" title="Send a Mumble" description="A short, quiet note for one person. Up to 55 characters." />
+
+      <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_19rem]">
+      <div className="flex flex-col gap-6 rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card p-5 shadow-[var(--nb-shadow)] sm:p-6">
 
       <div className="relative">
         {selectedUser ? (
@@ -226,6 +228,23 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
             {!isPending && <Send className="h-5 w-5" />}
           </Button>
         </div>
+      </div>
+      </div>
+
+      {/* Live preview */}
+      <section aria-label="Preview" className="xl:sticky xl:top-24">
+        <p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Preview</p>
+        <MumbleNote
+          message={message.value}
+          sender={isAnonymous ? null : user?.username ?? "you"}
+          isUnread
+          index={0}
+          placeholder="Start typing to see your note"
+        />
+        <p className="mt-4 text-sm font-medium text-muted-foreground">
+          {selectedUser ? `This is how it will land in @${selectedUser.username}'s inbox.` : "Pick someone to send it to."}
+        </p>
+      </section>
       </div>
     </div>
   );

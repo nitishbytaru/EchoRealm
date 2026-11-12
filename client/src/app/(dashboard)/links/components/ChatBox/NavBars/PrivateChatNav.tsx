@@ -100,15 +100,15 @@ export const PrivateChatNav: React.FC<PrivateChatNavProps> = ({
           <ChevronLeft className="h-6 w-6" />
         </Link>
 
-        <Avatar className="h-10 w-10">
+        <Avatar className="size-11">
           <AvatarImage src={selectedChat?.avatar?.url} />
-          <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
+          <AvatarFallback className="bg-primary text-sm font-extrabold text-on-color">
             {selectedChat?.username?.slice(0, 2).toUpperCase() || "DM"}
           </AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="text-sm font-bold text-foreground">@{selectedChat?.username || "anonymous"}</h3>
-          <p className="text-xs text-muted-foreground font-medium">Private chat</p>
+          <h3 className="text-lg font-extrabold leading-tight text-foreground">@{selectedChat?.username || "anonymous"}</h3>
+          <p className="text-sm text-muted-foreground font-medium">Private chat · only you two</p>
         </div>
       </div>
 

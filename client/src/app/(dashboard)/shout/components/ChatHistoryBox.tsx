@@ -24,12 +24,12 @@ export const ChatHistoryBox: React.FC<ChatHistoryBoxProps> = ({
   const { user } = useSelector((state: RootState) => state.auth);
 
   return (
-    <div className="flex min-h-0 flex-grow flex-col overflow-hidden">
+    <div className="flex min-h-0 flex-grow flex-col overflow-hidden rounded-t-[13px]">
       <div
         role="log"
         aria-label="EchoShout posts"
         aria-live="polite"
-        className="min-h-0 flex-grow overflow-y-auto pr-3 pb-2 hide-scrollBar"
+        className="min-h-0 flex-grow overflow-y-auto px-3 pt-4 pb-2 sm:px-5 hide-scrollBar"
         ref={shoutScrollRef}
       >
         {gettingOldMessages && <LoadingSpinner />}

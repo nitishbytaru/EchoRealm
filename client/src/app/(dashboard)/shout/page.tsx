@@ -7,7 +7,6 @@ import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
 
 import socket from "@/sockets/socket";
-import Loading from "@/components/Loading";
 import { getEchoShoutsApi } from "@/api/echo_shout.api";
 import MessageBar from "@/components/MessageBar";
 import ChatHistoryBox from "./components/ChatHistoryBox";
@@ -25,6 +24,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import PageHeader from "@/components/PageHeader";
+import { ShoutLines, Sparkle, TypingBubble } from "@/components/brand/BrandMarks";
 
 export default function EchoShoutPage() {
   const dispatch = useDispatch();
@@ -143,139 +144,172 @@ export default function EchoShoutPage() {
     };
   }, [pagination, dispatch, messages]);
 
-  if (isFetching) {
-    return (
-      <div className="flex-1 flex flex-col h-[calc(100dvh-168px)] md:h-[calc(100dvh-112px)] lg:h-[calc(100dvh-128px)] max-w-3xl mx-auto w-full relative">
-        {/* Skeleton message list */}
-        <div className="flex-1 space-y-4 py-4 overflow-hidden flex flex-col justify-end">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className={`flex items-start gap-3 max-w-[70%] ${
-                i % 2 === 0 ? "self-start" : "self-end flex-row-reverse"
-              }`}
-            >
-              <Skeleton className="h-9 w-9 rounded-full flex-shrink-0" />
-              <div className="space-y-2 w-48">
-                <Skeleton className="h-4 w-16 rounded-lg" />
-                <Skeleton className="h-14 w-full rounded-xl" />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* MessageBar placeholder */}
-        <div className="mt-3 flex items-center gap-3 border-t-[3px] border-[var(--nb-border-color)] pt-3">
-          <Skeleton className="h-10 w-10 rounded-xl" />
-          <Skeleton className="h-10 flex-1 rounded-xl" />
-        </div>
-      </div>
-    );
-  }
+  const identity = user?.isAnonymous ? "anonymous" : `@${user?.username}`;
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100dvh-168px)] md:h-[calc(100dvh-112px)] lg:h-[calc(100dvh-128px)] max-w-3xl mx-auto w-full relative">
-      <h1 className="mb-3 text-3xl font-black uppercase tracking-tight text-foreground sm:text-4xl">Everyone hears this</h1>
-
-      {/* Scrollable Messages Section */}
-      <div className="flex-1 flex flex-col min-h-0">
-        <ChatHistoryBox
-          shoutScrollRef={shoutScrollRef}
-          shouldScrollToBottom={shouldScrollToBottom}
-          messages={messages}
-          gettingOldMessages={gettingOldMessages}
+    <div className="grid h-app grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_19rem]">
+      {/* Feed */}
+      <section aria-label="EchoShout feed" className="flex min-h-0 flex-col">
+        <PageHeader
+          title="Everyone hears"
+          sticker="this."
+          stickerFill="bg-secondary"
+          description="One room for everybody. Keep it short and loud."
+          className="mb-4 [&_h1]:text-2xl sm:[&_h1]:text-3xl"
         />
-      </div>
 
-      {isLoggedIn && (
-        <div className="relative z-20 mt-3 border-t-[3px] border-[var(--nb-border-color)] pt-3">
-          {selectSearchBar && (
-            <div className="absolute right-0 bottom-full left-0 z-30 mx-auto mb-2 max-w-sm rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card p-3 shadow-[var(--nb-shadow)]">
-              <label htmlFor="mention-search" className="mb-2 block text-sm font-bold text-foreground">
-                Mention someone
-              </label>
-              <Input
-                id="mention-search"
-                type="text"
-                autoFocus
-                placeholder="Search by username"
-                value={search.value}
-                onChange={search.changeHandler}
-                className="text-base md:text-sm"
-              />
-              {searchResults?.length > 0 && (
-                <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto hide-scrollBar">
-                  {searchResults.map(({ user: candidate }) => (
-                    <li key={candidate._id}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          addMentionFunc(candidate);
-                          search.clear();
-                        }}
-                        className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-muted"
-                      >
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={candidate?.avatar?.url} alt="" />
-                          <AvatarFallback className="bg-primary text-xs text-primary-foreground">
-                            {candidate.username.slice(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="min-w-0 truncate text-sm font-bold text-foreground">@{candidate.username}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
+        <div className="relative flex min-h-0 flex-1 flex-col rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">
+          {isFetching ? (
+            <div className="flex flex-1 flex-col justify-end gap-4 overflow-hidden p-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className={`flex w-full ${i % 2 ? "justify-end" : "justify-start"}`}>
+                  <Skeleton className="h-16 w-2/3 rounded-2xl sm:w-1/2" />
+                </div>
+              ))}
             </div>
+          ) : (
+            <ChatHistoryBox
+              shoutScrollRef={shoutScrollRef}
+              shouldScrollToBottom={shouldScrollToBottom}
+              messages={messages}
+              gettingOldMessages={gettingOldMessages}
+            />
           )}
 
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <p className="text-sm font-bold text-muted-foreground">
-              Posting as {user?.isAnonymous ? "anonymous" : `@${user?.username}`}{" "}
-              <Link href="/profile/edit" className="underline underline-offset-2 hover:text-foreground">
-                Change
-              </Link>
-            </p>
-            {mentions.map((mention) => (
-              <span
-                key={mention._id}
-                className="inline-flex items-center gap-1 rounded-xl border-[2px] border-[var(--nb-border-color)] bg-secondary pl-2 text-xs font-bold text-secondary-foreground"
-              >
-                @{mention?.username}
-                <button
-                  type="button"
-                  aria-label={`Remove mention of ${mention?.username}`}
-                  onClick={() => setMentions((prev) => prev.filter((m) => m._id !== mention._id))}
-                  className="flex size-7 items-center justify-center"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
-          </div>
+          {/* Composer dock: always pinned to the bottom of the feed */}
+          {isLoggedIn && (
+            <div className="relative z-20 rounded-b-[13px] border-t-[3px] border-[var(--nb-border-color)] bg-card p-3 sm:p-4">
+              {selectSearchBar && (
+                <div className="absolute right-3 bottom-full left-3 z-30 mx-auto mb-3 max-w-sm rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card p-3 shadow-[var(--nb-shadow)]">
+                  <label htmlFor="mention-search" className="mb-2 block text-sm font-bold text-foreground">
+                    Mention someone
+                  </label>
+                  <Input
+                    id="mention-search"
+                    type="text"
+                    autoFocus
+                    placeholder="Search by username"
+                    value={search.value}
+                    onChange={search.changeHandler}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setSelectSearchBar(false);
+                    }}
+                    className="text-base md:text-sm"
+                  />
+                  {searchResults?.length > 0 && (
+                    <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto hide-scrollBar">
+                      {searchResults.map(({ user: candidate }) => (
+                        <li key={candidate._id}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              addMentionFunc(candidate);
+                              search.clear();
+                            }}
+                            className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-muted"
+                          >
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={candidate?.avatar?.url} alt="" />
+                              <AvatarFallback className="bg-secondary text-xs text-on-color">
+                                {candidate.username.slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="min-w-0 truncate text-sm font-bold text-foreground">@{candidate.username}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
 
-          <MessageBar
-            onSend={sendShout}
-            placeholder="Shout something, or type @ to mention"
-            sendLabel="Post to EchoShout"
-            onMentionTrigger={() => setSelectSearchBar(true)}
-            leading={
-              <Button
-                type="button"
-                variant={selectSearchBar ? "default" : "outline"}
-                size="icon-lg"
-                aria-label="Mention someone"
-                aria-expanded={selectSearchBar}
-                onClick={() => setSelectSearchBar((prev) => !prev)}
-                className="shrink-0 rounded-xl text-base font-extrabold"
-              >
-                @
-              </Button>
-            }
-          />
+              <div className={`mb-2 flex flex-wrap items-center gap-2 ${mentions.length ? "" : "lg:hidden"}`}>
+                <p className="text-sm font-bold text-muted-foreground lg:hidden">
+                  Posting as {identity}{" "}
+                  <Link href="/profile/edit" className="underline underline-offset-2 hover:text-foreground">
+                    Change
+                  </Link>
+                </p>
+                {mentions.map((mention) => (
+                  <span
+                    key={mention._id}
+                    className="inline-flex items-center gap-1 rounded-xl border-[2px] border-[var(--nb-border-color)] bg-secondary pl-2 text-xs font-bold text-on-color"
+                  >
+                    @{mention?.username}
+                    <button
+                      type="button"
+                      aria-label={`Remove mention of ${mention?.username}`}
+                      onClick={() => setMentions((prev) => prev.filter((m) => m._id !== mention._id))}
+                      className="flex size-7 items-center justify-center"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+
+              <MessageBar
+                onSend={sendShout}
+                placeholder="Shout something, or type @ to mention"
+                sendLabel="Post to EchoShout"
+                onMentionTrigger={() => setSelectSearchBar(true)}
+                leading={
+                  <Button
+                    type="button"
+                    variant={selectSearchBar ? "secondary" : "outline"}
+                    size="icon-lg"
+                    aria-label="Mention someone"
+                    aria-expanded={selectSearchBar}
+                    onClick={() => setSelectSearchBar((prev) => !prev)}
+                    className="shrink-0 rounded-xl text-base font-extrabold"
+                  >
+                    @
+                  </Button>
+                }
+              />
+            </div>
+          )}
         </div>
-      )}
+      </section>
+
+      {/* Right rail */}
+      <aside aria-label="About EchoShout" className="hidden min-h-0 flex-col gap-5 lg:flex">
+        <div className="rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Posting as</p>
+          <div className="mt-3 flex items-center gap-3">
+            <Avatar>
+              {!user?.isAnonymous && <AvatarImage src={user?.avatar?.url} />}
+              <AvatarFallback className="bg-secondary text-xs font-bold text-on-color">
+                {user?.isAnonymous ? "?" : user?.username?.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="truncate text-base font-extrabold text-foreground">{identity}</p>
+              <Link href="/profile/edit" className="text-sm font-bold text-nb-link underline underline-offset-2">
+                Change in profile
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-secondary p-4 text-on-color shadow-[var(--nb-shadow-sm)]">
+          <ShoutLines className="absolute -top-4 -left-5 w-10 rotate-[200deg]" />
+          <p className="text-lg font-extrabold leading-tight">How shouting works</p>
+          <ul className="mt-3 space-y-2 text-sm font-semibold">
+            <li className="flex gap-2"><Sparkle className="mt-0.5 w-3.5 shrink-0 [animation:none]" />Everyone signed in sees every shout.</li>
+            <li className="flex gap-2"><Sparkle className="mt-0.5 w-3.5 shrink-0 [animation:none]" />Up to 55 characters per shout.</li>
+            <li className="flex gap-2"><Sparkle className="mt-0.5 w-3.5 shrink-0 [animation:none]" />Type @ to mention someone. They get a heads-up.</li>
+            <li className="flex gap-2"><Sparkle className="mt-0.5 w-3.5 shrink-0 [animation:none]" />Add one image with the paperclip.</li>
+          </ul>
+        </div>
+
+        <div aria-hidden="true" className="relative mt-auto hidden h-28 xl:block">
+          <TypingBubble className="absolute bottom-6 left-6 -rotate-3" />
+          <TypingBubble tone="primary" className="absolute right-10 bottom-14 rotate-2" />
+          <Sparkle className="absolute right-4 bottom-2 w-7" />
+          <Sparkle className="absolute top-0 left-24 w-5" style={{ animationDelay: "1.2s" }} />
+        </div>
+      </aside>
     </div>
   );
 }

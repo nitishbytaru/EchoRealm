@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import PageHeader from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
@@ -70,12 +71,13 @@ export default function FindUsersPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-0.5 border-b-[3px] border-[var(--nb-border-color)] pb-4">
-        <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
-          Find Users
-        </h2>
-        <p className="text-sm text-muted-foreground font-medium mt-1">Discover new connections and expand your circles</p>
-      </div>
+      <PageHeader
+        as="h2"
+        title="Find"
+        sticker="people"
+        stickerFill="bg-primary"
+        description="Search by username, then send a friend request."
+        />
 
       {/* Search Input Bar */}
       <div className="relative max-w-xs">

@@ -13,6 +13,7 @@ import { setUser } from "@/store/slices/auth.slice";
 import { RootState } from "@/store/store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import PageHeader from "@/components/PageHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 
@@ -95,15 +96,11 @@ export default function MyProfileDetailsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-md mx-auto">
-      <div className="space-y-1">
-        <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
-          Profile Details
-        </h2>
-        <p className="text-sm text-muted-foreground font-medium mt-1">Update your account username, email, password, and preferences</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader as="h2" title="Profile details" description="Your picture, username, email, password and privacy." />
 
-      <div className="flex flex-col items-center justify-center space-y-3 py-5 bg-muted/50 border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] rounded-2xl">
+      <div className="grid items-start gap-8 lg:grid-cols-[16rem_minmax(0,1fr)]">
+      <div className="flex flex-col items-center justify-center space-y-3 rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-muted/60 px-4 py-6 shadow-[var(--nb-shadow-sm)] lg:sticky lg:top-24">
         <input
           id="avatarUpload"
           name="avatar"
@@ -115,7 +112,7 @@ export default function MyProfileDetailsPage() {
 
         <div className="relative group">
           <label htmlFor="avatarUpload" aria-label="Choose a new profile picture" className="cursor-pointer block relative has-[:focus-visible]:outline-3">
-            <Avatar className="h-24 w-24" size="lg">
+            <Avatar className="size-24 data-[size=lg]:size-24" size="lg">
               <AvatarImage src={avatarPreview || user?.avatar?.url} className="object-cover" />
               <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-extrabold">
                 {user?.username?.slice(0, 2).toUpperCase() || "ME"}
@@ -129,11 +126,11 @@ export default function MyProfileDetailsPage() {
 
         <div className="text-center">
           <h3 className="text-sm font-bold text-foreground">@{user?.username}</h3>
-          <p className="text-xs text-muted-foreground font-medium">Tap your picture to change it</p>
+          <p className="text-sm text-muted-foreground font-medium">Tap your picture to change it</p>
         </div>
       </div>
 
-      <div className="space-y-5 pt-2">
+      <div className="max-w-xl space-y-5">
         {/* Email */}
         <div className="space-y-2">
           <label htmlFor="profile-updatedEmail" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Email Address</label>
@@ -180,12 +177,12 @@ export default function MyProfileDetailsPage() {
           </div>
         </div>
 
-        <div className="border-t-[3px] border-[var(--nb-border-color)] pt-5 mt-6 space-y-5">
+        <div className="mt-6 grid gap-3">
           {/* Become Anonymous Toggle */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
             <div>
               <h4 className="text-sm font-bold text-foreground">Become Anonymous</h4>
-              <p className="text-xs text-muted-foreground font-medium">Post to EchoShout as anonymous, and start each Mumble as anonymous</p>
+              <p className="text-sm text-muted-foreground font-medium">Post to EchoShout as anonymous, and start each Mumble as anonymous</p>
             </div>
             <Switch
               aria-label="Become Anonymous"
@@ -195,10 +192,10 @@ export default function MyProfileDetailsPage() {
           </div>
 
           {/* Accept Mumbles Toggle */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
             <div>
               <h4 className="text-sm font-bold text-foreground">Accept Mumbles</h4>
-              <p className="text-xs text-muted-foreground font-medium">Let other people send you Mumbles</p>
+              <p className="text-sm text-muted-foreground font-medium">Let other people send you Mumbles</p>
             </div>
             <Switch
               aria-label="Accept Mumbles"
@@ -222,6 +219,7 @@ export default function MyProfileDetailsPage() {
             Save Changes
           </Button>
         </div>
+      </div>
       </div>
     </div>
   );

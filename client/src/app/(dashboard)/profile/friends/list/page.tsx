@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import PageHeader from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "@/hooks/use-toast";
 import Link from "next/link";
@@ -92,15 +93,14 @@ export default function MyFriendsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center border-b-[3px] border-[var(--nb-border-color)] pb-4">
-        <div>
-          <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
-            My Friends
-          </h2>
-          <p className="text-sm text-muted-foreground font-medium mt-1">Manage your active friendships and connections</p>
-        </div>
-        {isPending && <Loader2 className="h-4 w-4 animate-spin text-foreground" />}
-      </div>
+      <PageHeader
+        as="h2"
+        title="Your"
+        sticker="friends"
+        stickerFill="bg-primary"
+        description="The people you chat with and see Mumbles from."
+        action={isPending ? <Loader2 className="h-5 w-5 animate-spin text-foreground" aria-label="Loading" /> : undefined}
+        />
 
       {loadError ? (
         <LoadError what="your friends" onRetry={() => setReloadKey((k) => k + 1)} />

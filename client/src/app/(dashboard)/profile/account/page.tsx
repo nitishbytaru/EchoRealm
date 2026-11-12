@@ -5,7 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { AlertTriangle, Trash2 } from "lucide-react";
+import { AlertTriangle, Trash2, LogOut } from "lucide-react";
+import { useLogout } from "@/hooks/useLogout";
+import PageHeader from "@/components/PageHeader";
 
 import { deleteMyAccountApi } from "@/api/user.api";
 import { setIsLoggedIn, setUser } from "@/store/slices/auth.slice";
@@ -26,6 +28,7 @@ interface DangerAction {
 }
 
 export default function MyAccountPage() {
+  const { logout, isLoggingOut } = useLogout();
   const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
@@ -120,11 +123,21 @@ export default function MyAccountPage() {
   );
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <div>
-        <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Account Settings</h2>
-        <p className="mt-1 text-sm font-medium text-muted-foreground">Clear your data or close your account.</p>
+    <div className="mx-auto max-w-2xl space-y-6">
+      <PageHeader as="h2" title="Settings" description="Sign out, clear your data or close your account." />
+
+      <div className="flex flex-col gap-3 rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-muted p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="text-sm font-bold text-foreground">Log out</h3>
+          <p className="text-sm font-medium text-muted-foreground">Sign out of EchoRealm on this device.</p>
+        </div>
+        <Button variant="outline" onClick={logout} loading={isLoggingOut}>
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+          Log out
+        </Button>
       </div>
+
+      <h3 className="pt-2 text-lg font-extrabold text-foreground">Danger zone</h3>
 
       <div className="flex items-start gap-3 rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-nb-warning p-4 text-on-color">
         <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />

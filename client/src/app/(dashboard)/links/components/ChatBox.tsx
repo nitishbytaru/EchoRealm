@@ -199,8 +199,9 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           )}
 
           {/* Chat area */}
-          <div className="relative min-h-0 flex-1 py-4">
-            <div role="log" aria-label="Messages" aria-live="polite" className="h-full overflow-y-auto pr-2 hide-scrollBar" ref={scrollRef}>
+          <div className="relative -mx-4 min-h-0 flex-1 px-4 py-4">
+            <div aria-hidden="true" className="nb-dotgrid pointer-events-none absolute inset-0 opacity-50" />
+            <div role="log" aria-label="Messages" aria-live="polite" className="relative h-full overflow-y-auto pr-2 hide-scrollBar" ref={scrollRef}>
               {gettingOldMessages && (
                 <div className="flex justify-center p-2">
                   <Loader2 className="h-5 w-5 animate-spin text-primary" />

@@ -88,7 +88,7 @@ function DropdownMenuItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "group/dropdown-menu-item relative flex cursor-default items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium outline-hidden select-none focus:bg-primary/20 focus:text-foreground not-data-[variant=destructive]:focus:**:text-foreground data-inset:pl-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive transition-colors duration-100",
+        "group/dropdown-menu-item relative flex cursor-default items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium outline-hidden select-none focus:bg-primary/20 focus:text-foreground not-data-[variant=destructive]:focus:**:text-foreground data-inset:pl-7 data-[variant=destructive]:text-nb-danger-text data-[variant=destructive]:focus:bg-destructive/15 data-[variant=destructive]:focus:text-nb-danger-text data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-nb-danger-text transition-colors duration-100",
         className
       )}
       {...props}

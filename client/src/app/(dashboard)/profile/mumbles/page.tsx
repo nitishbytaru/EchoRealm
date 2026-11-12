@@ -1,6 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import PageHeader from "@/components/PageHeader";
+import Link from "next/link";
+import MumbleNote from "@/app/(dashboard)/mumbles/components/MumbleNote";
+import { Sparkle } from "@/components/brand/BrandMarks";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "@/hooks/use-toast";
 import { Heart, Pin, MoreVertical, Loader2 } from "lucide-react";
@@ -12,14 +16,14 @@ import {
   removePinnedMumble,
 } from "@/store/slices/echo_mumble.slice";
 import { RootState } from "@/store/store";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MyMumblesPage() {
@@ -66,15 +70,14 @@ export default function MyMumblesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center border-b-[3px] border-[var(--nb-border-color)] pb-4">
-        <div>
-          <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
-            My Pinned Mumbles
-          </h2>
-          <p className="text-sm text-muted-foreground font-medium mt-1">Your favorite whispers and pinned thoughts</p>
-        </div>
-        {isPending && <Loader2 className="h-4 w-4 animate-spin text-foreground" />}
-      </div>
+      <PageHeader
+        as="h2"
+        title="Pinned"
+        sticker="Mumbles"
+        stickerFill="bg-primary"
+        description="Up to 4 notes from your inbox, shown on your public profile."
+        action={isPending ? <Loader2 className="h-5 w-5 animate-spin text-foreground" aria-label="Loading" /> : undefined}
+        />
 
       {isPending && (!pinnedMumblesInMyProfile || pinnedMumblesInMyProfile.length === 0) ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -94,56 +97,57 @@ export default function MyMumblesPage() {
           ))}
         </div>
       ) : pinnedMumblesInMyProfile?.length === 0 ? (
-        <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl min-h-[250px] animate-fade-in">
-          <Pin className="h-6 w-6 text-muted-foreground mb-2 rotate-45" />
-          <p className="text-muted-foreground text-xs font-semibold">No pinned mumbles</p>
-          <p className="text-xs text-muted-foreground mt-2">Pin whispers in your inbox to see them highlighted here.</p>
+        <div className="flex flex-col items-center justify-center py-8">
+          <div className="relative w-full max-w-sm -rotate-1 rounded-2xl border-[3px] border-dashed border-[var(--nb-border-color)] bg-muted/50 p-8 text-center">
+            <Sparkle className="absolute -top-3 -right-3 w-8" />
+            <p className="text-xl font-extrabold text-foreground">Nothing pinned yet</p>
+            <p className="mt-2 text-sm font-medium text-muted-foreground">
+              Open a note in your Mumble inbox and choose Pin to profile.
+            </p>
+            <Link href="/mumbles/read" className={buttonVariants({ className: "mt-5 bg-nb-accent text-on-color" })}>
+              Open inbox
+            </Link>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {pinnedMumblesInMyProfile?.map((mumble: any) => {
-            const hasLikes = mumble?.likes?.length > 0;
+        <ul className="grid grid-cols-1 gap-6 pt-3 sm:grid-cols-2 lg:grid-cols-3">
+          {pinnedMumblesInMyProfile?.map((mumble: any, index: number) => {
+            const likes = mumble?.likes?.length || 0;
             return (
-              <Card key={mumble._id} className="relative overflow-hidden shadow-[var(--nb-shadow-sm)] card-interactive">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs font-semibold text-foreground">
-                      @{mumble?.sender?.username || "anonymous"}
+              <li key={mumble._id}>
+                <MumbleNote
+                  index={index}
+                  isPinned
+                  message={mumble?.message}
+                  sender={mumble?.sender?.username || null}
+                  action={
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button variant="ghost" size="icon-sm" aria-label="Mumble options">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem onClick={() => unpinMumble(mumble._id)}>
+                          <Pin className="h-4 w-4" />
+                          Unpin Mumble
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  }
+                  footer={
+                    <span className="inline-flex items-center gap-1.5 text-sm font-bold text-muted-foreground">
+                      <Heart className={`h-4 w-4 ${likes > 0 ? "fill-nb-danger text-nb-danger-text" : ""}`} aria-hidden="true" />
+                      {likes} {likes === 1 ? "like" : "likes"}
                     </span>
-                  </div>
- 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger render={
-                      <Button variant="ghost" size="icon" aria-label="Mumble options" className="text-muted-foreground hover:text-foreground">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    } />
-                    <DropdownMenuContent className="w-44">
-                      <DropdownMenuItem
-                        onClick={() => unpinMumble(mumble._id)}
-                                              >
-                        <Pin className="h-4 w-4" />
-                        Unpin Mumble
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </CardHeader>
-
-                <CardContent className="px-4 pb-10 pt-2">
-                  <p className="text-sm text-foreground font-medium leading-relaxed whitespace-pre-wrap break-words">
-                    {mumble?.message}
-                  </p>
-                </CardContent>
-
-                {/* Likes indicator at bottom right */}
-                <div className="absolute bottom-4 right-4 flex items-center space-x-2 text-muted-foreground">
-                  <span className="text-xs font-medium">{mumble?.likes?.length || 0}</span>
-                  <Heart className={`h-4 w-4 ${hasLikes ? "fill-nb-danger text-nb-danger-text" : ""}`} />
-                </div>
-              </Card>
+                  }
+                />
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
     </div>
   );
