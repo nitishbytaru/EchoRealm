@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import BusyBadge from "@/components/BusyBadge";
 import PageHeader from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "@/hooks/use-toast";
-import { ShieldX, ShieldAlert, Loader2 } from "lucide-react";
+import { ShieldX, ShieldAlert } from "lucide-react";
 
 import { getBlockedUsersApi, unBlockUserApi } from "@/api/friends.api";
 import { setBlockedUsers, removeFromBlockedUsers } from "@/store/slices/user.slice";
@@ -63,7 +64,7 @@ export default function BlockedUsersPage() {
         sticker="people"
         stickerFill="bg-primary"
         description="They can't message you, Mumble you or find you in search."
-        action={isPending ? <Loader2 className="h-5 w-5 animate-spin text-foreground" aria-label="Loading" /> : undefined}
+        action={isPending ? <BusyBadge /> : undefined}
         />
 
       {loadError ? (

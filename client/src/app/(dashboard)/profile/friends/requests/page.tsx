@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import BusyBadge from "@/components/BusyBadge";
 import PageHeader from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { UserCheck, UserX2, Eye, Loader2, UserPlus2 } from "lucide-react";
+import { UserCheck, UserX2, Eye, UserPlus2 } from "lucide-react";
 
 import {
   fetchMyFriendRequestsApi,
@@ -88,7 +89,7 @@ export default function MyFriendRequestsPage() {
         sticker="requests"
         stickerFill="bg-primary"
         description="People who want to connect with you."
-        action={isPending ? <Loader2 className="h-5 w-5 animate-spin text-foreground" aria-label="Loading" /> : undefined}
+        action={isPending ? <BusyBadge /> : undefined}
         />
 
       {loadError ? (

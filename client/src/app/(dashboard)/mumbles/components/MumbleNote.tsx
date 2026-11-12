@@ -14,6 +14,8 @@ interface MumbleNoteProps {
   avatarUrl?: string | null;
   isUnread?: boolean;
   isPinned?: boolean;
+  /** While a pin or unpin request is in flight. */
+  pinState?: "pinning" | "unpinning";
   /** When the Mumble arrived (ISO string). */
   time?: string;
   likes?: number;
@@ -60,6 +62,7 @@ export default function MumbleNote({
   avatarUrl,
   isUnread = false,
   isPinned = false,
+  pinState,
   time,
   likes = 0,
   index = 0,
@@ -74,20 +77,40 @@ export default function MumbleNote({
   return (
     <article
       className={cn(
-        "nb-note group/note relative rounded-2xl border-[3px] border-[var(--nb-border-color)] px-4 pt-4 pb-3 shadow-[var(--nb-shadow-sm)]",
+        "nb-note group/note relative mt-3 rounded-2xl border-[3px] border-[var(--nb-border-color)] px-4 pt-8 pb-3 shadow-[var(--nb-shadow-sm)]",
         "transition-[rotate,translate,box-shadow] duration-200 hover:-translate-y-1 hover:rotate-0 hover:shadow-[var(--nb-shadow)]",
         TILTS[index % TILTS.length],
         isAnonymous && "border-dashed",
         isUnread ? "bg-nb-accent text-on-color" : "bg-card text-foreground",
-        isPinned && "mt-3 pt-8",
+        pinState && "nb-note-busy",
         className
       )}
     >
-      {isPinned && (
-        <span className="absolute -top-6 left-1/2 -translate-x-1/2" title="Pinned to your profile">
-          <PushPin color={PIN_COLORS[index % PIN_COLORS.length]} className="h-10 w-8" />
-          <span className="sr-only">Pinned</span>
+      {(isPinned || pinState) && (
+        <span className="absolute -top-6 left-1/2 block w-8 -translate-x-1/2" title={isPinned ? "Pinned to your profile" : undefined}>
+          <span
+            className={cn(
+              "block w-8 origin-bottom",
+              pinState === "pinning" && "nb-pin-hover",
+              pinState === "unpinning" && "nb-pin-pullout",
+              !pinState && "nb-pin-drop"
+            )}
+          >
+            <PushPin color={PIN_COLORS[index % PIN_COLORS.length]} className="block h-10 w-8" />
+          </span>
+          {!pinState && <span className="sr-only">Pinned</span>}
         </span>
+      )}
+      {pinState && (
+        <>
+          <span aria-hidden="true" className="nb-pin-target absolute inset-x-0 top-1.5 mx-auto h-1.5 w-6 rounded-full bg-[var(--nb-shadow-color)]" />
+          <span
+            role="status"
+            className="absolute -top-4 right-1/2 mr-6 -rotate-3 whitespace-nowrap rounded-md border-[2px] border-[var(--nb-border-color)] bg-card px-2 py-0.5 text-[0.7rem] font-extrabold uppercase tracking-wide text-foreground shadow-[2px_2px_0_var(--nb-shadow-color)]"
+          >
+            {pinState === "pinning" ? "Pinning…" : "Unpinning…"}
+          </span>
+        </>
       )}
 
       {isUnread && (

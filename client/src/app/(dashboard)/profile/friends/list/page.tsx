@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import BusyBadge from "@/components/BusyBadge";
 import PageHeader from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { Users, UserMinus, ShieldAlert, Loader2, MessageSquare, MoreVertical } from "lucide-react";
+import { Users, UserMinus, ShieldAlert, MessageSquare, MoreVertical } from "lucide-react";
 
 import {
   handleRemoveOrBlockMyFriendApi,
@@ -99,7 +100,7 @@ export default function MyFriendsPage() {
         sticker="friends"
         stickerFill="bg-primary"
         description="The people you chat with and see Mumbles from."
-        action={isPending ? <Loader2 className="h-5 w-5 animate-spin text-foreground" aria-label="Loading" /> : undefined}
+        action={isPending ? <BusyBadge /> : undefined}
         />
 
       {loadError ? (

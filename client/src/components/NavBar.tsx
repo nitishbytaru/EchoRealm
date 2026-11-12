@@ -109,7 +109,7 @@ export const NavBar: React.FC = () => {
                     >
                       <Icon className="h-5 w-5" aria-hidden="true" />
                       <span>{section.label}</span>
-                      {badge && <CountBadge count={badge.count} label={badge.label} className={cn("-top-2 -right-1", badge.className)} />}
+                      {badge && <CountBadge count={badge.count} label={badge.label} className={cn("static rounded-md shadow-[1px_1px_0_var(--nb-shadow-color)]", badge.className)} />}
                     </Link>
                   );
                 })}

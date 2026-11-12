@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import BusyBadge from "@/components/BusyBadge";
 import { useUserAvatars } from "@/hooks/useUserAvatars";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { Pin, Trash2, MessageSquare, ShieldAlert, MoreVertical, Loader2, Send } from "lucide-react";
+import { Pin, Trash2, MessageSquare, ShieldAlert, MoreVertical, Send } from "lucide-react";
 
 import PageHeader from "@/components/PageHeader";
 import MumbleNote from "../components/MumbleNote";
@@ -52,6 +53,7 @@ export default function ListenMumblesPage() {
   );
 
   const [isPending, setIsPending] = useState(false);
+  const [pinBusy, setPinBusy] = useState<{ id: string; state: "pinning" | "unpinning" } | null>(null);
   const [mumbleToDelete, setMumbleToDelete] = useState<any>(null);
   const [senderToBlock, setSenderToBlock] = useState<any>(null);
 
@@ -132,8 +134,8 @@ export default function ListenMumblesPage() {
       toast.error("You can pin up to 4 Mumbles. Unpin one to add another.");
       return;
     }
+    setPinBusy({ id: mumble._id, state: mumble?.pinned ? "unpinning" : "pinning" });
     try {
-      setIsPending(true);
       const response = await pinMumbleApi(mumble._id);
       if (response?.data) {
         dispatch(updateMumbles(response.data.updatedMumble));
@@ -141,9 +143,9 @@ export default function ListenMumblesPage() {
       }
     } catch (error) {
       console.error("Error pinning mumble:", error);
-      toast.error("Failed to pin mumble.");
+      toast.error(mumble?.pinned ? "Couldn't unpin that Mumble." : "Couldn't pin that Mumble.");
     } finally {
-      setIsPending(false);
+      setPinBusy(null);
     }
   };
 
@@ -175,7 +177,7 @@ export default function ListenMumblesPage() {
         as="h2"
         title="Your inbox"
         description="Quiet notes people left for you. New ones are purple until you leave this page."
-        action={isPending && !isLoading ? <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" aria-label="Updating" /> : undefined}
+        action={isPending && !isLoading ? <BusyBadge /> : undefined}
       />
 
       {isLoading ? (
@@ -207,6 +209,7 @@ export default function ListenMumblesPage() {
                   sender={isAnonymous ? null : mumble?.sender?.username}
                   isUnread={mumble.mumbleStatus === "sent"}
                   isPinned={Boolean(mumble?.pinned)}
+                  pinState={pinBusy && pinBusy.id === mumble._id ? pinBusy.state : undefined}
                   avatarUrl={avatars[mumble?.sender?.senderId]}
                   time={mumble?.createdAt || mumble?.updatedAt}
                   likes={mumble?.likes?.length || 0}

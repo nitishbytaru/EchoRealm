@@ -5,7 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { Search, UserPlus, UserCheck, Eye, Loader2 } from "lucide-react";
+import { Search, UserPlus, UserCheck, Eye } from "lucide-react";
 
 import socket from "@/sockets/socket";
 import { sendFriendRequestApi } from "@/api/friends.api";

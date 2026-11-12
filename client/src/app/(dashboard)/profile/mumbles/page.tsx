@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import BusyBadge from "@/components/BusyBadge";
 import { useUserAvatars } from "@/hooks/useUserAvatars";
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
@@ -8,7 +9,7 @@ import MumbleNote from "@/app/(dashboard)/mumbles/components/MumbleNote";
 import { Sparkle } from "@/components/brand/BrandMarks";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "@/hooks/use-toast";
-import { Pin, MoreVertical, Loader2 } from "lucide-react";
+import { Pin, MoreVertical } from "lucide-react";
 
 import { getMumblesApi, pinMumbleApi } from "@/api/echo_mumble.api";
 import {
@@ -31,6 +32,7 @@ export default function MyMumblesPage() {
   const dispatch = useDispatch();
   const { pinnedMumblesInMyProfile } = useSelector((state: RootState) => state.echoMumble);
   const [isPending, setIsPending] = useState(false);
+  const [unpinningId, setUnpinningId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPinnedMumbles = async () => {
@@ -52,8 +54,8 @@ export default function MyMumblesPage() {
   }, [dispatch]);
 
   const unpinMumble = async (mumbleId: string) => {
+    setUnpinningId(mumbleId);
     try {
-      setIsPending(true);
       const response = await pinMumbleApi(mumbleId);
       if (response?.data) {
         const { updatedMumble, message } = response.data;
@@ -63,9 +65,9 @@ export default function MyMumblesPage() {
       }
     } catch (error) {
       console.error("Error unpinning mumble:", error);
-      toast.error("Failed to unpin the mumble.");
+      toast.error("Couldn't unpin that Mumble.");
     } finally {
-      setIsPending(false);
+      setUnpinningId(null);
     }
   };
 
@@ -79,7 +81,7 @@ export default function MyMumblesPage() {
         sticker="Mumbles"
         stickerFill="bg-primary"
         description="Up to 4 notes from your inbox, shown on your public profile."
-        action={isPending ? <Loader2 className="h-5 w-5 animate-spin text-foreground" aria-label="Loading" /> : undefined}
+        action={isPending ? <BusyBadge /> : undefined}
         />
 
       {isPending && (!pinnedMumblesInMyProfile || pinnedMumblesInMyProfile.length === 0) ? (
@@ -121,6 +123,7 @@ export default function MyMumblesPage() {
                 <MumbleNote
                   index={index}
                   isPinned
+                  pinState={unpinningId === mumble._id ? "unpinning" : undefined}
                   message={mumble?.message}
                   sender={mumble?.sender?.senderId ? mumble?.sender?.username : null}
                   avatarUrl={avatars[mumble?.sender?.senderId]}
