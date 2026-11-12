@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Handle from "@/components/Handle";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
@@ -125,7 +126,7 @@ export default function MyProfileDetailsPage() {
         </div>
 
         <div className="text-center">
-          <h3 className="text-sm font-bold text-foreground">@{user?.username}</h3>
+          <h3 className="flex justify-center text-foreground">{user?.username && <Handle name={user.username} size="sm" />}</h3>
           <p className="text-sm text-muted-foreground font-medium">Tap your picture to change it</p>
         </div>
       </div>

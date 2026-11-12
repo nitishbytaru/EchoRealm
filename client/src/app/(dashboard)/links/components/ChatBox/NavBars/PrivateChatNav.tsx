@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Handle from "@/components/Handle";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
@@ -22,6 +23,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -107,7 +109,7 @@ export const PrivateChatNav: React.FC<PrivateChatNavProps> = ({
           </AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="text-lg font-extrabold leading-tight text-foreground">@{selectedChat?.username || "anonymous"}</h3>
+          <h3 className="text-lg leading-tight text-foreground">{selectedChat?.username ? <Handle name={selectedChat.username} size="md" className="text-lg" /> : "Unknown"}</h3>
           <p className="text-sm text-muted-foreground font-medium">Private chat<span className="hidden sm:inline"> · only you two</span></p>
         </div>
       </div>
@@ -127,6 +129,7 @@ export const PrivateChatNav: React.FC<PrivateChatNavProps> = ({
             <Trash2 className="h-4 w-4" />
             Delete Chat
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setConfirming("block")} variant="destructive">
             <ShieldAlert className="h-4 w-4" />
             Block User

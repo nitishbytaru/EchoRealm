@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Handle from "@/components/Handle";
 import { useDispatch, useSelector } from "react-redux";
 import { X, EyeOff } from "lucide-react";
 import moment from "moment";
@@ -339,7 +340,7 @@ export default function EchoShoutPage() {
                     {shouter.name.slice(0, 1).toUpperCase()}
                   </span>
                   <span className="min-w-0 flex-1 truncate text-sm font-bold text-foreground">
-                    {shouter.isMe ? "You" : `@${shouter.name}`}
+                    {shouter.isMe ? "You" : <Handle name={shouter.name} size="sm" />}
                   </span>
                   <time dateTime={shouter.time} className="shrink-0 text-xs font-semibold text-muted-foreground">
                     {moment(shouter.time).fromNow(true)}

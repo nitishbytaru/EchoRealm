@@ -1,10 +1,11 @@
 import React from "react";
+import Handle from "@/components/Handle";
 import moment from "moment";
 import { cn } from "@/lib/utils";
 
-const CHIP_COLORS = ["bg-secondary", "bg-nb-accent", "bg-nb-success", "bg-nb-warning", "bg-destructive"];
-export const chipColor = (name?: string) =>
-  CHIP_COLORS[[...(name || "?")].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % CHIP_COLORS.length];
+import { chipColor } from "@/lib/chipColor";
+
+export { chipColor };
 
 const GROUP_WINDOW_MINUTES = 5;
 
@@ -103,7 +104,7 @@ export const ChatMessage = React.memo(function ChatMessage({
 
       <div className={cn("flex min-w-0 max-w-[80%] flex-col sm:max-w-[65%]", isMe ? "items-end" : "items-start")}>
         {showSender && isFirst && (
-          <span className="mb-1 px-1 text-xs font-bold text-muted-foreground">@{senderName}</span>
+          <Handle name={senderName as string} size="xs" className="mb-1 px-0.5 text-muted-foreground" />
         )}
 
         <div

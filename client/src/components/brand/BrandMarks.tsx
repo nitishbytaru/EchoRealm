@@ -52,3 +52,26 @@ export function TypingBubble({ className, tone = "success" }: { className?: stri
   );
 }
 
+
+/** Mumble's mark: a purple whisper bubble with quiet dots and soft whisper waves. */
+export function MumbleMark({ className }: { className?: string }) {
+  const bubble =
+    "M24 8 H84 A18 18 0 0 1 102 26 V52 A18 18 0 0 1 84 70 H44 L24 86 L28 70 H24 A18 18 0 0 1 6 52 V26 A18 18 0 0 1 24 8 Z";
+  return (
+    <span aria-hidden="true" className={cn("nb-mumble-pop inline-block", className)}>
+    <svg viewBox="0 0 136 96" className="nb-mumble-mark block w-full overflow-visible">
+      <path d={bubble} transform="translate(6 6)" fill="var(--nb-shadow-color)" />
+      <path d={bubble} fill="var(--nb-accent)" stroke="var(--nb-border-color)" strokeWidth="4" strokeLinejoin="round" />
+      <g fill="var(--on-color)">
+        <circle className="mm-dot" cx="36" cy="39" r="6" />
+        <circle className="mm-dot" cx="54" cy="39" r="6" />
+        <circle className="mm-dot" cx="72" cy="39" r="6" />
+      </g>
+      <g className="mm-waves" fill="none" stroke="var(--nb-border-color)" strokeWidth="4" strokeLinecap="round">
+        <path className="mm-wave" d="M112 26 Q120 39 112 52" />
+        <path className="mm-wave" d="M122 18 Q134 39 122 60" />
+      </g>
+    </svg>
+    </span>
+  );
+}

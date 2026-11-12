@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import Handle from "@/components/Handle";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -138,20 +139,20 @@ export const NavBar: React.FC = () => {
                     <AvatarImage src={user?.avatar?.url} />
                     <AvatarFallback className="bg-primary text-[0.7rem] font-bold text-on-color">{initials}</AvatarFallback>
                   </Avatar>
-                  <span className="hidden max-w-32 truncate lg:inline">@{user?.username}</span>
+                  {user?.username && <Handle name={user.username} size="md" className="hidden max-w-36 lg:inline-flex" />}
                   <ChevronDown className="h-4 w-4" aria-hidden="true" />
                   <CountBadge count={badgeOfPendingRequests} label="pending friend requests" className="-top-2 -right-2 bg-nb-warning" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" sideOffset={10} className="w-64">
                   <DropdownMenuGroup>
-                    <DropdownMenuLabel className="flex items-center gap-3 px-2 py-2">
+                    <DropdownMenuLabel className="flex items-center gap-3 px-2 py-2 normal-case tracking-normal text-foreground">
                       <Avatar>
                         <AvatarImage src={user?.avatar?.url} />
                         <AvatarFallback className="bg-primary text-xs font-bold text-on-color">{initials}</AvatarFallback>
                       </Avatar>
                       <span className="min-w-0">
-                        <span className="block truncate text-sm font-extrabold">@{user?.username}</span>
-                        {user?.email && <span className="block truncate text-xs font-medium text-muted-foreground">{user.email}</span>}
+                        {user?.username && <Handle name={user.username} size="md" className="max-w-full" />}
+                        {user?.email && <span className="mt-0.5 block truncate text-xs font-medium text-muted-foreground">{user.email}</span>}
                       </span>
                     </DropdownMenuLabel>
                   </DropdownMenuGroup>

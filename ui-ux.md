@@ -187,17 +187,23 @@ Built from the two logos, which load through Cloudinary's `e_trim` so their empt
 
 Mumbles are treated as small paper notes.
 
-- **Mumble HQ panel:** sticky on the left from 1024px; compact above the content on phones. It contains:
-  - a purple speech bubble with the logo's green typing dots and sparkles;
-  - "Mumble **quietly.**";
-  - stats for new, in inbox, and pinned out of 4, shown only once inbox data is loaded;
-  - an Inbox / Send switch with a sliding purple pill.
-- **Inbox:** notes in a masonry grid with one to three columns. Each note is tilted slightly and straightens when hovered.
-  - New notes are purple with a yellow **New** sticker; read ones are card-colored with a purple strip.
-  - Anonymous notes have a dashed outline and say "Someone".
-  - Pinned notes carry a yellow pin sticker.
+- **Mumble HQ panel:** sticky on the left from 1024px; on phones it sits above the content with a shorter header band.
+  - **Header band:** a light purple band on the dot grid with the **Mumble mark** (a purple whisper bubble in the logo's style, with three quiet dots and two curved whisper waves) and two sparkles.
+  - **Title:** "Mumble **quietly.**" and a one-line description (hidden on phones).
+  - **Stat tiles:** New, In inbox and Pinned (out of 4). Each is a slightly tilted sticker with a colored icon. They show only once there are Mumbles to count.
+  - **Switch:** Inbox / Send, with a sliding purple pill.
+  - **Note:** anonymous Mumbles show as "Anonymous", with a dashed outline.
+  - **On load:** the bubble pops in, the whisper waves draw themselves, the dots start breathing, and the stat tiles drop in one by one.
+  - **On hover:** hovering the card makes the bubble wiggle and the waves ripple outward; hovering a tile lifts and straightens it, and its icon tips. With reduced motion, all of this is off.
+- **Inbox:** notes in a masonry grid with one to three columns. Each note is tilted slightly and straightens and lifts when hovered.
+  - Header: the sender's profile picture, shown large (48px), with their @handle and a compact time ("20m ago", "5h ago", "3d ago"). Mumbles don't include the sender's picture, so the client looks each sender up once with `searchUserByIdApi` and caches it (`hooks/useUserAvatars.ts`); an initial shows only when someone has no picture. Anonymous Mumbles show a dashed-outline avatar with a disguise (hat and glasses) icon and the name "Anonymous". The menu sits on the right.
+  - New notes are purple with a tilted yellow **NEW** stamp on the corner. Read notes are card-colored, with faint ruled lines under the text like notebook paper.
+  - Anonymous notes have a dashed outline and read "Anonymous".
+  - Pinned notes have a drawn pushpin (outlined round head with a highlight and hard shadow, in yellow, red or blue) pressed into the top edge. It wobbles when you hover the note. Pinned Mumbles on Profile use the same notes and pins.
+  - Likes appear under the text when a note has any.
   - Actions (pin, message, delete, block) sit in each note's menu.
-  - The empty state is a tilted dashed note, "It's quiet in here", with a **Send a Mumble** button.
+  - **First load:** the Mumble mark bobs while its dots breathe and its whisper waves ripple, above "Collecting your quiet notes…". The side card's stats stay hidden until there are Mumbles to count.
+  - **Empty state:** a tilted dashed note, "It's quiet in here", with a **Send a Mumble** button.
 - **Send:** the form in one card (recipient search, Send as yourself or Anonymous, message), with a **live preview** beside it that updates as you type and matches the identity you chose.
 
 ### Profile area
@@ -237,6 +243,8 @@ Mumbles are treated as small paper notes.
 | **Feedback** | Toasts for the result of actions; inline errors with **Try again** when a list fails to load |
 | **Composer** | One outlined sticker bar shared by EchoShout and EchoLink, on a muted strip. Inside: the identity button (EchoShout only), the paperclip (turns green once an image is attached), a borderless text field, a counter from 40 characters (red past 55), and a yellow send sticker that stays muted until there's something to send. While you type, the bar lifts with a bigger hard shadow instead of drawing a focus box around the field. An attached image shows as a thumbnail chip above the bar, with its name and a remove button |
 | **Messages** | One layout for EchoShout and EchoLink (`components/chat/ChatMessage.tsx`). Bubbles have a 2px outline, a small hard shadow and 15px text. Messages from the same person within 5 minutes stack tightly; the avatar and @name show once per run, and the time (HH:mm) sits inside the last bubble's corner. A small sticker such as "Today", "Yesterday" or "Tue 11 Nov" separates days. Hovering a time shows the full date |
+| **Usernames** | Every @username uses one plain handle style (`components/Handle.tsx`): a soft gray "@" followed by the name in bold, sized for each place (tiny above chat bubbles, up to large on the Profile banner) |
+| **Menus** | Every three-dot and avatar menu shares one style. Menus open on hover (after about 0.12s) as well as on click or tap, and stay open while the pointer moves into them; they close about 0.2s after it leaves. A menu pops out of its button with a slight overshoot, and its items slide in one after another; it closes with a quick fade and shrink. Each item's icon sits in a small outlined tile; hovering tints the item and nudges it right. Destructive items have red-tinted tiles and sit below a divider. Menus can open with a small header, such as "From @maya" or "From Anonymous" on a Mumble. While a menu is open, its button stays pressed: three dots turn sideways and the avatar chevron flips. With reduced motion, menus just appear |
 | **Toasts** | Sticker cards in the bottom-right corner, or along the top on phones. A tilted badge shows the type: green check "Done!", red warning "That didn't work", yellow bell for anything else. The toast slams in with a slight overshoot, the badge pops in, and error badges shake once. A colored countdown strip runs along the bottom and pauses with the timer on hover or focus. Errors stay 6s and others 4s. Dismissing flicks the toast away, and an identical toast that's already showing isn't added again. With reduced motion, toasts just fade |
 | **Signing in** | Pressed-in button with moving stripes and hopping blocks; with reduced motion, the stripes stop and the blocks blink |
 | **Sending** | Enter sends; the send button shows a spinner. If sending fails, the text and attachment come back with an inline error |

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Handle from "@/components/Handle";
 import { useSelector } from "react-redux";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -109,7 +110,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
           </div>
 
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">@{user?.username}</h1>
+            <h1 className="min-w-0 text-foreground">{user?.username ? <Handle name={user.username} size="xl" className="max-w-full" /> : null}</h1>
             {user?.email && <p className="truncate text-sm font-medium text-muted-foreground">{user.email}</p>}
             <dl className="mt-3 flex flex-wrap gap-2">
               {statChips.map((chip) => (

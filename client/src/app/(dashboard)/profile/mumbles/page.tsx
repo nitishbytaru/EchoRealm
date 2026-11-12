@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useUserAvatars } from "@/hooks/useUserAvatars";
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
 import MumbleNote from "@/app/(dashboard)/mumbles/components/MumbleNote";
 import { Sparkle } from "@/components/brand/BrandMarks";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "@/hooks/use-toast";
-import { Heart, Pin, MoreVertical, Loader2 } from "lucide-react";
+import { Pin, MoreVertical, Loader2 } from "lucide-react";
 
 import { getMumblesApi, pinMumbleApi } from "@/api/echo_mumble.api";
 import {
@@ -68,6 +69,8 @@ export default function MyMumblesPage() {
     }
   };
 
+  const avatars = useUserAvatars((pinnedMumblesInMyProfile || []).map((m: any) => m?.sender?.senderId));
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -119,7 +122,8 @@ export default function MyMumblesPage() {
                   index={index}
                   isPinned
                   message={mumble?.message}
-                  sender={mumble?.sender?.username || null}
+                  sender={mumble?.sender?.senderId ? mumble?.sender?.username : null}
+                  avatarUrl={avatars[mumble?.sender?.senderId]}
                   action={
                     <DropdownMenu>
                       <DropdownMenuTrigger
@@ -137,12 +141,8 @@ export default function MyMumblesPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   }
-                  footer={
-                    <span className="inline-flex items-center gap-1.5 text-sm font-bold text-muted-foreground">
-                      <Heart className={`h-4 w-4 ${likes > 0 ? "fill-nb-danger text-nb-danger-text" : ""}`} aria-hidden="true" />
-                      {likes} {likes === 1 ? "like" : "likes"}
-                    </span>
-                  }
+                  likes={likes}
+                  time={mumble?.createdAt}
                 />
               </li>
             );

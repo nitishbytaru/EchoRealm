@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useUserAvatars } from "@/hooks/useUserAvatars";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
@@ -10,7 +11,7 @@ import { Pin, Trash2, MessageSquare, ShieldAlert, MoreVertical, Loader2, Send } 
 import PageHeader from "@/components/PageHeader";
 import MumbleNote from "../components/MumbleNote";
 import { Sparkle, TypingBubble } from "@/components/brand/BrandMarks";
-import { Skeleton } from "@/components/ui/skeleton";
+import MumbleLoading from "../components/MumbleLoading";
 import {
   deleteMumbleApi,
   getMumblesApi,
@@ -31,7 +32,10 @@ import { RootState } from "@/store/store";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -163,6 +167,7 @@ export default function ListenMumblesPage() {
   };
 
   const isLoading = isPending && Mumbles.length === 0;
+  const avatars = useUserAvatars(Mumbles.map((m: any) => m?.sender?.senderId));
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -174,11 +179,7 @@ export default function ListenMumblesPage() {
       />
 
       {isLoading ? (
-        <div className="columns-1 gap-5 sm:columns-2 xl:columns-3" aria-label="Loading Mumbles">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className={`mb-5 w-full break-inside-avoid rounded-2xl ${i % 3 === 0 ? "h-36" : "h-28"}`} />
-          ))}
-        </div>
+        <MumbleLoading />
       ) : Mumbles.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center py-10">
           <div className="relative w-full max-w-sm -rotate-2 rounded-2xl border-[3px] border-dashed border-[var(--nb-border-color)] bg-card p-8 text-center shadow-[var(--nb-shadow)]">
@@ -195,17 +196,20 @@ export default function ListenMumblesPage() {
           </div>
         </div>
       ) : (
-        <ul className="columns-1 gap-5 pt-2 sm:columns-2 xl:columns-3">
+        <ul className="columns-1 gap-6 pt-4 sm:columns-2 xl:columns-3">
           {Mumbles.map((mumble: any, index: number) => {
             const isAnonymous = !mumble?.sender?.senderId;
             return (
-              <li key={mumble._id} className="nb-sticker-in mb-6 break-inside-avoid" style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}>
+              <li key={mumble._id} className="nb-sticker-in mb-7 break-inside-avoid" style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}>
                 <MumbleNote
                   index={index}
                   message={mumble?.message}
                   sender={isAnonymous ? null : mumble?.sender?.username}
                   isUnread={mumble.mumbleStatus === "sent"}
                   isPinned={Boolean(mumble?.pinned)}
+                  avatarUrl={avatars[mumble?.sender?.senderId]}
+                  time={mumble?.createdAt || mumble?.updatedAt}
+                  likes={mumble?.likes?.length || 0}
                   action={
                     <DropdownMenu>
                       <DropdownMenuTrigger
@@ -215,7 +219,10 @@ export default function ListenMumblesPage() {
                           </Button>
                         }
                       />
-                      <DropdownMenuContent align="end" className="w-52">
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel>{isAnonymous ? "From Anonymous" : `From @${mumble?.sender?.username}`}</DropdownMenuLabel>
+                        </DropdownMenuGroup>
                         <DropdownMenuItem onClick={() => pinMumbleApiFunc(mumble)}>
                           <Pin className="h-4 w-4" />
                           {mumble?.pinned ? "Unpin from profile" : "Pin to profile"}
@@ -226,6 +233,7 @@ export default function ListenMumblesPage() {
                             Message @{mumble?.sender?.username}
                           </DropdownMenuItem>
                         )}
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem variant="destructive" onClick={() => setMumbleToDelete(mumble)}>
                           <Trash2 className="h-4 w-4" />
                           Delete Mumble

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Handle from "@/components/Handle";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
@@ -387,7 +388,7 @@ export const ChatRooms: React.FC = () => {
 
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline gap-2">
-                    <span className="min-w-0 flex-1 truncate text-sm font-extrabold">{name}</span>
+                    <span className="min-w-0 flex-1 truncate text-sm font-extrabold">{receiver?.username ? <Handle name={receiver.username} size="sm" className="max-w-full" /> : name}</span>
                     {latest?.updatedAt && (
                       <time
                         dateTime={latest.updatedAt}
