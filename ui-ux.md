@@ -42,10 +42,10 @@ Tokens are defined in `client/src/app/globals.css`.
 
 | Token | Light | Dark | Used for |
 |---|---|---|---|
-| `--background` | `#FFF9F0` | `#0B0B0B` | Page |
-| `--card` | `#FFFFFF` | `#171717` | Panels |
+| `--background` | `#F2EADB` | `#0B0B0B` | Page |
+| `--card` | `#FFFCF5` | `#171717` | Panels |
 | `--foreground` | `#111111` | `#FFF6E8` | Text |
-| `--muted` | `#F0EBE3` | `#232323` | Quiet surfaces, hover |
+| `--muted` | `#E6DCCB` | `#232323` | Quiet surfaces, hover |
 | `--muted-foreground` | `#555555` | `#B3ADA4` | Secondary text |
 | `--primary` | `#FFD43B` | `#FFD43B` | Main actions, your own messages, EchoLink active state |
 | `--secondary` | `#4D96FF` | `#4D96FF` | EchoShout active state, unread indicators |
@@ -60,7 +60,7 @@ Tokens are defined in `client/src/app/globals.css`.
 | `--nb-border-color` | `#000000` | `#FFF1DC` | Outlines |
 | `--nb-shadow-color` | `#000000` | `#FFD43B` | Shadows |
 
-Text never sits directly on the saturated fills. It uses `--on-color` (dark) there, and colored text uses the `-text` variants, which pass 4.5:1 on cards. Dark mode is "true black": a deep neutral black page with warm cream text and outlines, taken from the logo's sticker plate, and a thin brand-yellow hard shadow. Dark-mode shadows are smaller than light-mode ones (4px default, 3px small, 5px large, 1px pressed) so the yellow doesn't overwhelm the page. Both themes set `color-scheme`, so native scrollbars, autofill and form controls match.
+Text never sits directly on the saturated fills. It uses `--on-color` (dark) there, and colored text uses the `-text` variants, which pass 4.5:1 on cards. Light mode is "paper": a warm paper page with off-white cards, so white never fills the screen and the brand colors read as stickers on paper. Dark mode is "true black": a deep neutral black page with warm cream text and outlines, taken from the logo's sticker plate, and a thin brand-yellow hard shadow. Dark-mode shadows are smaller than light-mode ones (4px default, 3px small, 5px large, 1px pressed) so the yellow doesn't overwhelm the page. Both themes set `color-scheme`, so native scrollbars, autofill and form controls match.
 
 ### Typography
 
@@ -198,6 +198,7 @@ A sidebar with your avatar, name, email and seven links, plus a red **Log out** 
 | **List load** | Skeleton cards that match the final layout |
 | **Small waits** | Spinner in the header or in place of the composer |
 | **Feedback** | Toasts for the result of actions; inline errors with **Try again** when a list fails to load |
+| **Toasts** | Sticker cards in the bottom-right corner, or along the top on phones. A tilted badge shows the type: green check "Done!", red warning "That didn't work", yellow bell for anything else. The toast slams in with a slight overshoot, the badge pops in, and error badges shake once. A colored countdown strip runs along the bottom and pauses with the timer on hover or focus. Errors stay 6s and others 4s. Dismissing flicks the toast away, and an identical toast that's already showing isn't added again. With reduced motion, toasts just fade |
 | **Signing in** | Pressed-in button with moving stripes and hopping blocks; with reduced motion, the stripes stop and the blocks blink |
 | **Sending** | Enter sends; the send button shows a spinner. If sending fails, the text and attachment come back with an inline error |
 | **Character limit** | Counter turns red past 55 and send disables |
@@ -242,6 +243,10 @@ The detector found **0 anti-patterns** on the rendered sign-in page at both size
 ### Dark theme rework
 
 The old dark theme used Material Design's neutral gray (`#121212` page, `#1E1E1E` cards). Cards barely separated from the page (1.12:1), stark white outlines did all the work, and shadows were a muddy gray (`#5F5F5F`). It read as a white wireframe and didn't match the warm, colorful brand. It now uses deep black, cream outlines and text, and a thin yellow shadow. Every text token passes 4.5:1 on the page, card and muted surfaces (secondary text is the lowest at 7.1:1). The destructive toast and the online badge now use dark text on color instead of white, which failed contrast.
+
+### Light theme glare
+
+The light page was near-white cream (`#FFF9F0`) with pure white cards, so bright white filled most of the screen and washed out the pastel brand colors. The page is now warm paper (`#F2EADB`) with off-white cards (`#FFFCF5`) and a deeper muted tone (`#E6DCCB`). Secondary text stays above 4.5:1 everywhere (lowest: 5.2:1 on muted).
 
 ### Already fixed before this pass
 

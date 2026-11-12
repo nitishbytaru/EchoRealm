@@ -8,7 +8,10 @@ import type {
 } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 5
-const TOAST_REMOVE_DELAY = 1000000
+// Time to keep a dismissed toast mounted so its exit animation can finish.
+const TOAST_REMOVE_DELAY = 1000
+const DEFAULT_DURATION = 4000
+const ERROR_DURATION = 6000
 
 export type ActionObject = {
   label: string
@@ -145,15 +148,31 @@ function dispatch(action: Action) {
 interface ToastOptions {
   title?: React.ReactNode
   description?: React.ReactNode
-  variant?: "default" | "destructive"
+  variant?: "default" | "success" | "destructive"
   duration?: number
   action?: ToastActionElement | ActionObject
 }
 
 export function toast(props: string | ToastOptions, options?: ToastOptions) {
-  const id = genId()
-
   const toastProps = typeof props === "string" ? { description: props, ...options } : props
+
+  // Don't stack an identical toast on top of one that's already showing.
+  const existing = memoryState.toasts.find(
+    (t) =>
+      t.open !== false &&
+      t.variant === toastProps.variant &&
+      typeof toastProps.description === "string" &&
+      t.description === toastProps.description
+  )
+  if (existing) {
+    return {
+      id: existing.id,
+      dismiss: () => dispatch({ type: "DISMISS_TOAST", toastId: existing.id }),
+      update: (next: ToasterToast) => dispatch({ type: "UPDATE_TOAST", toast: { ...next, id: existing.id } }),
+    }
+  }
+
+  const id = genId()
 
   const update = (props: ToasterToast) =>
     dispatch({
@@ -167,18 +186,14 @@ export function toast(props: string | ToastOptions, options?: ToastOptions) {
     toast: {
       ...toastProps,
       id,
+      // Radix runs the timer, pausing it while the toast is hovered or focused.
+      duration: toastProps.duration ?? (toastProps.variant === "destructive" ? ERROR_DURATION : DEFAULT_DURATION),
       open: true,
       onOpenChange: (open) => {
         if (!open) dismiss()
       },
     },
   })
-
-  // Auto dismiss support
-  const duration = toastProps.duration || 4000
-  setTimeout(() => {
-    dismiss()
-  }, duration)
 
   return {
     id,
@@ -189,14 +204,15 @@ export function toast(props: string | ToastOptions, options?: ToastOptions) {
 
 toast.success = (message: string) => {
   return toast({
+    title: "Done!",
     description: message,
-    variant: "default",
+    variant: "success",
   })
 }
 
 toast.error = (message: string) => {
   return toast({
-    title: "Error",
+    title: "That didn't work",
     description: message,
     variant: "destructive",
   })

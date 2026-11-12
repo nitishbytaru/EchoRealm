@@ -61,19 +61,21 @@
 }
 
 :root {
-  /* ─── Neo-Brutalism Light Theme ─── */
+  /* ─── Neo-Brutalism Light Theme: "paper" ───
+     Warm paper page with off-white cards, so white never dominates
+     and the brand fills read as stickers on paper. */
   color-scheme: light;
-  --background: #FFF9F0;
+  --background: #F2EADB;
   --foreground: #111111;
-  --card: #FFFFFF;
+  --card: #FFFCF5;
   --card-foreground: #111111;
-  --popover: #FFFFFF;
+  --popover: #FFFCF5;
   --popover-foreground: #111111;
   --primary: #FFD43B;
   --primary-foreground: #111111;
   --secondary: #4D96FF;
   --secondary-foreground: #111111;
-  --muted: #F0EBE3;
+  --muted: #E6DCCB;
   --muted-foreground: #555555;
   --accent: #B983FF;
   --accent-foreground: #111111;
@@ -87,11 +89,11 @@
   --chart-4: #FF6B6B;
   --chart-5: #B983FF;
   --radius: 1rem;
-  --sidebar: #FFFFFF;
+  --sidebar: #FFFCF5;
   --sidebar-foreground: #111111;
   --sidebar-primary: #FFD43B;
   --sidebar-primary-foreground: #111111;
-  --sidebar-accent: #F0EBE3;
+  --sidebar-accent: #E6DCCB;
   --sidebar-accent-foreground: #111111;
   --sidebar-border: #000000;
   --sidebar-ring: #FFD43B;
@@ -775,6 +777,84 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ─── Toasts: stickers slapped onto the corner ─── */
+
+.nb-toast[data-state="open"] {
+  animation: toastSlapIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.nb-toast[data-state="closed"] {
+  animation: toastFlickOut 0.28s cubic-bezier(0.55, 0, 1, 0.45) both;
+}
+.nb-toast[data-swipe="end"] {
+  animation: toastSwipeOut 0.2s ease-out both;
+}
+
+.nb-toast-badge {
+  rotate: -6deg;
+  animation: toastBadgePop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.18s both;
+}
+.nb-toast[data-variant="destructive"] .nb-toast-badge {
+  animation: toastBadgePop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.18s both,
+             toastShake 0.4s ease-in-out 0.6s;
+}
+
+/* Countdown strip; pauses with Radix's timer while the toasts are hovered or focused. */
+.nb-toast-timer {
+  transform-origin: left center;
+  animation-name: toastTimer;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+.nb-toast-viewport:hover .nb-toast-timer,
+.nb-toast-viewport:focus-within .nb-toast-timer {
+  animation-play-state: paused;
+}
+
+@keyframes toastSlapIn {
+  0% { opacity: 0; transform: translateX(115%) rotate(9deg); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: translateX(0) rotate(0deg); }
+}
+
+@keyframes toastFlickOut {
+  to { opacity: 0; transform: translateX(60%) rotate(8deg) scale(0.92); }
+}
+
+@keyframes toastSwipeOut {
+  from { transform: translateX(var(--radix-toast-swipe-end-x)); }
+  to { opacity: 0; transform: translateX(120%); }
+}
+
+@keyframes toastBadgePop {
+  0% { transform: scale(0) rotate(-40deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes toastShake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -4px 0; }
+  40% { translate: 4px 0; }
+  60% { translate: -3px 0; }
+  80% { translate: 2px 0; }
+}
+
+@keyframes toastTimer {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* Phones: toasts sit at the top, so they drop down instead. */
+@media (max-width: 639px) {
+  @keyframes toastSlapIn {
+    0% { opacity: 0; transform: translateY(-120%) rotate(-4deg); }
+    60% { opacity: 1; }
+    100% { opacity: 1; transform: translateY(0) rotate(0deg); }
+  }
+  @keyframes toastFlickOut {
+    to { opacity: 0; transform: translateY(-80%) rotate(-4deg) scale(0.94); }
+  }
+}
+
 /*
  * Reduced motion: keep every state change visible, but drop travel,
  * overshoot and bounce. Entrances become plain fades, press feedback is
@@ -847,6 +927,18 @@
 
   .auth-mark-pop {
     transform: rotate(8deg);
+  }
+
+  .nb-toast[data-state="open"],
+  .nb-toast[data-state="closed"],
+  .nb-toast[data-swipe="end"] {
+    animation: fadeIn 0.2s ease-out both !important;
+  }
+  .nb-toast[data-state="closed"] {
+    animation-direction: reverse !important;
+  }
+  .nb-toast-badge {
+    animation: none !important;
   }
 
   .auth-tab-pill,
