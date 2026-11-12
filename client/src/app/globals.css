@@ -427,135 +427,6 @@
   animation-delay: 0.3s;
 }
 
-/* ─── Neo-Brutalism Spinner ─── */
-
-.spinner {
-  font-size: 28px;
-  position: relative;
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-}
-
-.spinner .spinner-blade {
-  position: absolute;
-  left: 0.4629em;
-  bottom: 0;
-  width: 0.074em;
-  height: 0.2777em;
-  border-radius: 0.0555em;
-  background-color: transparent;
-  -webkit-transform-origin: center -0.2222em;
-  -ms-transform-origin: center -0.2222em;
-  transform-origin: center -0.2222em;
-  animation: spinner-fade9234 1s infinite linear;
-}
-
-.spinner .spinner-blade:nth-child(1) {
-  -webkit-animation-delay: 0s;
-  animation-delay: 0s;
-  -webkit-transform: rotate(0deg);
-  -ms-transform: rotate(0deg);
-  transform: rotate(0deg);
-}
-
-.spinner .spinner-blade:nth-child(2) {
-  -webkit-animation-delay: 0.083s;
-  animation-delay: 0.083s;
-  -webkit-transform: rotate(30deg);
-  -ms-transform: rotate(30deg);
-  transform: rotate(30deg);
-}
-
-.spinner .spinner-blade:nth-child(3) {
-  -webkit-animation-delay: 0.166s;
-  animation-delay: 0.166s;
-  -webkit-transform: rotate(60deg);
-  -ms-transform: rotate(60deg);
-  transform: rotate(60deg);
-}
-
-.spinner .spinner-blade:nth-child(4) {
-  -webkit-animation-delay: 0.249s;
-  animation-delay: 0.249s;
-  -webkit-transform: rotate(90deg);
-  -ms-transform: rotate(90deg);
-  transform: rotate(90deg);
-}
-
-.spinner .spinner-blade:nth-child(5) {
-  -webkit-animation-delay: 0.332s;
-  animation-delay: 0.332s;
-  -webkit-transform: rotate(120deg);
-  -ms-transform: rotate(120deg);
-  transform: rotate(120deg);
-}
-
-.spinner .spinner-blade:nth-child(6) {
-  -webkit-animation-delay: 0.415s;
-  animation-delay: 0.415s;
-  -webkit-transform: rotate(150deg);
-  -ms-transform: rotate(150deg);
-  transform: rotate(150deg);
-}
-
-.spinner .spinner-blade:nth-child(7) {
-  -webkit-animation-delay: 0.498s;
-  animation-delay: 0.498s;
-  -webkit-transform: rotate(180deg);
-  -ms-transform: rotate(180deg);
-  transform: rotate(180deg);
-}
-
-.spinner .spinner-blade:nth-child(8) {
-  -webkit-animation-delay: 0.581s;
-  animation-delay: 0.581s;
-  -webkit-transform: rotate(210deg);
-  -ms-transform: rotate(210deg);
-  transform: rotate(210deg);
-}
-
-.spinner .spinner-blade:nth-child(9) {
-  -webkit-animation-delay: 0.664s;
-  animation-delay: 0.664s;
-  -webkit-transform: rotate(240deg);
-  -ms-transform: rotate(240deg);
-  transform: rotate(240deg);
-}
-
-.spinner .spinner-blade:nth-child(10) {
-  -webkit-animation-delay: 0.747s;
-  animation-delay: 0.747s;
-  -webkit-transform: rotate(270deg);
-  -ms-transform: rotate(270deg);
-  transform: rotate(270deg);
-}
-
-.spinner .spinner-blade:nth-child(11) {
-  -webkit-animation-delay: 0.83s;
-  animation-delay: 0.83s;
-  -webkit-transform: rotate(300deg);
-  -ms-transform: rotate(300deg);
-  transform: rotate(300deg);
-}
-
-.spinner .spinner-blade:nth-child(12) {
-  -webkit-animation-delay: 0.913s;
-  animation-delay: 0.913s;
-  -webkit-transform: rotate(330deg);
-  -ms-transform: rotate(330deg);
-  transform: rotate(330deg);
-}
-
-@keyframes spinner-fade9234 {
-  0% {
-    background-color: var(--nb-border-color);
-  }
-  100% {
-    background-color: transparent;
-  }
-}
-
 /* ─── Browser surfaces and accessibility ─── */
 
 :focus-visible {
@@ -676,6 +547,92 @@
   0%, 100% { rotate: -6deg; }
   30% { rotate: 6deg; }
   60% { rotate: -10deg; }
+}
+
+/* ─── Composer: one sticker bar that lifts while you are typing ─── */
+
+.nb-composer {
+  box-shadow: 2px 2px 0 var(--nb-shadow-color);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nb-composer:focus-within {
+  transform: translateY(-2px);
+  box-shadow: var(--nb-shadow-sm);
+}
+/* The bar's lift and bigger shadow show focus, so the text field inside draws no outline of its own. */
+.nb-composer .nb-composer-input:focus,
+.nb-composer .nb-composer-input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.nb-send {
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background-color 0.2s ease;
+}
+.nb-send:not(:disabled):hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--nb-shadow);
+}
+.nb-send:not(:disabled):active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--nb-shadow-active);
+}
+
+/* ─── Hover card that wipes open from left to right (EchoShout identity) ─── */
+
+.nb-reveal-x {
+  opacity: 0;
+  transform: translateX(-6px);
+  /* Fully clipped from the right; the negative insets leave room for the hard shadow once open. */
+  clip-path: inset(0 100% 0 0 round 0.75rem);
+  transition:
+    clip-path 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.12s ease-out;
+}
+.group\/identity:hover .nb-reveal-x,
+.group\/identity:focus-within .nb-reveal-x {
+  opacity: 1;
+  transform: translateX(0);
+  clip-path: inset(0 -8px -8px 0 round 0.75rem);
+}
+
+/* ─── Loading ghosts (EchoShout first load: ghost messages + shimmer) ─── */
+
+.nb-ghost {
+  position: relative;
+  overflow: hidden;
+  background: var(--muted);
+  border: 2px dashed color-mix(in srgb, var(--nb-border-color) 35%, transparent);
+}
+.nb-ghost--me {
+  background: color-mix(in srgb, var(--primary) 40%, var(--card));
+}
+.nb-ghost::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--card) 75%, transparent) 50%, transparent 80%);
+  transform: translateX(-100%);
+  animation: nbShimmer 1.5s ease-in-out infinite;
+}
+.nb-ghost-row {
+  animation: nbGhostIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.nb-older-in {
+  animation: nbOlderIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes nbOlderIn {
+  from { opacity: 0; transform: translateY(-10px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes nbShimmer {
+  to { transform: translateX(100%); }
+}
+@keyframes nbGhostIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── Sign-in page: logo stage and decoration ─── */
@@ -973,6 +930,27 @@
   }
   .nb-toast-badge {
     animation: none !important;
+  }
+
+  .nb-ghost::after {
+    animation: none;
+  }
+  .nb-ghost-row {
+    animation-name: fadeIn;
+  }
+  .nb-older-in {
+    animation-name: fadeIn;
+  }
+  .nb-composer:focus-within,
+  .nb-send:not(:disabled):hover,
+  .nb-send:not(:disabled):active {
+    transform: none;
+  }
+
+  .nb-reveal-x {
+    transform: none;
+    clip-path: none;
+    transition: opacity 0.15s ease-out;
   }
 
   .nb-pill,

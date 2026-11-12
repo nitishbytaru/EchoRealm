@@ -170,18 +170,18 @@ Built from the two logos, which load through Cloudinary's `e_trim` so their empt
 ### Conversation (`/links/[id]`)
 
 - A header with avatar, a larger @name, "Private chat · only you two", and a three-dot menu.
-- Messages sit on a faint dot grid. Yours are yellow on the right and theirs are card-colored on the left, each with a small hard shadow and a relative time under it.
+- Messages sit on a faint dot grid and use the shared message layout (see Interaction patterns). Group chats show each sender's avatar and name; one-to-one chats don't.
 - The composer (attach, text field, character counter, send) stays pinned to the bottom.
 
 ### EchoShout (`/shout`)
 
-- **Header:** "Everyone hears **this.**", with "this." on a blue sticker.
+- **Header:** "Everyone hears **this.**", with "this." on a blue sticker. It sits in the right rail on desktop, so the feed takes the full height.
 - **Feed:** one outlined card whose log scrolls on its own, while the composer stays pinned to the card's bottom edge.
-  - Posts are chat-sized stickers: 15px text with a small header line (initial chip, @name, time), the same size as EchoLink messages. Others' posts sit left on the card color; yours sit right in yellow, labelled "You", with a slight tilt.
+  - Posts use the shared message layout (see Interaction patterns): yours on the right in yellow, others on the left with an initial avatar and @name.
   - Mentions show in blue.
-- **Composer:** typing `@` at the start of a word, or pressing **@**, opens a user search (Escape closes it). Chosen mentions appear as removable chips. On phones a "Posting as" line sits above the composer.
-- **Right rail (1024px and up):** a "Posting as" card with a link to change it, and a blue "How shouting works" card covering who sees shouts, the 55-character limit, mentions and images, with the logo's typing bubbles and sparkles below.
-- Skeleton bubbles show while loading.
+- **Composer:** typing `@` at the start of a word opens a "Mention someone" search above the composer. Close it with its × button or Escape. There is no separate @ button. Chosen mentions appear as removable chips above the input. Left of the paperclip, a small identity button shows your avatar (or a mask when posting anonymously). Hovering or focusing it wipes a card open from left to right reading "Posting as @you" and "Click to change in your profile"; clicking opens Edit Profile. With reduced motion, the card just fades in.
+- **Right rail (1024px and up):** the page title "Everyone hears **this.**" with its one-line description sits at the top (on phones it stays above the feed instead), then a blue "How shouting works" card (who sees shouts, the 55-character limit, mentions, images), then "Loud **lately**": the last five people who shouted, each with an initial chip and how long ago, built from the loaded messages and hidden when the feed is empty. The logo's typing bubbles and sparkles sit below.
+- **First load:** ghost messages laid out like the real feed (dashed outlines, an avatar and name on the left, yellow-tinted bubbles on the right) slide in one after another with a soft shimmer, above the logo's typing bubble and "Tuning in to the room…". Screen readers hear "Loading EchoShout". With reduced motion, the ghosts just fade in and the shimmer stops.
 
 ### EchoMumble (`/mumbles/*`)
 
@@ -235,13 +235,15 @@ Mumbles are treated as small paper notes.
 | **List load** | Skeleton cards that match the final layout |
 | **Small waits** | Spinner in the header or in place of the composer |
 | **Feedback** | Toasts for the result of actions; inline errors with **Try again** when a list fails to load |
+| **Composer** | One outlined sticker bar shared by EchoShout and EchoLink, on a muted strip. Inside: the identity button (EchoShout only), the paperclip (turns green once an image is attached), a borderless text field, a counter from 40 characters (red past 55), and a yellow send sticker that stays muted until there's something to send. While you type, the bar lifts with a bigger hard shadow instead of drawing a focus box around the field. An attached image shows as a thumbnail chip above the bar, with its name and a remove button |
+| **Messages** | One layout for EchoShout and EchoLink (`components/chat/ChatMessage.tsx`). Bubbles have a 2px outline, a small hard shadow and 15px text. Messages from the same person within 5 minutes stack tightly; the avatar and @name show once per run, and the time (HH:mm) sits inside the last bubble's corner. A small sticker such as "Today", "Yesterday" or "Tue 11 Nov" separates days. Hovering a time shows the full date |
 | **Toasts** | Sticker cards in the bottom-right corner, or along the top on phones. A tilted badge shows the type: green check "Done!", red warning "That didn't work", yellow bell for anything else. The toast slams in with a slight overshoot, the badge pops in, and error badges shake once. A colored countdown strip runs along the bottom and pauses with the timer on hover or focus. Errors stay 6s and others 4s. Dismissing flicks the toast away, and an identical toast that's already showing isn't added again. With reduced motion, toasts just fade |
 | **Signing in** | Pressed-in button with moving stripes and hopping blocks; with reduced motion, the stripes stop and the blocks blink |
 | **Sending** | Enter sends; the send button shows a spinner. If sending fails, the text and attachment come back with an inline error |
 | **Character limit** | Counter turns red past 55 and send disables |
 | **Search** | Results appear after a 400ms pause |
 | **Attachments** | Green dot on the paperclip; the placeholder shows the file name |
-| **Scrolling** | Jumps to the newest message; scrolling to the top of EchoShout loads older posts |
+| **Scrolling** | Jumps to the newest message. Scrolling to the top of EchoShout or a conversation loads older messages; while they load, a small outlined pill with the logo's yellow typing dots sits pinned at the top of the log ("Digging up older shouts…" or "Loading earlier messages…") |
 | **Destructive actions** | Confirmation dialogs that say who is affected: clearing or deleting chats, leaving groups, unfriending, blocking, deleting Mumbles and Account Settings actions |
 | **Theme** | Dark by default, saved per browser |
 

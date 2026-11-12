@@ -12,7 +12,7 @@ export default function LinksPage() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className="h-app w-full flex overflow-hidden">
+    <div className="h-app w-full flex">
       {/* Grid Layout */}
       <div className="grid h-full w-full grid-cols-1 gap-5 md:grid-cols-[19rem_minmax(0,1fr)] lg:grid-cols-[22rem_minmax(0,1fr)]">
         {/* Left Side: Chat Rooms List */}

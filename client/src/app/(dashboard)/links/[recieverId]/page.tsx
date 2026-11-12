@@ -17,7 +17,7 @@ export default function LinkDetailPage({ params }: PageProps) {
   const [gettingOldMessages, setGettingOldMessages] = useState(false);
 
   return (
-    <div className="h-app w-full flex overflow-hidden">
+    <div className="h-app w-full flex">
       {/* Grid Layout */}
       <div className="grid h-full w-full grid-cols-1 gap-5 md:grid-cols-[19rem_minmax(0,1fr)] lg:grid-cols-[22rem_minmax(0,1fr)]">
         {/* Left Side: Chat Rooms List */}
@@ -26,7 +26,7 @@ export default function LinkDetailPage({ params }: PageProps) {
         </div>
 
         {/* Right Side: Chat Box */}
-        <div className="bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-4 overflow-hidden flex flex-col justify-between">
+        <div className="bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl overflow-hidden flex flex-col">
           <ChatBox
             scrollRef={scrollRef}
             shouldScrollToBottom={shouldScrollToBottom}

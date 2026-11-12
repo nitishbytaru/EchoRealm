@@ -2,7 +2,9 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { X } from "lucide-react";
+import { X, EyeOff } from "lucide-react";
+import moment from "moment";
+import { chipColor } from "@/components/chat/ChatMessage";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
 
@@ -20,10 +22,9 @@ import {
   setPaginationDetails,
 } from "@/store/slices/echo_shout.slice";
 import { RootState } from "@/store/store";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
+import ShoutLoading from "./components/ShoutLoading";
 import PageHeader from "@/components/PageHeader";
 import { ShoutLines, Sparkle, TypingBubble } from "@/components/brand/BrandMarks";
 
@@ -144,7 +145,15 @@ export default function EchoShoutPage() {
     };
   }, [pagination, dispatch, messages]);
 
-  const identity = user?.isAnonymous ? "anonymous" : `@${user?.username}`;
+  const identityLabel = user?.isAnonymous ? "Posting anonymously" : `Posting as @${user?.username}`;
+
+  // Last few distinct people who shouted, from the messages already loaded.
+  const recentShouters: { name: string; time: string; isMe: boolean }[] = [];
+  for (const msg of [...(messages || [])].reverse()) {
+    if (!msg?.sender || recentShouters.some((s) => s.name === msg.sender)) continue;
+    recentShouters.push({ name: msg.sender, time: msg.updatedAt, isMe: msg.sender === user?.username });
+    if (recentShouters.length === 5) break;
+  }
 
   return (
     <div className="grid h-app grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_19rem]">
@@ -155,18 +164,12 @@ export default function EchoShoutPage() {
           sticker="this."
           stickerFill="bg-secondary"
           description="One room for everybody. Keep it short and loud."
-          className="mb-4 [&_h1]:text-2xl sm:[&_h1]:text-3xl"
+          className="mb-4 lg:hidden [&_h1]:text-2xl sm:[&_h1]:text-3xl"
         />
 
-        <div className="relative flex min-h-0 flex-1 flex-col rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">
           {isFetching ? (
-            <div className="flex flex-1 flex-col justify-end gap-4 overflow-hidden p-4">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className={`flex w-full ${i % 2 ? "justify-end" : "justify-start"}`}>
-                  <Skeleton className="h-16 w-2/3 rounded-2xl sm:w-1/2" />
-                </div>
-              ))}
-            </div>
+            <ShoutLoading />
           ) : (
             <ChatHistoryBox
               shoutScrollRef={shoutScrollRef}
@@ -178,12 +181,25 @@ export default function EchoShoutPage() {
 
           {/* Composer dock: always pinned to the bottom of the feed */}
           {isLoggedIn && (
-            <div className="relative z-20 rounded-b-[13px] border-t-[3px] border-[var(--nb-border-color)] bg-card p-3 sm:p-4">
+            <div className="relative z-20 shrink-0 border-t-[3px] border-[var(--nb-border-color)] bg-muted/60 px-4 pt-3 pb-4">
               {selectSearchBar && (
                 <div className="absolute right-3 bottom-full left-3 z-30 mx-auto mb-3 max-w-sm rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card p-3 shadow-[var(--nb-shadow)]">
-                  <label htmlFor="mention-search" className="mb-2 block text-sm font-bold text-foreground">
-                    Mention someone
-                  </label>
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <label htmlFor="mention-search" className="text-sm font-bold text-foreground">
+                      Mention someone
+                    </label>
+                    <button
+                      type="button"
+                      aria-label="Close mention search"
+                      onClick={() => {
+                        setSelectSearchBar(false);
+                        search.clear();
+                      }}
+                      className="flex size-8 items-center justify-center rounded-lg border-[2px] border-transparent text-muted-foreground transition-colors hover:border-[var(--nb-border-color)] hover:bg-muted hover:text-foreground"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
                   <Input
                     id="mention-search"
                     type="text"
@@ -192,7 +208,10 @@ export default function EchoShoutPage() {
                     value={search.value}
                     onChange={search.changeHandler}
                     onKeyDown={(e) => {
-                      if (e.key === "Escape") setSelectSearchBar(false);
+                      if (e.key === "Escape") {
+                        setSelectSearchBar(false);
+                        search.clear();
+                      }
                     }}
                     className="text-base md:text-sm"
                   />
@@ -223,13 +242,8 @@ export default function EchoShoutPage() {
                 </div>
               )}
 
-              <div className={`mb-2 flex flex-wrap items-center gap-2 ${mentions.length ? "" : "lg:hidden"}`}>
-                <p className="text-sm font-bold text-muted-foreground lg:hidden">
-                  Posting as {identity}{" "}
-                  <Link href="/profile/edit" className="underline underline-offset-2 hover:text-foreground">
-                    Change
-                  </Link>
-                </p>
+              {mentions.length > 0 && (
+              <div className="mb-2.5 flex flex-wrap items-center gap-2">
                 {mentions.map((mention) => (
                   <span
                     key={mention._id}
@@ -247,6 +261,7 @@ export default function EchoShoutPage() {
                   </span>
                 ))}
               </div>
+              )}
 
               <MessageBar
                 onSend={sendShout}
@@ -254,17 +269,33 @@ export default function EchoShoutPage() {
                 sendLabel="Post to EchoShout"
                 onMentionTrigger={() => setSelectSearchBar(true)}
                 leading={
-                  <Button
-                    type="button"
-                    variant={selectSearchBar ? "secondary" : "outline"}
-                    size="icon-lg"
-                    aria-label="Mention someone"
-                    aria-expanded={selectSearchBar}
-                    onClick={() => setSelectSearchBar((prev) => !prev)}
-                    className="shrink-0 rounded-xl text-base font-extrabold"
-                  >
-                    @
-                  </Button>
+                  <span className="group/identity relative shrink-0">
+                    <Link
+                      href="/profile/edit"
+                      aria-label={`${identityLabel}. Change in your profile`}
+                      className="flex size-9 items-center justify-center rounded-xl transition-colors hover:bg-muted"
+                    >
+                      {user?.isAnonymous ? (
+                        <span className="flex size-7 items-center justify-center rounded-full border-[2px] border-[var(--nb-border-color)] bg-nb-accent text-on-color">
+                          <EyeOff className="size-4" aria-hidden="true" />
+                        </span>
+                      ) : (
+                        <Avatar size="sm" className="size-7 border-[2px] shadow-none">
+                          <AvatarImage src={user?.avatar?.url} alt="" />
+                          <AvatarFallback className="bg-secondary text-[0.6rem] font-extrabold text-on-color">
+                            {user?.username?.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                    </Link>
+                    <span
+                      role="tooltip"
+                      className="nb-reveal-x pointer-events-none absolute bottom-full left-0 z-30 mb-3 w-max max-w-60 rounded-xl border-[2px] border-[var(--nb-border-color)] bg-card px-3 py-2 shadow-[var(--nb-shadow-sm)]"
+                    >
+                      <span className="block text-sm font-bold text-foreground">{identityLabel}</span>
+                      <span className="block text-xs font-medium text-muted-foreground">Click to change in your profile</span>
+                    </span>
+                  </span>
                 }
               />
             </div>
@@ -274,24 +305,14 @@ export default function EchoShoutPage() {
 
       {/* Right rail */}
       <aside aria-label="About EchoShout" className="hidden min-h-0 flex-col gap-5 lg:flex">
-        <div className="rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Posting as</p>
-          <div className="mt-3 flex items-center gap-3">
-            <Avatar>
-              {!user?.isAnonymous && <AvatarImage src={user?.avatar?.url} />}
-              <AvatarFallback className="bg-secondary text-xs font-bold text-on-color">
-                {user?.isAnonymous ? "?" : user?.username?.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <p className="truncate text-base font-extrabold text-foreground">{identity}</p>
-              <Link href="/profile/edit" className="text-sm font-bold text-nb-link underline underline-offset-2">
-                Change in profile
-              </Link>
-            </div>
-          </div>
-        </div>
-
+        <PageHeader
+          as="h2"
+          title="Everyone hears"
+          sticker="this."
+          stickerFill="bg-secondary"
+          description="One room for everybody. Keep it short and loud."
+          className="[&_h2]:text-3xl"
+        />
         <div className="relative rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-secondary p-4 text-on-color shadow-[var(--nb-shadow-sm)]">
           <ShoutLines className="absolute -top-4 -left-5 w-10 rotate-[200deg]" />
           <p className="text-lg font-extrabold leading-tight">How shouting works</p>
@@ -302,6 +323,32 @@ export default function EchoShoutPage() {
             <li className="flex gap-2"><Sparkle className="mt-0.5 w-3.5 shrink-0 [animation:none]" />Add one image with the paperclip.</li>
           </ul>
         </div>
+
+        {recentShouters.length > 0 && (
+          <div className="rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
+            <p className="text-lg font-extrabold leading-tight text-foreground">
+              Loud <span className="nb-sticker-word bg-primary">lately</span>
+            </p>
+            <ul className="mt-3 space-y-2.5">
+              {recentShouters.map((shouter) => (
+                <li key={shouter.name} className="flex items-center gap-2.5">
+                  <span
+                    aria-hidden="true"
+                    className={`flex size-7 shrink-0 items-center justify-center rounded-full border-[2px] border-[var(--nb-border-color)] text-xs font-extrabold text-on-color ${chipColor(shouter.name)}`}
+                  >
+                    {shouter.name.slice(0, 1).toUpperCase()}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-sm font-bold text-foreground">
+                    {shouter.isMe ? "You" : `@${shouter.name}`}
+                  </span>
+                  <time dateTime={shouter.time} className="shrink-0 text-xs font-semibold text-muted-foreground">
+                    {moment(shouter.time).fromNow(true)}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div aria-hidden="true" className="relative mt-auto hidden h-28 xl:block">
           <TypingBubble className="absolute bottom-6 left-6 -rotate-3" />

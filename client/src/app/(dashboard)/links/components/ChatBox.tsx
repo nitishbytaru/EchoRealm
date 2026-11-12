@@ -8,7 +8,8 @@ import { Loader2 } from "lucide-react";
 
 import Loading from "@/components/Loading";
 import socket from "@/sockets/socket";
-import MessageBubble from "./ChatBox/MessageBubble";
+import { ChatMessage, DaySeparator, groupMessages } from "@/components/chat/ChatMessage";
+import OlderMessagesLoader from "@/components/chat/OlderMessagesLoader";
 import MessageBar from "@/components/MessageBar";
 import GroupChatNav from "./ChatBox/NavBars/GroupChatNav";
 import PrivateChatNav from "./ChatBox/NavBars/PrivateChatNav";
@@ -172,7 +173,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
   return (
     <>
       {!recieverId ? (
-        <div className="h-full flex justify-center items-center text-center rounded-2xl min-h-[400px] bg-muted/30 border-[3px] border-[var(--nb-border-color)]">
+        <div className="h-full flex justify-center items-center text-center p-6">
           <p className="text-sm font-bold text-muted-foreground">
             Select a user or group to open chat
           </p>
@@ -199,28 +200,30 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           )}
 
           {/* Chat area */}
-          <div className="relative -mx-4 min-h-0 flex-1 px-4 py-4">
+          <div className="relative min-h-0 flex-1">
             <div aria-hidden="true" className="nb-dotgrid pointer-events-none absolute inset-0 opacity-50" />
-            <div role="log" aria-label="Messages" aria-live="polite" className="relative h-full overflow-y-auto pr-2 hide-scrollBar" ref={scrollRef}>
-              {gettingOldMessages && (
-                <div className="flex justify-center p-2">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                </div>
-              )}
-              {privateMessages?.map((message, index) => (
-                <MessageBubble
-                  key={index}
-                  messages={message}
-                  user={user}
-                  senderName={selectedChat?.groupName ? groupMemberNames[message?.sender] ?? "Former member" : undefined}
-                />
+            <div role="log" aria-label="Messages" aria-live="polite" className="relative h-full overflow-y-auto px-4 pt-4 pb-1 hide-scrollBar" ref={scrollRef}>
+              {gettingOldMessages && <OlderMessagesLoader label="Loading earlier messages…" />}
+              {groupMessages(privateMessages || [], (m: any) => m?.sender, (m: any) => m?.createdAt).map(({ message, dayLabel, isFirst, isLast }, index) => (
+                <React.Fragment key={message?._id || index}>
+                  {dayLabel && <DaySeparator label={dayLabel} />}
+                  <ChatMessage
+                    text={message?.message}
+                    imageUrl={message?.attachments?.[0]?.url}
+                    time={message?.createdAt}
+                    isMe={message?.sender === user?._id}
+                    senderName={selectedChat?.groupName ? groupMemberNames[message?.sender] ?? "Former member" : undefined}
+                    isFirst={isFirst}
+                    isLast={isLast}
+                  />
+                </React.Fragment>
               ))}
               <div ref={messagesEndRef} />
             </div>
           </div>
 
           {/* Message input bar */}
-          <div className="border-t-[3px] border-[var(--nb-border-color)] pt-3">
+          <div className="shrink-0 border-t-[3px] border-[var(--nb-border-color)] bg-muted/60 px-4 pt-3 pb-4">
             <MessageBar onSend={sendMessage} />
           </div>
         </div>
