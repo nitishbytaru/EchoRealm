@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CountUp from "@/components/CountUp";
 import { useSelector } from "react-redux";
 import { usePathname } from "next/navigation";
@@ -45,6 +45,45 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
   const { user } = useSelector((state: RootState) => state.auth);
   const { badgeOfPendingRequests } = useSelector((state: RootState) => state.user);
   const [stats, setStats] = useState<{ friends: number; likes: number } | null>(null);
+  const tabsRef = useRef<HTMLElement | null>(null);
+  const prevTabPath = useRef<string | null>(null);
+
+  // On narrow screens the tab row scrolls sideways; keep the active tab in view.
+  // Tab widths settle after fonts load and the entrance animation runs, so re-center
+  // whenever the row resizes, until the person scrolls it themselves.
+  useEffect(() => {
+    const nav = tabsRef.current;
+    if (!nav) return;
+    let userScrolled = false;
+    const center = (smooth: boolean) => {
+      const active = nav.querySelector<HTMLElement>('[aria-current="page"]');
+      if (!active || userScrolled) return;
+      // Measure on screen: while the tab groups animate in, offsetLeft is taken from the group, not the row.
+      const navBox = nav.getBoundingClientRect();
+      const tabBox = active.getBoundingClientRect();
+      const target = nav.scrollLeft + (tabBox.left - navBox.left) - (navBox.width - tabBox.width) / 2;
+      nav.scrollTo({ left: Math.max(0, target), behavior: smooth ? "smooth" : "auto" });
+    };
+    // Glide only when switching tabs; jump on first load (dev StrictMode runs this twice, so compare paths).
+    center(prevTabPath.current !== null && prevTabPath.current !== pathname);
+    prevTabPath.current = pathname;
+    const row = nav.firstElementChild;
+    const observer = new ResizeObserver(() => center(false));
+    if (row) observer.observe(row);
+    observer.observe(nav);
+    const stop = () => {
+      userScrolled = true;
+    };
+    nav.addEventListener("pointerdown", stop);
+    nav.addEventListener("wheel", stop, { passive: true });
+    nav.addEventListener("touchstart", stop, { passive: true });
+    return () => {
+      observer.disconnect();
+      nav.removeEventListener("pointerdown", stop);
+      nav.removeEventListener("wheel", stop);
+      nav.removeEventListener("touchstart", stop);
+    };
+  }, [pathname]);
 
   // Same stats the public profile shows.
   useEffect(() => {
@@ -61,9 +100,10 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
     };
   }, [user?._id]);
 
-  const groups: { label: string; tabs: Tab[] }[] = [
+  const groups: { label: string; fill: string; tabs: Tab[] }[] = [
     {
       label: "You",
+      fill: "bg-primary",
       tabs: [
         { href: "/profile/edit", label: "Profile", icon: UserIcon },
         { href: "/profile/mumbles", label: "Pinned", icon: Pin },
@@ -71,6 +111,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
     },
     {
       label: "People",
+      fill: "bg-secondary",
       tabs: [
         { href: "/profile/friends/list", label: "Friends", icon: Users },
         { href: "/profile/friends/requests", label: "Requests", icon: UserPlus2, badge: badgeOfPendingRequests },
@@ -80,6 +121,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
     },
     {
       label: "Account",
+      fill: "bg-nb-accent",
       tabs: [{ href: "/profile/account", label: "Settings", icon: Settings }],
     },
   ];
@@ -194,13 +236,21 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
         </div>
       </section>
 
-      {/* Grouped sticker tabs */}
-      <nav aria-label="Profile sections" className="-mx-1 overflow-x-auto px-1 pb-2 hide-scrollBar">
-        <div className="nb-stagger flex w-max items-end gap-5 [--nb-stagger-start:120ms]">
-          {groups.map((group) => (
-            <div key={group.label} className="flex flex-col gap-1.5">
-              <span className="px-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">{group.label}</span>
-              <div className="flex gap-2">
+      {/* Binder: tabs sit on the content panel; the active one joins it */}
+      <div className="flex flex-1 flex-col">
+        <nav ref={tabsRef} aria-label="Profile sections" className="relative z-10 -mb-[2px] overflow-x-auto hide-scrollBar">
+          <div className="nb-stagger flex w-max items-end gap-5 px-5 pt-2 [--nb-stagger-start:120ms]">
+            {groups.map((group) => (
+              <div key={group.label} role="group" aria-label={group.label} className="flex items-end gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "mr-1 mb-3 -rotate-6 rounded-md border-2 border-[var(--nb-border-color)] px-1.5 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wide text-on-color shadow-[2px_2px_0_var(--nb-shadow-color)]",
+                    group.fill
+                  )}
+                >
+                  {group.label}
+                </span>
                 {group.tabs.map((tab) => {
                   const Icon = tab.icon;
                   const isActive = pathname === tab.href;
@@ -210,16 +260,17 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
                       href={tab.href}
                       aria-current={isActive ? "page" : undefined}
                       className={cn(
-                        "relative flex h-10 items-center gap-2 rounded-xl border-2 px-3 text-sm font-bold whitespace-nowrap transition-all tap-interactive",
+                        "relative flex items-center gap-2 rounded-t-xl border-2 border-b-0 px-3.5 text-sm font-bold whitespace-nowrap transition-[height,background-color,color] duration-200",
                         isActive
-                          ? "border-[var(--nb-border-color)] bg-primary text-on-color shadow-[var(--nb-shadow-sm)]"
-                          : "border-[var(--nb-border-color)] bg-card text-muted-foreground hover:text-foreground"
+                          ? "h-12 border-[var(--nb-border-color)] bg-card pt-1 text-foreground"
+                          : "mb-[2px] h-10 border-[var(--nb-line)] bg-muted text-muted-foreground hover:h-11 hover:text-foreground"
                       )}
                     >
+                      {isActive && <span aria-hidden="true" className={cn("absolute inset-x-3 top-0 h-1.5 rounded-b-md", group.fill)} />}
                       <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
                       {tab.label}
                       {tab.badge ? (
-                        <span className="rounded-md border-[2px] border-[var(--nb-border-color)] bg-nb-warning px-1.5 text-xs font-extrabold text-on-color">
+                        <span className="rounded-md border-2 border-[var(--nb-border-color)] bg-nb-warning px-1.5 text-xs font-extrabold text-on-color">
                           {tab.badge}
                           <span className="sr-only"> pending</span>
                         </span>
@@ -228,15 +279,15 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
                   );
                 })}
               </div>
-            </div>
-          ))}
-        </div>
-      </nav>
+            ))}
+          </div>
+        </nav>
 
-      {/* Section content */}
-      <div className="flex-1 rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-5 shadow-[var(--nb-shadow)] sm:p-6 md:p-8">
-        <div key={pathname} className="animate-fade-in">
-          {children}
+        {/* Section content */}
+        <div className="flex-1 rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-5 shadow-[var(--nb-shadow)] sm:p-6 md:p-8">
+          <div key={pathname} className="animate-fade-in">
+            {children}
+          </div>
         </div>
       </div>
     </div>

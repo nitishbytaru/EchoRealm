@@ -218,12 +218,10 @@ Mumbles are treated as small paper notes.
   - **Name:** your username in large bold type, with your email in a soft chip and two status chips from your settings: "Posting as you" or "Posting anonymously" (purple), and "Open to Mumbles" (green) or "Mumbles off".
   - **Stats:** three tilted stickers with colored icon tiles: Friends (blue, opens Friends), Likes (red) and Requests (orange, opens Requests). While the numbers load, each tile shows bouncing dots instead of a dash, then counts up to the real number (instantly with reduced motion). Tiles lift and straighten on hover.
   - **Actions:** Edit profile and Public view, top right.
-- **Section tabs**, grouped:
-  - **You:** Profile, Pinned
-  - **People:** Friends, Requests (with a count), Find people, Blocked
-  - **Account:** Settings
-
-  The active tab is yellow. On phones the row scrolls sideways.
+- **Section tabs (binder style):** the tabs sit directly on top of the content panel like the tabs of a ring binder.
+  - Groups are marked by small tilted label stickers in their own color: **You** (yellow: Profile, Pinned), **People** (blue: Friends, Requests with a count, Find people, Blocked) and **Account** (purple: Settings).
+  - The active tab is taller, joins the panel with no line between them, and carries a stripe in its group's color. Inactive tabs sit just behind the panel in a muted fill and rise a little on hover.
+  - On phones the row scrolls sideways and centers the active tab automatically; it glides when you switch tabs and stops adjusting once you scroll it yourself.
 - **Content:** a full-width panel. Every section uses the same header style as the rest of the app, with a key word on a sticker.
 
 | Page | Contents |
