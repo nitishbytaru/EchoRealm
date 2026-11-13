@@ -216,7 +216,7 @@ export const ChatRooms: React.FC = () => {
   ];
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="nb-stagger flex h-full flex-col gap-4 [--nb-stagger-start:80ms]">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -334,7 +334,7 @@ export const ChatRooms: React.FC = () => {
       />
 
       {/* List */}
-      <ul className="-mx-1 flex-1 space-y-2 overflow-y-auto px-1 pt-1 pb-2 hide-scrollBar">
+      <ul className="nb-stagger -mx-1 flex-1 space-y-2 overflow-y-auto px-1 pt-1 pb-2 hide-scrollBar [--nb-stagger-start:260ms]">
         {isPending &&
           rooms.length === 0 &&
           Array.from({ length: 5 }).map((_, i) => (

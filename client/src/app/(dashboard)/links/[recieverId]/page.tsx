@@ -19,7 +19,7 @@ export default function LinkDetailPage({ params }: PageProps) {
   return (
     <div className="h-app w-full flex">
       {/* Grid Layout */}
-      <div className="grid h-full w-full grid-cols-1 gap-5 md:grid-cols-[19rem_minmax(0,1fr)] lg:grid-cols-[22rem_minmax(0,1fr)]">
+      <div className="nb-stagger grid h-full w-full grid-cols-1 gap-5 md:grid-cols-[19rem_minmax(0,1fr)] lg:grid-cols-[22rem_minmax(0,1fr)]">
         {/* Left Side: Chat Rooms List */}
         <div className="hidden md:block bg-card border-2 border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-4 overflow-hidden">
           <ChatRooms />

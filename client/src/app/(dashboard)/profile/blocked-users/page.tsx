@@ -57,7 +57,7 @@ export default function BlockedUsersPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="nb-stagger space-y-4 [--nb-stagger-start:150ms]">
       <PageHeader
         as="h2"
         title="Blocked"
@@ -70,7 +70,7 @@ export default function BlockedUsersPage() {
       {loadError ? (
         <LoadError what="your blocked users" onRetry={() => setReloadKey((k) => k + 1)} />
       ) : isPending && (!blockedUsers || blockedUsers.length === 0) ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="nb-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 [--nb-stagger-start:260ms]">
           {Array.from({ length: 3 }).map((_, i) => (
             <Card key={i} className="overflow-hidden shadow-[var(--nb-shadow-sm)]">
               <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
@@ -93,7 +93,7 @@ export default function BlockedUsersPage() {
           <p className="text-sm text-muted-foreground mt-2">Users you block will appear in this list for you to manage.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="nb-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 [--nb-stagger-start:260ms]">
           {blockedUsers?.map((blockedUser: any) => (
             <Card key={blockedUser._id} className="overflow-hidden shadow-[var(--nb-shadow-sm)] card-interactive">
               <CardContent className="p-4 flex flex-col items-center text-center space-y-3">

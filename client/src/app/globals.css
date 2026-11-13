@@ -864,6 +864,43 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ─── Entrances: every page and component rises in instead of popping onto the screen ─── */
+/* Animate only translate, scale and opacity, so tilts (rotate) and hover lifts keep working
+   after the entrance. `backwards` holds the start state during the delay and lets go at the end. */
+
+.nb-enter {
+  animation: nbEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms) backwards;
+}
+.nb-stagger > * {
+  animation: nbEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.nb-stagger > :nth-child(1) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 0ms); }
+.nb-stagger > :nth-child(2) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 60ms); }
+.nb-stagger > :nth-child(3) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 120ms); }
+.nb-stagger > :nth-child(4) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 180ms); }
+.nb-stagger > :nth-child(5) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 240ms); }
+.nb-stagger > :nth-child(6) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 300ms); }
+.nb-stagger > :nth-child(7) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 360ms); }
+.nb-stagger > :nth-child(8) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 420ms); }
+.nb-stagger > :nth-child(9) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 480ms); }
+.nb-stagger > :nth-child(10) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 540ms); }
+.nb-stagger > :nth-child(11) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 600ms); }
+.nb-stagger > :nth-child(12) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 660ms); }
+.nb-stagger > :nth-child(n + 13) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 720ms); }
+
+.nb-dock-up {
+  animation: nbDockUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.15s backwards;
+}
+@keyframes nbDockUp {
+  from { translate: 0 100%; }
+  to { translate: 0 0; }
+}
+
+@keyframes nbEnter {
+  from { opacity: 0; translate: 0 16px; scale: 0.985; }
+  to { opacity: 1; translate: 0 0; scale: 1; }
+}
+
 /* ─── Sign-in page: logo stage and decoration ─── */
 
 .auth-grid,
@@ -1211,6 +1248,13 @@
     transform: none;
     clip-path: none;
     transition: opacity 0.15s ease-out;
+  }
+
+  .nb-dock-up,
+  .nb-enter,
+  .nb-stagger > * {
+    animation-name: fadeIn !important;
+    animation-duration: 0.2s !important;
   }
 
   .nb-pill,

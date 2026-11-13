@@ -145,7 +145,7 @@ export default function ViewProfilePage({ params }: PageProps) {
   }
   if (isPending && !viewingProfileUserDetails) {
     return (
-      <div className="space-y-4">
+      <div className="nb-stagger space-y-4 [--nb-stagger-start:150ms]">
         {/* Header with back navigation */}
         <div className="flex items-center gap-3 pb-4 border-b-2 border-[var(--nb-line)]">
           <Link href="/profile/find-users" aria-label="Back to Find Users" className="p-2 text-muted-foreground hover:text-foreground rounded-lg transition-colors tap-interactive">

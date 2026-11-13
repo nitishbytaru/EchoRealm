@@ -123,7 +123,7 @@ export default function MyAccountPage() {
   );
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="nb-stagger mx-auto max-w-2xl space-y-6 [--nb-stagger-start:150ms]">
       <PageHeader as="h2" title="Settings" description="Sign out, clear your data or close your account." />
 
       <div className="flex flex-col gap-3 rounded-2xl border-2 border-[var(--nb-border-color)] bg-muted p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -144,7 +144,7 @@ export default function MyAccountPage() {
         <p className="text-sm font-bold">Everything on this page is permanent and can&apos;t be undone.</p>
       </div>
 
-      <div className="divide-y-[3px] divide-[var(--nb-border-color)]">
+      <div className="nb-stagger divide-y-2 divide-[var(--nb-line)] [--nb-stagger-start:360ms]">
         {dataActions.map((action) => renderRow(action))}
         {renderRow(accountAction, true)}
       </div>

@@ -93,7 +93,7 @@ export default function MyFriendsPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="nb-stagger space-y-4 [--nb-stagger-start:150ms]">
       <PageHeader
         as="h2"
         title="Your"
@@ -106,7 +106,7 @@ export default function MyFriendsPage() {
       {loadError ? (
         <LoadError what="your friends" onRetry={() => setReloadKey((k) => k + 1)} />
       ) : isPending && (!myFriendsList || myFriendsList.length === 0) ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="nb-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 [--nb-stagger-start:260ms]">
           {Array.from({ length: 3 }).map((_, i) => (
             <Card key={i} className="overflow-hidden shadow-[var(--nb-shadow-sm)]">
               <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
@@ -130,7 +130,7 @@ export default function MyFriendsPage() {
           <Link href="/profile/find-users" className={buttonVariants({ className: "mt-3" })}>Find Users</Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="nb-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 [--nb-stagger-start:260ms]">
           {myFriendsList?.map((friend: any) => (
             <Card key={friend._id} className="overflow-hidden shadow-[var(--nb-shadow-sm)] card-interactive">
               <CardContent className="p-4 flex flex-col items-center text-center space-y-3">

@@ -244,6 +244,7 @@ Mumbles are treated as small paper notes.
 | Pattern | How it behaves |
 |---|---|
 | **Page load** | Bouncing-ball animation for full pages |
+| **Entrances** | Nothing pops onto the screen. Each page's sections, cards, list rows and tabs rise in slightly and fade, one after another (60ms apart), using `.nb-stagger` on containers and `.nb-enter` for single elements in `globals.css`. Page content fades between routes. On first load, the navbar's wordmark, dock and avatar stagger in and the phone tab bar slides up. Only position and opacity animate, so tilts and hover lifts still work, and nothing stays hidden once the entrance ends. With reduced motion, everything just fades |
 | **List load** | Skeleton cards that match the final layout |
 | **Small waits** | Background work on a page that's already showing (refreshing a list you've seen, or saving an action like delete, block, unfriend or accept) shows an "Updating…" sticker with the logo's bouncing yellow dots at the right of the section header (`components/BusyBadge.tsx`). It's on the Mumble inbox and Profile's Pinned, Friends, Requests and Blocked pages. Composers show a spinner in the send button |
 | **Feedback** | Toasts for the result of actions; inline errors with **Try again** when a list fails to load |

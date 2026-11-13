@@ -90,7 +90,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
     { label: "Requests", value: stats ? badgeOfPendingRequests : undefined, icon: UserPlus2, fill: "bg-nb-warning", tilt: "-rotate-[0.5deg]", href: "/profile/friends/requests" },
   ];
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6">
+    <div className="nb-stagger mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6">
       {/* Member card: ID badge with a photo panel on the left */}
       <section
         aria-label="Your profile"
@@ -196,7 +196,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
 
       {/* Grouped sticker tabs */}
       <nav aria-label="Profile sections" className="-mx-1 overflow-x-auto px-1 pb-2 hide-scrollBar">
-        <div className="flex w-max items-end gap-5">
+        <div className="nb-stagger flex w-max items-end gap-5 [--nb-stagger-start:120ms]">
           {groups.map((group) => (
             <div key={group.label} className="flex flex-col gap-1.5">
               <span className="px-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">{group.label}</span>
@@ -235,7 +235,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
 
       {/* Section content */}
       <div className="flex-1 rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-5 shadow-[var(--nb-shadow)] sm:p-6 md:p-8">
-        <div key={pathname} className="animate-fade-in-up">
+        <div key={pathname} className="animate-fade-in">
           {children}
         </div>
       </div>

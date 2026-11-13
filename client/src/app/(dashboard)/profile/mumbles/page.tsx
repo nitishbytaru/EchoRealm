@@ -74,7 +74,7 @@ export default function MyMumblesPage() {
   const avatars = useUserAvatars((pinnedMumblesInMyProfile || []).map((m: any) => m?.sender?.senderId));
 
   return (
-    <div className="space-y-4">
+    <div className="nb-stagger space-y-4 [--nb-stagger-start:150ms]">
       <PageHeader
         as="h2"
         title="Pinned"
@@ -85,7 +85,7 @@ export default function MyMumblesPage() {
         />
 
       {isPending && (!pinnedMumblesInMyProfile || pinnedMumblesInMyProfile.length === 0) ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="nb-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 [--nb-stagger-start:260ms]">
           {Array.from({ length: 3 }).map((_, i) => (
             <Card key={i} className="overflow-hidden shadow-[var(--nb-shadow-sm)]">
               <CardContent className="p-4 space-y-3 pt-6">
@@ -115,7 +115,7 @@ export default function MyMumblesPage() {
           </div>
         </div>
       ) : (
-        <ul className="grid grid-cols-1 gap-6 pt-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="nb-stagger grid grid-cols-1 gap-6 pt-3 sm:grid-cols-2 lg:grid-cols-3 [--nb-stagger-start:260ms]">
           {pinnedMumblesInMyProfile?.map((mumble: any, index: number) => {
             const likes = mumble?.likes?.length || 0;
             return (

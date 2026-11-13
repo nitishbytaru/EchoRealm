@@ -70,7 +70,7 @@ export default function FindUsersPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="nb-stagger space-y-4 [--nb-stagger-start:150ms]">
       <PageHeader
         as="h2"
         title="Find"
@@ -92,7 +92,7 @@ export default function FindUsersPage() {
       </div>
 
       {isPending ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="nb-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 [--nb-stagger-start:260ms]">
           {Array.from({ length: 3 }).map((_, i) => (
             <Card key={i} className="overflow-hidden shadow-[var(--nb-shadow-sm)]">
               <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
@@ -111,7 +111,7 @@ export default function FindUsersPage() {
         </div>
       ) : search.value ? (
         resultOfSearchedUsers?.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="nb-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 [--nb-stagger-start:260ms]">
             {resultOfSearchedUsers.map((currUser: any, index: number) => {
               const isFriend = currUser?.userFriendData?.friends?.includes(user?._id);
               const hasSentRequest = currUser?.userFriendData?.pendingFriendRequests?.includes(user?._id);

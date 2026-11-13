@@ -97,10 +97,10 @@ export default function MyProfileDetailsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="nb-stagger space-y-6 [--nb-stagger-start:150ms]">
       <PageHeader as="h2" title="Profile details" description="Your picture, username, email, password and privacy." />
 
-      <div className="grid items-start gap-8 lg:grid-cols-[16rem_minmax(0,1fr)]">
+      <div className="nb-stagger grid items-start gap-8 lg:grid-cols-[16rem_minmax(0,1fr)] [--nb-stagger-start:220ms]">
       <div className="flex flex-col items-center justify-center space-y-3 rounded-2xl border-2 border-[var(--nb-border-color)] bg-muted/60 px-4 py-6 shadow-[var(--nb-shadow-sm)] lg:sticky lg:top-24">
         <input
           id="avatarUpload"
@@ -131,7 +131,7 @@ export default function MyProfileDetailsPage() {
         </div>
       </div>
 
-      <div className="max-w-xl space-y-5">
+      <div className="nb-stagger max-w-xl space-y-5 [--nb-stagger-start:300ms]">
         {/* Email */}
         <div className="space-y-2">
           <label htmlFor="profile-updatedEmail" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Email Address</label>

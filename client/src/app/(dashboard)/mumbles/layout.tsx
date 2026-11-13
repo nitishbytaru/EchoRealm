@@ -30,7 +30,7 @@ export default function MumblesLayout({ children }: { children: React.ReactNode 
   ];
 
   return (
-    <div className="grid w-full flex-1 grid-cols-1 gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-10">
+    <div className="nb-stagger grid w-full flex-1 grid-cols-1 gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-10">
       {/* Mumble HQ */}
       <aside className="lg:sticky lg:top-24 lg:self-start">
         <div className="nb-sticker-in group/hq relative overflow-hidden rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">

@@ -157,7 +157,7 @@ export default function EchoShoutPage() {
   }
 
   return (
-    <div className="grid h-app grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_19rem]">
+    <div className="nb-stagger grid h-app grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_19rem]">
       {/* Feed */}
       <section aria-label="EchoShout feed" className="flex min-h-0 flex-col">
         <PageHeader
@@ -305,7 +305,7 @@ export default function EchoShoutPage() {
       </section>
 
       {/* Right rail */}
-      <aside aria-label="About EchoShout" className="hidden min-h-0 flex-col gap-5 lg:flex">
+      <aside aria-label="About EchoShout" className="nb-stagger hidden min-h-0 flex-col gap-5 [--nb-stagger-start:120ms] lg:flex">
         <PageHeader
           as="h2"
           title="Everyone hears"

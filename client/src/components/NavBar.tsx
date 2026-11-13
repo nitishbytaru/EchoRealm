@@ -82,7 +82,7 @@ export const NavBar: React.FC = () => {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b-2 border-[var(--nb-line)] bg-card text-foreground">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="nb-stagger mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           {/* Brand: wordmark */}
           <Link href="/links" aria-label="EchoRealm home" className="flex shrink-0 items-center">
             <Image src={WORDMARK_SRC} alt="EchoRealm" width={928} height={250} priority className="h-8 w-auto -rotate-2 transition-transform duration-200 hover:rotate-0 sm:h-9" />
@@ -216,7 +216,7 @@ export const NavBar: React.FC = () => {
       {isLoggedIn && (
         <nav
           aria-label="Main"
-          className="pb-safe fixed right-0 bottom-0 left-0 z-50 flex items-stretch justify-around border-t-2 border-[var(--nb-line)] bg-card md:hidden"
+          className="nb-dock-up pb-safe fixed right-0 bottom-0 left-0 z-50 flex items-stretch justify-around border-t-2 border-[var(--nb-line)] bg-card md:hidden"
         >
           {SECTIONS.map((section) => {
             const Icon = section.icon;

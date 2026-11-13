@@ -172,7 +172,7 @@ export default function ListenMumblesPage() {
   const avatars = useUserAvatars(Mumbles.map((m: any) => m?.sender?.senderId));
 
   return (
-    <div className="flex w-full flex-col gap-6">
+    <div className="nb-stagger flex w-full flex-col gap-6 [--nb-stagger-start:100ms]">
       <PageHeader
         as="h2"
         title="Your inbox"

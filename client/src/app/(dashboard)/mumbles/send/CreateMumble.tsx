@@ -108,11 +108,11 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
   ];
 
   return (
-    <div className="flex w-full flex-col gap-6">
+    <div className="nb-stagger flex w-full flex-col gap-6 [--nb-stagger-start:100ms]">
       <PageHeader as="h2" title="Send a" sticker="Mumble" stickerFill="bg-nb-accent" description="A short, quiet note for one person. Up to 55 characters." />
 
-      <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_19rem]">
-      <div className="overflow-visible rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">
+      <div className="nb-stagger grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_19rem] [--nb-stagger-start:160ms]">
+      <div className="nb-stagger overflow-visible rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)] [--nb-stagger-start:240ms]">
         {/* To */}
         <section className="relative p-5 sm:p-6">
           <SectionLabel icon={AtSign} label="To" fill="bg-secondary" htmlFor={selectedUser ? undefined : "mumble-recipient"} />

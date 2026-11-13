@@ -67,7 +67,7 @@ export default function DashboardLayout({
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <NavBar />
         <main className="flex-1 flex flex-col w-full max-w-7xl mx-auto px-4 pt-4 pb-24 sm:px-6 sm:pt-6 md:pb-6 lg:px-8 lg:py-8 z-10">
-          <div key={pathname} className="flex-1 flex flex-col w-full animate-fade-in-up">
+          <div key={pathname} className="flex-1 flex flex-col w-full animate-fade-in">
             {children}
           </div>
         </main>
