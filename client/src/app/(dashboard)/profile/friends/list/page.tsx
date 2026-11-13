@@ -7,9 +7,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { Users, UserMinus, ShieldAlert, MessageSquare, MoreVertical, MessageCircle, Eye, Search } from "lucide-react";
-import Handle from "@/components/Handle";
-import { Sparkle, TypingBubble } from "@/components/brand/BrandMarks";
-import { chipColor } from "@/lib/chipColor";
+import PersonCard from "@/components/people/PersonCard";
+import moment from "moment";
+import { useRouter } from "next/navigation";
+import { getMyPrivateFriendsApi } from "@/api/echo_link.api";
+import { TypingBubble } from "@/components/brand/BrandMarks";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
@@ -22,7 +24,6 @@ import {
   setToMyFriendsList,
 } from "@/store/slices/user.slice";
 import { RootState } from "@/store/store";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -34,17 +35,31 @@ import {
 import ConfirmDialog from "@/components/ConfirmDialog";
 import LoadError from "@/components/LoadError";
 
-const TILTS = ["-1.5deg", "1deg", "-0.5deg", "1.5deg", "0.5deg", "-1deg"];
-
 export default function MyFriendsPage() {
   const dispatch = useDispatch();
   const { myFriendsList } = useSelector((state: RootState) => state.user);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const router = useRouter();
 
   const [isPending, setIsPending] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [pendingAction, setPendingAction] = useState<{ type: "remove" | "block"; friend: any } | null>(null);
   const [filter, setFilter] = useState("");
+  const [lastMessages, setLastMessages] = useState<Record<string, any>>({});
+
+  // Last message with each friend, from the existing chat list.
+  useEffect(() => {
+    getMyPrivateFriendsApi()
+      .then((response) => {
+        const map: Record<string, any> = {};
+        (response?.data?.myPrivateFriendsWithMessages || []).forEach((room: any) => {
+          if (room?._id && room?.latestMessage) map[room._id] = room.latestMessage;
+        });
+        setLastMessages(map);
+      })
+      .catch((error) => console.error("Error loading last messages:", error));
+  }, []);
   const visibleFriends = (myFriendsList || []).filter((f: any) => f?.username?.toLowerCase().includes(filter.trim().toLowerCase()));
 
   useEffect(() => {
@@ -166,20 +181,23 @@ export default function MyFriendsPage() {
         <p className="py-10 text-center text-sm font-bold text-muted-foreground">Nobody in your friends matches &ldquo;{filter}&rdquo;.</p>
       ) : (
         <ul className="grid grid-cols-1 gap-6 pt-2 sm:grid-cols-2 xl:grid-cols-3">
-          {visibleFriends.map((friend: any, index: number) => (
-            <li
-              key={friend._id}
-              className="nb-friend-in"
-              style={{ ["--tilt" as string]: TILTS[index % TILTS.length], animationDelay: `${0.25 + Math.min(index, 8) * 0.07}s` }}
-            >
-              <article className="nb-friend group/friend relative overflow-hidden rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow-sm)]">
-                {/* Color band, in the friend's own color */}
-                <div aria-hidden="true" className={cn("relative h-16 border-b-2 border-[var(--nb-line)]", chipColor(friend.username))}>
-                  <div className="nb-dotgrid absolute inset-0 opacity-60 [mask-image:none]" />
-                  <Sparkle className="absolute top-2.5 right-3 w-4" />
-                </div>
-
-                <div className="absolute top-2 right-2 z-10">
+          {visibleFriends.map((friend: any, index: number) => {
+            const last = lastMessages[friend._id];
+            const unread = last && last.sender !== user?._id && last?.receiver?.messageStatus === "sent";
+            return (
+              <PersonCard
+                key={friend._id}
+                index={index}
+                name={friend.username}
+                avatarUrl={friend?.avatar?.url}
+                stamp={
+                  unread ? (
+                    <span className="nb-pop inline-block -rotate-6 rounded-md border-2 border-[var(--nb-border-color)] bg-secondary px-1.5 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wide text-on-color shadow-[2px_2px_0_var(--nb-shadow-color)]">
+                      New message
+                    </span>
+                  ) : undefined
+                }
+                corner={
                   <DropdownMenu>
                     <DropdownMenuTrigger
                       render={
@@ -189,6 +207,10 @@ export default function MyFriendsPage() {
                       }
                     />
                     <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => router.push(`/profile/view/${friend._id}`)}>
+                        <Eye className="h-4 w-4" />
+                        View profile
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setPendingAction({ type: "remove", friend })}>
                         <UserMinus className="h-4 w-4" />
                         Unfriend
@@ -200,41 +222,52 @@ export default function MyFriendsPage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                }
+              >
+                {/* Last message, as a little speech bubble */}
+                <Link
+                  href={`/links/${friend._id}`}
+                  className="group/last mb-3 block text-left"
+                  aria-label={last ? `Last message with @${friend.username}: ${last.message || "an image"}` : `Say hi to @${friend.username}`}
+                >
+                  <span
+                    className={cn(
+                      "relative block rounded-2xl border-2 px-3 py-2 transition-transform duration-200 group-hover/last:-translate-y-0.5",
+                      last ? "border-[var(--nb-line)] bg-muted/60" : "border-dashed border-[var(--nb-line)] bg-card",
+                      last && last.sender === user?._id ? "rounded-br-md" : "rounded-bl-md"
+                    )}
+                  >
+                    {last ? (
+                      <>
+                        <span className="flex items-baseline justify-between gap-2 text-xs font-bold text-muted-foreground">
+                          <span>{last.sender === user?._id ? "You" : `@${friend.username}`}</span>
+                          <time dateTime={last.updatedAt}>{moment(last.updatedAt).fromNow()}</time>
+                        </span>
+                        <span className={cn("mt-0.5 block truncate text-sm", unread ? "font-extrabold text-foreground" : "font-semibold text-foreground/85")}>
+                          {last.message || "Sent an image"}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="flex items-center gap-2 text-sm font-bold text-muted-foreground">
+                        <MessageSquare className="size-4" aria-hidden="true" />
+                        No messages yet. Say hi!
+                      </span>
+                    )}
+                  </span>
+                </Link>
+                <div className="grid grid-cols-2 gap-2">
+                  <Link href={`/links/${friend._id}`} className={cn(buttonVariants({ size: "sm" }), "h-10 min-w-0")}>
+                    <MessageSquare className="h-4 w-4" aria-hidden="true" />
+                    {last ? "Chat" : "Say hi"}
+                  </Link>
+                  <Link href={`/mumbles/send/${friend._id}`} className={cn(buttonVariants({ size: "sm" }), "h-10 min-w-0 bg-nb-accent text-on-color")}>
+                    <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                    Mumble
+                  </Link>
                 </div>
-
-                <div className="relative flex flex-col items-center px-4 pb-4 text-center">
-                  <div className="nb-friend-avatar -mt-10 rounded-full border-2 border-[var(--nb-border-color)] bg-card p-1 shadow-[var(--nb-shadow-sm)]">
-                    <Avatar className="size-20 border-0 shadow-none">
-                      <AvatarImage src={friend?.avatar?.url} className="object-cover" />
-                      <AvatarFallback className="bg-card text-xl font-extrabold text-foreground">
-                        {friend.username.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                  <Handle name={friend.username} className="mt-3 max-w-full text-lg" />
-
-                  <div className="mt-4 grid w-full grid-cols-[1fr_1fr_auto] gap-2">
-                    <Link href={`/links/${friend._id}`} className={cn(buttonVariants({ size: "sm" }), "h-10 min-w-0")}>
-                      <MessageSquare className="h-4 w-4" aria-hidden="true" />
-                      Message
-                    </Link>
-                    <Link href={`/mumbles/send/${friend._id}`} className={cn(buttonVariants({ size: "sm" }), "h-10 min-w-0 bg-nb-accent text-on-color")}>
-                      <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                      Mumble
-                    </Link>
-                    <Link
-                      href={`/profile/view/${friend._id}`}
-                      aria-label={`View @${friend.username}'s profile`}
-                      title="View profile"
-                      className={buttonVariants({ variant: "outline", size: "icon", className: "size-10" })}
-                    >
-                      <Eye className="h-4 w-4" aria-hidden="true" />
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            </li>
-          ))}
+              </PersonCard>
+            );
+          })}
         </ul>
       )}
 

@@ -129,6 +129,16 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
     },
   ];
 
+  // Which way the content slides when switching tabs: from the right when moving right along the row.
+  const tabOrder = groups.flatMap((g) => g.tabs.map((t) => t.href));
+  const tabIndex = tabOrder.indexOf(pathname);
+  const [lastTab, setLastTab] = useState({ path: pathname, index: tabIndex, dir: 0 });
+  if (lastTab.path !== pathname) {
+    // Adjusting state while rendering (React's pattern for reacting to a changed value).
+    setLastTab({ path: pathname, index: tabIndex, dir: tabIndex >= lastTab.index ? 1 : -1 });
+  }
+  const tabDirection = lastTab.dir;
+
   const statTiles: { label: string; value?: number; icon: LucideIcon; fill: string; tilt: string; href?: string }[] = [
     { label: "Friends", value: stats?.friends, icon: Users, fill: "bg-secondary", tilt: "-rotate-1", href: "/profile/friends/list" },
     { label: "Likes", value: stats?.likes, icon: Heart, fill: "bg-destructive", tilt: "rotate-1" },
@@ -141,112 +151,114 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
 
   return (
     <div className="nb-stagger mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6">
-      {/* Member card: ID badge with a photo panel on the left */}
-      <section
-        aria-label="Your profile"
-        className="nb-sticker-in relative grid overflow-hidden rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)] sm:grid-cols-[13rem_minmax(0,1fr)] lg:grid-cols-[15rem_minmax(0,1fr)]"
-      >
-        {/* Photo panel */}
-        <div className="relative flex items-center justify-center overflow-hidden border-b-2 border-[var(--nb-line)] bg-nb-accent py-5 sm:border-r-2 sm:border-b-0 sm:py-8">
-          <div aria-hidden="true" className="nb-dotgrid absolute inset-0 opacity-70 [mask-image:none]" />
-          <Sparkle className="absolute top-4 left-4 w-6" />
-          <Sparkle className="absolute right-5 bottom-5 w-4" style={{ animationDelay: "1s" }} />
-          <TypingBubble className="absolute top-4 right-3 scale-75 rotate-6" tone="primary" />
-          <div className="nb-profile-photo relative rotate-[-4deg] rounded-[1.4rem] border-2 border-[var(--nb-border-color)] bg-card p-2 shadow-[var(--nb-shadow)] transition-transform duration-300 hover:rotate-0">
-            <Avatar className="size-24 rounded-2xl border-0 shadow-none sm:size-28 lg:size-32 [&>*]:rounded-[0.9rem]">
-              <AvatarImage src={user?.avatar?.url} className="object-cover" />
-              <AvatarFallback className="rounded-[0.9rem] bg-primary text-3xl font-extrabold text-on-color">
-                {user?.username?.slice(0, 2).toUpperCase() || "ME"}
-              </AvatarFallback>
-            </Avatar>
+      {/* Member card: only on the Profile tab */}
+      {pathname === "/profile/edit" && (
+        <section
+          aria-label="Your profile"
+          className="nb-sticker-in relative grid overflow-hidden rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)] sm:grid-cols-[13rem_minmax(0,1fr)] lg:grid-cols-[15rem_minmax(0,1fr)]"
+        >
+          {/* Photo panel */}
+          <div className="relative flex items-center justify-center overflow-hidden border-b-2 border-[var(--nb-line)] bg-nb-accent py-5 sm:border-r-2 sm:border-b-0 sm:py-8">
+            <div aria-hidden="true" className="nb-dotgrid absolute inset-0 opacity-70 [mask-image:none]" />
+            <Sparkle className="absolute top-4 left-4 w-6" />
+            <Sparkle className="absolute right-5 bottom-5 w-4" style={{ animationDelay: "1s" }} />
+            <TypingBubble className="absolute top-4 right-3 scale-75 rotate-6" tone="primary" />
+            <div className="nb-profile-photo relative rotate-[-4deg] rounded-[1.4rem] border-2 border-[var(--nb-border-color)] bg-card p-2 shadow-[var(--nb-shadow)] transition-transform duration-300 hover:rotate-0">
+              <Avatar className="size-24 rounded-2xl border-0 shadow-none sm:size-28 lg:size-32 [&>*]:rounded-[0.9rem]">
+                <AvatarImage src={user?.avatar?.url} className="object-cover" />
+                <AvatarFallback className="rounded-[0.9rem] bg-primary text-3xl font-extrabold text-on-color">
+                  {user?.username?.slice(0, 2).toUpperCase() || "ME"}
+                </AvatarFallback>
+              </Avatar>
+            </div>
           </div>
-        </div>
-
-        {/* Details */}
-        <div className="flex min-w-0 flex-col gap-5 p-5 sm:p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="min-w-0 text-4xl leading-none font-extrabold tracking-tight text-foreground sm:text-5xl">
-                <span className="block truncate">{user?.username ?? ""}</span>
-              </h1>
-              <span className="sr-only">@{user?.username}</span>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                {user?.email && (
-                  <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border-2 border-[var(--nb-line)] bg-muted px-3 py-1 text-sm font-semibold text-muted-foreground">
-                    <Mail className="size-3.5 shrink-0" aria-hidden="true" />
-                    <span className="truncate">{user.email}</span>
+  
+          {/* Details */}
+          <div className="flex min-w-0 flex-col gap-5 p-5 sm:p-6">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0">
+                <h1 className="min-w-0 text-4xl leading-none font-extrabold tracking-tight text-foreground sm:text-5xl">
+                  <span className="block truncate">{user?.username ?? ""}</span>
+                </h1>
+                <span className="sr-only">@{user?.username}</span>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {user?.email && (
+                    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border-2 border-[var(--nb-line)] bg-muted px-3 py-1 text-sm font-semibold text-muted-foreground">
+                      <Mail className="size-3.5 shrink-0" aria-hidden="true" />
+                      <span className="truncate">{user.email}</span>
+                    </span>
+                  )}
+                  <span className={cn("inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1 text-sm font-bold", user?.isAnonymous ? "border-[var(--nb-border-color)] bg-nb-accent text-on-color" : "border-[var(--nb-line)] bg-card text-muted-foreground")}>
+                    {user?.isAnonymous ? <HatGlasses className="size-3.5" aria-hidden="true" /> : <UserIcon className="size-3.5" aria-hidden="true" />}
+                    {user?.isAnonymous ? "Posting anonymously" : "Posting as you"}
                   </span>
+                  <span className={cn("inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1 text-sm font-bold", user?.isAcceptingMumbles ? "border-[var(--nb-border-color)] bg-nb-success text-on-color" : "border-[var(--nb-line)] bg-card text-muted-foreground")}>
+                    <MessageCircle className="size-3.5" aria-hidden="true" />
+                    {user?.isAcceptingMumbles ? "Open to Mumbles" : "Mumbles off"}
+                  </span>
+                </div>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Link href="/profile/edit" className={buttonVariants({ variant: "default" })}>
+                  <Pencil className="h-4 w-4" aria-hidden="true" />
+                  Edit profile
+                </Link>
+                {user?._id && (
+                  <Link href={`/profile/view/${user._id}`} className={buttonVariants({ variant: "outline" })}>
+                    <Eye className="h-4 w-4" aria-hidden="true" />
+                    Public view
+                  </Link>
                 )}
-                <span className={cn("inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1 text-sm font-bold", user?.isAnonymous ? "border-[var(--nb-border-color)] bg-nb-accent text-on-color" : "border-[var(--nb-line)] bg-card text-muted-foreground")}>
-                  {user?.isAnonymous ? <HatGlasses className="size-3.5" aria-hidden="true" /> : <UserIcon className="size-3.5" aria-hidden="true" />}
-                  {user?.isAnonymous ? "Posting anonymously" : "Posting as you"}
-                </span>
-                <span className={cn("inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1 text-sm font-bold", user?.isAcceptingMumbles ? "border-[var(--nb-border-color)] bg-nb-success text-on-color" : "border-[var(--nb-line)] bg-card text-muted-foreground")}>
-                  <MessageCircle className="size-3.5" aria-hidden="true" />
-                  {user?.isAcceptingMumbles ? "Open to Mumbles" : "Mumbles off"}
-                </span>
+                <Button variant="ghost" onClick={logout} loading={isLoggingOut} className="text-muted-foreground hover:text-foreground">
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  Log out
+                </Button>
               </div>
             </div>
-            <div className="flex shrink-0 flex-wrap gap-2">
-              <Link href="/profile/edit" className={buttonVariants({ variant: "default" })}>
-                <Pencil className="h-4 w-4" aria-hidden="true" />
-                Edit profile
-              </Link>
-              {user?._id && (
-                <Link href={`/profile/view/${user._id}`} className={buttonVariants({ variant: "outline" })}>
-                  <Eye className="h-4 w-4" aria-hidden="true" />
-                  Public view
-                </Link>
-              )}
-              <Button variant="ghost" onClick={logout} loading={isLoggingOut} className="text-muted-foreground hover:text-foreground">
-                <LogOut className="h-4 w-4" aria-hidden="true" />
-                Log out
-              </Button>
-            </div>
+  
+            {/* Stats */}
+            <dl className="grid grid-cols-3 gap-3 sm:max-w-lg">
+              {statTiles.map((tile, i) => {
+                const Icon = tile.icon;
+                const body = (
+                  <>
+                    <span aria-hidden="true" className={cn("flex size-9 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--nb-border-color)] text-on-color transition-transform duration-200 group-hover/stat:-rotate-12", tile.fill)}>
+                      <Icon className="size-4.5" />
+                    </span>
+                    <span className="min-w-0">
+                      <dd className="text-2xl leading-none font-extrabold text-foreground">
+                        {tile.value === undefined ? (
+                          <span className="inline-flex h-6 items-center gap-1" aria-label="Loading">
+                            <span className="auth-dot !size-1.5 !bg-[var(--nb-border-color)]" />
+                            <span className="auth-dot !size-1.5 !bg-[var(--nb-border-color)]" />
+                            <span className="auth-dot !size-1.5 !bg-[var(--nb-border-color)]" />
+                          </span>
+                        ) : (
+                          <CountUp value={tile.value} />
+                        )}
+                      </dd>
+                      <dt className="mt-1 truncate text-xs font-bold uppercase tracking-wide text-muted-foreground">{tile.label}</dt>
+                    </span>
+                  </>
+                );
+                const cls = cn(
+                  "nb-stat-in group/stat flex flex-col items-start gap-2 rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-3 shadow-[2px_2px_0_var(--nb-shadow-color)] sm:flex-row sm:items-center sm:gap-2.5 transition-[rotate,translate,box-shadow] duration-200 hover:-translate-y-1 hover:rotate-0 hover:shadow-[var(--nb-shadow-sm)]",
+                  tile.tilt
+                );
+                return tile.href ? (
+                  <Link key={tile.label} href={tile.href} className={cls} style={{ animationDelay: `${0.2 + i * 0.08}s` }}>
+                    {body}
+                  </Link>
+                ) : (
+                  <div key={tile.label} className={cls} style={{ animationDelay: `${0.2 + i * 0.08}s` }}>
+                    {body}
+                  </div>
+                );
+              })}
+            </dl>
           </div>
-
-          {/* Stats */}
-          <dl className="grid grid-cols-3 gap-3 sm:max-w-lg">
-            {statTiles.map((tile, i) => {
-              const Icon = tile.icon;
-              const body = (
-                <>
-                  <span aria-hidden="true" className={cn("flex size-9 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--nb-border-color)] text-on-color transition-transform duration-200 group-hover/stat:-rotate-12", tile.fill)}>
-                    <Icon className="size-4.5" />
-                  </span>
-                  <span className="min-w-0">
-                    <dd className="text-2xl leading-none font-extrabold text-foreground">
-                      {tile.value === undefined ? (
-                        <span className="inline-flex h-6 items-center gap-1" aria-label="Loading">
-                          <span className="auth-dot !size-1.5 !bg-[var(--nb-border-color)]" />
-                          <span className="auth-dot !size-1.5 !bg-[var(--nb-border-color)]" />
-                          <span className="auth-dot !size-1.5 !bg-[var(--nb-border-color)]" />
-                        </span>
-                      ) : (
-                        <CountUp value={tile.value} />
-                      )}
-                    </dd>
-                    <dt className="mt-1 truncate text-xs font-bold uppercase tracking-wide text-muted-foreground">{tile.label}</dt>
-                  </span>
-                </>
-              );
-              const cls = cn(
-                "nb-stat-in group/stat flex flex-col items-start gap-2 rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-3 shadow-[2px_2px_0_var(--nb-shadow-color)] sm:flex-row sm:items-center sm:gap-2.5 transition-[rotate,translate,box-shadow] duration-200 hover:-translate-y-1 hover:rotate-0 hover:shadow-[var(--nb-shadow-sm)]",
-                tile.tilt
-              );
-              return tile.href ? (
-                <Link key={tile.label} href={tile.href} className={cls} style={{ animationDelay: `${0.2 + i * 0.08}s` }}>
-                  {body}
-                </Link>
-              ) : (
-                <div key={tile.label} className={cls} style={{ animationDelay: `${0.2 + i * 0.08}s` }}>
-                  {body}
-                </div>
-              );
-            })}
-          </dl>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Binder: tabs sit on the content panel; the active one joins it */}
       <div className="flex flex-1 flex-col">
@@ -297,7 +309,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
 
         {/* Section content */}
         <div className="flex-1 rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-5 shadow-[var(--nb-shadow)] sm:p-6 md:p-8">
-          <div key={pathname} className="animate-fade-in">
+          <div key={pathname} className={tabDirection === 0 ? "animate-fade-in" : "nb-tab-in"} style={{ ["--dir" as string]: tabDirection }}>
             {children}
           </div>
         </div>

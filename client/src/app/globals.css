@@ -812,6 +812,16 @@
   100% { rotate: -4deg; }
 }
 
+/* ─── Profile tab switch: content slides in from the side you moved toward (direction) ─── */
+
+.nb-tab-in {
+  animation: nbTabIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes nbTabIn {
+  from { opacity: 0; translate: calc(var(--dir, 1) * 40px) 0; }
+  to { opacity: 1; translate: 0 0; }
+}
+
 /* ─── Friend cards: pop in tilted, lift on hover, avatar hops ─── */
 
 .nb-friend-in {
@@ -897,6 +907,28 @@
 @keyframes nbPop {
   0% { scale: 0.6; }
   100% { scale: 1; }
+}
+
+/* People cards: the photo is a taped polaroid; it straightens on hover while its tape lifts. */
+.nb-polaroid-person {
+  rotate: -4deg;
+  transition: rotate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nb-friend-in:nth-child(even) .nb-polaroid-person {
+  rotate: 3deg;
+}
+.nb-tape {
+  rotate: -6deg;
+  transition: rotate 0.3s ease, translate 0.3s ease;
+}
+@media (hover: hover) {
+  .nb-friend-in:hover .nb-polaroid-person {
+    rotate: 0deg;
+  }
+  .nb-friend-in:hover .nb-tape {
+    rotate: 4deg;
+    translate: -50% -2px;
+  }
 }
 
 @keyframes nbFriendIn {
@@ -1408,6 +1440,7 @@
 
   .nb-switch-icon,
   .nb-friend-in,
+  .nb-tab-in,
   .nb-celebrate,
   .nb-pop,
   .nb-develop,
