@@ -213,10 +213,11 @@ Mumbles are treated as small paper notes.
 
 ### Profile area
 
-- **Member card:** a purple banner with the logo's yellow typing bubble and a sparkle. Below it:
-  - your avatar as a tilted sticker, @username and email;
-  - real stats: friends, likes and pending requests;
-  - **Edit profile** and **Public view** buttons.
+- **Member card:** an ID-badge layout.
+  - **Photo panel** (left on wide screens, top on phones): purple, on the dot grid, with sparkles and the logo's yellow typing bubble. Your picture sits in it as a large tilted photo sticker that straightens on hover.
+  - **Name:** your username in large bold type, with your email in a soft chip and two status chips from your settings: "Posting as you" or "Posting anonymously" (purple), and "Open to Mumbles" (green) or "Mumbles off".
+  - **Stats:** three tilted stickers with colored icon tiles: Friends (blue, opens Friends), Likes (red) and Requests (orange, opens Requests). While the numbers load, each tile shows bouncing dots instead of a dash, then counts up to the real number (instantly with reduced motion). Tiles lift and straighten on hover.
+  - **Actions:** Edit profile and Public view, top right.
 - **Section tabs**, grouped:
   - **You:** Profile, Pinned
   - **People:** Friends, Requests (with a count), Find people, Blocked
