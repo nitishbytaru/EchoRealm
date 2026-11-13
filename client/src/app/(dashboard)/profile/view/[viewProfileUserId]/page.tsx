@@ -4,7 +4,15 @@ import React, { use, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
-import { Heart, Pin, ChevronLeft, Loader2, MessageSquare, MessageCircle, UserPlus, UserCheck } from "lucide-react";
+import { Heart, ChevronLeft, MessageSquare, MessageCircle, UserPlus, UserCheck, Send, Pencil, Eye } from "lucide-react";
+import MumbleNote from "@/app/(dashboard)/mumbles/components/MumbleNote";
+import Loading from "@/components/Loading";
+import CountUp from "@/components/CountUp";
+import { PeopleEmpty } from "@/components/people/PersonCard";
+import { Sparkle, TypingBubble } from "@/components/brand/BrandMarks";
+import { chipColor } from "@/lib/chipColor";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 import { likeThisMumbleApi } from "@/api/echo_mumble.api";
 import {
@@ -17,10 +25,8 @@ import {
 } from "@/store/slices/user.slice";
 import { RootState } from "@/store/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { getMyFriendsListApi, sendFriendRequestApi } from "@/api/friends.api";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface PageProps {
   params: Promise<{ viewProfileUserId: string }>;
@@ -34,12 +40,14 @@ export default function ViewProfilePage({ params }: PageProps) {
   const { user } = useSelector((state: RootState) => state.auth);
   const { viewingProfileUserDetails } = useSelector((state: RootState) => state.user);
 
-  const [likes, setLikes] = useState(0);
-  const [friends, setFriends] = useState(0);
+  const [likes, setLikes] = useState<number | undefined>(undefined);
+  const [friends, setFriends] = useState<number | undefined>(undefined);
+  const [likingId, setLikingId] = useState<string | null>(null);
   const [splMumble, setSplMumble] = useState<any>(null);
   const [isPending, setIsPending] = useState(false);
   const [relationship, setRelationship] = useState<"none" | "friend" | "requested">("none");
   const isSelf = user?._id === viewProfileUserId;
+  const router = useRouter();
 
   useEffect(() => {
     getMyFriendsListApi()
@@ -114,218 +122,225 @@ export default function ViewProfilePage({ params }: PageProps) {
 
   const likeThisMumbleFunc = async (mumbleId: string) => {
     try {
-      setIsPending(true);
+      setLikingId(mumbleId);
       const response = await likeThisMumbleApi(mumbleId);
 
       if (response?.data?.updatedMumble) {
         dispatch(
           updateViewingProfileUserDetails(response.data.updatedMumble)
         );
-        toast.success(response?.data?.message || "Mumble liked!");
       }
     } catch (error) {
       console.error("Error liking mumble:", error);
-      toast.error("Failed to like the mumble.");
+      toast.error("Couldn't update that like. Try again.");
     } finally {
-      setIsPending(false);
+      setLikingId(null);
     }
   };
 
   if (!viewProfileUserId) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 h-64 text-center">
-        <p className="text-muted-foreground text-sm">Select a user to view their profile</p>
-        <Link href="/profile/find-users" className="mt-4">
-          <Button className=" text-xs">
-            Find Users
-          </Button>
-        </Link>
-      </div>
+      <PeopleEmpty
+        icon={<Eye className="size-7" />}
+        title="Nobody selected"
+        text="Pick someone from Find people to see their profile."
+        action={<Link href="/profile/find-users" className={buttonVariants({})}>Find people</Link>}
+      />
     );
   }
-  if (isPending && !viewingProfileUserDetails) {
+
+  const person = viewingProfileUserDetails;
+  if (!person || (isPending && person?._id && person._id !== viewProfileUserId)) {
+    return <Loading label="Opening profile" />;
+  }
+
+  const name: string = person?.username ?? "";
+  const pinned: any[] = person?.selectedUserProfileMumbles ?? [];
+  const relationStamp = isSelf
+    ? { text: "This is you", fill: "bg-primary", Icon: Eye }
+    : relationship === "friend"
+    ? { text: "Friends", fill: "bg-nb-success", Icon: UserCheck }
+    : relationship === "requested"
+    ? { text: "Request sent", fill: "bg-nb-warning", Icon: Send }
+    : null;
+
+  const LikeButton = ({ mumble }: { mumble: any }) => {
+    const isLiked = mumble?.likes?.includes(user?._id || "");
     return (
-      <div className="nb-stagger space-y-4 [--nb-stagger-start:150ms]">
-        {/* Header with back navigation */}
-        <div className="flex items-center gap-3 pb-4 border-b-2 border-[var(--nb-line)]">
-          <Link href="/profile/find-users" aria-label="Back to Find Users" className="p-2 text-muted-foreground hover:text-foreground rounded-lg transition-colors tap-interactive">
-            <ChevronLeft className="h-4 w-4" />
-          </Link>
-          <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
-              User Profile
-            </h2>
-            <p className="text-sm text-muted-foreground font-medium mt-1">Likes, friends and pinned Mumbles</p>
-          </div>
-          <Loader2 className="h-4 w-4 animate-spin text-foreground ml-auto" />
-        </div>
-
-        <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4 bg-muted/40 border-2 border-[var(--nb-border-color)] rounded-2xl p-4 md:p-6">
-          <div className="flex flex-col items-center text-center space-y-2">
-            <Skeleton className="h-16 w-16 rounded-full" />
-            <div className="space-y-1 flex flex-col items-center">
-              <Skeleton className="h-3 w-20 rounded-md" />
-              <Skeleton className="h-2 w-28 rounded-md" />
-            </div>
-          </div>
-
-          {/* Stats card */}
-          <div className="flex gap-4 bg-card border p-4 rounded-lg w-full md:w-auto justify-around md:justify-start">
-            <div className="space-y-2 px-2 flex flex-col items-center">
-              <Skeleton className="h-2.5 w-16 rounded-md" />
-              <Skeleton className="h-5 w-8 rounded-md" />
-            </div>
-            <div className="w-px bg-muted hidden md:block" />
-            <div className="space-y-2 px-2 flex flex-col items-center">
-              <Skeleton className="h-2.5 w-16 rounded-md" />
-              <Skeleton className="h-5 w-8 rounded-md" />
-            </div>
-          </div>
-
-          <Skeleton className="h-9 w-full md:w-32 rounded-lg" />
-        </div>
-
-        {/* Featured Mumbles Grid */}
-        <div className="space-y-4">
-          <Skeleton className="h-3.5 w-28 rounded-md" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Card key={i} className="overflow-hidden shadow-[var(--nb-shadow-sm)]">
-                <CardContent className="p-4 space-y-3">
-                  <div className="flex justify-between items-center">
-                    <Skeleton className="h-3.5 w-20 rounded-md" />
-                    <Skeleton className="h-3.5 w-12 rounded-md" />
-                  </div>
-                  <Skeleton className="h-12 w-full rounded-md" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
+      <button
+        type="button"
+        onClick={() => likeThisMumbleFunc(mumble._id)}
+        aria-label={isLiked ? "Remove like" : "Like this Mumble"}
+        aria-pressed={isLiked}
+        disabled={likingId === mumble._id}
+        className={cn(
+          "flex size-9 items-center justify-center rounded-full border-2 transition-colors",
+          isLiked ? "border-[var(--nb-border-color)] bg-destructive text-on-color" : "border-transparent hover:border-[var(--nb-border-color)] hover:bg-card"
+        )}
+      >
+        <Heart key={String(isLiked)} className={cn("nb-pop h-4 w-4", isLiked && "fill-current")} aria-hidden="true" />
+      </button>
     );
-  }
+  };
 
   return (
-    <div className="space-y-4">
-      {/* Header with back navigation */}
-      <div className="flex items-center gap-3 pb-4 border-b-2 border-[var(--nb-line)]">
-        <Link href="/profile/find-users" aria-label="Back to Find Users" className="p-2 text-muted-foreground hover:text-foreground rounded-lg transition-colors tap-interactive">
-          <ChevronLeft className="h-4 w-4" />
-        </Link>
-        <div>
-          <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
-            User Profile
-          </h2>
-          <p className="text-sm text-muted-foreground font-medium mt-1">Likes, friends and pinned Mumbles</p>
-        </div>
-        {isPending && <Loader2 className="h-4 w-4 animate-spin text-foreground ml-auto" />}
-      </div>
+    <div className="nb-stagger flex flex-col gap-8 [--nb-stagger-start:80ms]">
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="inline-flex w-fit items-center gap-1.5 rounded-xl px-2 py-1.5 text-sm font-bold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      >
+        <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+        Back
+      </button>
 
-      <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-4 bg-muted/40 border-2 border-[var(--nb-border-color)] rounded-2xl p-4 md:p-6">
-        <div className="flex flex-col items-center text-center space-y-2">
-          <Avatar className="h-16 w-16 border">
-            <AvatarImage src={viewingProfileUserDetails?.avatar?.url} />
-            <AvatarFallback className="bg-card text-nb-accent-text text-sm border">
-              {viewingProfileUserDetails?.username?.slice(0, 2).toUpperCase() || "US"}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="text-sm font-bold text-foreground">@{viewingProfileUserDetails?.username}</h3>
+      {isSelf && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-dashed border-[var(--nb-border-color)] bg-muted/60 px-4 py-3">
+          <p className="flex items-center gap-2 text-sm font-bold text-foreground">
+            <Eye className="h-4 w-4" aria-hidden="true" />
+            This is how other people see your profile.
+          </p>
+          <Link href="/profile/edit" className={buttonVariants({ size: "sm", variant: "outline" })}>
+            <Pencil className="h-4 w-4" aria-hidden="true" />
+            Edit profile
+          </Link>
+        </div>
+      )}
+
+      {/* Hero: their ID badge */}
+      <section aria-label={`@${name}'s profile`} className="nb-sticker-in relative grid overflow-hidden rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)] sm:grid-cols-[14rem_minmax(0,1fr)] lg:grid-cols-[17rem_minmax(0,1fr)]">
+        <div className={cn("relative flex items-center justify-center overflow-hidden border-b-2 border-[var(--nb-line)] py-7 sm:border-r-2 sm:border-b-0", chipColor(name))}>
+          <div aria-hidden="true" className="nb-dotgrid absolute inset-0 opacity-70 [mask-image:none]" />
+          <Sparkle className="absolute top-4 left-4 w-6" />
+          <Sparkle className="absolute right-5 bottom-5 w-4" style={{ animationDelay: "1s" }} />
+          <TypingBubble className="absolute top-4 right-3 scale-75 rotate-6" tone="primary" />
+          <div className="relative rotate-[-4deg] rounded-xl border-2 border-[var(--nb-border-color)] bg-card p-2.5 pb-3 shadow-[var(--nb-shadow)] transition-transform duration-300 hover:rotate-0">
+            <Avatar className="size-32 rounded-lg border-2 shadow-none lg:size-36 [&>*]:rounded-[0.4rem]">
+              <AvatarImage src={person?.avatar?.url} className="object-cover" />
+              <AvatarFallback className="rounded-[0.4rem] bg-muted text-4xl font-extrabold text-foreground">{name.slice(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <p className="mt-2 text-center text-sm font-extrabold text-foreground"><span className="opacity-55">@</span>{name}</p>
           </div>
         </div>
 
-        {/* Stats card */}
-        <div className="flex gap-4 bg-card border p-4 rounded-lg w-full lg:w-auto justify-around lg:justify-start">
-          <div className="text-center md:text-left px-2">
-            <span className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">Total Likes</span>
-            <h4 className="text-xl font-black text-foreground mt-0.5">{likes}</h4>
-          </div>
-          <div className="w-px bg-muted hidden md:block" />
-          <div className="text-center md:text-left px-2">
-            <span className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">Friends</span>
-            <h4 className="text-xl font-black text-foreground mt-0.5">{friends}</h4>
-          </div>
-        </div>
-
-        <div className="flex w-full flex-col gap-3 lg:w-72">
-        {splMumble && (
-          <Card className="bg-nb-accent/15 border border-[var(--nb-border-color)] w-full rounded-lg">
-            <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
-              <span className="text-xs font-bold text-nb-accent-text flex items-center gap-1">
-                <Pin className="h-3 w-3 rotate-45" />
-                Featured Whisper
+        <div className="flex min-w-0 flex-col gap-5 p-5 sm:p-6">
+          <div className="min-w-0">
+            {relationStamp && (
+              <span key={relationStamp.text} className={cn("nb-pop mb-3 inline-flex -rotate-3 items-center gap-1.5 rounded-md border-2 border-[var(--nb-border-color)] px-2 py-0.5 text-xs font-extrabold uppercase tracking-wide text-on-color shadow-[2px_2px_0_var(--nb-shadow-color)]", relationStamp.fill)}>
+                <relationStamp.Icon className="size-3.5" aria-hidden="true" />
+                {relationStamp.text}
               </span>
-              <div className="flex items-center gap-1 text-nb-danger-text text-xs">
-                <Heart className="h-4 w-4 fill-nb-danger" />
-                <span>{splMumble?.likeCount || 0} likes</span>
+            )}
+            <h1 className="truncate text-4xl leading-none font-extrabold tracking-tight text-foreground sm:text-5xl">{name}</h1>
+          </div>
+
+          <dl className="grid max-w-sm grid-cols-2 gap-3">
+            {[
+              { label: "Friends", value: friends, Icon: UserCheck, fill: "bg-secondary", tilt: "-rotate-1" },
+              { label: "Likes", value: likes, Icon: Heart, fill: "bg-destructive", tilt: "rotate-1" },
+            ].map((tile, i) => (
+              <div
+                key={tile.label}
+                className={cn("nb-stat-in flex items-center gap-2.5 rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-3 shadow-[2px_2px_0_var(--nb-shadow-color)]", tile.tilt)}
+                style={{ animationDelay: `${0.2 + i * 0.08}s` }}
+              >
+                <span aria-hidden="true" className={cn("flex size-9 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--nb-border-color)] text-on-color", tile.fill)}>
+                  <tile.Icon className="size-4" />
+                </span>
+                <span>
+                  <dd className="text-2xl leading-none font-extrabold text-foreground">
+                    {tile.value === undefined ? (
+                      <span className="inline-flex h-6 items-center gap-1" aria-label="Loading">
+                        <span className="auth-dot !size-1.5 !bg-[var(--nb-border-color)]" />
+                        <span className="auth-dot !size-1.5 !bg-[var(--nb-border-color)]" />
+                        <span className="auth-dot !size-1.5 !bg-[var(--nb-border-color)]" />
+                      </span>
+                    ) : (
+                      <CountUp value={tile.value} />
+                    )}
+                  </dd>
+                  <dt className="mt-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">{tile.label}</dt>
+                </span>
               </div>
-            </CardHeader>
-            <CardContent className="p-4 pt-2 text-sm text-foreground leading-relaxed font-medium">
-              &ldquo;{splMumble?.message}&rdquo;
-            </CardContent>
-          </Card>
-        )}
+            ))}
+          </dl>
+
           {!isSelf && (
-            <div className="flex flex-col gap-2">
-              <Link href={`/links/${viewProfileUserId}`} className={buttonVariants({ className: "w-full" })}>
-                <MessageSquare className="h-4 w-4" />
+            <div className="flex flex-wrap gap-2">
+              <Link href={`/links/${viewProfileUserId}`} className={buttonVariants({})}>
+                <MessageSquare className="h-4 w-4" aria-hidden="true" />
                 Message
               </Link>
-              {relationship !== "friend" && (
-                <Button variant="secondary" className="w-full" onClick={addFriend} disabled={relationship === "requested"}>
-                  {relationship === "requested" ? <UserCheck className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
-                  {relationship === "requested" ? "Request sent" : "Add Friend"}
+              <Link href={`/mumbles/send/${viewProfileUserId}`} className={cn(buttonVariants({}), "bg-nb-accent text-on-color")}>
+                <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                Send a Mumble
+              </Link>
+              {relationship === "none" && (
+                <Button className="bg-secondary text-on-color" onClick={addFriend}>
+                  <UserPlus className="h-4 w-4" aria-hidden="true" />
+                  Add friend
                 </Button>
               )}
-              <Link href={`/mumbles/send/${viewProfileUserId}`} className={buttonVariants({ variant: "outline", className: "w-full" })}>
-                <MessageCircle className="h-4 w-4" />
-                Send Mumble
-              </Link>
             </div>
           )}
         </div>
-      </div>
+      </section>
 
-      {/* Featured Mumbles Grid */}
-      <div className="space-y-4">
-        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Featured Mumbles</h3>
-
-        {viewingProfileUserDetails?.selectedUserProfileMumbles?.length === 0 ? (
-          <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-2 border-[var(--nb-border-color)] rounded-2xl min-h-[150px]">
-            <p className="text-muted-foreground text-xs">No whispers shared yet by this user</p>
+      {/* Most loved Mumble */}
+      {splMumble?.message && (
+        <section aria-labelledby="loved-heading" className="space-y-4">
+          <h2 id="loved-heading" className="text-2xl font-extrabold tracking-tight text-foreground">
+            Most <span className="nb-sticker-word bg-destructive">loved</span>
+          </h2>
+          <div className="relative max-w-xl">
+            <span aria-hidden="true" className="nb-pop absolute -top-4 -right-1 z-10 flex size-12 rotate-12 sm:-right-3 items-center justify-center rounded-full border-2 border-[var(--nb-border-color)] bg-destructive text-on-color shadow-[var(--nb-shadow-sm)]">
+              <Heart className="size-6 fill-current" />
+            </span>
+            <MumbleNote
+              index={1}
+              isPinned
+              message={splMumble.message}
+              sender={splMumble?.sender?.senderId ? splMumble?.sender?.username : null}
+              time={splMumble?.createdAt}
+              likes={splMumble?.likeCount ?? splMumble?.likes?.length ?? 0}
+            />
           </div>
+        </section>
+      )}
+
+      {/* Pinned Mumbles */}
+      <section aria-labelledby="pinned-heading" className="space-y-4">
+        <div>
+          <h2 id="pinned-heading" className="text-2xl font-extrabold tracking-tight text-foreground">
+            Pinned <span className="nb-sticker-word bg-nb-accent">Mumbles</span>
+          </h2>
+          <p className="mt-1 text-sm font-medium text-muted-foreground">Notes {isSelf ? "you've" : `@${name} has`} chosen to show on {isSelf ? "your" : "their"} profile.</p>
+        </div>
+        {pinned.length === 0 ? (
+          <PeopleEmpty
+            icon={<MessageCircle className="size-7" />}
+            fill="bg-nb-accent"
+            title="Nothing pinned yet"
+            text={isSelf ? "Pin Mumbles from your inbox to show them here." : `@${name} hasn't pinned any Mumbles yet.`}
+          />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {viewingProfileUserDetails?.selectedUserProfileMumbles?.map((mumble: any, index: number) => {
-              const isLiked = mumble?.likes?.includes(user?._id || "");
-              return (
-                <Card key={index} className="overflow-hidden relative shadow-[var(--nb-shadow-sm)] card-interactive">
-                  <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
-                    <span className="text-xs font-semibold text-muted-foreground">@{mumble?.sender?.username || "anonymous"}</span>
-
-                    <button
-                      onClick={() => likeThisMumbleFunc(mumble._id)}
-                      aria-label={isLiked ? "Remove like" : "Like this Mumble"}
-                      aria-pressed={isLiked}
-                      disabled={isPending}
-                      className="flex size-10 items-center justify-center rounded-full transition-colors"
-                    >
-                      <Heart className={`h-4 w-4 ${isLiked ? "fill-nb-danger text-nb-danger-text" : "text-muted-foreground hover:text-nb-danger-text"}`} />
-                    </button>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-2 pb-8 text-sm text-foreground leading-relaxed font-medium">
-                    {mumble.message}
-                  </CardContent>
-                  <div className="absolute bottom-2 right-4 flex items-center gap-1 text-xs text-muted-foreground">
-                    <span>{mumble?.likes?.length || 0} likes</span>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
+          <ul className="grid grid-cols-1 gap-6 pt-3 sm:grid-cols-2 lg:grid-cols-3">
+            {pinned.map((mumble: any, index: number) => (
+              <li key={mumble._id || index} className="nb-friend-in" style={{ ["--tilt" as string]: "0deg", animationDelay: `${0.3 + Math.min(index, 6) * 0.07}s` }}>
+                <MumbleNote
+                  index={index}
+                  isPinned
+                  message={mumble?.message}
+                  sender={mumble?.sender?.senderId ? mumble?.sender?.username : null}
+                  time={mumble?.createdAt}
+                  likes={mumble?.likes?.length || 0}
+                  action={<LikeButton mumble={mumble} />}
+                />
+              </li>
+            ))}
+          </ul>
         )}
-      </div>
+      </section>
     </div>
   );
 }

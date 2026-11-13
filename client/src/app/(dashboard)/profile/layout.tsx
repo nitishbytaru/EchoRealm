@@ -134,6 +134,11 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
     { label: "Likes", value: stats?.likes, icon: Heart, fill: "bg-destructive", tilt: "rotate-1" },
     { label: "Requests", value: stats ? badgeOfPendingRequests : undefined, icon: UserPlus2, fill: "bg-nb-warning", tilt: "-rotate-[0.5deg]", href: "/profile/friends/requests" },
   ];
+  // Someone's public profile gets the whole page, without your own card and tabs above it.
+  if (pathname.startsWith("/profile/view")) {
+    return <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col">{children}</div>;
+  }
+
   return (
     <div className="nb-stagger mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6">
       {/* Member card: ID badge with a photo panel on the left */}
