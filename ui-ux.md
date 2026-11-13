@@ -228,7 +228,7 @@ Mumbles are treated as small paper notes.
 |---|---|
 | **Profile** | Photo panel on the left: your picture as a tilted polaroid on the purple dot grid, captioned with your @name, with a camera sticker, Change photo and Undo. A newly picked photo "develops" in, and a disguise sticker sits on it while anonymous mode is on. On the right, an **Account** card (username and email side by side, new password below) and a **Privacy** card with two toggle scenes (see Interaction patterns). A save bar with Discard and Save slides in only while there are unsaved changes |
 | **Pinned** | Pinned notes (the same note style as the inbox) with like counts and Unpin |
-| **Friends** | User cards with Message and a menu for Unfriend and Block |
+| **Friends** | A count sticker and an instant filter box, then trading-card stickers: a band in the friend's own color on the dot grid, their avatar large and overlapping it, their @handle, and **Message**, **Mumble** (purple, opens Send Mumble to them) and a View-profile button, with Unfriend / Block in the corner menu. Cards pop in tilted one after another and settle; on hover a card lifts, straightens and its avatar hops. Shimmering ghost cards while loading, and an illustrated empty state with a Find people button |
 | **Requests** | User cards with Accept, Reject and View Profile |
 | **Blocked** | User cards with Unblock |
 | **Find people** | Search with user cards |

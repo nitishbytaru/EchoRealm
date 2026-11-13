@@ -859,6 +859,38 @@
   100% { rotate: -4deg; }
 }
 
+/* ─── Friend cards: pop in tilted, lift on hover, avatar hops ─── */
+
+.nb-friend-in {
+  rotate: var(--tilt, 0deg);
+  animation: nbFriendIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  transition: rotate 0.25s ease, translate 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nb-friend {
+  transition: box-shadow 0.25s ease;
+}
+@media (hover: hover) {
+  .nb-friend-in:hover {
+    rotate: 0deg;
+    translate: 0 -4px;
+  }
+  .nb-friend-in:hover .nb-friend {
+    box-shadow: var(--nb-shadow);
+  }
+  .nb-friend-in:hover .nb-friend-avatar {
+    animation: nbAvatarHop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+@keyframes nbFriendIn {
+  from { opacity: 0; translate: 0 24px; scale: 0.9; rotate: calc(var(--tilt, 0deg) * 4); }
+  to { opacity: 1; translate: 0 0; scale: 1; rotate: var(--tilt, 0deg); }
+}
+@keyframes nbAvatarHop {
+  0%, 100% { translate: 0 0; }
+  40% { translate: 0 -8px; rotate: -6deg; }
+  70% { translate: 0 1px; rotate: 3deg; }
+}
+
 /* ─── Hover card that wipes open from left to right (EchoShout identity) ─── */
 
 .nb-reveal-x {
@@ -1273,6 +1305,7 @@
   .nb-note .nb-pin-drop .nb-pushpin,
   .nb-note .nb-pin-pullout .nb-pushpin,
   .nb-pin-target,
+  .nb-friend-in:hover .nb-friend-avatar,
   .nb-note:hover .nb-pushpin,
   .nb-mumble-loading .nb-mumble-mark,
   .nb-mumble-loading .nb-mumble-mark .mm-waves,
@@ -1305,6 +1338,7 @@
   }
 
   .nb-switch-icon,
+  .nb-friend-in,
   .nb-develop,
   .nb-disguise-drop,
   .nb-note-fly,
