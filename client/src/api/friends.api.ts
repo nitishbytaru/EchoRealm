@@ -47,7 +47,10 @@ export const unBlockUserApi = async (userId: string) => {
 
 export const handleFriendRequestApi = async (data: { senderId: string; action: "accept" | "reject" }) => {
   try {
-    return await api.put("/api/friends/requests", data);
+    return await api.put("/api/friends/requests", {
+      requestedUserId: data.senderId,
+      willAccepct: data.action === "accept",
+    });
   } catch (error) {
     console.error("Handle Friend Request Error:", error);
     throw error;
@@ -56,7 +59,10 @@ export const handleFriendRequestApi = async (data: { senderId: string; action: "
 
 export const handleRemoveOrBlockMyFriendApi = async (data: { friendId: string; action: "remove" | "block" }) => {
   try {
-    return await api.put("/api/friends/remove-or-block", data);
+    return await api.put("/api/friends/remove-or-block", {
+      friendId: data.friendId,
+      block: data.action === "block",
+    });
   } catch (error) {
     console.error("Handle Remove/Block Friend Error:", error);
     throw error;

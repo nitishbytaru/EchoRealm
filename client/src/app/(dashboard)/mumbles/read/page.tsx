@@ -1,12 +1,18 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import BusyBadge from "@/components/BusyBadge";
+import { useUserAvatars } from "@/hooks/useUserAvatars";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { Pin, Trash2, MessageSquare, ShieldAlert, MoreVertical, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Pin, Trash2, MessageSquare, ShieldAlert, MoreVertical, Send } from "lucide-react";
 
-import Loading from "@/components/Loading";
+import PageHeader from "@/components/PageHeader";
+import MumbleNote from "../components/MumbleNote";
+import { Sparkle, TypingBubble } from "@/components/brand/BrandMarks";
+import MumbleLoading from "../components/MumbleLoading";
 import {
   deleteMumbleApi,
   getMumblesApi,
@@ -18,34 +24,37 @@ import {
   handleRemoveOrBlockMyFriendApi,
 } from "@/api/friends.api";
 import {
-  increaseNumberOfPinnedMumbles,
   removeMumble,
   setMumbles,
-  setNumberOfPinnedMumbles,
   updateMumbles,
   setUnReadMumbles,
 } from "@/store/slices/echo_mumble.slice";
 import { RootState } from "@/store/store";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 export default function ListenMumblesPage() {
-  const isFirstRender = useRef(true);
   const dispatch = useDispatch();
   const router = useRouter();
 
   const { user } = useSelector((state: RootState) => state.auth);
-  const { Mumbles, numberOfPinnedMumbles } = useSelector(
+  const { Mumbles } = useSelector(
     (state: RootState) => state.echoMumble
   );
 
   const [isPending, setIsPending] = useState(false);
+  const [pinBusy, setPinBusy] = useState<{ id: string; state: "pinning" | "unpinning" } | null>(null);
+  const [mumbleToDelete, setMumbleToDelete] = useState<any>(null);
+  const [senderToBlock, setSenderToBlock] = useState<any>(null);
 
   useEffect(() => {
     const fetchMumblesAndBlocked = async () => {
@@ -64,11 +73,6 @@ export default function ListenMumblesPage() {
           (mumble: any) => !blockedList.includes(mumble?.sender)
         );
 
-        const pinnedMumbles = response?.data?.mumbles?.filter(
-          (mumble: any) => mumble?.pinned
-        );
-
-        dispatch(setNumberOfPinnedMumbles(pinnedMumbles?.length || 0));
         dispatch(
           setUnReadMumbles(
             responseMumbles?.filter((mumble: any) => mumble.mumbleStatus !== "read")
@@ -86,27 +90,24 @@ export default function ListenMumblesPage() {
     fetchMumblesAndBlocked();
   }, [dispatch, user]);
 
-  // useEffect for marking the unread mumbles as read
+  // Mark new Mumbles as read when you leave the inbox (not every time the list changes,
+  // e.g. after pinning or deleting one), and only if there's something unread.
+  const unreadOnPage = useRef(0);
   useEffect(() => {
-    const setAllMumblesAsReadApiFunc = async () => {
-      try {
-        await setMumblesAsReadApi();
-        dispatch(setUnReadMumbles(0));
-      } catch (err) {
-        console.error("Error marking read:", err);
-      }
-    };
+    unreadOnPage.current = Mumbles.filter((m: any) => m?.mumbleStatus === "sent").length;
+  }, [Mumbles]);
 
+  useEffect(() => {
     return () => {
-      if (isFirstRender.current) {
-        isFirstRender.current = false;
-      } else {
-        if (Mumbles.length > 0) {
-          setAllMumblesAsReadApiFunc();
-        }
-      }
+      if (unreadOnPage.current === 0) return;
+      setMumblesAsReadApi()
+        .then(() => dispatch(setUnReadMumbles(0)))
+        .catch((err) => {
+          // Not shown to the user: the Mumbles stay unread and are marked next time.
+          console.warn("Couldn't mark Mumbles as read; will try again next visit.", err);
+        });
     };
-  }, [Mumbles, dispatch]);
+  }, [dispatch]);
 
   const confirmDeleteMumbleApiFunc = async (mumbleId: string) => {
     try {
@@ -124,33 +125,23 @@ export default function ListenMumblesPage() {
     }
   };
 
-  const callDeleteMumbleFunc = (mumble: any) => {
-    toast(`Delete mumble from @${mumble?.sender?.username || "anonymous"}?`, {
-      action: {
-        label: "Delete",
-        onClick: () => confirmDeleteMumbleApiFunc(mumble._id),
-      },
-    });
-  };
-
   const pinMumbleApiFunc = async (mumble: any) => {
-    if (!mumble?.pinned && numberOfPinnedMumbles >= 5) {
-      toast.error("Only 5 mumbles can be Pinned");
+    if (!mumble?.pinned && Mumbles.filter((m: any) => m.pinned).length >= 4) {
+      toast.error("You can pin up to 4 Mumbles. Unpin one to add another.");
       return;
     }
+    setPinBusy({ id: mumble._id, state: mumble?.pinned ? "unpinning" : "pinning" });
     try {
-      setIsPending(true);
       const response = await pinMumbleApi(mumble._id);
       if (response?.data) {
         dispatch(updateMumbles(response.data.updatedMumble));
-        dispatch(increaseNumberOfPinnedMumbles());
-        toast.success(response.data.message || "Pin status updated!");
+        toast.success(mumble?.pinned ? "Unpinned from your profile." : "Pinned to your profile.");
       }
     } catch (error) {
       console.error("Error pinning mumble:", error);
-      toast.error("Failed to pin mumble.");
+      toast.error(mumble?.pinned ? "Couldn't unpin that Mumble." : "Couldn't pin that Mumble.");
     } finally {
-      setIsPending(false);
+      setPinBusy(null);
     }
   };
 
@@ -173,111 +164,111 @@ export default function ListenMumblesPage() {
     }
   };
 
-  if (isPending && Mumbles.length === 0) return <Loading />;
+  const isLoading = isPending && Mumbles.length === 0;
+  const avatars = useUserAvatars(Mumbles.map((m: any) => m?.sender?.senderId));
 
   return (
-    <div className="flex-1 flex flex-col w-full max-w-5xl mx-auto space-y-5">
-      <div className="flex justify-between items-center border-b border-border pb-4">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-foreground">
-            Inbox Mumbles
-          </h2>
-          <p className="text-[10px] text-muted-foreground mt-0.5">View whispers received from other users</p>
-        </div>
-        {isPending && <Loader2 className="h-4.5 w-4.5 animate-spin text-indigo-500" />}
-      </div>
+    <div className="nb-stagger flex w-full flex-col gap-6 [--nb-stagger-start:100ms]">
+      <PageHeader
+        as="h2"
+        title="Your inbox"
+        description="Quiet notes people left for you. New ones are purple until you leave this page."
+        action={isPending && !isLoading ? <BusyBadge /> : undefined}
+      />
 
-      {Mumbles.length === 0 ? (
-        <div className="flex-1 flex flex-col justify-center items-center text-center p-8 bg-card border border-border rounded-xl min-h-[300px]">
-          <p className="text-muted-foreground text-xs font-semibold">Your inbox is empty</p>
-          <p className="text-[10px] text-muted-foreground/80 mt-1">No one has mumbled to you yet.</p>
+      {isLoading ? (
+        <MumbleLoading />
+      ) : Mumbles.length === 0 ? (
+        <div className="flex flex-1 flex-col items-center justify-center py-10">
+          <div className="relative w-full max-w-sm -rotate-2 rounded-2xl border-2 border-dashed border-[var(--nb-border-color)] bg-card p-8 text-center shadow-[var(--nb-shadow)]">
+            <TypingBubble className="absolute -top-5 -right-4 rotate-6" />
+            <Sparkle className="absolute -bottom-4 -left-3 w-8" />
+            <p className="text-2xl font-extrabold text-foreground">It&apos;s quiet in here</p>
+            <p className="mt-2 text-sm font-medium text-muted-foreground">
+              When someone sends you a Mumble, it lands here as a little note.
+            </p>
+            <Link href="/mumbles/send" className={buttonVariants({ className: "mt-5 bg-nb-accent text-on-color" })}>
+              <Send className="h-4 w-4" aria-hidden="true" />
+              Send a Mumble
+            </Link>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Mumbles.map((mumble: any) => {
-            const isUnread = mumble.mumbleStatus === "sent";
+        <ul className="columns-1 gap-6 pt-4 sm:columns-2 xl:columns-3">
+          {Mumbles.map((mumble: any, index: number) => {
+            const isAnonymous = !mumble?.sender?.senderId;
             return (
-              <Card
-                key={mumble._id}
-                className={`relative overflow-hidden rounded-xl transition-all duration-200 border ${
-                  isUnread
-                    ? "bg-muted/40 border-indigo-500/20 shadow-sm shadow-indigo-950/5"
-                    : "bg-card border-border"
-                }`}
-              >
-                {/* Pin indicator */}
-                {mumble?.pinned && (
-                  <div className="absolute top-3.5 left-3.5 text-indigo-400">
-                    <Pin className="h-3.5 w-3.5 rotate-45 fill-indigo-400/20" />
-                  </div>
-                )}
-
-                <CardHeader className="flex flex-row items-center justify-between pb-1.5 pt-3.5 px-3.5">
-                  <div className={`flex items-center space-x-2 ${mumble?.pinned ? "pl-5" : ""}`}>
-                    <span className="text-[11px] font-semibold text-muted-foreground">
-                      @{mumble?.sender?.username || "anonymous"}
-                    </span>
-                    {isUnread && (
-                      <span className="bg-indigo-650 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider scale-90">
-                        New
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Settings / Actions Dropdown */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger render={
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground rounded-lg">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    } />
-                    <DropdownMenuContent className="bg-popover border-border text-popover-foreground w-44 rounded-lg">
-                      <DropdownMenuItem
-                        onClick={() => pinMumbleApiFunc(mumble)}
-                        className="hover:bg-accent cursor-pointer text-xs flex gap-2"
-                      >
-                        <Pin className="h-3.5 w-3.5" />
-                        {mumble?.pinned ? "Unpin this Mumble" : "Pin this Mumble"}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => callDeleteMumbleFunc(mumble)}
-                        className="hover:bg-accent cursor-pointer text-xs text-rose-500 hover:text-rose-450 flex gap-2"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        Delete Mumble
-                      </DropdownMenuItem>
-                      {mumble?.sender?.senderId && (
-                        <>
-                          <DropdownMenuItem
-                            onClick={() => router.push(`/links/${mumble?.sender?.senderId}`)}
-                            className="hover:bg-accent cursor-pointer text-xs flex gap-2"
-                          >
-                            <MessageSquare className="h-3.5 w-3.5" />
-                            Direct Message
+              <li key={mumble._id} className="nb-sticker-in mb-7 break-inside-avoid" style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}>
+                <MumbleNote
+                  index={index}
+                  message={mumble?.message}
+                  sender={isAnonymous ? null : mumble?.sender?.username}
+                  isUnread={mumble.mumbleStatus === "sent"}
+                  isPinned={Boolean(mumble?.pinned)}
+                  pinState={pinBusy && pinBusy.id === mumble._id ? pinBusy.state : undefined}
+                  avatarUrl={avatars[mumble?.sender?.senderId]}
+                  time={mumble?.createdAt || mumble?.updatedAt}
+                  likes={mumble?.likes?.length || 0}
+                  action={
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button variant="ghost" size="icon-sm" aria-label="Mumble options" className="text-current">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel>{isAnonymous ? "From Anonymous" : `From @${mumble?.sender?.username}`}</DropdownMenuLabel>
+                        </DropdownMenuGroup>
+                        <DropdownMenuItem onClick={() => pinMumbleApiFunc(mumble)}>
+                          <Pin className="h-4 w-4" />
+                          {mumble?.pinned ? "Unpin from profile" : "Pin to profile"}
+                        </DropdownMenuItem>
+                        {!isAnonymous && (
+                          <DropdownMenuItem onClick={() => router.push(`/links/${mumble?.sender?.senderId}`)}>
+                            <MessageSquare className="h-4 w-4" />
+                            Message @{mumble?.sender?.username}
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => blockSenderApiFunc(mumble?._id, mumble?.sender?.senderId)}
-                            className="hover:bg-accent cursor-pointer text-xs text-red-500 flex gap-2"
-                          >
-                            <ShieldAlert className="h-3.5 w-3.5" />
+                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem variant="destructive" onClick={() => setMumbleToDelete(mumble)}>
+                          <Trash2 className="h-4 w-4" />
+                          Delete Mumble
+                        </DropdownMenuItem>
+                        {!isAnonymous && (
+                          <DropdownMenuItem variant="destructive" onClick={() => setSenderToBlock(mumble)}>
+                            <ShieldAlert className="h-4 w-4" />
                             Block @{mumble?.sender?.username}
                           </DropdownMenuItem>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </CardHeader>
-
-                <CardContent className="px-3.5 pb-3.5 pt-1">
-                  <p className="text-xs text-foreground leading-relaxed font-light whitespace-pre-wrap break-words">
-                    {mumble?.message}
-                  </p>
-                </CardContent>
-              </Card>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  }
+                />
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
+
+      <ConfirmDialog
+        open={Boolean(mumbleToDelete)}
+        onOpenChange={(open) => !open && setMumbleToDelete(null)}
+        title="Delete this Mumble?"
+        description="It will be removed from your inbox and your profile. This can't be undone."
+        confirmLabel="Delete Mumble"
+        onConfirm={() => confirmDeleteMumbleApiFunc(mumbleToDelete._id)}
+      />
+      <ConfirmDialog
+        open={Boolean(senderToBlock)}
+        onOpenChange={(open) => !open && setSenderToBlock(null)}
+        title={`Block @${senderToBlock?.sender?.username ?? "this person"}?`}
+        description="They'll be removed from your friends and hidden from your search and inbox. You can unblock them under Blocked Users."
+        confirmLabel="Block"
+        onConfirm={() => blockSenderApiFunc(senderToBlock._id, senderToBlock.sender.senderId)}
+      />
     </div>
   );
 }

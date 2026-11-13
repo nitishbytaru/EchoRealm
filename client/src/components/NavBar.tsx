@@ -1,261 +1,266 @@
 "use client";
 
 import React, { useEffect } from "react";
+import Handle from "@/components/Handle";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { Home, MessageSquare, Megaphone, Menu, User } from "lucide-react";
+import { LogOut, Moon, Sun, Pin, Search, Settings, User, Users } from "lucide-react";
 
 import socket from "@/sockets/socket";
-import { handleToggle } from "@/utils/helpers/micro_funcs";
 import { useFriendRequests } from "@/hooks/useFriendRequests";
 import { useJoinRoomSocket } from "@/hooks/useJoinRoomSocket";
 import { useGetRequestsSocket } from "@/hooks/useGetRequestsSocket";
-import MumbleIcon from "@/components/MumbleIcon";
-import ThemeToggle from "@/components/ThemeToggle";
+import { useLogout } from "@/hooks/useLogout";
+import CountBadge from "@/components/CountBadge";
+import { WORDMARK_SRC } from "@/components/brand/BrandMarks";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { setIsMobile, setTheme, setIsChecked } from "@/store/slices/auth.slice";
 import { RootState } from "@/store/store";
+import { SECTIONS } from "@/lib/sections";
 import { cn } from "@/lib/utils";
 
 export const NavBar: React.FC = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const pathname = usePathname();
+  const { logout, isLoggingOut } = useLogout();
 
-  const { user, theme, isMobile, isLoggedIn, isChecked } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const { user, isLoggedIn, theme } = useSelector((state: RootState) => state.auth);
+  const isDark = theme === "dark" || theme === "business";
+  const setDark = (dark: boolean) => {
+    const next = dark ? "business" : "wireframe";
+    dispatch(setTheme(next));
+    dispatch(setIsChecked(dark));
+    try {
+      localStorage.setItem("theme", next);
+    } catch {}
+  };
   const { badgeOfPendingRequests } = useSelector((state: RootState) => state.user);
   const { newUnreadMessages } = useSelector((state: RootState) => state.echoLink);
   const { unReadMumbles } = useSelector((state: RootState) => state.echoMumble);
 
-  // Update the isMobile state based on window size
   useEffect(() => {
-    const handleResize = () => {
-      dispatch(setIsMobile(window.innerWidth < 670));
-    };
-
-    handleResize(); // run initially
+    const handleResize = () => dispatch(setIsMobile(window.innerWidth < 768));
+    handleResize();
     window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, [dispatch]);
 
-  // Hook to fetch friendRequests and add notification badge
   useFriendRequests(user);
-
-  // Hook for socket to join room to get notifications of new friendRequests
   useJoinRoomSocket(socket, user);
-
-  // Hook for getting live updates like friendRequests
   useGetRequestsSocket(socket);
+
+  const badges: Record<string, { count: number; label: string; className: string }> = {
+    links: { count: newUnreadMessages, label: "conversations with unread messages", className: "bg-destructive" },
+    mumble: { count: unReadMumbles, label: "unread Mumbles", className: "bg-nb-accent" },
+  };
+
+  const activeIndex = SECTIONS.findIndex((s) => pathname.startsWith(s.match));
+  const active = SECTIONS[activeIndex];
+  const onProfile = pathname.startsWith("/profile");
+  const initials = user?.username?.slice(0, 2).toUpperCase() ?? "ME";
+
+  const menuLinks = [
+    { href: "/profile/edit", label: "My profile", icon: User },
+    { href: "/profile/mumbles", label: "Pinned Mumbles", icon: Pin },
+    { href: "/profile/friends/list", label: "Friends", icon: Users },
+    { href: "/profile/find-users", label: "Find people", icon: Search },
+    { href: "/profile/account", label: "Settings", icon: Settings },
+  ];
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b-[3px] border-[var(--nb-border-color)] bg-card text-foreground">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 w-full border-b-2 border-[var(--nb-line)] bg-card text-foreground">
+        <div className="nb-stagger mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+          {/* Brand: wordmark */}
+          <Link href="/links" aria-label="EchoRealm home" className="flex shrink-0 items-center">
+            <Image src={WORDMARK_SRC} alt="EchoRealm" width={928} height={250} priority className="h-8 w-auto -rotate-2 transition-transform duration-200 hover:rotate-0 sm:h-9" />
+          </Link>
 
-          {/* Brand/Home Logo */}
-          <div className="flex items-center">
-            <Link href="/links" className="transition-opacity hover:opacity-90 flex items-center">
-              <Image
-                src="https://res.cloudinary.com/dhysbx7mk/image/upload/v1784275596/echorealm/logos/text_logo_echorealm_ixkbqk.png"
-                alt="EchoRealm"
-                width={125}
-                height={75}
-                priority
-                className="object-contain"
-              />
-            </Link>
-          </div>
-
-          {/* Navigation Items (Desktop Only) */}
-          <nav className="hidden md:flex items-center space-x-2">
-            {isLoggedIn && (
-              <div className="relative">
-                <Link
-                  href="/links"
+          {/* Sticker dock (tablet and up) */}
+          {isLoggedIn && (
+            <nav aria-label="Main" className="hidden md:block">
+              <div className="relative grid grid-cols-3 rounded-2xl bg-muted p-1">
+                <span
+                  aria-hidden="true"
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl border-[3px] transition-all duration-150 tap-interactive",
-                    pathname.startsWith("/links")
-                      ? "bg-primary text-primary-foreground border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
-                      : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted hover:border-[var(--nb-border-color)]"
+                    "nb-pill absolute inset-y-1 left-1 w-[calc((100%-0.5rem)/3)] rounded-xl border-2 border-[var(--nb-border-color)] shadow-[var(--nb-shadow-active)]",
+                    active ? active.fill : "opacity-0"
                   )}
-                >
-                  <MessageSquare className="h-5 w-5" />
-                  <span>EchoLink</span>
-                </Link>
-                {newUnreadMessages > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]">
-                    {newUnreadMessages}
-                  </span>
-                )}
+                  style={{ transform: `translateX(${Math.max(activeIndex, 0) * 100}%)` }}
+                />
+                {SECTIONS.map((section) => {
+                  const Icon = section.icon;
+                  const isActive = active?.key === section.key;
+                  const badge = badges[section.key];
+                  return (
+                    <Link
+                      key={section.key}
+                      href={section.href}
+                      aria-current={isActive ? "page" : undefined}
+                      className={cn(
+                        "relative z-10 flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold transition-colors duration-200 lg:px-5",
+                        isActive ? "text-on-color" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                      <span>{section.label}</span>
+                      {badge && <CountBadge count={badge.count} label={badge.label} className={cn("static rounded-md shadow-[1px_1px_0_var(--nb-shadow-color)]", badge.className)} />}
+                    </Link>
+                  );
+                })}
               </div>
-            )}
+            </nav>
+          )}
 
-            <div className="relative">
-              <Link
-                href="/shout"
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl border-[3px] transition-all duration-150 tap-interactive",
-                  pathname.startsWith("/shout")
-                    ? "bg-secondary text-secondary-foreground border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
-                    : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted hover:border-[var(--nb-border-color)]"
-                )}
-              >
-                <Megaphone className="h-5 w-5" />
-                <span>EchoShout</span>
-              </Link>
-            </div>
-
-            {isLoggedIn && (
-              <>
-                <div className="relative px-4 py-2 text-sm font-bold rounded-xl border-[3px] border-transparent hover:bg-muted hover:border-[var(--nb-border-color)] transition-all text-muted-foreground hover:text-foreground cursor-pointer tap-interactive">
-                  <MumbleIcon />
-                  {unReadMumbles > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-nb-accent text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]">
-                      {unReadMumbles}
-                    </span>
-                  )}
-                </div>
-
-                <div className="relative">
-                  <Link
-                    href="/profile/mumbles"
-                    className={cn(
-                      "flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl border-[3px] transition-all duration-150 tap-interactive",
-                      pathname.startsWith("/profile")
-                        ? "bg-nb-accent text-white border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)]"
-                        : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted hover:border-[var(--nb-border-color)]"
-                    )}
-                  >
-                    <Menu className="h-5 w-5" />
-                    <span>About</span>
-                  </Link>
-                  {badgeOfPendingRequests > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-nb-warning text-foreground rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]">
-                      {badgeOfPendingRequests}
-                    </span>
-                  )}
-                </div>
-              </>
-            )}
-          </nav>
-
-          {/* Profile Avatar / Theme Toggle */}
-          <div className="flex items-center gap-3">
-            <ThemeToggle
-              handleToggle={(e) =>
-                handleToggle(e, dispatch, setTheme, setIsChecked)
-              }
-              isChecked={isChecked}
-            />
+          {/* Theme + avatar menu */}
+          <div className="flex shrink-0 items-center gap-3">
+            {/* Phones have no account menu, so the theme switch lives here as a small icon button. */}
+            <button
+              type="button"
+              onClick={() => setDark(!isDark)}
+              aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+              className={cn("flex size-10 items-center justify-center rounded-xl border-2 border-[var(--nb-border-color)] bg-card text-foreground shadow-[var(--nb-shadow-sm)] tap-interactive", user && "md:hidden")}
+            >
+              {isDark ? <Sun className="h-5 w-5" aria-hidden="true" /> : <Moon className="h-5 w-5" aria-hidden="true" />}
+            </button>
 
             {user && (
-              <div className="flex items-center">
-                {isMobile ? (
-                  <Link href="/profile/edit" className="tap-interactive">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.avatar?.url} />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">
-                        {user.username.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Link>
-                ) : (
-                  <Link href="/profile/mumbles" className="tap-interactive">
-                    <div className="flex items-center gap-2 bg-card pl-2 pr-3 py-1.5 rounded-xl border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] hover:shadow-[var(--nb-shadow)] transition-all">
-                      <Avatar className="h-6 w-6 border-[2px]">
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <button
+                      type="button"
+                      aria-label="Your account menu"
+                      className={cn(
+                        "nb-avatar-trigger relative hidden rounded-full md:block",
+                        onProfile && "is-active"
+                      )}
+                    />
+                  }
+                >
+                  <Avatar className="size-10 border-2 shadow-[var(--nb-shadow-sm)]">
+                    <AvatarImage src={user?.avatar?.url} className="object-cover" />
+                    <AvatarFallback className="bg-primary text-xs font-extrabold text-on-color">{initials}</AvatarFallback>
+                  </Avatar>
+                  <CountBadge count={badgeOfPendingRequests} label="pending friend requests" className="-top-1.5 -right-1.5 bg-nb-warning" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" sideOffset={10} className="w-64">
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="flex items-center gap-3 px-2 py-2 normal-case tracking-normal text-foreground">
+                      <Avatar>
                         <AvatarImage src={user?.avatar?.url} />
-                        <AvatarFallback className="bg-primary text-primary-foreground text-[9px]">
-                          {user.username.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
+                        <AvatarFallback className="bg-primary text-xs font-bold text-on-color">{initials}</AvatarFallback>
                       </Avatar>
-                      <span className="text-xs font-bold text-foreground">@{user?.username}</span>
-                    </div>
-                  </Link>
-                )}
-              </div>
+                      <span className="min-w-0">
+                        {user?.username && <Handle name={user.username} size="md" className="max-w-full" />}
+                        {user?.email && <span className="mt-0.5 block truncate text-xs font-medium text-muted-foreground">{user.email}</span>}
+                      </span>
+                    </DropdownMenuLabel>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  {menuLinks.map(({ href, label, icon: Icon }) => (
+                    <DropdownMenuItem key={href} onClick={() => router.push(href)}>
+                      <Icon aria-hidden="true" />
+                      {label}
+                      {href === "/profile/friends/list" && badgeOfPendingRequests > 0 && (
+                        <span className="ml-auto rounded-md border-[2px] border-[var(--nb-border-color)] bg-nb-warning px-1.5 text-xs font-bold text-on-color">
+                          {badgeOfPendingRequests} new
+                        </span>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem closeOnClick={false} onClick={() => setDark(!isDark)} aria-label={isDark ? "Dark mode on. Switch to light" : "Dark mode off. Switch to dark"}>
+                    {isDark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
+                    Dark mode
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "relative ml-auto h-6 w-11 shrink-0 rounded-full border-2 border-[var(--nb-border-color)] transition-colors duration-200",
+                        isDark ? "bg-nb-accent" : "bg-muted"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "absolute top-0.5 left-0.5 size-4 rounded-full border-2 border-[var(--nb-border-color)] bg-primary transition-transform duration-200",
+                          isDark && "translate-x-5"
+                        )}
+                      />
+                    </span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem variant="destructive" disabled={isLoggingOut} onClick={logout}>
+                    <LogOut aria-hidden="true" />
+                    {isLoggingOut ? "Logging out…" : "Log out"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         </div>
       </header>
 
-      {/* Mobile Bottom Navigation Bar */}
+      {/* Phone bottom dock */}
       {isLoggedIn && (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card border-t-[3px] border-[var(--nb-border-color)] flex items-center justify-around h-16 pb-safe">
-          {/* Chats */}
+        <nav
+          aria-label="Main"
+          className="nb-dock-up pb-safe fixed right-0 bottom-0 left-0 z-50 flex items-stretch justify-around border-t-2 border-[var(--nb-line)] bg-card md:hidden"
+        >
+          {SECTIONS.map((section) => {
+            const Icon = section.icon;
+            const isActive = active?.key === section.key;
+            const badge = badges[section.key];
+            return (
+              <Link
+                key={section.key}
+                href={section.href}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "relative flex h-16 flex-1 flex-col items-center justify-center gap-1",
+                  isActive ? "text-foreground" : "text-muted-foreground"
+                )}
+              >
+                <span
+                  className={cn(
+                    "relative flex h-9 w-11 items-center justify-center rounded-xl transition-all duration-200",
+                    isActive && cn(section.fill, "border-[2px] border-[var(--nb-border-color)] text-on-color shadow-[2px_2px_0_var(--nb-shadow-color)]")
+                  )}
+                >
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                  {badge && <CountBadge count={badge.count} label={badge.label} className={cn("-top-2 -right-2", badge.className)} />}
+                </span>
+                <span className="text-xs font-bold">{section.label.replace("Echo", "")}</span>
+              </Link>
+            );
+          })}
           <Link
-            href="/links"
+            href="/profile/edit"
+            aria-current={onProfile ? "page" : undefined}
             className={cn(
-              "flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-all duration-150 tap-interactive",
-              pathname.startsWith("/links")
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground"
+              "relative flex h-16 flex-1 flex-col items-center justify-center gap-1",
+              onProfile ? "text-foreground" : "text-muted-foreground"
             )}
           >
-            <div className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-xl transition-all",
-              pathname.startsWith("/links") && "bg-primary border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]"
-            )}>
-              <MessageSquare className="h-5 w-5" />
-            </div>
-            <span className="text-[9px] font-bold">Chats</span>
-            {newUnreadMessages > 0 && (
-              <span className="absolute top-1 right-4 bg-destructive text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold border-[2px] border-[var(--nb-border-color)]">
-                {newUnreadMessages}
-              </span>
-            )}
-          </Link>
-
-          {/* Shouts */}
-          <Link
-            href="/shout"
-            className={cn(
-              "flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-all duration-150 tap-interactive",
-              pathname.startsWith("/shout")
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <div className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-xl transition-all",
-              pathname.startsWith("/shout") && "bg-secondary border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]"
-            )}>
-              <Megaphone className="h-5 w-5" />
-            </div>
-            <span className="text-[9px] font-bold">Shouts</span>
-          </Link>
-
-          {/* Mumbles */}
-          <div className="flex-1 h-full flex items-center justify-center">
-            <MumbleIcon isBottomNav={true} />
-          </div>
-
-          {/* Profile */}
-          <Link
-            href="/profile/mumbles"
-            className={cn(
-              "flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-all duration-150 tap-interactive",
-              pathname.startsWith("/profile")
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <div className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-xl transition-all",
-              pathname.startsWith("/profile") && "bg-nb-accent border-[2px] border-[var(--nb-border-color)] shadow-[2px_2px_0px_var(--nb-shadow-color)]"
-            )}>
-              <User className="h-5 w-5" />
-            </div>
-            <span className="text-[9px] font-bold">Profile</span>
-            {badgeOfPendingRequests > 0 && (
-              <span className="absolute top-1 right-4 bg-nb-warning text-foreground rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold border-[2px] border-[var(--nb-border-color)]">
-                {badgeOfPendingRequests}
-              </span>
-            )}
+            <span className="relative">
+              <Avatar size="sm" className={cn(onProfile && "ring-3 ring-nb-accent")}>
+                <AvatarImage src={user?.avatar?.url} />
+                <AvatarFallback className="bg-primary text-[0.65rem] font-bold text-on-color">{initials}</AvatarFallback>
+              </Avatar>
+              <CountBadge count={badgeOfPendingRequests} label="pending friend requests" className="-top-2 -right-3 bg-nb-warning" />
+            </span>
+            <span className="text-xs font-bold">Me</span>
           </Link>
         </nav>
       )}

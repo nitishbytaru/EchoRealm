@@ -1,11 +1,15 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Handle from "@/components/Handle";
 import { useDispatch, useSelector } from "react-redux";
-import { Loader2 } from "lucide-react";
+import { X, EyeOff } from "lucide-react";
+import moment from "moment";
+import { chipColor } from "@/components/chat/ChatMessage";
+import Link from "next/link";
+import { toast } from "@/hooks/use-toast";
 
 import socket from "@/sockets/socket";
-import Loading from "@/components/Loading";
 import { getEchoShoutsApi } from "@/api/echo_shout.api";
 import MessageBar from "@/components/MessageBar";
 import ChatHistoryBox from "./components/ChatHistoryBox";
@@ -19,21 +23,20 @@ import {
   setPaginationDetails,
 } from "@/store/slices/echo_shout.slice";
 import { RootState } from "@/store/store";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
+import ShoutLoading from "./components/ShoutLoading";
+import PageHeader from "@/components/PageHeader";
+import { ShoutLines, Sparkle, TypingBubble } from "@/components/brand/BrandMarks";
 
 export default function EchoShoutPage() {
   const dispatch = useDispatch();
 
-  const { isLoggedIn } = useSelector((state: RootState) => state.auth);
+  const { isLoggedIn, user } = useSelector((state: RootState) => state.auth);
   const { messages, pagination } = useSelector((state: RootState) => state.echoShout);
 
   const [mentions, setMentions] = useState<any[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
   const [selectSearchBar, setSelectSearchBar] = useState(false);
-  const [echoShoutMessageData, setEchoShoutMessageData] = useState<any>(null);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
   const loading = useRef(false);
@@ -75,6 +78,7 @@ export default function EchoShoutPage() {
         setShouldScrollToBottom(true);
       } catch (error) {
         console.error("Error fetching messages:", error);
+        toast.error("We couldn't load EchoShout. Refresh to try again.");
       } finally {
         setIsFetching(false);
       }
@@ -83,23 +87,14 @@ export default function EchoShoutPage() {
     fetchMessages();
   }, [dispatch]);
 
-  // Handle sending new messages
-  useEffect(() => {
-    if (echoShoutMessageData) {
-      setIsUploading(true);
-      sendEchoShoutMessage(
-        setSelectSearchBar,
-        mentions,
-        echoShoutMessageData,
-        setMentions,
-        setEchoShoutMessageData,
-        setIsUploading
-      );
-    }
-  }, [dispatch, echoShoutMessageData, mentions]);
+  const sendShout = async (data: FormData) => {
+    await sendEchoShoutMessage(mentions, data);
+    setMentions([]);
+    setSelectSearchBar(false);
+  };
 
   function addMentionFunc(mentionedUser: any) {
-    setMentions((prev) => [...prev, mentionedUser]);
+    setMentions((prev) => (prev.some((m) => m._id === mentionedUser._id) ? prev : [...prev, mentionedUser]));
     setSelectSearchBar(false);
   }
 
@@ -151,128 +146,218 @@ export default function EchoShoutPage() {
     };
   }, [pagination, dispatch, messages]);
 
-  if (isFetching) {
-    return (
-      <div className="flex-1 flex flex-col h-full max-w-4xl mx-auto w-full relative">
-        {/* Skeleton message list */}
-        <div className="flex-1 space-y-4 py-4 overflow-hidden flex flex-col justify-end">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className={`flex items-start gap-3 max-w-[70%] ${
-                i % 2 === 0 ? "self-start" : "self-end flex-row-reverse"
-              }`}
-            >
-              <Skeleton className="h-9 w-9 rounded-full flex-shrink-0" />
-              <div className="space-y-2 w-48">
-                <Skeleton className="h-4 w-16 rounded-lg" />
-                <Skeleton className="h-14 w-full rounded-xl" />
-              </div>
-            </div>
-          ))}
-        </div>
+  const identityLabel = user?.isAnonymous ? "Posting anonymously" : `Posting as @${user?.username}`;
 
-        {/* MessageBar placeholder */}
-        <div className="bg-card rounded-2xl border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] p-3 mt-4 flex items-center gap-3">
-          <Skeleton className="h-10 w-10 rounded-xl" />
-          <Skeleton className="h-10 flex-1 rounded-xl" />
-        </div>
-      </div>
-    );
+  // Last few distinct people who shouted, from the messages already loaded.
+  const recentShouters: { name: string; time: string; isMe: boolean }[] = [];
+  for (const msg of [...(messages || [])].reverse()) {
+    if (!msg?.sender || recentShouters.some((s) => s.name === msg.sender)) continue;
+    recentShouters.push({ name: msg.sender, time: msg.updatedAt, isMe: msg.sender === user?.username });
+    if (recentShouters.length === 5) break;
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full max-w-4xl mx-auto w-full relative">
-      {/* Scrollable Messages Section */}
-      <div className="flex-1 flex flex-col min-h-0">
-        <ChatHistoryBox
-          shoutScrollRef={shoutScrollRef}
-          shouldScrollToBottom={shouldScrollToBottom}
-          messages={messages}
-          gettingOldMessages={gettingOldMessages}
+    <div className="nb-stagger grid h-app grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_19rem]">
+      {/* Feed */}
+      <section aria-label="EchoShout feed" className="flex min-h-0 flex-col">
+        <PageHeader
+          title="Everyone hears"
+          sticker="this."
+          stickerFill="bg-secondary"
+          description="One room for everybody. Keep it short and loud."
+          className="mb-4 lg:hidden [&_h1]:text-2xl sm:[&_h1]:text-3xl"
         />
-      </div>
 
-      {/* MessageBar for Sending Messages */}
-      {isLoggedIn && (
-        <div className="relative mt-4 z-20">
-          {selectSearchBar && (
-            <div className="absolute bottom-18 left-0 right-0 max-w-sm mx-auto bg-card border-[3px] border-[var(--nb-border-color)] rounded-xl p-4 shadow-[var(--nb-shadow)] animate-in slide-in-from-bottom-5">
-              <div className="space-y-3">
-                <Input
-                  type="text"
-                  placeholder="Search users to mention..."
-                  value={search.value}
-                  onChange={search.changeHandler}
-                  className="text-sm"
-                />
-                
-                {searchResults?.length > 0 && (
-                  <ul className="max-h-40 overflow-y-auto space-y-1 hide-scrollBar">
-                    {searchResults.map(({ user }) => (
-                      <li
-                        key={user._id}
-                        onClick={() => {
-                          addMentionFunc(user);
-                          search.clear();
-                        }}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/20 cursor-pointer transition-colors"
-                      >
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={user?.avatar?.url} />
-                          <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">{user.username.slice(0,2).toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-bold text-foreground">@{user.username}</p>
-                          <p className="text-[10px] text-muted-foreground font-medium">{user.email}</p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">
+          {isFetching ? (
+            <ShoutLoading />
+          ) : (
+            <ChatHistoryBox
+              shoutScrollRef={shoutScrollRef}
+              shouldScrollToBottom={shouldScrollToBottom}
+              messages={messages}
+              gettingOldMessages={gettingOldMessages}
+            />
           )}
 
-          <div className="flex items-center gap-3 bg-card rounded-2xl border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] p-3">
-            {mentions.length > 0 && (
-              <div className="absolute -top-10 left-3 flex gap-2 flex-wrap z-10 animate-in fade-in">
-                {mentions.map((mention, index) => (
+          {/* Composer dock: always pinned to the bottom of the feed */}
+          {isLoggedIn && (
+            <div className="relative z-20 shrink-0 border-t-2 border-[var(--nb-line)] bg-muted/60 px-4 pt-3 pb-4">
+              {selectSearchBar && (
+                <div className="absolute right-3 bottom-full left-3 z-30 mx-auto mb-3 max-w-sm rounded-xl border-2 border-[var(--nb-border-color)] bg-card p-3 shadow-[var(--nb-shadow)]">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <label htmlFor="mention-search" className="text-sm font-bold text-foreground">
+                      Mention someone
+                    </label>
+                    <button
+                      type="button"
+                      aria-label="Close mention search"
+                      onClick={() => {
+                        setSelectSearchBar(false);
+                        search.clear();
+                      }}
+                      className="flex size-8 items-center justify-center rounded-lg border-[2px] border-transparent text-muted-foreground transition-colors hover:border-[var(--nb-border-color)] hover:bg-muted hover:text-foreground"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <Input
+                    id="mention-search"
+                    type="text"
+                    autoFocus
+                    placeholder="Search by username"
+                    value={search.value}
+                    onChange={search.changeHandler}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") {
+                        setSelectSearchBar(false);
+                        search.clear();
+                      }
+                    }}
+                    className="text-base md:text-sm"
+                  />
+                  {searchResults?.length > 0 && (
+                    <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto hide-scrollBar">
+                      {searchResults.map(({ user: candidate }) => (
+                        <li key={candidate._id}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              addMentionFunc(candidate);
+                              search.clear();
+                            }}
+                            className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-muted"
+                          >
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={candidate?.avatar?.url} alt="" />
+                              <AvatarFallback className="bg-secondary text-xs text-on-color">
+                                {candidate.username.slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="min-w-0 truncate text-sm font-bold text-foreground">@{candidate.username}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+
+              {mentions.length > 0 && (
+              <div className="mb-2.5 flex flex-wrap items-center gap-2">
+                {mentions.map((mention) => (
                   <span
-                    key={index}
-                    className="bg-nb-accent/20 border-[2px] border-[var(--nb-border-color)] text-nb-accent px-3 py-1 rounded-xl text-xs font-bold"
+                    key={mention._id}
+                    className="inline-flex items-center gap-1 rounded-xl border-[2px] border-[var(--nb-border-color)] bg-secondary pl-2 text-xs font-bold text-on-color"
                   >
                     @{mention?.username}
+                    <button
+                      type="button"
+                      aria-label={`Remove mention of ${mention?.username}`}
+                      onClick={() => setMentions((prev) => prev.filter((m) => m._id !== mention._id))}
+                      className="flex size-7 items-center justify-center"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
                   </span>
                 ))}
               </div>
-            )}
-            
-            <Button
-              type="button"
-              variant={selectSearchBar ? "default" : "outline"}
-              onClick={() => setSelectSearchBar((prev) => !prev)}
-              className={`font-extrabold h-10 w-10 p-0 rounded-xl flex-shrink-0 text-sm ${
-                selectSearchBar 
-                  ? "bg-primary text-primary-foreground" 
-                  : "bg-card text-nb-accent"
-              }`}
-            >
-              @
-            </Button>
-
-            <div className="w-full">
-              {isUploading ? (
-                <div className="flex items-center justify-center h-10">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                </div>
-              ) : (
-                <MessageBar setMessageData={setEchoShoutMessageData} />
               )}
+
+              <MessageBar
+                onSend={sendShout}
+                placeholder="Shout something, or type @ to mention"
+                sendLabel="Post to EchoShout"
+                onMentionTrigger={() => setSelectSearchBar(true)}
+                leading={
+                  <span className="group/identity relative shrink-0">
+                    <Link
+                      href="/profile/edit"
+                      aria-label={`${identityLabel}. Change in your profile`}
+                      className="flex size-9 items-center justify-center rounded-xl transition-colors hover:bg-muted"
+                    >
+                      {user?.isAnonymous ? (
+                        <span className="flex size-7 items-center justify-center rounded-full border-[2px] border-[var(--nb-border-color)] bg-nb-accent text-on-color">
+                          <EyeOff className="size-4" aria-hidden="true" />
+                        </span>
+                      ) : (
+                        <Avatar size="sm" className="size-7 border-[2px] shadow-none">
+                          <AvatarImage src={user?.avatar?.url} alt="" />
+                          <AvatarFallback className="bg-secondary text-[0.6rem] font-extrabold text-on-color">
+                            {user?.username?.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                    </Link>
+                    <span
+                      role="tooltip"
+                      className="nb-reveal-x pointer-events-none absolute bottom-full left-0 z-30 mb-3 w-max max-w-60 rounded-xl border-[2px] border-[var(--nb-border-color)] bg-card px-3 py-2 shadow-[var(--nb-shadow-sm)]"
+                    >
+                      <span className="block text-sm font-bold text-foreground">{identityLabel}</span>
+                      <span className="block text-xs font-medium text-muted-foreground">Click to change in your profile</span>
+                    </span>
+                  </span>
+                }
+              />
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </section>
+
+      {/* Right rail */}
+      <aside aria-label="About EchoShout" className="nb-stagger hidden min-h-0 flex-col gap-5 [--nb-stagger-start:120ms] lg:flex">
+        <PageHeader
+          as="h2"
+          title="Everyone hears"
+          sticker="this."
+          stickerFill="bg-secondary"
+          description="One room for everybody. Keep it short and loud."
+          className="[&_h2]:text-3xl"
+        />
+        <div className="relative rounded-2xl border-2 border-[var(--nb-border-color)] bg-secondary p-4 text-on-color shadow-[var(--nb-shadow-sm)]">
+          <ShoutLines className="absolute -top-4 -left-5 w-10 rotate-[200deg]" />
+          <p className="text-lg font-extrabold leading-tight">How shouting works</p>
+          <ul className="mt-3 space-y-2 text-sm font-semibold">
+            <li className="flex gap-2"><Sparkle className="mt-0.5 w-3.5 shrink-0 [animation:none]" />Everyone signed in sees every shout.</li>
+            <li className="flex gap-2"><Sparkle className="mt-0.5 w-3.5 shrink-0 [animation:none]" />Up to 55 characters per shout.</li>
+            <li className="flex gap-2"><Sparkle className="mt-0.5 w-3.5 shrink-0 [animation:none]" />Type @ to mention someone. They get a heads-up.</li>
+            <li className="flex gap-2"><Sparkle className="mt-0.5 w-3.5 shrink-0 [animation:none]" />Add one image with the paperclip.</li>
+          </ul>
+        </div>
+
+        {recentShouters.length > 0 && (
+          <div className="rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
+            <p className="text-lg font-extrabold leading-tight text-foreground">
+              Loud <span className="nb-sticker-word bg-primary">lately</span>
+            </p>
+            <ul className="mt-3 space-y-2.5">
+              {recentShouters.map((shouter) => (
+                <li key={shouter.name} className="flex items-center gap-2.5">
+                  <span
+                    aria-hidden="true"
+                    className={`flex size-7 shrink-0 items-center justify-center rounded-full border-[2px] border-[var(--nb-border-color)] text-xs font-extrabold text-on-color ${chipColor(shouter.name)}`}
+                  >
+                    {shouter.name.slice(0, 1).toUpperCase()}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-sm font-bold text-foreground">
+                    {shouter.isMe ? "You" : <Handle name={shouter.name} size="sm" />}
+                  </span>
+                  <time dateTime={shouter.time} className="shrink-0 text-xs font-semibold text-muted-foreground">
+                    {moment(shouter.time).fromNow(true)}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div aria-hidden="true" className="relative mt-auto hidden h-28 xl:block">
+          <TypingBubble className="absolute bottom-6 left-6 -rotate-3" />
+          <TypingBubble tone="primary" className="absolute right-10 bottom-14 rotate-2" />
+          <Sparkle className="absolute right-4 bottom-2 w-7" />
+          <Sparkle className="absolute top-0 left-24 w-5" style={{ animationDelay: "1.2s" }} />
+        </div>
+      </aside>
     </div>
   );
 }

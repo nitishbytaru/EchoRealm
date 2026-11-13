@@ -8,7 +8,8 @@ import { Loader2 } from "lucide-react";
 
 import Loading from "@/components/Loading";
 import socket from "@/sockets/socket";
-import MessageBubble from "./ChatBox/MessageBubble";
+import { ChatMessage, DaySeparator, groupMessages } from "@/components/chat/ChatMessage";
+import OlderMessagesLoader from "@/components/chat/OlderMessagesLoader";
 import MessageBar from "@/components/MessageBar";
 import GroupChatNav from "./ChatBox/NavBars/GroupChatNav";
 import PrivateChatNav from "./ChatBox/NavBars/PrivateChatNav";
@@ -57,10 +58,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
 
   const messagesEndRef = useAutoScroll(privateMessages, shouldScrollToBottom);
 
-  const [echoLinkMessageData, setEchoLinkMessageData] = useState<FormData | null>(null);
-
   const [isPendingOperation, setIsPendingOperation] = useState(false);
-  const [isPendingSendMessage, setIsPendingSendMessage] = useState(false);
   const [isPendingGetMessage, setIsPendingGetMessage] = useState(false);
 
   // Group action dialog states
@@ -118,36 +116,20 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
     };
   }, [dispatch, recieverId, setShouldScrollToBottom]);
 
-  useEffect(() => {
+  const sendMessage = async (data: FormData) => {
     if (!recieverId) return;
-
-    if (echoLinkMessageData && !echoLinkMessageData.has("receiver")) {
-      echoLinkMessageData.append("receiver", recieverId);
+    data.append("receiver", recieverId);
+    const response = selectedChat?.groupName
+      ? await sendGroupChatMessageApi(data)
+      : await sendEchoLinkMessageApi(data);
+    if (!selectedChat?.groupName) {
+      dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
     }
+  };
 
-    const sendMessage = async () => {
-      try {
-        setIsPendingSendMessage(true);
-        if (!echoLinkMessageData) return;
-
-        const response = selectedChat?.groupName
-          ? await sendGroupChatMessageApi(echoLinkMessageData)
-          : await sendEchoLinkMessageApi(echoLinkMessageData);
-
-        if (!selectedChat?.groupName) {
-          dispatch(addToMyPrivateChatRooms(response?.data?.receiverData));
-        }
-      } catch (error: any) {
-        console.error("Error sending message:", error);
-        toast.error(error?.response?.data?.message || "Failed to send message.");
-      } finally {
-        setIsPendingSendMessage(false);
-        setEchoLinkMessageData(null);
-      }
-    };
-
-    if (echoLinkMessageData) sendMessage();
-  }, [dispatch, echoLinkMessageData, recieverId, selectedChat?.groupName]);
+  const groupMemberNames: Record<string, string> = Object.fromEntries(
+    (selectedChat?.groupChatRoomMembers || []).map((member: any) => [member._id, member.username])
+  );
 
   useEffect(() => {
     const getMessages = async () => {
@@ -178,7 +160,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
     getMessages();
   }, [dispatch, recieverId, user]);
 
-  if (isPendingGetMessage) return <Loading />;
+  if (isPendingGetMessage) return <Loading label="Opening chat" />;
   if (isPendingOperation) {
     return (
       <div className="h-full flex flex-col justify-center items-center gap-3 p-8">
@@ -191,7 +173,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
   return (
     <>
       {!recieverId ? (
-        <div className="h-full flex justify-center items-center text-center rounded-2xl min-h-[400px] bg-muted/30 border-[3px] border-[var(--nb-border-color)]">
+        <div className="h-full flex justify-center items-center text-center p-6">
           <p className="text-sm font-bold text-muted-foreground">
             Select a user or group to open chat
           </p>
@@ -218,29 +200,31 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           )}
 
           {/* Chat area */}
-          <div className="flex-1 overflow-y-auto mt-4 p-4 rounded-2xl relative min-h-[300px] bg-muted/20 border-[3px] border-[var(--nb-border-color)]">
-            <div className="h-full overflow-y-auto hide-scrollBar" ref={scrollRef}>
-              {gettingOldMessages && (
-                <div className="flex justify-center p-2">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                </div>
-              )}
-              {privateMessages?.map((message, index) => (
-                <MessageBubble key={index} messages={message} user={user} />
+          <div className="relative min-h-0 flex-1">
+            <div aria-hidden="true" className="nb-dotgrid pointer-events-none absolute inset-0 opacity-50" />
+            <div role="log" aria-label="Messages" aria-live="polite" className="relative h-full overflow-y-auto px-4 pt-4 pb-1 hide-scrollBar" ref={scrollRef}>
+              {gettingOldMessages && <OlderMessagesLoader label="Loading earlier messages…" />}
+              {groupMessages(privateMessages || [], (m: any) => m?.sender, (m: any) => m?.createdAt).map(({ message, dayLabel, isFirst, isLast }, index) => (
+                <React.Fragment key={message?._id || index}>
+                  {dayLabel && <DaySeparator label={dayLabel} />}
+                  <ChatMessage
+                    text={message?.message}
+                    imageUrl={message?.attachments?.[0]?.url}
+                    time={message?.createdAt}
+                    isMe={message?.sender === user?._id}
+                    senderName={selectedChat?.groupName ? groupMemberNames[message?.sender] ?? "Former member" : undefined}
+                    isFirst={isFirst}
+                    isLast={isLast}
+                  />
+                </React.Fragment>
               ))}
               <div ref={messagesEndRef} />
             </div>
           </div>
 
           {/* Message input bar */}
-          <div className="mt-4">
-            {isPendingSendMessage ? (
-              <div className="w-full flex justify-center items-center py-4">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : (
-              <MessageBar setMessageData={setEchoLinkMessageData} />
-            )}
+          <div className="shrink-0 border-t-2 border-[var(--nb-line)] bg-muted/60 px-4 pt-3 pb-4">
+            <MessageBar onSend={sendMessage} />
           </div>
         </div>
       )}

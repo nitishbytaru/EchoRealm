@@ -113,7 +113,7 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
         <div className="space-y-4 py-2">
           {/* Search Users */}
           <div className="space-y-1.5 relative">
-            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Search users to add</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Search users to add</label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/75" />
               <Input
@@ -121,15 +121,16 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
                 placeholder="Search friends..."
                 value={search.value}
                 onChange={search.changeHandler}
-                className="pl-9 bg-background border-border focus-visible:ring-indigo-500 text-foreground placeholder:text-muted-foreground/60 h-9 text-xs rounded-lg"
+                className="pl-9 bg-background border-border text-foreground placeholder:text-muted-foreground "
               />
             </div>
 
             {search.value && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-2xl max-h-40 overflow-y-auto z-50 p-1 divide-y divide-border">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-popover border-2 border-[var(--nb-border-color)] rounded-lg shadow-2xl max-h-40 overflow-y-auto z-50 p-1 divide-y divide-border">
                 {searchResults?.length > 0 ? (
                   searchResults.map((searchUser) => (
-                    <div
+                    <button
+                      type="button"
                       key={searchUser._id}
                       onClick={() =>
                         addGroupMember({
@@ -137,19 +138,19 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
                           username: searchUser.username,
                         })
                       }
-                      className="flex items-center justify-between p-2 rounded-lg hover:bg-accent cursor-pointer"
+                      className="flex w-full items-center justify-between p-2 rounded-lg hover:bg-accent"
                     >
                       <div className="flex items-center gap-2">
                         <Avatar className="h-7 w-7">
                           <AvatarImage src={searchUser?.avatar?.url} />
-                          <AvatarFallback className="bg-muted text-indigo-400 text-[10px] border border-border">
+                          <AvatarFallback className="bg-muted text-nb-accent-text text-xs border-2 border-[var(--nb-border-color)]">
                             {searchUser.username.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <span className="text-xs font-medium">@{searchUser.username}</span>
                       </div>
-                      <Plus className="h-3.5 w-3.5 text-indigo-400" />
-                    </div>
+                      <Plus className="h-3.5 w-3.5 text-nb-accent-text" />
+                    </button>
                   ))
                 ) : (
                   <div className="p-3 text-center text-xs text-muted-foreground">No users found</div>
@@ -160,18 +161,19 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
 
           {/* Current group members */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Selected Members ({groupMembers.length})</label>
-            <div className="flex flex-wrap gap-1.5 p-2 bg-muted border border-border rounded-xl max-h-40 overflow-y-auto">
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Selected Members ({groupMembers.length})</label>
+            <div className="flex flex-wrap gap-1.5 p-2 bg-muted border-2 border-[var(--nb-border-color)] rounded-xl max-h-40 overflow-y-auto">
               {groupMembers.map((member) => (
                 <span
                   key={member.id}
-                  className="inline-flex items-center gap-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-550 dark:text-indigo-300 text-[10px] font-medium px-2 py-0.5 rounded-full"
+                  className="inline-flex items-center gap-1 bg-nb-accent/15 border border-[var(--nb-border-color)] text-nb-accent-text text-xs font-medium px-2 py-0.5 rounded-full"
                 >
                   @{member.username}
                   <button
                     type="button"
                     onClick={() => removeLocalGroupMember(member.id)}
-                    className="text-indigo-550 hover:text-indigo-650 dark:text-indigo-450 dark:hover:text-white"
+                      aria-label={`Remove @${member.username}`}
+                    className="text-nb-accent-text hover:text-foreground"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -183,7 +185,7 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
 
         <div className="flex justify-end gap-2 pt-2">
           <DialogClose render={
-            <Button variant="ghost" className="hover:bg-accent text-muted-foreground hover:text-foreground text-xs rounded-lg h-9 tap-interactive">
+            <Button variant="ghost" className="hover:bg-accent text-muted-foreground hover:text-foreground text-xs rounded-lg h-9">
               Cancel
             </Button>
           } />
@@ -191,7 +193,7 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
             onClick={addMembersToGroup}
             loading={isPending}
             disabled={groupMembers.length === 0}
-            className="bg-indigo-650 hover:bg-indigo-600 text-white text-xs px-4 rounded-lg shadow-sm shadow-indigo-950/20 h-9 tap-interactive"
+            className=" text-xs px-4 rounded-lg h-9 tap-interactive"
           >
             Update Members
           </Button>

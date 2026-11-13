@@ -16,6 +16,8 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  // Re-mount (and fade) when moving between sections, not between pages inside one, so section layouts keep their state.
+  const section = pathname.split("/")[1] ?? "";
   const dispatch = useDispatch();
   const { isLoggedIn, user } = useSelector((state: RootState) => state.auth);
   const [loading, setLoading] = useState(!isLoggedIn);
@@ -31,7 +33,7 @@ export default function DashboardLayout({
       // Check if we are allowed to fetch (e.g. have logged in before)
       const allowFetch = localStorage.getItem("allowFetch") === "true";
       if (!allowFetch) {
-        router.push("/");
+        router.push("/login");
         return;
       }
 
@@ -42,11 +44,11 @@ export default function DashboardLayout({
           dispatch(setIsLoggedIn(true));
           setLoading(false);
         } else {
-          router.push("/");
+          router.push("/login");
         }
       } catch (error) {
         console.error("Dashboard auth check failed:", error);
-        router.push("/");
+        router.push("/login");
       }
     };
 
@@ -63,10 +65,11 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-background text-foreground relative">
+      <div aria-hidden="true" className="nb-dotgrid pointer-events-none fixed inset-0 z-0 opacity-70" />
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <NavBar />
-        <main className="flex-1 flex flex-col w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 z-10">
-          <div key={pathname} className="flex-1 flex flex-col w-full animate-fade-in-up">
+        <main className="flex-1 flex flex-col w-full max-w-7xl mx-auto px-4 pt-4 pb-24 sm:px-6 sm:pt-6 md:pb-6 lg:px-8 lg:py-8 z-10">
+          <div key={section} className="flex-1 flex flex-col w-full animate-fade-in">
             {children}
           </div>
         </main>

@@ -1,10 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import BusyBadge from "@/components/BusyBadge";
+import PageHeader from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { UserCheck, UserX2, Eye, Loader2, UserPlus2 } from "lucide-react";
+import Link from "next/link";
+import { UserCheck, UserX2, Eye, UserPlus2, Search, PartyPopper } from "lucide-react";
+import PersonCard, { PeopleEmpty, PersonGhosts } from "@/components/people/PersonCard";
+import { TypingBubble } from "@/components/brand/BrandMarks";
 
 import {
   fetchMyFriendRequestsApi,
@@ -17,10 +22,8 @@ import {
   setViewingProfileUserDetails,
 } from "@/store/slices/user.slice";
 import { RootState } from "@/store/store";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button, buttonVariants } from "@/components/ui/button";
+import LoadError from "@/components/LoadError";
 
 export default function MyFriendRequestsPage() {
   const dispatch = useDispatch();
@@ -28,23 +31,28 @@ export default function MyFriendRequestsPage() {
   const { myFriendRequests } = useSelector((state: RootState) => state.user);
 
   const [isPending, setIsPending] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [leaving, setLeaving] = useState<Record<string, "accepted" | "declined">>({});
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
         setIsPending(true);
+        setLoadError(false);
         const response = await fetchMyFriendRequestsApi();
         if (response?.data?.requests) {
           dispatch(setMyFriendRequests(response.data.requests));
         }
       } catch (error) {
         console.error("Error fetching friend requests:", error);
+        setLoadError(true);
       } finally {
         setIsPending(false);
       }
     };
     fetchRequests();
-  }, [dispatch]);
+  }, [dispatch, reloadKey]);
 
   const handleFriendRequest = async (requestedUserId: string, willAccept: boolean) => {
     try {
@@ -55,14 +63,24 @@ export default function MyFriendRequestsPage() {
       });
 
       if (willAccept) {
-        dispatch(addToMyFriendsList(response?.data?.updatedMyFriendRequests));
+        const acceptedUser = myFriendRequests.find((request: any) => request._id === requestedUserId);
+        if (acceptedUser) dispatch(addToMyFriendsList(acceptedUser));
       }
 
-      dispatch(removeFromMyFriendRequests(requestedUserId));
-      toast.success(response?.data?.message || `Friend request ${willAccept ? "accepted" : "rejected"}.`);
+      // Let the card celebrate (accept) or drop out (decline) before it leaves the list.
+      setLeaving((prev) => ({ ...prev, [requestedUserId]: willAccept ? "accepted" : "declined" }));
+      setTimeout(() => {
+        dispatch(removeFromMyFriendRequests(requestedUserId));
+        setLeaving((prev) => {
+          const next = { ...prev };
+          delete next[requestedUserId];
+          return next;
+        });
+      }, willAccept ? 1500 : 1100);
+      toast.success(response?.data?.message || (willAccept ? "You're friends now." : "Request declined."));
     } catch (error) {
       console.error("Error handling friend request:", error);
-      toast.error("Failed to update friend request.");
+      toast.error("Couldn't update that request. Try again.");
     } finally {
       setIsPending(false);
     }
@@ -74,90 +92,85 @@ export default function MyFriendRequestsPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-zinc-100">
-            Friend Requests
-          </h2>
-          <p className="text-[10px] text-zinc-555 mt-0.5">Respond to incoming friend invitations</p>
-        </div>
-        {isPending && <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />}
-      </div>
+    <div className="nb-stagger space-y-4 [--nb-stagger-start:150ms]">
+      <PageHeader
+        as="h2"
+        title="Friend"
+        sticker="requests"
+        stickerFill="bg-primary"
+        description="People who want to connect with you."
+        action={isPending ? <BusyBadge /> : undefined}
+        />
 
-      {isPending && (!myFriendRequests || myFriendRequests.length === 0) ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i} className="bg-zinc-900/10 border border-zinc-900 overflow-hidden rounded-xl">
-              <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
-                <Skeleton className="h-14 w-14 rounded-full" />
-                <div className="space-y-2 w-full flex flex-col items-center">
-                  <Skeleton className="h-4 w-24 rounded-md" />
-                  <Skeleton className="h-3 w-32 rounded-md" />
-                </div>
-                <div className="flex flex-col gap-2 w-full pt-2">
-                  <Skeleton className="h-8 w-full rounded-lg" />
-                  <Skeleton className="h-8 w-full rounded-lg" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      {!loadError && (myFriendRequests?.length ?? 0) > 0 && (
+        <span className="w-fit rotate-[-2deg] rounded-lg border-2 border-[var(--nb-border-color)] bg-nb-warning px-2.5 py-1 text-sm font-extrabold text-on-color shadow-[2px_2px_0_var(--nb-shadow-color)]">
+          {myFriendRequests.length} waiting
+        </span>
+      )}
+
+      {loadError ? (
+        <LoadError what="your friend requests" onRetry={() => setReloadKey((k) => k + 1)} />
+      ) : isPending && (!myFriendRequests || myFriendRequests.length === 0) ? (
+        <PersonGhosts label="Loading friend requests" />
       ) : myFriendRequests?.length === 0 ? (
-        <div className="flex flex-col justify-center items-center text-center p-8 bg-zinc-900/10 border border-zinc-900 rounded-xl min-h-[250px] animate-fade-in">
-          <UserPlus2 className="h-6 w-6 text-zinc-650 mb-2" />
-          <p className="text-zinc-500 text-xs font-semibold">No pending requests</p>
-          <p className="text-[9px] text-zinc-650 mt-2">You will see new friend requests here when someone adds you.</p>
-        </div>
+        <PeopleEmpty
+          icon={<UserPlus2 className="size-7" />}
+          fill="bg-nb-warning"
+          title="No requests right now"
+          text="When someone wants to be friends, their card shows up here."
+          action={
+            <Link href="/profile/find-users" className={buttonVariants({})}>
+              <Search className="h-4 w-4" aria-hidden="true" />
+              Find people
+            </Link>
+          }
+          decor={<TypingBubble className="absolute -top-4 -right-3 rotate-6" tone="primary" />}
+        />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {myFriendRequests?.map((requestUser: any) => (
-            <Card key={requestUser._id} className="bg-zinc-900/10 border border-zinc-900 overflow-hidden rounded-xl card-interactive">
-              <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
-                <Avatar className="h-14 w-14 border border-zinc-800">
-                  <AvatarImage src={requestUser?.avatar?.url} />
-                  <AvatarFallback className="bg-zinc-950 text-indigo-400 text-sm border border-zinc-900">
-                    {requestUser.username.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div>
-                  <h4 className="text-xs font-semibold text-zinc-200">@{requestUser.username}</h4>
-                  <p className="text-[9px] text-zinc-500 mt-0.5">{requestUser.email}</p>
-                </div>
-
-                <div className="flex flex-col gap-2 w-full pt-2">
-                  <div className="flex gap-2 w-full">
-                    <Button
-                      onClick={() => handleFriendRequest(requestUser._id, true)}
-                      className="flex-1 bg-indigo-650 hover:bg-indigo-600 text-zinc-50 text-[10px] h-8 rounded-lg flex items-center justify-center gap-2 shadow-sm shadow-indigo-950/20 tap-interactive"
-                    >
-                      <UserCheck className="h-4 w-4" />
-                      Accept
-                    </Button>
-                    <Button
-                      onClick={() => handleFriendRequest(requestUser._id, false)}
-                      variant="ghost"
-                      className="flex-1 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 text-[10px] h-8 rounded-lg flex items-center justify-center gap-2 border border-zinc-800 tap-interactive"
-                    >
-                      <UserX2 className="h-4 w-4" />
-                      Reject
-                    </Button>
-                  </div>
-
-                  <Button
-                    onClick={() => viewProfileFunc(requestUser._id)}
-                    variant="outline"
-                    className="w-full bg-transparent border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-100 text-[10px] h-8 rounded-lg flex items-center justify-center gap-2 tap-interactive"
-                  >
+        <ul className="grid grid-cols-1 gap-6 pt-2 sm:grid-cols-2 xl:grid-cols-3">
+          {myFriendRequests?.map((requestUser: any, index: number) => {
+            const state = leaving[requestUser._id];
+            return (
+              <PersonCard
+                key={requestUser._id}
+                index={index}
+                name={requestUser.username}
+                avatarUrl={requestUser?.avatar?.url}
+                leaving={state === "declined" ? "decline" : state === "accepted" ? "celebrate" : undefined}
+                celebration={
+                  <>
+                    <span className="flex size-12 items-center justify-center rounded-full border-2 border-[var(--nb-border-color)] bg-card text-foreground">
+                      <PartyPopper className="size-6" aria-hidden="true" />
+                    </span>
+                    <span className="text-xl font-extrabold">Friends now!</span>
+                    <span className="text-sm font-bold">You and @{requestUser.username}</span>
+                  </>
+                }
+                stamp={
+                  <span className="inline-block -rotate-6 rounded-md border-2 border-[var(--nb-border-color)] bg-nb-warning px-1.5 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wide text-on-color shadow-[2px_2px_0_var(--nb-shadow-color)]">
+                    Wants to be friends
+                  </span>
+                }
+                corner={
+                  <Button variant="outline" size="icon-sm" className="bg-card" aria-label={`View @${requestUser.username}'s profile`} title="View profile" onClick={() => viewProfileFunc(requestUser._id)}>
                     <Eye className="h-4 w-4" />
-                    View Profile
+                  </Button>
+                }
+              >
+                <div className="grid grid-cols-2 gap-2">
+                  <Button className="h-11 bg-nb-success text-on-color" disabled={Boolean(state)} onClick={() => handleFriendRequest(requestUser._id, true)}>
+                    <UserCheck className="h-4 w-4" aria-hidden="true" />
+                    Accept
+                  </Button>
+                  <Button variant="outline" className="h-11" disabled={Boolean(state)} onClick={() => handleFriendRequest(requestUser._id, false)}>
+                    <UserX2 className="h-4 w-4" aria-hidden="true" />
+                    Decline
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              </PersonCard>
+            );
+          })}
+        </ul>
       )}
     </div>
   );

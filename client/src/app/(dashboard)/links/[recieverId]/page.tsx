@@ -17,16 +17,16 @@ export default function LinkDetailPage({ params }: PageProps) {
   const [gettingOldMessages, setGettingOldMessages] = useState(false);
 
   return (
-    <div className="h-[calc(100vh-140px)] w-full flex overflow-hidden">
+    <div className="h-app w-full flex">
       {/* Grid Layout */}
-      <div className="grid grid-cols-12 w-full h-full gap-4">
+      <div className="nb-stagger grid h-full w-full grid-cols-1 gap-5 md:grid-cols-[19rem_minmax(0,1fr)] lg:grid-cols-[22rem_minmax(0,1fr)]">
         {/* Left Side: Chat Rooms List */}
-        <div className="hidden md:block md:col-span-4 lg:col-span-3 bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-4 overflow-y-auto hide-scrollBar">
+        <div className="hidden md:block bg-card border-2 border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-4 overflow-hidden">
           <ChatRooms />
         </div>
 
         {/* Right Side: Chat Box */}
-        <div className="col-span-12 md:col-span-8 lg:col-span-9 bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-4 overflow-y-auto flex flex-col justify-between hide-scrollBar">
+        <div className="bg-card border-2 border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl overflow-hidden flex flex-col">
           <ChatBox
             scrollRef={scrollRef}
             shouldScrollToBottom={shouldScrollToBottom}

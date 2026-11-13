@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-2xl text-sm font-bold whitespace-nowrap transition-all duration-150 ease-out outline-none select-none border-[3px] border-[var(--nb-border-color)] focus-visible:ring-3 focus-visible:ring-ring/50 hover:-translate-y-0.5 hover:shadow-[var(--nb-shadow-hover)] active:translate-y-0.5 active:shadow-[var(--nb-shadow-active)] disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-2xl text-sm font-bold whitespace-nowrap transition-all duration-150 ease-out outline-none select-none border-2 border-[var(--nb-border-color)] focus-visible:ring-3 focus-visible:ring-ring/50 hover:-translate-y-0.5 hover:shadow-[var(--nb-shadow-hover)] active:translate-y-0.5 active:shadow-[var(--nb-shadow-active)] disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -17,7 +17,7 @@ const buttonVariants = cva(
         ghost:
           "border-transparent shadow-none hover:bg-muted hover:border-[var(--nb-border-color)] hover:shadow-[var(--nb-shadow-sm)]",
         destructive:
-          "bg-destructive text-white shadow-[var(--nb-shadow-sm)]",
+          "bg-destructive text-on-color shadow-[var(--nb-shadow-sm)]",
         link: "text-primary border-transparent shadow-none underline-offset-4 hover:underline hover:shadow-none hover:translate-y-0",
       },
       size: {
@@ -59,15 +59,17 @@ function Button({
       data-slot="button"
       data-variant={variant}
       disabled={disabled || loading}
-      className={cn(buttonVariants({ variant, size, className }), loading && "relative text-transparent! select-none")}
+      aria-busy={loading || undefined}
+      className={cn(buttonVariants({ variant, size, className }), loading && "relative select-none disabled:opacity-100")}
       {...props}
     >
       {loading && (
-        <span className="absolute inset-0 flex items-center justify-center text-current">
-          <Loader2 className="h-4 w-4 animate-spin text-current" />
+        <span className="absolute inset-0 flex items-center justify-center">
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          <span className="sr-only">Loading</span>
         </span>
       )}
-      {children}
+      <span className={cn("contents", loading && "invisible")}>{children}</span>
     </ButtonPrimitive>
   )
 }

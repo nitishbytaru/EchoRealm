@@ -1,207 +1,218 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { AlertTriangle, Trash2, Loader2 } from "lucide-react";
+import { Trash2, ShieldAlert, MessageSquare, Inbox, Send, Megaphone, Users, User, UserX, X, type LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { deleteMyAccountApi } from "@/api/user.api";
 import { setIsLoggedIn, setUser } from "@/store/slices/auth.slice";
 import { handleDeleteAllEchoLinkApi } from "@/api/echo_link.api";
 import { deleteAllMessagesInEchoShoutApi } from "@/api/echo_shout.api";
-import {
-  deleteAllSentMumblesApi,
-  deleteAllRecievedMumblesApi,
-} from "@/api/echo_mumble.api";
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { deleteAllSentMumblesApi, deleteAllRecievedMumblesApi } from "@/api/echo_mumble.api";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 
+interface DangerAction {
+  label: string;
+  /** Who else loses something when this runs. */
+  scope?: { text: string; others: boolean };
+  icon?: LucideIcon;
+  desc: string;
+  button: string;
+  confirmTitle: string;
+  done: string;
+  failed: string;
+  run: () => Promise<any>;
+}
+
 export default function MyAccountPage() {
-  const navigate = useRouter();
+  const router = useRouter();
   const dispatch = useDispatch();
-  const [isPending, setIsPending] = useState(false);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const [pendingAction, setPendingAction] = useState<DangerAction | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const performAction = async (actionName: string, apiCall: () => Promise<any>, successCallback?: () => void) => {
-    try {
-      setIsPending(true);
-      const response = await apiCall();
-      toast.success(response?.data?.message || `${actionName} completed successfully.`);
-      if (successCallback) {
-        successCallback();
-      }
-    } catch (error) {
-      console.error(`Error during ${actionName}:`, error);
-      toast.error(`Failed to perform action: ${actionName}`);
-    } finally {
-      setIsPending(false);
-    }
+  const deleteAccount = async () => {
+    await deleteMyAccountApi();
+    dispatch(setUser(null));
+    dispatch(setIsLoggedIn(false));
+    localStorage.setItem("allowFetch", "false");
+    router.push("/");
   };
 
-  const deleteMyAccount = async () => {
-    try {
-      setIsPending(true);
-      const response = await deleteMyAccountApi();
-      dispatch(setUser(null));
-      dispatch(setIsLoggedIn(false));
-      localStorage.setItem("allowFetch", "false");
-      toast.success(response?.data?.message || "Account deleted successfully.");
-      navigate.push("/");
-    } catch (error) {
-      console.error("Error deleting account:", error);
-      toast.error("Failed to delete the account.");
-    } finally {
-      setIsPending(false);
-    }
-  };
-
-  const accountActions = [
+  const dataActions: DangerAction[] = [
     {
-      label: "Delete All Chat Conversations",
-      desc: "This will permanently delete all your private chat logs and group conversations. Other members will no longer see your historical chat messages.",
-      actionName: "Delete Chats",
-      api: handleDeleteAllEchoLinkApi,
+      label: "Private chats",
+      scope: { text: "You and the other person", others: true },
+      icon: MessageSquare,
+      desc: "Deletes every private conversation you're in, for you and the other person. Group chats aren't affected.",
+      button: "Delete chats",
+      confirmTitle: "Delete all your private chats?",
+      done: "Your private chats were deleted.",
+      failed: "We couldn't delete your chats. Please try again.",
+      run: handleDeleteAllEchoLinkApi,
     },
     {
-      label: "Delete All Received Mumbles",
-      desc: "This will permanently clear your inbox of all anonymous whispers you have received.",
-      actionName: "Delete Received Mumbles",
-      api: deleteAllRecievedMumblesApi,
+      label: "Received Mumbles",
+      scope: { text: "Only you", others: false },
+      icon: Inbox,
+      desc: "Clears your Mumble inbox, including anything you've pinned.",
+      button: "Delete received",
+      confirmTitle: "Delete all your received Mumbles?",
+      done: "Your received Mumbles were deleted.",
+      failed: "We couldn't delete your received Mumbles. Please try again.",
+      run: deleteAllRecievedMumblesApi,
     },
     {
-      label: "Delete All Sent Mumbles",
-      desc: "This will delete all the anonymous whispers you have sent to others. Recipients will no longer see them.",
-      actionName: "Delete Sent Mumbles",
-      api: deleteAllSentMumblesApi,
+      label: "Sent Mumbles",
+      scope: { text: "Everyone who received them", others: true },
+      icon: Send,
+      desc: "Removes Mumbles you've sent from other people's inboxes.",
+      button: "Delete sent",
+      confirmTitle: "Delete all your sent Mumbles?",
+      done: "Your sent Mumbles were deleted.",
+      failed: "We couldn't delete your sent Mumbles. Please try again.",
+      run: deleteAllSentMumblesApi,
     },
     {
-      label: "Delete All EchoShout Messages",
-      desc: "This will permanently delete all your announcements and public posts on the EchoShout board.",
-      actionName: "Delete Shout Messages",
-      api: deleteAllMessagesInEchoShoutApi,
+      label: "EchoShout posts",
+      scope: { text: "Everyone in EchoShout", others: true },
+      icon: Megaphone,
+      desc: "Removes your posts from the public room.",
+      button: "Delete posts",
+      confirmTitle: "Delete all your EchoShout posts?",
+      done: "Your EchoShout posts were deleted.",
+      failed: "We couldn't delete your posts. Please try again.",
+      run: deleteAllMessagesInEchoShoutApi,
     },
   ];
 
+  const accountAction: DangerAction = {
+    label: "Your account",
+    desc: "Permanently removes your profile, friends and messages from EchoRealm.",
+    button: "Delete account",
+    confirmTitle: "Delete your account?",
+    done: "Your account was deleted.",
+    failed: "We couldn't delete your account. Please try again.",
+    run: deleteAccount,
+  };
+
+  const confirm = async () => {
+    if (!pendingAction) return;
+    try {
+      await pendingAction.run();
+      toast.success(pendingAction.done);
+    } catch (error) {
+      console.error("Account action failed:", error);
+      toast.error(pendingAction.failed);
+    }
+  };
+
+  const ask = (action: DangerAction) => {
+    setPendingAction(action);
+    setDialogOpen(true);
+  };
+
   return (
-    <div className="space-y-4 max-w-md mx-auto">
-      <div className="space-y-0.5">
-        <h2 className="text-xl font-bold tracking-tight text-red-500">
-          Account Settings & Safety
-        </h2>
-        <p className="text-[10px] text-zinc-555 mt-0.5">Permanently manage or clear your stored data and active records</p>
+    <div className="nb-stagger mx-auto max-w-3xl space-y-8 [--nb-stagger-start:150ms]">
+      <div>
+        <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Settings</h2>
+        <p className="mt-2 text-sm font-medium text-muted-foreground sm:text-base">
+          Permanently delete parts of your EchoRealm data, or your whole account.
+        </p>
       </div>
 
-      {/* Danger Zone Banner */}
-      <div className="flex gap-2 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl items-start">
-        <AlertTriangle className="h-4 w-4 text-rose-450 shrink-0 mt-0.5" />
-        <div className="space-y-0.5">
-          <h4 className="text-xs font-semibold text-rose-250">Danger Zone</h4>
-          <p className="text-[9px] text-rose-500/70 leading-relaxed font-light">
-            Performing any action below is permanent and cannot be undone. Please be absolutely certain before proceeding.
+      {/* Warning */}
+      <div role="note" className="flex gap-4 rounded-xl border-2 border-nb-danger-text/60 bg-destructive/10 p-4">
+        <ShieldAlert className="mt-0.5 h-6 w-6 shrink-0 text-nb-danger-text" aria-hidden="true" />
+        <div className="space-y-1">
+          <p className="text-sm font-extrabold text-foreground">Everything on this page is permanent.</p>
+          <p className="text-sm font-medium text-muted-foreground">
+            Deleted data can&apos;t be recovered, by you or by us. Some actions also remove messages from other people&apos;s
+            accounts. Each one asks you to confirm first.
           </p>
         </div>
       </div>
 
-      {isPending && (
-        <div className="flex justify-center p-4">
-          <Loader2 className="h-5 w-5 animate-spin text-red-500" />
+      {/* Data */}
+      <section aria-labelledby="data-heading" className="space-y-3">
+        <div>
+          <h3 id="data-heading" className="text-lg font-extrabold text-foreground">Delete your data</h3>
+          <p className="text-sm font-medium text-muted-foreground">Your account stays. Only the selected content is removed.</p>
         </div>
-      )}
-
-      <div className="space-y-4 pt-2">
-        {accountActions.map((action, idx) => (
-          <div key={idx} className="flex items-center justify-between p-4 bg-zinc-900/10 border border-zinc-900 rounded-xl card-interactive">
-            <div className="space-y-0.5 max-w-[70%]">
-              <h4 className="text-xs font-semibold text-zinc-200">{action.label}</h4>
-              <p className="text-[9px] text-zinc-500 leading-normal">{action.desc}</p>
-            </div>
-
-            <AlertDialog>
-              <AlertDialogTrigger render={
+        <ul className="divide-y-2 divide-[var(--nb-line)] overflow-hidden rounded-xl border-2 border-[var(--nb-border-color)] bg-card">
+          {dataActions.map((action) => {
+            const Icon = action.icon ?? Trash2;
+            return (
+              <li key={action.label} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
+                <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-lg border-2 border-[var(--nb-line)] bg-muted text-muted-foreground">
+                  <Icon className="size-5" />
+                </span>
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <h4 className="text-sm font-extrabold text-foreground">{action.label}</h4>
+                  <p className="text-sm font-medium text-muted-foreground">{action.desc}</p>
+                  {action.scope && (
+                    <p className={cn("inline-flex items-center gap-1.5 text-xs font-bold", action.scope.others ? "text-nb-danger-text" : "text-muted-foreground")}>
+                      {action.scope.others ? <Users className="size-3.5" aria-hidden="true" /> : <User className="size-3.5" aria-hidden="true" />}
+                      Affects: {action.scope.text}
+                    </p>
+                  )}
+                </div>
                 <Button
                   variant="outline"
-                  disabled={isPending}
-                  className="border-zinc-800 bg-transparent text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 text-[10px] h-8 rounded-lg px-3 tap-interactive"
+                  className="shrink-0 border-nb-danger-text/60 text-nb-danger-text shadow-none hover:bg-destructive/10 hover:shadow-none"
+                  onClick={() => ask(action)}
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Clear Data
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  {action.button}
                 </Button>
-              } />
-              <AlertDialogContent className="bg-zinc-950 border-zinc-900 text-zinc-200 max-w-sm rounded-lg">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="text-xs font-bold text-red-500">Confirm Deletion</AlertDialogTitle>
-                  <AlertDialogDescription className="text-[10px] text-zinc-400">
-                    Are you absolutely sure you want to delete {action.actionName.toLowerCase()}? This action is permanent and irreversible.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="gap-2 mt-2">
-                  <AlertDialogCancel className="bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-100 text-xs rounded-lg tap-interactive">
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => performAction(action.actionName, action.api)}
-                    className="bg-red-650 hover:bg-red-750 text-white text-xs rounded-lg tap-interactive"
-                  >
-                    Delete Permanently
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        ))}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
 
-        {/* Delete My Account Option */}
-        <div className="flex items-center justify-between p-4 bg-red-500/5 border border-red-555/10 rounded-xl mt-4 card-interactive">
-          <div className="space-y-0.5 max-w-[70%]">
-            <h4 className="text-xs font-bold text-rose-250">Delete My Account</h4>
-            <p className="text-[9px] text-zinc-500 leading-normal">
-              Permanently terminate your EchoRealm profile, messages, friends lists, and whispers.
+      {/* Account */}
+      <section aria-labelledby="account-delete-heading" className="rounded-xl border-2 border-nb-danger-text bg-destructive/5 p-5 sm:p-6">
+        <div className="flex items-start gap-4">
+          <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-destructive text-on-color">
+            <UserX className="size-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h3 id="account-delete-heading" className="text-lg font-extrabold text-foreground">Delete your account</h3>
+            <p className="mt-1 text-sm font-medium text-muted-foreground">This closes your EchoRealm account for good. You&apos;ll lose:</p>
+            <ul className="mt-3 grid gap-x-6 gap-y-1.5 text-sm font-semibold text-foreground sm:grid-cols-2">
+              {["Your profile, picture and username", "Your friends and friend requests", "Your chats and group memberships", "Your Mumbles and EchoShout posts"].map((item) => (
+                <li key={item} className="flex items-start gap-2">
+                  <X className="mt-0.5 size-4 shrink-0 text-nb-danger-text" aria-hidden="true" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 text-sm font-medium text-muted-foreground">
+              You&apos;ll be asked to type your username to confirm.
             </p>
+            <Button variant="destructive" className="mt-4 shadow-none hover:shadow-none" onClick={() => ask(accountAction)}>
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              Delete my account
+            </Button>
           </div>
-
-          <AlertDialog>
-            <AlertDialogTrigger render={
-              <Button
-                disabled={isPending}
-                className="bg-red-600 hover:bg-red-700 text-white text-[10px] h-8 rounded-lg px-3 shadow-sm shadow-red-950/20 tap-interactive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Account
-              </Button>
-            } />
-            <AlertDialogContent className="bg-zinc-950 border-zinc-900 text-zinc-200 max-w-sm rounded-lg">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-xs font-bold text-red-500">Confirm Account Deletion</AlertDialogTitle>
-                <AlertDialogDescription className="text-[10px] text-zinc-400">
-                  Are you absolutely sure you want to delete YOUR ACCOUNT? All your data will be permanently wiped from EchoRealm.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter className="gap-2 mt-2">
-                <AlertDialogCancel className="bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-100 text-xs rounded-lg tap-interactive">
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={deleteMyAccount}
-                  className="bg-red-650 hover:bg-red-750 text-white text-xs rounded-lg tap-interactive"
-                >
-                  Delete Account
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
-      </div>
+      </section>
+
+      <ConfirmDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title={pendingAction?.confirmTitle ?? ""}
+        description={pendingAction?.desc ?? ""}
+        confirmLabel={pendingAction?.button ?? "Delete"}
+        onConfirm={confirm}
+        requireText={pendingAction?.button === "Delete account" ? user?.username : undefined}
+      />
     </div>
   );
 }

@@ -1,13 +1,19 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import Handle from "@/components/Handle";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { Search, Plus, Loader2, MessageSquarePlus } from "lucide-react";
+import moment from "moment";
+import { Search, MessageSquare, MessageSquarePlus, UserPlus, Users, Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import LoadError from "@/components/LoadError";
 
 import socket from "@/sockets/socket";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TypingBubble } from "@/components/brand/BrandMarks";
 import CreateGroupDialog from "./GroupChat/CreateGroupDialog";
 import {
   getGroupChatDetailsApi,
@@ -24,11 +30,19 @@ import {
   setPaginationDetails,
   removeFromChatRoomsWithUnreadMessages,
 } from "@/store/slices/echo_link.slice";
-import { createUniquechatRoom, markAsRead, truncateMessage } from "@/utils/helpers/micro_funcs";
+import { createUniquechatRoom, markAsRead } from "@/utils/helpers/micro_funcs";
 import { RootState } from "@/store/store";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+import { chipColor } from "@/lib/chipColor";
+
+/** "14:05" today, "Mon" this week, "12 Nov" otherwise. */
+const shortTime = (iso: string) => {
+  const m = moment(iso);
+  if (m.isSame(moment(), "day")) return m.format("HH:mm");
+  if (m.isAfter(moment().subtract(6, "days"))) return m.format("ddd");
+  return m.format("D MMM");
+};
 
 export const ChatRooms: React.FC = () => {
   const router = useRouter();
@@ -40,16 +54,26 @@ export const ChatRooms: React.FC = () => {
   const { myPrivateChatRooms } = useSelector((state: RootState) => state.echoLink);
 
   const [search, setSearch] = useState("");
+  const [searchHover, setSearchHover] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchExpanded = searchHover || searchFocused || search.length > 0;
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
+  const isSearching = Boolean(search) && searchResults === null;
 
   const [isPending, setIsPending] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [isGroupPending, setIsGroupPending] = useState(false);
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
+  const [filter, setFilter] = useState<"all" | "unread" | "groups">("all");
 
   useEffect(() => {
     const fetchMyPrivateFriends = async () => {
       try {
         setIsPending(true);
+        setLoadError(false);
         const response = await getMyPrivateFriendsApi();
 
         response?.data?.myPrivateFriendsWithMessages?.forEach((chatRoom: any) => {
@@ -72,13 +96,14 @@ export const ChatRooms: React.FC = () => {
         dispatch(setMyPrivateChatRooms(sortedRooms));
       } catch (error) {
         console.error("Error fetching friends rooms:", error);
+        setLoadError(true);
       } finally {
         setIsPending(false);
       }
     };
 
     fetchMyPrivateFriends();
-  }, [dispatch, user?._id]);
+  }, [dispatch, user?._id, reloadKey]);
 
   useEffect(() => {
     if (!user) return;
@@ -165,61 +190,146 @@ export const ChatRooms: React.FC = () => {
     }
   };
 
-  if (isPending) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8 h-64">
-        <LoadingSpinner />
-      </div>
-    );
-  }
+  const openRoom = (receiver: any) => {
+    router.push(`/links/${receiver._id}`);
+    if (receiver?.groupProfile || receiver?.groupName) {
+      joinGroupChat(receiver._id);
+    } else {
+      joinPrivateChat(receiver._id);
+    }
+    if (receiver.latestMessage) {
+      markAsRead(dispatch, setLatestMessageAsRead, receiver);
+    }
+  };
+
+  const isUnreadRoom = (room: any) =>
+    room?.latestMessage?.receiver?.messageStatus === "sent" && room?.latestMessage?.sender !== user?._id;
+  const isGroupRoom = (room: any) => Boolean(room?.groupName || room?.groupProfile);
+
+  const rooms: any[] = myPrivateChatRooms || [];
+  const unreadCount = rooms.filter(isUnreadRoom).length;
+  const visibleRooms = rooms.filter((room) =>
+    filter === "unread" ? isUnreadRoom(room) : filter === "groups" ? isGroupRoom(room) : true
+  );
+
+  const filters: { key: typeof filter; label: string; count?: number }[] = [
+    { key: "all", label: "All" },
+    { key: "unread", label: "Unread", count: unreadCount },
+    { key: "groups", label: "Groups" },
+  ];
 
   return (
-    <div className="h-full flex flex-col space-y-4">
-      {/* Search Header */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search active chats..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 text-sm"
-          />
+    <div className="nb-stagger flex h-full flex-col gap-4 [--nb-stagger-start:80ms]">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-2xl font-extrabold leading-tight tracking-tight text-foreground">
+            Your <span className="nb-sticker-word bg-primary">chats.</span>
+          </h2>
+          <p className="mt-1 text-sm font-medium text-muted-foreground">
+            {rooms.length === 1 ? "1 conversation" : `${rooms.length} conversations`}
+            {unreadCount > 0 && <span className="font-bold text-nb-danger-text"> · {unreadCount} unread</span>}
+          </p>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            openOnHover={false}
+            render={
+              <button
+                type="button"
+                aria-label="Start something new"
+                className="nb-plus flex size-11 shrink-0 items-center justify-center rounded-2xl border-2 border-[var(--nb-border-color)] bg-primary text-on-color shadow-[var(--nb-shadow-sm)] tap-interactive"
+              />
+            }
+          >
+            <Plus className="size-6" strokeWidth={3} aria-hidden="true" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuItem onClick={() => router.push("/profile/friends/list")}>
+              <MessageSquare />
+              New chat
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setOpenCreateGroup(true)}>
+              <MessageSquarePlus />
+              New group
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Search (a round button that unrolls over the filters) + filters */}
+      <div className="relative flex items-center">
+        <div
+          className={cn("nb-search absolute top-0 left-0 z-20 h-full", searchExpanded && "is-open")}
+          onMouseEnter={() => {
+            if (collapseTimer.current) clearTimeout(collapseTimer.current);
+            setSearchHover(true);
+          }}
+          onMouseLeave={() => {
+            collapseTimer.current = setTimeout(() => setSearchHover(false), 250);
+          }}
+        >
+          <div className="flex h-full items-center overflow-hidden rounded-full border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow-sm)]">
+            <button
+              type="button"
+              aria-label="Search your friends"
+              onClick={() => searchInputRef.current?.focus()}
+              className="flex h-full w-10 shrink-0 items-center justify-center text-foreground"
+            >
+              <Search className="h-5 w-5" aria-hidden="true" />
+            </button>
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search friends"
+              value={search}
+              tabIndex={searchExpanded ? 0 : -1}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setSearchResults(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setSearch("");
+                  searchInputRef.current?.blur();
+                }
+              }}
+              aria-label="Search your friends"
+              className="nb-search-input h-full min-w-0 flex-1 bg-transparent pr-4 text-base font-medium text-foreground outline-none placeholder:text-muted-foreground md:text-sm"
+            />
+          </div>
 
           {search && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-card border-[3px] border-[var(--nb-border-color)] rounded-xl shadow-[var(--nb-shadow)] max-h-60 overflow-y-auto z-50 p-2 space-y-1">
-              {searchResults && searchResults.length > 0 ? (
+            <div className="absolute top-full right-0 left-0 z-50 mt-2 max-h-60 space-y-1 overflow-y-auto rounded-xl border-2 border-[var(--nb-border-color)] bg-card p-2 shadow-[var(--nb-shadow)]">
+              {isSearching ? (
+                <p className="p-3 text-center text-sm font-medium text-muted-foreground">Searching…</p>
+              ) : searchResults && searchResults.length > 0 ? (
                 searchResults.map((searchUser) => (
-                  <div
+                  <button
+                    type="button"
                     key={searchUser._id}
                     onClick={() => {
-                      router.push(`/links/${searchUser._id}`);
-                      if (searchUser?.groupProfile) {
-                        joinGroupChat(searchUser._id);
-                      } else {
-                        joinPrivateChat(searchUser._id);
-                      }
+                      openRoom(searchUser);
                       setSearch("");
                     }}
-                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-primary/20 cursor-pointer transition-colors font-medium tap-interactive"
+                    className="flex w-full items-center gap-2 rounded-lg p-2 text-left font-medium transition-colors hover:bg-muted"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={searchUser?.avatar?.url} />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">
+                      <AvatarImage src={searchUser?.avatar?.url} alt="" />
+                      <AvatarFallback className={`text-xs font-bold text-on-color ${chipColor(searchUser.username)}`}>
                         {searchUser.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-sm font-bold text-foreground">@{searchUser.username}</span>
-                  </div>
+                  </button>
                 ))
               ) : (
-                <div className="p-3 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
-                  <span className="font-medium">No user found</span>
-                  <Link href="/profile/find-users">
-                    <Button size="sm" className="bg-secondary text-secondary-foreground">
-                      Find Friends
-                    </Button>
+                <div className="flex flex-col items-center gap-2 p-3 text-center text-sm text-muted-foreground">
+                  <span className="font-medium">No friends match that name.</span>
+                  <Link href="/profile/find-users" className="font-bold underline underline-offset-2">
+                    Find new people
                   </Link>
                 </div>
               )}
@@ -227,14 +337,32 @@ export const ChatRooms: React.FC = () => {
           )}
         </div>
 
-        <Button
-          size="icon"
-          onClick={() => setOpenCreateGroup(true)}
-          className="bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] text-nb-accent hover:text-foreground rounded-xl h-11 w-11 flex-shrink-0 tap-interactive"
-          title="Create New Group"
-        >
-          <MessageSquarePlus className="h-5 w-5" />
-        </Button>
+      {/* Filters: segmented switch with a sliding pill */}
+        <div role="group" aria-label="Filter chats" className="relative ml-[3.25rem] grid flex-1 grid-cols-3 rounded-xl bg-muted p-1">
+          <span
+            aria-hidden="true"
+            className="nb-pill absolute inset-y-1 left-1 w-[calc((100%-0.5rem)/3)] rounded-lg border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow-active)]"
+            style={{ transform: `translateX(${filters.findIndex((f) => f.key === filter) * 100}%)` }}
+          />
+          {filters.map((f) => {
+            const isActive = filter === f.key;
+            return (
+              <button
+                key={f.key}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => setFilter(f.key)}
+                className={cn(
+                  "relative z-10 flex h-9 items-center justify-center gap-1.5 rounded-lg text-sm font-bold transition-colors",
+                  isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {f.label}
+                {f.count ? <span className="rounded-md bg-destructive px-1.5 text-xs font-extrabold text-on-color">{f.count}</span> : null}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <CreateGroupDialog
@@ -244,79 +372,118 @@ export const ChatRooms: React.FC = () => {
         startTransitionGroup={setIsGroupPending}
       />
 
-      {/* Scrollable list */}
-      <div className="flex-1 overflow-y-auto pr-0.5 space-y-2 hide-scrollBar">
-        {myPrivateChatRooms?.map((receiver: any, index: number) => {
+      {/* List */}
+      <ul className="nb-stagger -mx-1 flex-1 space-y-2 overflow-y-auto px-1 pt-1 pb-2 hide-scrollBar [--nb-stagger-start:260ms]">
+        {isPending &&
+          rooms.length === 0 &&
+          Array.from({ length: 5 }).map((_, i) => (
+            <li key={i} className="flex items-center gap-3 p-3">
+              <Skeleton className="size-11 rounded-xl" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-2/3 rounded-md" />
+                <Skeleton className="h-3 w-1/2 rounded-md" />
+              </div>
+            </li>
+          ))}
+
+        {visibleRooms.map((receiver: any, index: number) => {
           const isSelected = recieverId === receiver._id;
-          const isUnread =
-              receiver?.latestMessage?.receiver?.messageStatus === "sent" &&
-              receiver?.latestMessage?.sender !== user?._id;
+          const isUnread = isUnreadRoom(receiver);
+          const isGroup = isGroupRoom(receiver);
+          const name = receiver?.username ? `@${receiver.username}` : receiver?.groupName;
+          const latest = receiver?.latestMessage;
+          const preview = latest
+            ? `${latest.sender === user?._id ? "You: " : ""}${latest.message || "Sent an image"}`
+            : receiver?.groupChatRoomMembers?.map((m: any) => m.username).join(", ") || "Say hi";
 
           return (
-            <div
-              key={index}
-              onClick={() => {
-                router.push(`/links/${receiver._id}`);
-                if (receiver?.groupProfile) {
-                  joinGroupChat(receiver._id);
-                } else {
-                  joinPrivateChat(receiver._id);
-                }
-                if (receiver.latestMessage) {
-                  markAsRead(dispatch, setLatestMessageAsRead, receiver);
-                }
-              }}
-              className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-150 border-[3px] tap-interactive ${
-                isSelected
-                  ? "bg-primary/10 border-[var(--nb-border-color)] shadow-[var(--nb-shadow-sm)] text-foreground"
-                  : "bg-transparent border-transparent hover:bg-muted hover:border-[var(--nb-border-color)] text-foreground"
-              }`}
-            >
-              <div className="flex items-center gap-3 overflow-hidden flex-1">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={receiver?.avatar?.url || receiver?.groupProfile?.url} />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                    {(receiver?.username || receiver?.groupName)?.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+            <li key={receiver._id || index}>
+              <button
+                type="button"
+                aria-current={isSelected ? "page" : undefined}
+                onClick={() => openRoom(receiver)}
+                className={`flex w-full items-center gap-3 rounded-xl border-2 p-2.5 text-left transition-all duration-150 ${
+                  isSelected
+                    ? "border-[var(--nb-border-color)] bg-primary text-on-color shadow-[var(--nb-shadow-sm)]"
+                    : isUnread
+                    ? "border-[var(--nb-border-color)] bg-card text-foreground hover:bg-muted"
+                    : "border-transparent text-foreground hover:border-[var(--nb-border-color)] hover:bg-muted"
+                }`}
+              >
+                <span className="relative shrink-0">
+                  <Avatar className="size-11">
+                    <AvatarImage src={receiver?.avatar?.url || receiver?.groupProfile?.url} />
+                    <AvatarFallback className={`text-sm font-extrabold text-on-color ${chipColor(receiver?.username || receiver?.groupName)}`}>
+                      {(receiver?.username || receiver?.groupName)?.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {isGroup && (
+                    <span className="absolute -right-1.5 -bottom-1.5 flex size-5 items-center justify-center rounded-md border-[2px] border-[var(--nb-border-color)] bg-nb-success text-on-color">
+                      <Users className="size-3" aria-hidden="true" />
+                      <span className="sr-only">Group</span>
+                    </span>
+                  )}
+                </span>
 
-                <div className="overflow-hidden flex-1">
-                  <h4 className="text-sm font-bold text-foreground truncate">
-                    {receiver?.username ? `@${receiver.username}` : receiver?.groupName}
-                  </h4>
-                  {receiver.latestMessage ? (
-                    <p
-                      className={`text-xs mt-0.5 truncate font-medium ${
-                        isUnread ? "text-secondary font-bold" : "text-muted-foreground"
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-baseline gap-2">
+                    <span className="min-w-0 flex-1 truncate text-sm font-extrabold">{receiver?.username ? <Handle name={receiver.username} size="sm" className="max-w-full" /> : name}</span>
+                    {latest?.updatedAt && (
+                      <time
+                        dateTime={latest.updatedAt}
+                        className={`shrink-0 text-xs font-semibold ${isSelected ? "text-on-color/70" : "text-muted-foreground"}`}
+                      >
+                        {shortTime(latest.updatedAt)}
+                      </time>
+                    )}
+                  </span>
+                  <span className="mt-0.5 flex items-center gap-2">
+                    <span
+                      className={`min-w-0 flex-1 truncate text-sm ${
+                        isSelected ? "font-semibold text-on-color/80" : isUnread ? "font-bold text-foreground" : "font-medium text-muted-foreground"
                       }`}
                     >
-                      {truncateMessage(receiver?.latestMessage?.message, 30)}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-muted-foreground mt-0.5 truncate font-medium">
-                      {truncateMessage(
-                        receiver?.groupChatRoomMembers?.map((m: any) => m.username).join(", ") || "",
-                        30
-                      )}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Notification Dot */}
-              {isUnread && (
-                <div className="h-3 w-3 rounded-full bg-secondary border-[2px] border-[var(--nb-border-color)] ml-2 flex-shrink-0" />
-              )}
-            </div>
+                      {preview}
+                    </span>
+                    {isUnread && !isSelected && (
+                      <span className="shrink-0 rotate-2 rounded-md border-[2px] border-[var(--nb-border-color)] bg-secondary px-1.5 text-[0.7rem] font-extrabold uppercase text-on-color">
+                        New
+                        <span className="sr-only"> messages</span>
+                      </span>
+                    )}
+                  </span>
+                </span>
+              </button>
+            </li>
           );
         })}
 
-        {myPrivateChatRooms?.length === 0 && (
-          <div className="text-center py-8 text-sm text-muted-foreground font-medium">
-            No active conversations. Start one!
-          </div>
+        {loadError && (
+          <li>
+            <LoadError what="your chats" onRetry={() => setReloadKey((k) => k + 1)} />
+          </li>
         )}
-      </div>
+
+        {!loadError && !isPending && rooms.length > 0 && visibleRooms.length === 0 && (
+          <li className="py-8 text-center text-sm font-medium text-muted-foreground">
+            {filter === "unread" ? "You're all caught up." : "No group chats yet. Make one with the + button."}
+          </li>
+        )}
+
+        {!loadError && !isPending && rooms.length === 0 && (
+          <li className="flex flex-col items-center gap-3 py-8 text-center">
+            <TypingBubble className="rotate-3" />
+            <p className="text-sm font-medium text-muted-foreground">No chats yet. Add a friend to get started.</p>
+            <Link
+              href="/profile/find-users"
+              className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-[var(--nb-border-color)] bg-primary px-4 text-sm font-bold text-on-color shadow-[var(--nb-shadow-sm)] tap-interactive"
+            >
+              <UserPlus className="h-4 w-4" />
+              Find friends
+            </Link>
+          </li>
+        )}
+      </ul>
     </div>
   );
 };

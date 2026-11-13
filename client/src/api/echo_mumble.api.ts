@@ -27,7 +27,7 @@ export const likeThisMumbleApi = async (mumbleId: string) => {
   }
 };
 
-export const sendMumbleApi = async (data: { message: string; receiver: string; sender: string | null }) => {
+export const sendMumbleApi = async (data: { message: string; receiver: string; isAnonymous: boolean }) => {
   try {
     return await api.post("/api/echoMumble/mumbles", data);
   } catch (error) {
@@ -36,12 +36,21 @@ export const sendMumbleApi = async (data: { message: string; receiver: string; s
   }
 };
 
-export const setMumblesAsReadApi = async () => {
-  try {
-    return await api.patch("/api/echoMumble/mumbles");
-  } catch (error) {
-    console.error("Set Mumbles As Read Error:", error);
-    throw error;
+/**
+ * Marks your received Mumbles as read. This is background work, so it retries
+ * when the server times out (408) or is briefly unreachable, e.g. while the
+ * hosted backend wakes up, before giving up.
+ */
+export const setMumblesAsReadApi = async (retries = 2) => {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await api.patch("/api/echoMumble/mumbles");
+    } catch (error: any) {
+      const status = error?.response?.status;
+      const retryable = !error?.response || status === 408 || status === 429 || status >= 500;
+      if (!retryable || attempt >= retries) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
+    }
   }
 };
 

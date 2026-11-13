@@ -1,27 +1,50 @@
 "use client";
 
 import React, { useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Megaphone, UserPlus } from "lucide-react";
 import ChatRooms from "./components/ChatRooms";
+import { MARK_SRC, Sparkle, TypingBubble } from "@/components/brand/BrandMarks";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function LinksPage() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className="h-[calc(100vh-140px)] w-full flex overflow-hidden">
+    <div className="h-app w-full flex">
       {/* Grid Layout */}
-      <div className="grid grid-cols-12 w-full h-full gap-4">
+      <div className="nb-stagger grid h-full w-full grid-cols-1 gap-5 md:grid-cols-[19rem_minmax(0,1fr)] lg:grid-cols-[22rem_minmax(0,1fr)]">
         {/* Left Side: Chat Rooms List */}
-        <div className="col-span-12 md:col-span-4 lg:col-span-3 bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-4 overflow-y-auto hide-scrollBar">
+        <div className="bg-card border-2 border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-4 overflow-hidden">
           <ChatRooms />
         </div>
 
         {/* Right Side: Chat Box Placeholder */}
-        <div className="hidden md:flex md:col-span-8 lg:col-span-9 bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-6 items-center justify-center text-center">
-          <div className="space-y-2 max-w-xs">
-            <h3 className="text-base font-bold text-foreground">Your Conversations</h3>
-            <p className="text-sm text-muted-foreground font-medium">
-              Select a friend or group chat from the left sidebar to start whispering in private.
+        <div className="relative hidden overflow-hidden md:flex bg-card border-2 border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-6 items-center justify-center text-center">
+          <div aria-hidden="true" className="nb-dotgrid absolute inset-0 opacity-60" />
+          <div className="relative flex max-w-sm flex-col items-center">
+            <div aria-hidden="true" className="relative mb-6">
+              <Image src={MARK_SRC} alt="" width={682} height={502} className="nb-sticker-in h-auto w-44" style={{ ["--tilt" as string]: "-4deg" }} />
+              <TypingBubble className="absolute -right-10 bottom-2 rotate-6" tone="primary" />
+              <Sparkle className="absolute -top-2 -left-6 w-7" />
+            </div>
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground">
+              Pick a <span className="nb-sticker-word bg-primary">chat.</span>
+            </h2>
+            <p className="mt-3 text-sm font-medium text-muted-foreground">
+              Choose a friend or group from the list, or start something new.
             </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link href="/profile/find-users" className={buttonVariants({})}>
+                <UserPlus className="h-4 w-4" aria-hidden="true" />
+                Find friends
+              </Link>
+              <Link href="/shout" className={buttonVariants({ variant: "outline" })}>
+                <Megaphone className="h-4 w-4" aria-hidden="true" />
+                Shout to everyone
+              </Link>
+            </div>
           </div>
         </div>
       </div>

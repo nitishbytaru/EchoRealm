@@ -54,27 +54,34 @@
   --color-nb-danger: var(--nb-danger);
   --color-nb-warning: var(--nb-warning);
   --color-nb-accent: var(--nb-accent);
+  --color-on-color: var(--on-color);
+  --color-nb-link: var(--nb-link);
+  --color-nb-accent-text: var(--nb-accent-text);
+  --color-nb-danger-text: var(--nb-danger-text);
 }
 
 :root {
-  /* ─── Neo-Brutalism Light Theme ─── */
-  --background: #FFF9F0;
+  /* ─── Neo-Brutalism Light Theme: "paper" ───
+     Warm paper page with off-white cards, so white never dominates
+     and the brand fills read as stickers on paper. */
+  color-scheme: light;
+  --background: #F2EADB;
   --foreground: #111111;
-  --card: #FFFFFF;
+  --card: #FFFCF5;
   --card-foreground: #111111;
-  --popover: #FFFFFF;
+  --popover: #FFFCF5;
   --popover-foreground: #111111;
   --primary: #FFD43B;
   --primary-foreground: #111111;
   --secondary: #4D96FF;
-  --secondary-foreground: #FFFFFF;
-  --muted: #F0EBE3;
+  --secondary-foreground: #111111;
+  --muted: #E6DCCB;
   --muted-foreground: #555555;
   --accent: #B983FF;
   --accent-foreground: #111111;
   --destructive: #FF6B6B;
-  --border: #000000;
-  --input: #000000;
+  --border: #3A3632;
+  --input: #3A3632;
   --ring: #FFD43B;
   --chart-1: #FFD43B;
   --chart-2: #4D96FF;
@@ -82,13 +89,13 @@
   --chart-4: #FF6B6B;
   --chart-5: #B983FF;
   --radius: 1rem;
-  --sidebar: #FFFFFF;
+  --sidebar: #FFFCF5;
   --sidebar-foreground: #111111;
   --sidebar-primary: #FFD43B;
   --sidebar-primary-foreground: #111111;
-  --sidebar-accent: #F0EBE3;
+  --sidebar-accent: #E6DCCB;
   --sidebar-accent-foreground: #111111;
-  --sidebar-border: #000000;
+  --sidebar-border: #3A3632;
   --sidebar-ring: #FFD43B;
 
   /* Neo-Brutalism tokens */
@@ -98,8 +105,14 @@
   --nb-danger: #FF6B6B;
   --nb-warning: #FFB84C;
   --nb-accent: #B983FF;
-  --nb-border-width: 3px;
-  --nb-border-color: #000000;
+  --on-color: #111111;
+  --nb-link: #1D5FC4;
+  --nb-accent-text: #6B2FD9;
+  --nb-danger-text: #C62828;
+  --nb-border-width: 2px;
+  --nb-border-color: #3A3632;
+  /* Faint line for dividers inside panels. */
+  --nb-line: color-mix(in srgb, var(--nb-border-color) 22%, transparent);
   --nb-shadow-color: #000000;
   --nb-shadow: 6px 6px 0px var(--nb-shadow-color);
   --nb-shadow-sm: 4px 4px 0px var(--nb-shadow-color);
@@ -109,37 +122,40 @@
 }
 
 .dark {
-  /* ─── Neo-Brutalism Dark Theme ─── */
-  --background: #121212;
-  --foreground: #FFFFFF;
-  --card: #1E1E1E;
-  --card-foreground: #FFFFFF;
-  --popover: #1E1E1E;
-  --popover-foreground: #FFFFFF;
+  /* ─── Neo-Brutalism Dark Theme: "true black" ───
+   Deep neutral black, warm cream text and outlines like the logo's
+   sticker plate, and a thin brand-yellow hard shadow. */
+  color-scheme: dark;
+  --background: #0B0B0B;
+  --foreground: #FFF6E8;
+  --card: #171717;
+  --card-foreground: #FFF6E8;
+  --popover: #171717;
+  --popover-foreground: #FFF6E8;
   --primary: #FFD43B;
   --primary-foreground: #111111;
   --secondary: #4D96FF;
-  --secondary-foreground: #FFFFFF;
-  --muted: #2A2A2A;
-  --muted-foreground: #AAAAAA;
+  --secondary-foreground: #111111;
+  --muted: #232323;
+  --muted-foreground: #B3ADA4;
   --accent: #C77DFF;
   --accent-foreground: #111111;
   --destructive: #FF6B6B;
-  --border: #F5F5F5;
-  --input: #F5F5F5;
+  --border: #9C9488;
+  --input: #9C9488;
   --ring: #FFD43B;
   --chart-1: #FFD43B;
   --chart-2: #4D96FF;
   --chart-3: #6BCB77;
   --chart-4: #FF6B6B;
   --chart-5: #C77DFF;
-  --sidebar: #1E1E1E;
-  --sidebar-foreground: #FFFFFF;
+  --sidebar: #171717;
+  --sidebar-foreground: #FFF6E8;
   --sidebar-primary: #FFD43B;
   --sidebar-primary-foreground: #111111;
-  --sidebar-accent: #2A2A2A;
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #F5F5F5;
+  --sidebar-accent: #232323;
+  --sidebar-accent-foreground: #FFF6E8;
+  --sidebar-border: #9C9488;
   --sidebar-ring: #FFD43B;
 
   /* Dark mode Neo-Brutalism tokens */
@@ -149,13 +165,18 @@
   --nb-danger: #FF6B6B;
   --nb-warning: #FFB84C;
   --nb-accent: #C77DFF;
-  --nb-border-color: #F5F5F5;
-  --nb-shadow-color: #F5F5F5;
-  --nb-shadow: 6px 6px 0px var(--nb-shadow-color);
-  --nb-shadow-sm: 4px 4px 0px var(--nb-shadow-color);
-  --nb-shadow-lg: 8px 8px 0px var(--nb-shadow-color);
-  --nb-shadow-hover: 8px 8px 0px var(--nb-shadow-color);
-  --nb-shadow-active: 2px 2px 0px var(--nb-shadow-color);
+  --on-color: #111111;
+  --nb-link: #8FB8FF;
+  --nb-accent-text: #D9B8FF;
+  --nb-danger-text: #FF9A9A;
+  --nb-border-color: #9C9488;
+  --nb-line: color-mix(in srgb, var(--nb-border-color) 28%, transparent);
+  --nb-shadow-color: #FFD43B;
+  --nb-shadow: 4px 4px 0px var(--nb-shadow-color);
+  --nb-shadow-sm: 3px 3px 0px var(--nb-shadow-color);
+  --nb-shadow-lg: 5px 5px 0px var(--nb-shadow-color);
+  --nb-shadow-hover: 5px 5px 0px var(--nb-shadow-color);
+  --nb-shadow-active: 1px 1px 0px var(--nb-shadow-color);
 }
 
 @theme {
@@ -238,9 +259,11 @@
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 0.15s ease;
 }
-.tap-interactive:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--nb-shadow-hover);
+@media (hover: hover) {
+  .tap-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--nb-shadow-hover);
+  }
 }
 .tap-interactive:active {
   transform: translateY(1px);
@@ -251,9 +274,11 @@
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 0.2s ease;
 }
-.card-interactive:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--nb-shadow-lg);
+@media (hover: hover) {
+  .card-interactive:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--nb-shadow-lg);
+  }
 }
 .card-interactive:active {
   transform: translateY(1px);
@@ -289,9 +314,11 @@
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 0.2s ease;
 }
-.nb-card-hover:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--nb-shadow-lg);
+@media (hover: hover) {
+  .nb-card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--nb-shadow-lg);
+  }
 }
 .nb-card-hover:active {
   transform: translateY(1px);
@@ -301,237 +328,1202 @@
 /* ─── Scrollbar Utilities ─── */
 
 .hide-scrollBar {
-  scrollbar-width: none; /* For Firefox */
-  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) transparent;
 }
 
-.hide-scrollBar::-webkit-scrollbar {
-  display: none; /* For Chrome, Safari, and other WebKit browsers */
+/* ─── App loader: three speech-bubble stickers pop up in turn ─── */
+/* One 1.8s cycle: each bubble rises, wiggles and "types" during its third of the loop. */
+
+.nb-loader-bubble {
+  animation: nbLoaderPop 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+.nb-loader-bubble:nth-child(2) { animation-delay: 0.6s; }
+.nb-loader-bubble:nth-child(3) { animation-delay: 1.2s; }
+
+.nb-loader-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--on-color);
+  opacity: 0.35;
+  animation: nbLoaderDot 1.8s ease-in-out infinite;
 }
 
-/* ─── Neo-Brutalism Loading Animation ─── */
-
-.loader-wrapper {
-  width: 200px;
-  height: 60px;
-  position: relative;
-  z-index: 1;
+.nb-loader-label {
+  animation: nbLoaderLabel 1.8s ease-in-out infinite;
 }
-
-.loader-wrapper .circle {
-  width: 24px;
-  height: 24px;
-  position: absolute;
-  border-radius: 50%;
-  border: 3px solid var(--nb-border-color);
-  left: 15%;
-  transform-origin: 50%;
-  animation: circle7124 0.5s alternate infinite ease;
-}
-
-.loader-wrapper .circle:nth-child(1) {
-  background-color: #FFD43B;
-}
-.loader-wrapper .circle:nth-child(2) {
-  background-color: #4D96FF;
-}
-.loader-wrapper .circle:nth-child(3) {
-  background-color: #FF6B6B;
-}
-
-@keyframes circle7124 {
-  0% {
-    top: 60px;
-    height: 5px;
-    border-radius: 50px 50px 25px 25px;
-    transform: scaleX(1.7);
-  }
-  40% {
-    height: 24px;
-    border-radius: 50%;
-    transform: scaleX(1);
-  }
-  100% {
-    top: 0%;
-  }
-}
-
-.loader-wrapper .circle:nth-child(2) {
-  left: 45%;
-  animation-delay: 0.2s;
-}
-
-.loader-wrapper .circle:nth-child(3) {
-  left: auto;
-  right: 15%;
-  animation-delay: 0.3s;
-}
-
-.loader-wrapper .shadow {
-  width: 24px;
-  height: 4px;
-  border-radius: 50%;
-  background-color: var(--nb-border-color);
-  position: absolute;
-  top: 62px;
-  transform-origin: 50%;
-  z-index: -1;
-  left: 15%;
-  filter: blur(1px);
-  animation: shadow046 0.5s alternate infinite ease;
-  opacity: 0.3;
-}
-
-@keyframes shadow046 {
-  0% {
-    transform: scaleX(1.5);
-  }
-  40% {
-    transform: scaleX(1);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scaleX(0.2);
-    opacity: 0.4;
-  }
-}
-
-.loader-wrapper .shadow:nth-child(4) {
-  left: 45%;
-  animation-delay: 0.2s;
-}
-
-.loader-wrapper .shadow:nth-child(5) {
-  left: auto;
-  right: 15%;
-  animation-delay: 0.3s;
-}
-
-/* ─── Neo-Brutalism Spinner ─── */
-
-.spinner {
-  font-size: 28px;
-  position: relative;
+.nb-loader-ellipsis::after {
+  content: "";
   display: inline-block;
-  width: 1em;
-  height: 1em;
+  width: 1.2em;
+  text-align: left;
+  animation: nbEllipsis 1.8s steps(4, end) infinite;
 }
 
-.spinner .spinner-blade {
+@keyframes nbLoaderPop {
+  0%, 40%, 100% { translate: 0 0; rotate: 0deg; box-shadow: var(--nb-shadow-sm); }
+  12% { translate: 0 -16px; rotate: -6deg; box-shadow: 4px 12px 0 var(--nb-shadow-color); }
+  22% { translate: 0 -12px; rotate: 4deg; }
+  32% { translate: 0 2px; rotate: 0deg; box-shadow: var(--nb-shadow-active); }
+}
+@keyframes nbLoaderDot {
+  0%, 40%, 100% { opacity: 0.35; translate: 0 0; }
+  10% { opacity: 1; translate: 0 -3px; }
+  20% { opacity: 1; translate: 0 0; }
+}
+@keyframes nbLoaderLabel {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+@keyframes nbEllipsis {
+  0% { content: ""; }
+  25% { content: "."; }
+  50% { content: ".."; }
+  75%, 100% { content: "..."; }
+}
+
+/* ─── Browser surfaces and accessibility ─── */
+
+:focus-visible {
+  outline: 3px solid var(--foreground);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--on-color);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(4rem + env(safe-area-inset-bottom));
+}
+
+/* ─── Sign-in / register pending state ─── */
+/*
+ * The submit button stays pressed in, hazard stripes run across the yellow
+ * fill, and three outlined blocks hop in turn. Colors use --on-color so the
+ * marks stay dark on the yellow fill in both themes.
+ */
+.auth-submit[data-pending] {
+  transform: translateY(2px);
+  box-shadow: var(--nb-shadow-active);
+  cursor: progress;
+}
+
+.auth-submit[data-pending]::before {
+  content: "";
   position: absolute;
-  left: 0.4629em;
-  bottom: 0;
-  width: 0.074em;
-  height: 0.2777em;
-  border-radius: 0.0555em;
-  background-color: transparent;
-  -webkit-transform-origin: center -0.2222em;
-  -ms-transform-origin: center -0.2222em;
-  transform-origin: center -0.2222em;
-  animation: spinner-fade9234 1s infinite linear;
+  inset: 0;
+  background-image: linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--on-color) 14%, transparent) 25%,
+    transparent 25% 50%,
+    color-mix(in srgb, var(--on-color) 14%, transparent) 50% 75%,
+    transparent 75%
+  );
+  background-size: 28px 28px;
+  animation: authHatch 0.7s linear infinite;
 }
 
-.spinner .spinner-blade:nth-child(1) {
-  -webkit-animation-delay: 0s;
-  animation-delay: 0s;
-  -webkit-transform: rotate(0deg);
-  -ms-transform: rotate(0deg);
-  transform: rotate(0deg);
+.auth-hop {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 18px;
 }
 
-.spinner .spinner-blade:nth-child(2) {
-  -webkit-animation-delay: 0.083s;
-  animation-delay: 0.083s;
-  -webkit-transform: rotate(30deg);
-  -ms-transform: rotate(30deg);
-  transform: rotate(30deg);
+.auth-hop > span {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--on-color);
+  border-radius: 3px;
+  background: var(--primary);
+  box-shadow: 2px 2px 0 var(--on-color);
+  animation: authHop 0.9s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 
-.spinner .spinner-blade:nth-child(3) {
-  -webkit-animation-delay: 0.166s;
-  animation-delay: 0.166s;
-  -webkit-transform: rotate(60deg);
-  -ms-transform: rotate(60deg);
-  transform: rotate(60deg);
+.auth-hop > span:nth-child(2) {
+  animation-delay: 0.15s;
 }
 
-.spinner .spinner-blade:nth-child(4) {
-  -webkit-animation-delay: 0.249s;
-  animation-delay: 0.249s;
-  -webkit-transform: rotate(90deg);
-  -ms-transform: rotate(90deg);
-  transform: rotate(90deg);
+.auth-hop > span:nth-child(3) {
+  animation-delay: 0.3s;
 }
 
-.spinner .spinner-blade:nth-child(5) {
-  -webkit-animation-delay: 0.332s;
-  animation-delay: 0.332s;
-  -webkit-transform: rotate(120deg);
-  -ms-transform: rotate(120deg);
-  transform: rotate(120deg);
+@keyframes authHatch {
+  from { background-position: 0 0; }
+  to { background-position: 28px 0; }
 }
 
-.spinner .spinner-blade:nth-child(6) {
-  -webkit-animation-delay: 0.415s;
-  animation-delay: 0.415s;
-  -webkit-transform: rotate(150deg);
-  -ms-transform: rotate(150deg);
-  transform: rotate(150deg);
-}
-
-.spinner .spinner-blade:nth-child(7) {
-  -webkit-animation-delay: 0.498s;
-  animation-delay: 0.498s;
-  -webkit-transform: rotate(180deg);
-  -ms-transform: rotate(180deg);
-  transform: rotate(180deg);
-}
-
-.spinner .spinner-blade:nth-child(8) {
-  -webkit-animation-delay: 0.581s;
-  animation-delay: 0.581s;
-  -webkit-transform: rotate(210deg);
-  -ms-transform: rotate(210deg);
-  transform: rotate(210deg);
-}
-
-.spinner .spinner-blade:nth-child(9) {
-  -webkit-animation-delay: 0.664s;
-  animation-delay: 0.664s;
-  -webkit-transform: rotate(240deg);
-  -ms-transform: rotate(240deg);
-  transform: rotate(240deg);
-}
-
-.spinner .spinner-blade:nth-child(10) {
-  -webkit-animation-delay: 0.747s;
-  animation-delay: 0.747s;
-  -webkit-transform: rotate(270deg);
-  -ms-transform: rotate(270deg);
-  transform: rotate(270deg);
-}
-
-.spinner .spinner-blade:nth-child(11) {
-  -webkit-animation-delay: 0.83s;
-  animation-delay: 0.83s;
-  -webkit-transform: rotate(300deg);
-  -ms-transform: rotate(300deg);
-  transform: rotate(300deg);
-}
-
-.spinner .spinner-blade:nth-child(12) {
-  -webkit-animation-delay: 0.913s;
-  animation-delay: 0.913s;
-  -webkit-transform: rotate(330deg);
-  -ms-transform: rotate(330deg);
-  transform: rotate(330deg);
-}
-
-@keyframes spinner-fade9234 {
-  0% {
-    background-color: var(--nb-border-color);
+@keyframes authHop {
+  0%, 55%, 100% {
+    transform: translateY(0);
+    background: var(--primary);
+    box-shadow: 2px 2px 0 var(--on-color);
   }
-  100% {
-    background-color: transparent;
+  25% {
+    transform: translateY(-7px);
+    background: var(--on-color);
+    box-shadow: 2px 5px 0 var(--on-color);
+  }
+}
+
+@keyframes authBlink {
+  0%, 100% { background: var(--primary); }
+  50% { background: var(--on-color); }
+}
+
+/* ─── App shell ─── */
+
+:root {
+  /* Space taken by the header, page padding and (on phones) the bottom dock. */
+  --app-chrome: calc(64px + 2rem + 5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 640px) {
+  :root { --app-chrome: calc(64px + 7.5rem + env(safe-area-inset-bottom)); }
+}
+@media (min-width: 768px) {
+  :root { --app-chrome: calc(64px + 3rem); }
+}
+@media (min-width: 1024px) {
+  :root { --app-chrome: calc(64px + 4rem); }
+}
+
+.h-app {
+  height: calc(100dvh - var(--app-chrome));
+}
+
+.nb-mark-wiggle:hover {
+  animation: nbWiggle 0.5s ease-in-out;
+}
+
+@keyframes nbWiggle {
+  0%, 100% { rotate: -6deg; }
+  30% { rotate: 6deg; }
+  60% { rotate: -10deg; }
+}
+
+/* ─── Mumble mark and the Mumble HQ card ─── */
+
+/* Load pop lives on the wrapper, hover wiggle on the svg, so neither restarts the other. */
+.nb-mumble-pop {
+  transform-origin: 25% 85%;
+  animation: mmPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s backwards;
+}
+.nb-mumble-mark {
+  transform-origin: 25% 85%;
+}
+.nb-mumble-mark .mm-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mmDot 1.8s ease-in-out 0.7s infinite;
+}
+.nb-mumble-mark .mm-dot:nth-child(2) { animation-delay: 0.95s; }
+.nb-mumble-mark .mm-dot:nth-child(3) { animation-delay: 1.2s; }
+.nb-mumble-mark .mm-wave {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: mmWaveDraw 0.5s ease-out 0.5s forwards;
+}
+.nb-mumble-mark .mm-wave:nth-child(2) { animation-delay: 0.65s; }
+
+/* Hover: the bubble wiggles and the whisper waves ripple out. */
+.group\/hq:hover .nb-mumble-mark {
+  animation: mmWiggle 0.6s ease-in-out;
+}
+.group\/hq:hover .nb-mumble-mark .mm-waves {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: mmRipple 0.9s ease-out infinite;
+}
+
+.nb-stat-in {
+  animation: nbStatIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+@keyframes mmPop {
+  from { opacity: 0; transform: scale(0.5) rotate(-14deg); }
+  to { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes mmDot {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  40% { opacity: 1; transform: scale(1); }
+}
+@keyframes mmWaveDraw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes mmWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg) scale(1.03); }
+  55% { transform: rotate(4deg) scale(1.03); }
+  80% { transform: rotate(-2deg); }
+}
+@keyframes mmRipple {
+  0% { opacity: 1; transform: translateX(0) scale(1); }
+  100% { opacity: 0; transform: translateX(6px) scale(1.15); }
+}
+@keyframes nbStatIn {
+  from { opacity: 0; translate: 0 -12px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+/* ─── Dropdown menus: pop out of the trigger, items slide in ─── */
+
+.nb-menu {
+  animation: nbMenuIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* Closing is instant, so a closing menu never lingers over or below the content it came from. */
+.nb-menu[data-ending-style],
+.nb-menu[data-closed] {
+  animation: none;
+  transition: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.nb-menu .nb-menu-item {
+  animation: nbMenuItemIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.nb-menu .nb-menu-item:nth-of-type(1) { animation-delay: 40ms; }
+.nb-menu .nb-menu-item:nth-of-type(2) { animation-delay: 75ms; }
+.nb-menu .nb-menu-item:nth-of-type(3) { animation-delay: 110ms; }
+.nb-menu .nb-menu-item:nth-of-type(4) { animation-delay: 145ms; }
+.nb-menu .nb-menu-item:nth-of-type(5) { animation-delay: 180ms; }
+.nb-menu .nb-menu-item:nth-of-type(n + 6) { animation-delay: 210ms; }
+
+/* While its menu is open, the trigger stays pressed and its icon turns. */
+[data-slot="dropdown-menu-trigger"][data-popup-open] {
+  background-color: var(--muted);
+  border-color: var(--nb-border-color);
+}
+[data-slot="dropdown-menu-trigger"] .lucide-ellipsis-vertical,
+[data-slot="dropdown-menu-trigger"] .lucide-chevron-down {
+  transition: rotate 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+[data-slot="dropdown-menu-trigger"][data-popup-open] .lucide-ellipsis-vertical {
+  rotate: 90deg;
+}
+[data-slot="dropdown-menu-trigger"][data-popup-open] .lucide-chevron-down {
+  rotate: 180deg;
+}
+
+@keyframes nbMenuIn {
+  from { opacity: 0; transform: scale(0.85) translateY(-6px) rotate(-1.5deg); }
+  to { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); }
+}
+@keyframes nbMenuItemIn {
+  from { opacity: 0; translate: -8px 0; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+/* ─── Mumble notes ─── */
+
+/* Read notes sit on faint ruled lines that line up with the 28px text lines. */
+.nb-ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 27px,
+    color-mix(in srgb, var(--nb-border-color) 9%, transparent) 27px,
+    color-mix(in srgb, var(--nb-border-color) 9%, transparent) 28px
+  );
+  /* Each 28px text line gets a rule just under it. */
+  background-position: 0 0;
+}
+.nb-pushpin {
+  overflow: visible;
+  transform-origin: 50% 90%;
+  rotate: 14deg;
+  transition: rotate 0.2s ease;
+}
+.nb-note:hover .nb-pushpin {
+  animation: nbPinWobble 0.5s ease-in-out;
+}
+/* Loading: the mark bobs, the dots breathe faster and the waves keep rippling. */
+.nb-mumble-loading .nb-mumble-mark {
+  animation: authBob 0.9s ease-in-out infinite alternate;
+}
+.nb-mumble-loading .nb-mumble-mark .mm-dot {
+  animation-duration: 1s;
+}
+.nb-mumble-loading .nb-mumble-mark .mm-waves {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: mmRipple 1.1s ease-out 1.1s infinite;
+}
+
+/* Pin states: hover above while pinning, press in when done, pull out while unpinning. */
+/* Animations run on the pin itself (origin at its base), never on the wrapper,
+   so they can't shift it sideways. */
+.nb-note .nb-pin-hover .nb-pushpin {
+  animation: nbPinHover 0.9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.nb-note .nb-pin-drop .nb-pushpin {
+  animation: nbPinDrop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+.nb-note .nb-pin-pullout .nb-pushpin {
+  animation: nbPinPull 0.8s ease-in-out infinite;
+}
+.nb-pin-target {
+  opacity: 0.25;
+  animation: nbPinTarget 0.9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.nb-note-busy {
+  cursor: progress;
+}
+@keyframes nbPinHover {
+  0%, 100% { translate: 0 -14px; }
+  50% { translate: 0 -4px; }
+}
+@keyframes nbPinTarget {
+  0%, 100% { transform: scaleX(0.6); opacity: 0.15; }
+  50% { transform: scaleX(1); opacity: 0.35; }
+}
+@keyframes nbPinDrop {
+  0% { translate: 0 -18px; opacity: 0; }
+  60% { translate: 0 2px; opacity: 1; scale: 1.08 0.9; }
+  100% { translate: 0 0; scale: 1 1; }
+}
+@keyframes nbPinPull {
+  0%, 100% { translate: 0 0; rotate: 14deg; }
+  25% { translate: 0 -6px; rotate: 4deg; }
+  50% { translate: 0 -10px; rotate: 22deg; }
+  75% { translate: 0 -4px; rotate: 10deg; }
+}
+
+@keyframes nbPinWobble {
+  0%, 100% { rotate: 14deg; }
+  30% { rotate: -6deg; }
+  60% { rotate: 20deg; }
+  80% { rotate: 10deg; }
+}
+
+/* ─── Composer: one sticker bar that lifts while you are typing ─── */
+
+.nb-composer {
+  box-shadow: 2px 2px 0 var(--nb-shadow-color);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nb-composer:focus-within {
+  transform: translateY(-2px);
+  box-shadow: var(--nb-shadow-sm);
+}
+/* The bar's lift and bigger shadow show focus, so the text field inside draws no outline of its own. */
+.nb-composer .nb-composer-input:focus,
+.nb-composer .nb-composer-input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.nb-send {
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background-color 0.2s ease;
+}
+.nb-send:not(:disabled):hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--nb-shadow);
+}
+.nb-send:not(:disabled):active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--nb-shadow-active);
+}
+
+/* Send Mumble note field: ruled lines line up with its 8px top padding; focus lifts it instead of drawing an outline. */
+.nb-note-input {
+  background-position: 0 8px;
+  box-shadow: 2px 2px 0 var(--nb-shadow-color);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nb-note-input:focus,
+.nb-note-input:focus-visible {
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: var(--nb-shadow-sm);
+}
+
+/* Navbar account button: only the avatar, as a sticker. It lifts on hover, and a purple ring shows while its menu is open or on Profile. */
+.nb-avatar-trigger {
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nb-avatar-trigger[data-popup-open] {
+  background-color: transparent;
+}
+@media (hover: hover) {
+  .nb-avatar-trigger:hover {
+    transform: translateY(-2px) rotate(-4deg);
+  }
+}
+.nb-avatar-trigger[data-popup-open] > [data-slot="avatar"],
+.nb-avatar-trigger.is-active > [data-slot="avatar"] {
+  outline: 3px solid var(--nb-accent);
+  outline-offset: 2px;
+}
+
+/* ─── Edit Profile: sticker switch, polaroid, toggle scenes ─── */
+
+.nb-switch-knob {
+  transition: translate 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nb-switch:active .nb-switch-knob {
+  scale: 1.12 0.9;
+}
+.nb-switch-icon {
+  animation: nbSwitchIcon 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* A freshly picked photo develops like a polaroid. */
+.nb-develop {
+  animation: nbDevelop 1.1s ease-out;
+}
+/* The disguise lands from above with a bounce. */
+.nb-disguise-drop {
+  animation: nbDisguiseDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* A note flies into the open mailbox. */
+.nb-note-fly {
+  animation: nbNoteFly 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* The "closed" sign swings onto the mailbox. */
+.nb-sign-swing {
+  transform-origin: top right;
+  animation: nbSignSwing 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nb-savebar {
+  animation: nbEnter 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes nbSwitchIcon {
+  from { rotate: -120deg; scale: 0.4; }
+  to { rotate: 0deg; scale: 1; }
+}
+@keyframes nbDevelop {
+  0% { filter: brightness(2.2) saturate(0); }
+  100% { filter: none; }
+}
+@keyframes nbDisguiseDrop {
+  0% { translate: 0 -26px; opacity: 0; rotate: -20deg; }
+  100% { translate: 0 0; opacity: 1; rotate: 0deg; }
+}
+@keyframes nbNoteFly {
+  0% { translate: 22px -22px; rotate: 25deg; opacity: 0; }
+  100% { translate: 0 0; rotate: 0deg; opacity: 1; }
+}
+@keyframes nbSignSwing {
+  0% { rotate: -40deg; opacity: 0; }
+  60% { rotate: 12deg; opacity: 1; }
+  100% { rotate: -4deg; }
+}
+
+/* ─── Profile tab switch: content slides in from the side you moved toward (direction) ─── */
+
+.nb-tab-in {
+  animation: nbTabIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes nbTabIn {
+  from { opacity: 0; translate: calc(var(--dir, 1) * 40px) 0; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+/* ─── Friend cards: pop in tilted, lift on hover, avatar hops ─── */
+
+.nb-friend-in {
+  rotate: var(--tilt, 0deg);
+  animation: nbFriendIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  transition: rotate 0.25s ease, translate 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nb-friend {
+  transition: box-shadow 0.25s ease;
+}
+@media (hover: hover) {
+  .nb-friend-in:hover {
+    rotate: 0deg;
+    translate: 0 -4px;
+  }
+  .nb-friend-in:hover .nb-friend {
+    box-shadow: var(--nb-shadow);
+  }
+  .nb-friend-in:hover .nb-friend-avatar {
+    animation: nbAvatarHop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+/* Leaving: the card tips and drops out of the grid. */
+.nb-card-out {
+  animation: nbCardOut 0.45s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+  pointer-events: none;
+}
+/* Accepted: a green "Friends now!" panel stamps over the card. */
+.nb-celebrate {
+  animation: nbCelebrate 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+/* Blocked band: diagonal hazard stripes. */
+.nb-hazard {
+  background-image: repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--nb-border-color) 14%, transparent) 10px 20px);
+}
+/* Empty-state icon gently bobs. */
+.nb-empty-icon {
+  animation: authBob 1.6s ease-in-out infinite alternate;
+}
+/* Status chip that pops when it changes (e.g. "Request sent"). */
+.nb-pop {
+  animation: nbPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* Decline: a red stamp slams down, then the card crumples and drops away. */
+.nb-card-crumple {
+  animation: nbCrumple 0.55s cubic-bezier(0.55, 0, 1, 0.45) 0.5s forwards;
+  pointer-events: none;
+}
+.nb-stamp {
+  rotate: -12deg;
+  animation: nbStamp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+/* Accept: sparkles burst outward from the middle of the card. */
+.nb-burst {
+  translate: -50% -50%;
+  animation: nbBurst 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+@keyframes nbCrumple {
+  0% { scale: 1; rotate: var(--tilt, 0deg); }
+  30% { scale: 0.92 0.85; rotate: -6deg; }
+  100% { opacity: 0; scale: 0.4; rotate: 25deg; translate: -20px 80px; }
+}
+@keyframes nbStamp {
+  from { opacity: 0; scale: 2.2; }
+  to { opacity: 1; scale: 1; }
+}
+@keyframes nbBurst {
+  0% { opacity: 0; transform: rotate(var(--a)) translateY(0) scale(0.3); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(-90px) scale(1); }
+}
+
+@keyframes nbFadeOut {
+  to { opacity: 0; }
+}
+@keyframes nbCardOut {
+  to { opacity: 0; translate: 0 30px; scale: 0.85; rotate: 8deg; }
+}
+@keyframes nbCelebrate {
+  from { opacity: 0; scale: 1.3; rotate: -6deg; }
+  to { opacity: 1; scale: 1; rotate: 0deg; }
+}
+@keyframes nbPop {
+  0% { scale: 0.6; }
+  100% { scale: 1; }
+}
+
+/* People cards: the photo is a taped polaroid; it straightens on hover while its tape lifts. */
+.nb-polaroid-person {
+  rotate: -4deg;
+  transition: rotate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nb-friend-in:nth-child(even) .nb-polaroid-person {
+  rotate: 3deg;
+}
+.nb-tape {
+  rotate: -6deg;
+  transition: rotate 0.3s ease, translate 0.3s ease;
+}
+@media (hover: hover) {
+  .nb-friend-in:hover .nb-polaroid-person {
+    rotate: 0deg;
+  }
+  .nb-friend-in:hover .nb-tape {
+    rotate: 4deg;
+    translate: -50% -2px;
+  }
+}
+
+@keyframes nbFriendIn {
+  from { opacity: 0; translate: 0 24px; scale: 0.9; rotate: calc(var(--tilt, 0deg) * 4); }
+  to { opacity: 1; translate: 0 0; scale: 1; rotate: var(--tilt, 0deg); }
+}
+@keyframes nbAvatarHop {
+  0%, 100% { translate: 0 0; }
+  40% { translate: 0 -8px; rotate: -6deg; }
+  70% { translate: 0 1px; rotate: 3deg; }
+}
+
+/* ─── EchoLink: the + menu button ─── */
+
+/* Search: a round button that unrolls from left to right over the filters. */
+.nb-search {
+  width: 2.75rem;
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nb-search.is-open {
+  width: 100%;
+}
+.nb-search-input {
+  opacity: 0;
+  translate: -8px 0;
+  transition: opacity 0.2s ease-out, translate 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* The pill shows focus with a deeper shadow; the field inside draws no outline. */
+.nb-search .nb-search-input:focus-visible {
+  outline: none;
+}
+.nb-search:focus-within > div {
+  box-shadow: var(--nb-shadow);
+}
+.nb-search.is-open .nb-search-input {
+  opacity: 1;
+  translate: 0 0;
+  transition-delay: 0.12s;
+}
+
+.nb-plus svg {
+  transition: rotate 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nb-plus[data-popup-open] svg {
+  rotate: 135deg;
+}
+
+/* ─── Hover card that wipes open from left to right (EchoShout identity) ─── */
+
+.nb-reveal-x {
+  opacity: 0;
+  transform: translateX(-6px);
+  /* Fully clipped from the right; the negative insets leave room for the hard shadow once open. */
+  clip-path: inset(0 100% 0 0 round 0.75rem);
+  transition:
+    clip-path 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.12s ease-out;
+}
+.group\/identity:hover .nb-reveal-x,
+.group\/identity:focus-within .nb-reveal-x {
+  opacity: 1;
+  transform: translateX(0);
+  clip-path: inset(0 -8px -8px 0 round 0.75rem);
+}
+
+/* ─── Loading ghosts (EchoShout first load: ghost messages + shimmer) ─── */
+
+.nb-ghost {
+  position: relative;
+  overflow: hidden;
+  background: var(--muted);
+  border: 2px dashed color-mix(in srgb, var(--nb-border-color) 35%, transparent);
+}
+.nb-ghost--me {
+  background: color-mix(in srgb, var(--primary) 40%, var(--card));
+}
+.nb-ghost::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--card) 75%, transparent) 50%, transparent 80%);
+  transform: translateX(-100%);
+  animation: nbShimmer 1.5s ease-in-out infinite;
+}
+.nb-ghost-row {
+  animation: nbGhostIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.nb-older-in {
+  animation: nbOlderIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes nbOlderIn {
+  from { opacity: 0; transform: translateY(-10px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes nbShimmer {
+  to { transform: translateX(100%); }
+}
+@keyframes nbGhostIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Entrances: every page and component rises in instead of popping onto the screen ─── */
+/* Animate only translate, scale and opacity, so tilts (rotate) and hover lifts keep working
+   after the entrance. `backwards` holds the start state during the delay and lets go at the end. */
+
+.nb-enter {
+  animation: nbEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms) backwards;
+}
+.nb-stagger > * {
+  animation: nbEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.nb-stagger > :nth-child(1) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 0ms); }
+.nb-stagger > :nth-child(2) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 60ms); }
+.nb-stagger > :nth-child(3) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 120ms); }
+.nb-stagger > :nth-child(4) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 180ms); }
+.nb-stagger > :nth-child(5) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 240ms); }
+.nb-stagger > :nth-child(6) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 300ms); }
+.nb-stagger > :nth-child(7) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 360ms); }
+.nb-stagger > :nth-child(8) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 420ms); }
+.nb-stagger > :nth-child(9) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 480ms); }
+.nb-stagger > :nth-child(10) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 540ms); }
+.nb-stagger > :nth-child(11) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 600ms); }
+.nb-stagger > :nth-child(12) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 660ms); }
+.nb-stagger > :nth-child(n + 13) { animation-delay: calc(var(--nb-stagger-start, 0ms) + 720ms); }
+
+.nb-dock-up {
+  animation: nbDockUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.15s backwards;
+}
+@keyframes nbDockUp {
+  from { translate: 0 100%; }
+  to { translate: 0 0; }
+}
+
+@keyframes nbEnter {
+  from { opacity: 0; translate: 0 16px; scale: 0.985; }
+  to { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+/* ─── Landing page ─── */
+
+.lp-pop { animation: nbPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s backwards; }
+.lp-word { animation: nbEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.lp-fade { animation: nbEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.lp-word-active { box-shadow: 6px 6px 0 var(--nb-shadow-color); translate: -2px -2px; }
+.nb-sticker-word { transition: box-shadow 0.25s ease, translate 0.25s ease; }
+
+/* Hero stage: the window rises in tilted, floating stickers follow the pointer. */
+.lp-window { animation: lpWindowIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards; rotate: 1.5deg; transition: rotate 0.4s ease; }
+.lp-stage:hover .lp-window { rotate: 0deg; }
+.lp-float {
+  translate: calc(var(--px, 0) * var(--depth, 20) * 1px) calc(var(--py, 0) * var(--depth, 20) * 1px);
+  transition: translate 0.25s ease-out;
+  animation: lpBob 3.2s ease-in-out infinite alternate;
+}
+.lp-progress { animation: lpProgress 3.8s linear forwards; }
+.lp-cta { animation: lpNudge 2.8s ease-in-out 2s infinite; }
+
+/* Ticker */
+.lp-marquee { animation: lpMarquee 32s linear infinite; }
+.lp-marquee:hover { animation-play-state: paused; }
+
+/* Scroll reveals */
+.lp-reveal { opacity: 0; translate: 0 30px; transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), translate 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+.lp-reveal.lp-from-side { translate: calc(var(--side, 1) * 50px) 0; }
+.lp-reveal.lp-tilt-card { translate: calc(var(--side, 1) * 60px) 30px; rotate: calc(var(--side, 1) * 4deg); transition-property: opacity, translate, rotate; }
+.lp-reveal.is-in { opacity: 1; translate: 0 0; rotate: 0deg; }
+.lp-tile { transition: opacity 0.7s ease, translate 0.7s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease; }
+.lp-tile:hover { box-shadow: var(--nb-shadow); }
+
+/* Demos */
+.lp-bubble { animation: nbEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+.lp-shake { animation: toastShake 0.4s ease-in-out; }
+.lp-note { rotate: -2deg; transition: rotate 0.3s ease, border-style 0.2s; }
+.lp-note:hover { rotate: 0deg; }
+.lp-pin { animation: nbPinDrop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.lp-swap { animation: nbPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+@keyframes lpWindowIn { from { opacity: 0; translate: 0 60px; rotate: 8deg; scale: 0.92; } }
+@keyframes lpBob { from { margin-top: 0; } to { margin-top: -10px; } }
+@keyframes lpProgress { from { width: 0; } to { width: 100%; } }
+@keyframes lpNudge { 0%, 90%, 100% { rotate: 0deg; } 93% { rotate: -3deg; } 96% { rotate: 3deg; } }
+@keyframes lpMarquee { to { transform: translateX(-50%); } }
+
+/* ─── Sign-in page: logo stage and decoration ─── */
+
+.auth-grid,
+.nb-dotgrid {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--nb-border-color) 16%, transparent) 1.5px,
+    transparent 1.6px
+  );
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse at center, #000 35%, transparent 85%);
+}
+
+.auth-mark-word,
+.nb-sticker-word {
+  display: inline-block;
+  margin-top: 0.12em;
+  padding: 0 0.18em 0.04em;
+  border: 2px solid var(--nb-border-color);
+  border-radius: 0.3em;
+  color: var(--on-color);
+  box-shadow: 4px 4px 0 var(--nb-shadow-color);
+}
+
+.auth-sparkle {
+  animation: authTwinkle 2.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.auth-shout path {
+  animation: authShout 1.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: left center;
+}
+.auth-shout path:nth-child(2) { animation-delay: 0.12s; }
+.auth-shout path:nth-child(3) { animation-delay: 0.24s; }
+
+.auth-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--on-color);
+  animation: authDot 1.1s ease-in-out infinite;
+}
+.auth-dot:nth-child(2) { animation-delay: 0.15s; }
+.auth-dot:nth-child(3) { animation-delay: 0.3s; }
+
+.auth-drift {
+  animation: authDrift 5s ease-in-out infinite alternate;
+}
+
+/* The one authored entrance: the mark lands on the card, then breathes. */
+.auth-mark-pop {
+  animation: authMarkPop 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+
+.auth-mark-bob {
+  animation: authBob 3.6s ease-in-out 1.1s infinite alternate;
+}
+
+.auth-sticker-in,
+.nb-sticker-in {
+  rotate: var(--tilt, 0deg);
+  animation: authStickerIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-card-in {
+  animation: authCardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-fade-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+.auth-tab-pill,
+.nb-pill {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Email row: opens and closes smoothly when switching Log In / Register. */
+.auth-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.2s ease-out;
+}
+.auth-collapse.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: grid-template-rows 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.25s ease-out 0.08s;
+}
+
+@keyframes authTwinkle {
+  0%, 100% { transform: scale(0.8) rotate(0deg); opacity: 0.75; }
+  50% { transform: scale(1.1) rotate(18deg); opacity: 1; }
+}
+
+@keyframes authShout {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.6); }
+}
+
+@keyframes authDot {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
+@keyframes authDrift {
+  from { translate: 0 0; }
+  to { translate: -6px 10px; }
+}
+
+@keyframes authMarkPop {
+  from { opacity: 0; transform: translateY(-24px) scale(0.6) rotate(-14deg); }
+  to { opacity: 1; transform: translateY(0) scale(1) rotate(8deg); }
+}
+
+@keyframes authBob {
+  from { translate: 0 0; rotate: 0deg; }
+  to { translate: 0 -8px; rotate: -3deg; }
+}
+
+@keyframes authStickerIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes authCardIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Toasts: stickers slapped onto the corner ─── */
+
+.nb-toast[data-state="open"] {
+  animation: toastSlapIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.nb-toast[data-state="closed"] {
+  animation: toastFlickOut 0.28s cubic-bezier(0.55, 0, 1, 0.45) both;
+}
+.nb-toast[data-swipe="end"] {
+  animation: toastSwipeOut 0.2s ease-out both;
+}
+
+.nb-toast-badge {
+  rotate: -6deg;
+  animation: toastBadgePop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.18s both;
+}
+.nb-toast[data-variant="destructive"] .nb-toast-badge {
+  animation: toastBadgePop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.18s both,
+             toastShake 0.4s ease-in-out 0.6s;
+}
+
+/* Countdown strip; pauses with Radix's timer while the toasts are hovered or focused. */
+.nb-toast-timer {
+  transform-origin: left center;
+  animation-name: toastTimer;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+.nb-toast-viewport:hover .nb-toast-timer,
+.nb-toast-viewport:focus-within .nb-toast-timer {
+  animation-play-state: paused;
+}
+
+@keyframes toastSlapIn {
+  0% { opacity: 0; transform: translateX(115%) rotate(9deg); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: translateX(0) rotate(0deg); }
+}
+
+@keyframes toastFlickOut {
+  to { opacity: 0; transform: translateX(60%) rotate(8deg) scale(0.92); }
+}
+
+@keyframes toastSwipeOut {
+  from { transform: translateX(var(--radix-toast-swipe-end-x)); }
+  to { opacity: 0; transform: translateX(120%); }
+}
+
+@keyframes toastBadgePop {
+  0% { transform: scale(0) rotate(-40deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes toastShake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -4px 0; }
+  40% { translate: 4px 0; }
+  60% { translate: -3px 0; }
+  80% { translate: 2px 0; }
+}
+
+@keyframes toastTimer {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* Phones: toasts sit at the top, so they drop down instead. */
+@media (max-width: 639px) {
+  @keyframes toastSlapIn {
+    0% { opacity: 0; transform: translateY(-120%) rotate(-4deg); }
+    60% { opacity: 1; }
+    100% { opacity: 1; transform: translateY(0) rotate(0deg); }
+  }
+  @keyframes toastFlickOut {
+    to { opacity: 0; transform: translateY(-80%) rotate(-4deg) scale(0.94); }
+  }
+}
+
+/*
+ * Reduced motion: keep every state change visible, but drop travel,
+ * overshoot and bounce. Entrances become plain fades, press feedback is
+ * carried by the shadow alone, and the loader pulses in place.
+ */
+@keyframes nbPulse {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-pop, .lp-word, .lp-fade, .lp-window, .lp-float, .lp-cta, .lp-marquee, .lp-bubble, .lp-pin, .lp-swap {
+    animation: none !important;
+  }
+  .lp-reveal {
+    opacity: 1 !important;
+    translate: none !important;
+    rotate: none !important;
+  }
+  .nb-search,
+  .nb-search-input {
+    transition: none !important;
+  }
+  .nb-card-out,
+  .nb-card-crumple {
+    animation: nbFadeOut 0.15s ease-out 0.4s forwards !important;
+  }
+  .nb-stamp,
+  .nb-burst {
+    animation: none !important;
+  }
+  .nb-burst {
+    display: none;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-fade-in-up,
+  .animate-scale-in,
+  .animate-slide-in-bottom {
+    animation-name: fadeIn !important;
+    animation-timing-function: ease-out !important;
+  }
+
+  .animate-nb-bounce,
+  .animate-bounce {
+    animation: none !important;
+  }
+
+  .tap-interactive,
+  .card-interactive,
+  .nb-card-hover,
+  [data-slot="button"] {
+    transition-property: box-shadow, background-color, color, border-color, opacity !important;
+    transition-timing-function: ease-out !important;
+  }
+
+  .tap-interactive:hover,
+  .tap-interactive:active,
+  .card-interactive:hover,
+  .card-interactive:active,
+  .nb-card-hover:hover,
+  .nb-card-hover:active,
+  [data-slot="button"]:hover,
+  [data-slot="button"]:active {
+    transform: none !important;
+  }
+
+  .nb-loader-bubble,
+  .nb-loader-dot {
+    animation: none !important;
+  }
+  .nb-loader {
+    animation: nbPulse 0.9s ease-in-out infinite alternate;
+  }
+
+  .auth-submit[data-pending]::before,
+  .auth-sparkle,
+  .auth-shout path,
+  .auth-dot,
+  .auth-drift,
+  .auth-mark-bob {
+    animation: none;
+  }
+
+  .auth-mark-pop,
+  .auth-sticker-in,
+  .auth-card-in {
+    animation-name: fadeIn;
+  }
+
+  .auth-mark-pop {
+    transform: rotate(8deg);
+  }
+
+  .nb-toast[data-state="open"],
+  .nb-toast[data-state="closed"],
+  .nb-toast[data-swipe="end"] {
+    animation: fadeIn 0.2s ease-out both !important;
+  }
+  .nb-toast[data-state="closed"] {
+    animation-direction: reverse !important;
+  }
+  .nb-toast-badge {
+    animation: none !important;
+  }
+
+  .nb-ghost::after {
+    animation: none;
+  }
+  .nb-ghost-row {
+    animation-name: fadeIn;
+  }
+  .nb-older-in {
+    animation-name: fadeIn;
+  }
+  .nb-menu,
+  .nb-menu .nb-menu-item {
+    animation: none;
+  }
+  [data-slot="dropdown-menu-trigger"] .lucide-ellipsis-vertical,
+  [data-slot="dropdown-menu-trigger"] .lucide-chevron-down {
+    transition: none;
+  }
+
+  .nb-note .nb-pin-hover .nb-pushpin,
+  .nb-note .nb-pin-drop .nb-pushpin,
+  .nb-note .nb-pin-pullout .nb-pushpin,
+  .nb-pin-target,
+  .nb-friend-in:hover .nb-friend-avatar,
+  .nb-empty-icon,
+  .nb-note:hover .nb-pushpin,
+  .nb-mumble-loading .nb-mumble-mark,
+  .nb-mumble-loading .nb-mumble-mark .mm-waves,
+  .nb-mumble-pop,
+  .nb-mumble-mark .mm-dot,
+  .group\/hq:hover .nb-mumble-mark,
+  .group\/hq:hover .nb-mumble-mark .mm-waves {
+    animation: none !important;
+  }
+  .nb-mumble-mark .mm-wave {
+    stroke-dashoffset: 0;
+  }
+  .nb-stat-in {
+    animation-name: fadeIn;
+  }
+
+  .nb-note-input:focus,
+  .nb-switch-knob,
+  .nb-avatar-trigger:hover,
+  .nb-composer:focus-within,
+  .nb-send:not(:disabled):hover,
+  .nb-send:not(:disabled):active {
+    transform: none;
+  }
+
+  .nb-reveal-x {
+    transform: none;
+    clip-path: none;
+    transition: opacity 0.15s ease-out;
+  }
+
+  .nb-switch-icon,
+  .nb-friend-in,
+  .nb-tab-in,
+  .nb-celebrate,
+  .nb-pop,
+  .nb-develop,
+  .nb-disguise-drop,
+  .nb-note-fly,
+  .nb-sign-swing,
+  .nb-savebar,
+  .nb-dock-up,
+  .nb-enter,
+  .nb-stagger > * {
+    animation-name: fadeIn !important;
+    animation-duration: 0.2s !important;
+  }
+
+  .nb-pill,
+  .nb-sticker-in,
+  .nb-mark-wiggle:hover {
+    transition: none;
+    animation: none;
+  }
+
+  .auth-tab-pill,
+  .auth-collapse,
+  .auth-collapse.is-open {
+    transition: none;
+  }
+
+  .auth-hop > span {
+    animation-name: authBlink;
+    animation-timing-function: ease-in-out;
+    animation-duration: 1.2s;
   }
 }
