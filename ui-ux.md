@@ -110,13 +110,13 @@ A sticky 64px header sits above a content area capped at 1280px. Every signed-in
 
 - **Left:** the EchoRealm wordmark, slightly tilted (it straightens on hover), linking to EchoLink.
 - **Center, the sticker dock:** one filled track (no outline) with **EchoLink**, **EchoShout** and **EchoMumble**. A pill in the section's color (yellow, blue or purple) slides to the active one. On Profile pages, no pill shows.
-- **Right:** the theme switch and an **avatar menu** (avatar, @username, chevron). The menu shows your name and email, then My profile, Pinned Mumbles, Friends (with a "new" count for requests), Find people and Settings, then **Log out**. The chip turns purple on Profile pages.
+- **Right:** only your avatar, as a round sticker with the pending-request badge. It tilts slightly on hover and gets a purple ring while its menu is open or you're on Profile. The menu shows your name and email, then My profile, Pinned Mumbles, Friends (with a "new" count for requests), Find people, Settings, a **Dark mode** row with a toggle (it switches the theme without closing the menu), then **Log out**.
 
 There is no separate Profile tab; the avatar menu replaces it.
 
 ### Mobile navigation (under 768px)
 
-The header keeps the wordmark and theme switch. A fixed bottom dock holds **Link**, **Shout**, **Mumble** and **Me**. Me is your avatar and opens Profile. The active item gets a tile in its section color. The dock adds the device's safe-area inset. CSS and JavaScript both switch layouts at 768px.
+The header keeps the wordmark and a small sun/moon button for the theme, since phones don't show the account menu. A fixed bottom dock holds **Link**, **Shout**, **Mumble** and **Me**. Me is your avatar and opens Profile. The active item gets a tile in its section color. The dock adds the device's safe-area inset. CSS and JavaScript both switch layouts at 768px.
 
 ### Badges
 

@@ -6,16 +6,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { ChevronDown, LogOut, Pin, Search, Settings, User, Users } from "lucide-react";
+import { LogOut, Moon, Sun, Pin, Search, Settings, User, Users } from "lucide-react";
 
 import socket from "@/sockets/socket";
-import { handleToggle } from "@/utils/helpers/micro_funcs";
 import { useFriendRequests } from "@/hooks/useFriendRequests";
 import { useJoinRoomSocket } from "@/hooks/useJoinRoomSocket";
 import { useGetRequestsSocket } from "@/hooks/useGetRequestsSocket";
 import { useLogout } from "@/hooks/useLogout";
 import CountBadge from "@/components/CountBadge";
-import ThemeToggle from "@/components/ThemeToggle";
 import { WORDMARK_SRC } from "@/components/brand/BrandMarks";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -38,7 +36,16 @@ export const NavBar: React.FC = () => {
   const pathname = usePathname();
   const { logout, isLoggingOut } = useLogout();
 
-  const { user, isLoggedIn, isChecked } = useSelector((state: RootState) => state.auth);
+  const { user, isLoggedIn, theme } = useSelector((state: RootState) => state.auth);
+  const isDark = theme === "dark" || theme === "business";
+  const setDark = (dark: boolean) => {
+    const next = dark ? "business" : "wireframe";
+    dispatch(setTheme(next));
+    dispatch(setIsChecked(dark));
+    try {
+      localStorage.setItem("theme", next);
+    } catch {}
+  };
   const { badgeOfPendingRequests } = useSelector((state: RootState) => state.user);
   const { newUnreadMessages } = useSelector((state: RootState) => state.echoLink);
   const { unReadMumbles } = useSelector((state: RootState) => state.echoMumble);
@@ -119,7 +126,15 @@ export const NavBar: React.FC = () => {
 
           {/* Theme + avatar menu */}
           <div className="flex shrink-0 items-center gap-3">
-            <ThemeToggle handleToggle={(e) => handleToggle(e, dispatch, setTheme, setIsChecked)} isChecked={isChecked} />
+            {/* Phones have no account menu, so the theme switch lives here as a small icon button. */}
+            <button
+              type="button"
+              onClick={() => setDark(!isDark)}
+              aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+              className={cn("flex size-10 items-center justify-center rounded-xl border-2 border-[var(--nb-border-color)] bg-card text-foreground shadow-[var(--nb-shadow-sm)] tap-interactive", user && "md:hidden")}
+            >
+              {isDark ? <Sun className="h-5 w-5" aria-hidden="true" /> : <Moon className="h-5 w-5" aria-hidden="true" />}
+            </button>
 
             {user && (
               <DropdownMenu>
@@ -129,19 +144,17 @@ export const NavBar: React.FC = () => {
                       type="button"
                       aria-label="Your account menu"
                       className={cn(
-                        "relative hidden items-center gap-2 rounded-xl border-2 border-[var(--nb-border-color)] py-1 pr-2 pl-1 text-sm font-bold shadow-[var(--nb-shadow-sm)] tap-interactive md:flex",
-                        onProfile ? "bg-nb-accent text-on-color" : "bg-card text-foreground"
+                        "nb-avatar-trigger relative hidden rounded-full md:block",
+                        onProfile && "is-active"
                       )}
                     />
                   }
                 >
-                  <Avatar size="sm">
-                    <AvatarImage src={user?.avatar?.url} />
-                    <AvatarFallback className="bg-primary text-[0.7rem] font-bold text-on-color">{initials}</AvatarFallback>
+                  <Avatar className="size-10 border-2 shadow-[var(--nb-shadow-sm)]">
+                    <AvatarImage src={user?.avatar?.url} className="object-cover" />
+                    <AvatarFallback className="bg-primary text-xs font-extrabold text-on-color">{initials}</AvatarFallback>
                   </Avatar>
-                  {user?.username && <Handle name={user.username} size="md" className="hidden max-w-36 lg:inline-flex" />}
-                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
-                  <CountBadge count={badgeOfPendingRequests} label="pending friend requests" className="-top-2 -right-2 bg-nb-warning" />
+                  <CountBadge count={badgeOfPendingRequests} label="pending friend requests" className="-top-1.5 -right-1.5 bg-nb-warning" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" sideOffset={10} className="w-64">
                   <DropdownMenuGroup>
@@ -168,6 +181,25 @@ export const NavBar: React.FC = () => {
                       )}
                     </DropdownMenuItem>
                   ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem closeOnClick={false} onClick={() => setDark(!isDark)} aria-label={isDark ? "Dark mode on. Switch to light" : "Dark mode off. Switch to dark"}>
+                    {isDark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
+                    Dark mode
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "relative ml-auto h-6 w-11 shrink-0 rounded-full border-2 border-[var(--nb-border-color)] transition-colors duration-200",
+                        isDark ? "bg-nb-accent" : "bg-muted"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "absolute top-0.5 left-0.5 size-4 rounded-full border-2 border-[var(--nb-border-color)] bg-primary transition-transform duration-200",
+                          isDark && "translate-x-5"
+                        )}
+                      />
+                    </span>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem variant="destructive" disabled={isLoggingOut} onClick={logout}>
                     <LogOut aria-hidden="true" />
