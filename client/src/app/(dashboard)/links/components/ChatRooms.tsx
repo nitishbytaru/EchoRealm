@@ -233,14 +233,14 @@ export const ChatRooms: React.FC = () => {
             href="/profile/friends/list"
             title="New chat"
             aria-label="Start a new chat"
-            className="flex size-10 items-center justify-center rounded-xl border-[3px] border-[var(--nb-border-color)] bg-primary text-on-color shadow-[var(--nb-shadow-sm)] tap-interactive"
+            className="flex size-10 items-center justify-center rounded-xl border-2 border-[var(--nb-border-color)] bg-primary text-on-color shadow-[var(--nb-shadow-sm)] tap-interactive"
           >
             <MessageSquare className="h-5 w-5" aria-hidden="true" />
           </Link>
           <Button
             size="icon"
             onClick={() => setOpenCreateGroup(true)}
-            className="size-10 shrink-0 rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card text-foreground shadow-[var(--nb-shadow-sm)] tap-interactive"
+            className="size-10 shrink-0 rounded-xl border-2 border-[var(--nb-border-color)] bg-card text-foreground shadow-[var(--nb-shadow-sm)] tap-interactive"
             title="Create a group"
             aria-label="Create a group"
           >
@@ -266,7 +266,7 @@ export const ChatRooms: React.FC = () => {
         />
 
         {search && (
-          <div className="absolute top-full right-0 left-0 z-50 mt-2 max-h-60 space-y-1 overflow-y-auto rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card p-2 shadow-[var(--nb-shadow)]">
+          <div className="absolute top-full right-0 left-0 z-50 mt-2 max-h-60 space-y-1 overflow-y-auto rounded-xl border-2 border-[var(--nb-border-color)] bg-card p-2 shadow-[var(--nb-shadow)]">
             {isSearching ? (
               <p className="p-3 text-center text-sm font-medium text-muted-foreground">Searching…</p>
             ) : searchResults && searchResults.length > 0 ? (
@@ -363,7 +363,7 @@ export const ChatRooms: React.FC = () => {
                 type="button"
                 aria-current={isSelected ? "page" : undefined}
                 onClick={() => openRoom(receiver)}
-                className={`flex w-full items-center gap-3 rounded-xl border-[3px] p-2.5 text-left transition-all duration-150 ${
+                className={`flex w-full items-center gap-3 rounded-xl border-2 p-2.5 text-left transition-all duration-150 ${
                   isSelected
                     ? "border-[var(--nb-border-color)] bg-primary text-on-color shadow-[var(--nb-shadow-sm)]"
                     : isUnread
@@ -437,7 +437,7 @@ export const ChatRooms: React.FC = () => {
             <p className="text-sm font-medium text-muted-foreground">No chats yet. Add a friend to get started.</p>
             <Link
               href="/profile/find-users"
-              className="inline-flex h-10 items-center gap-2 rounded-xl border-[3px] border-[var(--nb-border-color)] bg-primary px-4 text-sm font-bold text-on-color shadow-[var(--nb-shadow-sm)] tap-interactive"
+              className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-[var(--nb-border-color)] bg-primary px-4 text-sm font-bold text-on-color shadow-[var(--nb-shadow-sm)] tap-interactive"
             >
               <UserPlus className="h-4 w-4" />
               Find friends

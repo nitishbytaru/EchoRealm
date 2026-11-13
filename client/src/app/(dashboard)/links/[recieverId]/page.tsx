@@ -21,12 +21,12 @@ export default function LinkDetailPage({ params }: PageProps) {
       {/* Grid Layout */}
       <div className="grid h-full w-full grid-cols-1 gap-5 md:grid-cols-[19rem_minmax(0,1fr)] lg:grid-cols-[22rem_minmax(0,1fr)]">
         {/* Left Side: Chat Rooms List */}
-        <div className="hidden md:block bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-4 overflow-hidden">
+        <div className="hidden md:block bg-card border-2 border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl p-4 overflow-hidden">
           <ChatRooms />
         </div>
 
         {/* Right Side: Chat Box */}
-        <div className="bg-card border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl overflow-hidden flex flex-col">
+        <div className="bg-card border-2 border-[var(--nb-border-color)] shadow-[var(--nb-shadow)] rounded-2xl overflow-hidden flex flex-col">
           <ChatBox
             scrollRef={scrollRef}
             shouldScrollToBottom={shouldScrollToBottom}

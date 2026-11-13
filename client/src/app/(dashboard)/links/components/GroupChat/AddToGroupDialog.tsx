@@ -126,7 +126,7 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
             </div>
 
             {search.value && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-popover border-[3px] border-[var(--nb-border-color)] rounded-lg shadow-2xl max-h-40 overflow-y-auto z-50 p-1 divide-y divide-border">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-popover border-2 border-[var(--nb-border-color)] rounded-lg shadow-2xl max-h-40 overflow-y-auto z-50 p-1 divide-y divide-border">
                 {searchResults?.length > 0 ? (
                   searchResults.map((searchUser) => (
                     <button
@@ -143,7 +143,7 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
                       <div className="flex items-center gap-2">
                         <Avatar className="h-7 w-7">
                           <AvatarImage src={searchUser?.avatar?.url} />
-                          <AvatarFallback className="bg-muted text-nb-accent-text text-xs border-[3px] border-[var(--nb-border-color)]">
+                          <AvatarFallback className="bg-muted text-nb-accent-text text-xs border-2 border-[var(--nb-border-color)]">
                             {searchUser.username.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
@@ -162,7 +162,7 @@ export const AddToGroupDialog: React.FC<AddToGroupDialogProps> = ({
           {/* Current group members */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Selected Members ({groupMembers.length})</label>
-            <div className="flex flex-wrap gap-1.5 p-2 bg-muted border-[3px] border-[var(--nb-border-color)] rounded-xl max-h-40 overflow-y-auto">
+            <div className="flex flex-wrap gap-1.5 p-2 bg-muted border-2 border-[var(--nb-border-color)] rounded-xl max-h-40 overflow-y-auto">
               {groupMembers.map((member) => (
                 <span
                   key={member.id}

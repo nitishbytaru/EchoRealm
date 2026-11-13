@@ -59,7 +59,7 @@ export const GroupChatNav: React.FC<GroupChatNavProps> = ({
     .join(", ") || "";
 
   return (
-    <div className="flex shrink-0 items-center justify-between gap-3 border-b-[3px] border-[var(--nb-border-color)] bg-card px-4 py-3">
+    <div className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-[var(--nb-line)] bg-card px-4 py-3">
       <div className="flex items-center space-x-3 max-w-[70%]">
         {/* Back button for mobile view */}
         <Link href="/links" aria-label="Back to chats" className="md:hidden flex size-11 items-center justify-center text-muted-foreground hover:text-foreground transition-colors tap-interactive">

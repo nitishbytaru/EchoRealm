@@ -147,7 +147,7 @@ export default function ViewProfilePage({ params }: PageProps) {
     return (
       <div className="space-y-4">
         {/* Header with back navigation */}
-        <div className="flex items-center gap-3 pb-4 border-b-[3px] border-[var(--nb-border-color)]">
+        <div className="flex items-center gap-3 pb-4 border-b-2 border-[var(--nb-line)]">
           <Link href="/profile/find-users" aria-label="Back to Find Users" className="p-2 text-muted-foreground hover:text-foreground rounded-lg transition-colors tap-interactive">
             <ChevronLeft className="h-4 w-4" />
           </Link>
@@ -160,7 +160,7 @@ export default function ViewProfilePage({ params }: PageProps) {
           <Loader2 className="h-4 w-4 animate-spin text-foreground ml-auto" />
         </div>
 
-        <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl p-4 md:p-6">
+        <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4 bg-muted/40 border-2 border-[var(--nb-border-color)] rounded-2xl p-4 md:p-6">
           <div className="flex flex-col items-center text-center space-y-2">
             <Skeleton className="h-16 w-16 rounded-full" />
             <div className="space-y-1 flex flex-col items-center">
@@ -209,7 +209,7 @@ export default function ViewProfilePage({ params }: PageProps) {
   return (
     <div className="space-y-4">
       {/* Header with back navigation */}
-      <div className="flex items-center gap-3 pb-4 border-b-[3px] border-[var(--nb-border-color)]">
+      <div className="flex items-center gap-3 pb-4 border-b-2 border-[var(--nb-line)]">
         <Link href="/profile/find-users" aria-label="Back to Find Users" className="p-2 text-muted-foreground hover:text-foreground rounded-lg transition-colors tap-interactive">
           <ChevronLeft className="h-4 w-4" />
         </Link>
@@ -222,7 +222,7 @@ export default function ViewProfilePage({ params }: PageProps) {
         {isPending && <Loader2 className="h-4 w-4 animate-spin text-foreground ml-auto" />}
       </div>
 
-      <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-4 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl p-4 md:p-6">
+      <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-4 bg-muted/40 border-2 border-[var(--nb-border-color)] rounded-2xl p-4 md:p-6">
         <div className="flex flex-col items-center text-center space-y-2">
           <Avatar className="h-16 w-16 border">
             <AvatarImage src={viewingProfileUserDetails?.avatar?.url} />
@@ -292,7 +292,7 @@ export default function ViewProfilePage({ params }: PageProps) {
         <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Featured Mumbles</h3>
 
         {viewingProfileUserDetails?.selectedUserProfileMumbles?.length === 0 ? (
-          <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl min-h-[150px]">
+          <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-2 border-[var(--nb-border-color)] rounded-2xl min-h-[150px]">
             <p className="text-muted-foreground text-xs">No whispers shared yet by this user</p>
           </div>
         ) : (

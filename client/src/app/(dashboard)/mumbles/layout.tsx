@@ -33,9 +33,9 @@ export default function MumblesLayout({ children }: { children: React.ReactNode 
     <div className="grid w-full flex-1 grid-cols-1 gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-10">
       {/* Mumble HQ */}
       <aside className="lg:sticky lg:top-24 lg:self-start">
-        <div className="nb-sticker-in group/hq relative overflow-hidden rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">
+        <div className="nb-sticker-in group/hq relative overflow-hidden rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">
           {/* Header band with the Mumble mark */}
-          <div className="relative flex h-20 items-center border-b-[3px] border-[var(--nb-border-color)] bg-nb-accent/25 px-5 sm:h-28 lg:h-32">
+          <div className="relative flex h-20 items-center border-b-2 border-[var(--nb-line)] bg-nb-accent/25 px-5 sm:h-28 lg:h-32">
             <div aria-hidden="true" className="nb-dotgrid absolute inset-0 opacity-70 [mask-image:none]" />
             <MumbleMark className="relative w-20 -rotate-3 sm:w-28 lg:w-32" />
             <Sparkle className="absolute top-4 right-8 w-7" />
@@ -58,7 +58,7 @@ export default function MumblesLayout({ children }: { children: React.ReactNode 
                     <div
                       key={s.label}
                       className={cn(
-                        "nb-stat-in group/stat rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card px-2 pt-2 pb-2.5 text-center shadow-[2px_2px_0_var(--nb-shadow-color)] transition-[rotate,translate,box-shadow] duration-200 hover:-translate-y-1 hover:rotate-0 hover:shadow-[var(--nb-shadow-sm)]",
+                        "nb-stat-in group/stat rounded-xl border-2 border-[var(--nb-border-color)] bg-card px-2 pt-2 pb-2.5 text-center shadow-[2px_2px_0_var(--nb-shadow-color)] transition-[rotate,translate,box-shadow] duration-200 hover:-translate-y-1 hover:rotate-0 hover:shadow-[var(--nb-shadow-sm)]",
                         s.tilt
                       )}
                       style={{ animationDelay: `${0.25 + i * 0.09}s` }}
@@ -83,7 +83,7 @@ export default function MumblesLayout({ children }: { children: React.ReactNode 
             <nav aria-label="Mumbles" className="relative mt-5 grid grid-cols-2 rounded-xl bg-muted p-1">
               <span
                 aria-hidden="true"
-                className="nb-pill absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg border-[3px] border-[var(--nb-border-color)] bg-nb-accent shadow-[var(--nb-shadow-active)]"
+                className="nb-pill absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg border-2 border-[var(--nb-border-color)] bg-nb-accent shadow-[var(--nb-shadow-active)]"
                 style={{ transform: `translateX(${activeIndex * 100}%)` }}
               />
               {tabs.map((tab, i) => {

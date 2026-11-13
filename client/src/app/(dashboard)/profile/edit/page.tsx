@@ -101,7 +101,7 @@ export default function MyProfileDetailsPage() {
       <PageHeader as="h2" title="Profile details" description="Your picture, username, email, password and privacy." />
 
       <div className="grid items-start gap-8 lg:grid-cols-[16rem_minmax(0,1fr)]">
-      <div className="flex flex-col items-center justify-center space-y-3 rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-muted/60 px-4 py-6 shadow-[var(--nb-shadow-sm)] lg:sticky lg:top-24">
+      <div className="flex flex-col items-center justify-center space-y-3 rounded-2xl border-2 border-[var(--nb-border-color)] bg-muted/60 px-4 py-6 shadow-[var(--nb-shadow-sm)] lg:sticky lg:top-24">
         <input
           id="avatarUpload"
           name="avatar"
@@ -119,7 +119,7 @@ export default function MyProfileDetailsPage() {
                 {user?.username?.slice(0, 2).toUpperCase() || "ME"}
               </AvatarFallback>
             </Avatar>
-            <div className="absolute -bottom-1 -right-1 flex size-9 items-center justify-center rounded-full bg-primary text-on-color border-[3px] border-[var(--nb-border-color)]">
+            <div className="absolute -bottom-1 -right-1 flex size-9 items-center justify-center rounded-full bg-primary text-on-color border-2 border-[var(--nb-border-color)]">
               <Camera className="h-4 w-4" aria-hidden="true" />
             </div>
           </label>
@@ -180,7 +180,7 @@ export default function MyProfileDetailsPage() {
 
         <div className="mt-6 grid gap-3">
           {/* Become Anonymous Toggle */}
-          <div className="flex items-center justify-between gap-4 rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
+          <div className="flex items-center justify-between gap-4 rounded-xl border-2 border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
             <div>
               <h4 className="text-sm font-bold text-foreground">Become Anonymous</h4>
               <p className="text-sm text-muted-foreground font-medium">Post to EchoShout as anonymous, and start each Mumble as anonymous</p>
@@ -193,7 +193,7 @@ export default function MyProfileDetailsPage() {
           </div>
 
           {/* Accept Mumbles Toggle */}
-          <div className="flex items-center justify-between gap-4 rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
+          <div className="flex items-center justify-between gap-4 rounded-xl border-2 border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
             <div>
               <h4 className="text-sm font-bold text-foreground">Accept Mumbles</h4>
               <p className="text-sm text-muted-foreground font-medium">Let other people send you Mumbles</p>

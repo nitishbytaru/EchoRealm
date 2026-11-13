@@ -103,7 +103,7 @@ export default function MyMumblesPage() {
         </div>
       ) : pinnedMumblesInMyProfile?.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8">
-          <div className="relative w-full max-w-sm -rotate-1 rounded-2xl border-[3px] border-dashed border-[var(--nb-border-color)] bg-muted/50 p-8 text-center">
+          <div className="relative w-full max-w-sm -rotate-1 rounded-2xl border-2 border-dashed border-[var(--nb-border-color)] bg-muted/50 p-8 text-center">
             <Sparkle className="absolute -top-3 -right-3 w-8" />
             <p className="text-xl font-extrabold text-foreground">Nothing pinned yet</p>
             <p className="mt-2 text-sm font-medium text-muted-foreground">

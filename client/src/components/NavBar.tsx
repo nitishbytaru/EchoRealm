@@ -74,7 +74,7 @@ export const NavBar: React.FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b-[3px] border-[var(--nb-border-color)] bg-card text-foreground">
+      <header className="sticky top-0 z-50 w-full border-b-2 border-[var(--nb-line)] bg-card text-foreground">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           {/* Brand: wordmark */}
           <Link href="/links" aria-label="EchoRealm home" className="flex shrink-0 items-center">
@@ -84,11 +84,11 @@ export const NavBar: React.FC = () => {
           {/* Sticker dock (tablet and up) */}
           {isLoggedIn && (
             <nav aria-label="Main" className="hidden md:block">
-              <div className="relative grid grid-cols-3 rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-muted p-1">
+              <div className="relative grid grid-cols-3 rounded-2xl bg-muted p-1">
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "nb-pill absolute inset-y-1 left-1 w-[calc((100%-0.5rem)/3)] rounded-xl border-[3px] border-[var(--nb-border-color)] shadow-[var(--nb-shadow-active)]",
+                    "nb-pill absolute inset-y-1 left-1 w-[calc((100%-0.5rem)/3)] rounded-xl border-2 border-[var(--nb-border-color)] shadow-[var(--nb-shadow-active)]",
                     active ? active.fill : "opacity-0"
                   )}
                   style={{ transform: `translateX(${Math.max(activeIndex, 0) * 100}%)` }}
@@ -129,7 +129,7 @@ export const NavBar: React.FC = () => {
                       type="button"
                       aria-label="Your account menu"
                       className={cn(
-                        "relative hidden items-center gap-2 rounded-xl border-[3px] border-[var(--nb-border-color)] py-1 pr-2 pl-1 text-sm font-bold shadow-[var(--nb-shadow-sm)] tap-interactive md:flex",
+                        "relative hidden items-center gap-2 rounded-xl border-2 border-[var(--nb-border-color)] py-1 pr-2 pl-1 text-sm font-bold shadow-[var(--nb-shadow-sm)] tap-interactive md:flex",
                         onProfile ? "bg-nb-accent text-on-color" : "bg-card text-foreground"
                       )}
                     />
@@ -184,7 +184,7 @@ export const NavBar: React.FC = () => {
       {isLoggedIn && (
         <nav
           aria-label="Main"
-          className="pb-safe fixed right-0 bottom-0 left-0 z-50 flex items-stretch justify-around border-t-[3px] border-[var(--nb-border-color)] bg-card md:hidden"
+          className="pb-safe fixed right-0 bottom-0 left-0 z-50 flex items-stretch justify-around border-t-2 border-[var(--nb-line)] bg-card md:hidden"
         >
           {SECTIONS.map((section) => {
             const Icon = section.icon;

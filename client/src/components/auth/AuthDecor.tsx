@@ -87,7 +87,7 @@ export function AuthStage() {
             <span className="px-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">{item.area}</span>
             <span
               className={cn(
-                "max-w-[85%] rounded-2xl border-[3px] border-[var(--nb-border-color)] px-4 py-2.5 text-base font-bold text-on-color shadow-[var(--nb-shadow-sm)]",
+                "max-w-[85%] rounded-2xl border-2 border-[var(--nb-border-color)] px-4 py-2.5 text-base font-bold text-on-color shadow-[var(--nb-shadow-sm)]",
                 item.tone,
                 item.mine ? "rounded-br-sm" : "rounded-bl-sm"
               )}

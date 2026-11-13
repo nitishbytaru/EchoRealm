@@ -91,16 +91,16 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
       {/* Member card */}
       <section
         aria-label="Your profile"
-        className="relative overflow-hidden rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]"
+        className="relative overflow-hidden rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]"
       >
-        <div aria-hidden="true" className="h-16 border-b-[3px] border-[var(--nb-border-color)] bg-nb-accent sm:h-20">
+        <div aria-hidden="true" className="h-16 border-b-2 border-[var(--nb-line)] bg-nb-accent sm:h-20">
           <div className="nb-dotgrid h-full w-full opacity-60 [mask-image:none]" />
         </div>
         <TypingBubble className="absolute top-4 right-5 hidden rotate-3 sm:inline-flex" tone="primary" />
         <Sparkle className="absolute top-3 right-28 hidden w-6 sm:block" />
 
         <div className="flex flex-col gap-4 px-5 pb-5 sm:flex-row sm:items-end sm:gap-6 sm:px-6">
-          <div className="-mt-10 w-fit shrink-0 -rotate-3 rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card p-1.5 shadow-[var(--nb-shadow-sm)] sm:-mt-12">
+          <div className="-mt-10 w-fit shrink-0 -rotate-3 rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-1.5 shadow-[var(--nb-shadow-sm)] sm:-mt-12">
             <Avatar className="size-20 rounded-xl sm:size-24 [&>*]:rounded-[0.6rem]">
               <AvatarImage src={user?.avatar?.url} className="object-cover" />
               <AvatarFallback className="rounded-[0.6rem] bg-primary text-2xl font-extrabold text-on-color">
@@ -156,7 +156,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
                       href={tab.href}
                       aria-current={isActive ? "page" : undefined}
                       className={cn(
-                        "relative flex h-10 items-center gap-2 rounded-xl border-[3px] px-3 text-sm font-bold whitespace-nowrap transition-all tap-interactive",
+                        "relative flex h-10 items-center gap-2 rounded-xl border-2 px-3 text-sm font-bold whitespace-nowrap transition-all tap-interactive",
                         isActive
                           ? "border-[var(--nb-border-color)] bg-primary text-on-color shadow-[var(--nb-shadow-sm)]"
                           : "border-[var(--nb-border-color)] bg-card text-muted-foreground hover:text-foreground"
@@ -180,7 +180,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
       </nav>
 
       {/* Section content */}
-      <div className="flex-1 rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card p-5 shadow-[var(--nb-shadow)] sm:p-6 md:p-8">
+      <div className="flex-1 rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-5 shadow-[var(--nb-shadow)] sm:p-6 md:p-8">
         <div key={pathname} className="animate-fade-in-up">
           {children}
         </div>

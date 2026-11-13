@@ -117,7 +117,7 @@ export const MessageBar: React.FC<MessageBarProps> = ({
 
       <div
         className={cn(
-          "nb-composer flex items-center gap-1 rounded-2xl border-[3px] bg-card p-1.5 pl-2",
+          "nb-composer flex items-center gap-1 rounded-2xl border-2 bg-card p-1.5 pl-2",
           isOverLimit ? "border-nb-danger-text" : "border-[var(--nb-border-color)]"
         )}
       >
@@ -175,7 +175,7 @@ export const MessageBar: React.FC<MessageBarProps> = ({
           aria-label={sendLabel}
           aria-busy={isSending || undefined}
           className={cn(
-            "nb-send flex size-10 shrink-0 items-center justify-center rounded-xl border-[3px] border-[var(--nb-border-color)] text-on-color",
+            "nb-send flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--nb-border-color)] text-on-color",
             canSend || isSending ? "bg-primary shadow-[var(--nb-shadow-sm)]" : "cursor-not-allowed bg-muted text-muted-foreground shadow-none"
           )}
         >

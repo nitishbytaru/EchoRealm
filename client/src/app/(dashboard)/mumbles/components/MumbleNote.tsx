@@ -77,7 +77,7 @@ export default function MumbleNote({
   return (
     <article
       className={cn(
-        "nb-note group/note relative mt-3 rounded-2xl border-[3px] border-[var(--nb-border-color)] px-4 pt-8 pb-3 shadow-[var(--nb-shadow-sm)]",
+        "nb-note group/note relative mt-3 rounded-2xl border-2 border-[var(--nb-border-color)] px-4 pt-8 pb-3 shadow-[var(--nb-shadow-sm)]",
         "transition-[rotate,translate,box-shadow] duration-200 hover:-translate-y-1 hover:rotate-0 hover:shadow-[var(--nb-shadow)]",
         TILTS[index % TILTS.length],
         isAnonymous && "border-dashed",
@@ -124,14 +124,14 @@ export default function MumbleNote({
           <span
             aria-hidden="true"
             className={cn(
-              "flex size-12 shrink-0 items-center justify-center rounded-full border-[3px] border-dashed border-[var(--nb-border-color)]",
+              "flex size-12 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-[var(--nb-border-color)]",
               isUnread ? "bg-card text-foreground" : "bg-nb-accent text-on-color"
             )}
           >
             <HatGlasses className="size-6" strokeWidth={2.25} />
           </span>
         ) : (
-          <Avatar className="size-12 border-[3px]">
+          <Avatar className="size-12 border-2">
             {avatarUrl && <AvatarImage src={avatarUrl} alt="" className="object-cover" />}
             <AvatarFallback className={cn("text-base font-extrabold text-on-color", chipColor(sender ?? ""))}>
               {sender?.slice(0, 2).toUpperCase()}

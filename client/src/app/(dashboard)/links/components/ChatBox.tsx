@@ -223,7 +223,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           </div>
 
           {/* Message input bar */}
-          <div className="shrink-0 border-t-[3px] border-[var(--nb-border-color)] bg-muted/60 px-4 pt-3 pb-4">
+          <div className="shrink-0 border-t-2 border-[var(--nb-line)] bg-muted/60 px-4 pt-3 pb-4">
             <MessageBar onSend={sendMessage} />
           </div>
         </div>

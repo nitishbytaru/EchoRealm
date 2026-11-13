@@ -174,12 +174,12 @@ export default function FindUsersPage() {
             })}
           </div>
         ) : (
-          <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl min-h-[200px] animate-fade-in">
+          <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-2 border-[var(--nb-border-color)] rounded-2xl min-h-[200px] animate-fade-in">
             <p className="text-muted-foreground text-xs">No member found with username &quot;{search.value}&quot;</p>
           </div>
         )
       ) : (
-        <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl min-h-[200px]">
+        <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-2 border-[var(--nb-border-color)] rounded-2xl min-h-[200px]">
           <p className="text-foreground text-sm font-bold">Find someone to talk to</p>
           <p className="text-sm text-muted-foreground font-medium mt-1">Type a username above to see who&apos;s here.</p>
         </div>

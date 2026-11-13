@@ -124,7 +124,7 @@ export default function MyFriendsPage() {
           ))}
         </div>
       ) : myFriendsList?.length === 0 ? (
-        <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-[3px] border-[var(--nb-border-color)] rounded-2xl min-h-[250px] animate-fade-in">
+        <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-2 border-[var(--nb-border-color)] rounded-2xl min-h-[250px] animate-fade-in">
           <Users className="h-6 w-6 text-muted-foreground mb-2" />
           <p className="text-foreground text-sm font-bold">No friends yet</p>
           <Link href="/profile/find-users" className={buttonVariants({ className: "mt-3" })}>Find Users</Link>

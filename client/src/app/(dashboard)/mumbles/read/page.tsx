@@ -184,7 +184,7 @@ export default function ListenMumblesPage() {
         <MumbleLoading />
       ) : Mumbles.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center py-10">
-          <div className="relative w-full max-w-sm -rotate-2 rounded-2xl border-[3px] border-dashed border-[var(--nb-border-color)] bg-card p-8 text-center shadow-[var(--nb-shadow)]">
+          <div className="relative w-full max-w-sm -rotate-2 rounded-2xl border-2 border-dashed border-[var(--nb-border-color)] bg-card p-8 text-center shadow-[var(--nb-shadow)]">
             <TypingBubble className="absolute -top-5 -right-4 rotate-6" />
             <Sparkle className="absolute -bottom-4 -left-3 w-8" />
             <p className="text-2xl font-extrabold text-foreground">It&apos;s quiet in here</p>

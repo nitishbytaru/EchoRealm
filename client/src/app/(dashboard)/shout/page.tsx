@@ -168,7 +168,7 @@ export default function EchoShoutPage() {
           className="mb-4 lg:hidden [&_h1]:text-2xl sm:[&_h1]:text-3xl"
         />
 
-        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">
           {isFetching ? (
             <ShoutLoading />
           ) : (
@@ -182,9 +182,9 @@ export default function EchoShoutPage() {
 
           {/* Composer dock: always pinned to the bottom of the feed */}
           {isLoggedIn && (
-            <div className="relative z-20 shrink-0 border-t-[3px] border-[var(--nb-border-color)] bg-muted/60 px-4 pt-3 pb-4">
+            <div className="relative z-20 shrink-0 border-t-2 border-[var(--nb-line)] bg-muted/60 px-4 pt-3 pb-4">
               {selectSearchBar && (
-                <div className="absolute right-3 bottom-full left-3 z-30 mx-auto mb-3 max-w-sm rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card p-3 shadow-[var(--nb-shadow)]">
+                <div className="absolute right-3 bottom-full left-3 z-30 mx-auto mb-3 max-w-sm rounded-xl border-2 border-[var(--nb-border-color)] bg-card p-3 shadow-[var(--nb-shadow)]">
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <label htmlFor="mention-search" className="text-sm font-bold text-foreground">
                       Mention someone
@@ -314,7 +314,7 @@ export default function EchoShoutPage() {
           description="One room for everybody. Keep it short and loud."
           className="[&_h2]:text-3xl"
         />
-        <div className="relative rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-secondary p-4 text-on-color shadow-[var(--nb-shadow-sm)]">
+        <div className="relative rounded-2xl border-2 border-[var(--nb-border-color)] bg-secondary p-4 text-on-color shadow-[var(--nb-shadow-sm)]">
           <ShoutLines className="absolute -top-4 -left-5 w-10 rotate-[200deg]" />
           <p className="text-lg font-extrabold leading-tight">How shouting works</p>
           <ul className="mt-3 space-y-2 text-sm font-semibold">
@@ -326,7 +326,7 @@ export default function EchoShoutPage() {
         </div>
 
         {recentShouters.length > 0 && (
-          <div className="rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
+          <div className="rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-4 shadow-[var(--nb-shadow-sm)]">
             <p className="text-lg font-extrabold leading-tight text-foreground">
               Loud <span className="nb-sticker-word bg-primary">lately</span>
             </p>

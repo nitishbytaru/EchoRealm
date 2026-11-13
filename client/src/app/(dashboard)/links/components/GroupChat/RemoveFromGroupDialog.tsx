@@ -79,11 +79,11 @@ export const RemoveFromGroupDialog: React.FC<RemoveFromGroupDialogProps> = ({
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Group Members ({groupMembers.length})</label>
-            <div className="bg-muted border-[3px] border-[var(--nb-border-color)] rounded-xl max-h-60 overflow-y-auto p-2 space-y-1.5">
+            <div className="bg-muted border-2 border-[var(--nb-border-color)] rounded-xl max-h-60 overflow-y-auto p-2 space-y-1.5">
               {groupMembers.map((member) => (
                 <div
                   key={member._id}
-                  className="flex items-center justify-between p-2 rounded-lg bg-background border-[3px] border-[var(--nb-border-color)]"
+                  className="flex items-center justify-between p-2 rounded-lg bg-background border-2 border-[var(--nb-border-color)]"
                 >
                   <span className="text-xs font-medium text-foreground">@{member.username}</span>
                   <Button

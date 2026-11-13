@@ -40,7 +40,7 @@ export function TypingBubble({ className, tone = "success" }: { className?: stri
     <span
       aria-hidden="true"
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-xl rounded-bl-sm border-[3px] border-[var(--nb-border-color)] px-3 py-2.5 shadow-[var(--nb-shadow-sm)]",
+        "inline-flex items-center gap-1.5 rounded-xl rounded-bl-sm border-2 border-[var(--nb-border-color)] px-3 py-2.5 shadow-[var(--nb-shadow-sm)]",
         tone === "success" ? "bg-nb-success" : "bg-primary",
         className
       )}

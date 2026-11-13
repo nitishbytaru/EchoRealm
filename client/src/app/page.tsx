@@ -213,7 +213,7 @@ export default function RegisterPage() {
         type="button"
         onClick={toggleTheme}
         aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
-        className="fixed top-4 right-4 z-50 flex size-11 items-center justify-center rounded-xl border-[3px] border-[var(--nb-border-color)] bg-card text-foreground shadow-[var(--nb-shadow-sm)] tap-interactive"
+        className="fixed top-4 right-4 z-50 flex size-11 items-center justify-center rounded-xl border-2 border-[var(--nb-border-color)] bg-card text-foreground shadow-[var(--nb-shadow-sm)] tap-interactive"
       >
         {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
       </button>
@@ -231,7 +231,7 @@ export default function RegisterPage() {
             <div className="relative grid grid-cols-2 rounded-xl bg-muted p-1">
               <span
                 aria-hidden="true"
-                className="auth-tab-pill absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg border-[3px] border-[var(--nb-border-color)] bg-primary shadow-[var(--nb-shadow-active)]"
+                className="auth-tab-pill absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg border-2 border-[var(--nb-border-color)] bg-primary shadow-[var(--nb-shadow-active)]"
                 style={{ transform: isSignUp ? "translateX(0)" : "translateX(100%)" }}
               />
               <button

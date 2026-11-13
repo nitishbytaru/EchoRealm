@@ -20,7 +20,7 @@ export default function LoadError({ what, onRetry, className }: LoadErrorProps) 
     <div
       role="alert"
       className={cn(
-        "flex min-h-[200px] flex-col items-center justify-center gap-3 rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card p-6 text-center",
+        "flex min-h-[200px] flex-col items-center justify-center gap-3 rounded-2xl border-2 border-[var(--nb-border-color)] bg-card p-6 text-center",
         className
       )}
     >

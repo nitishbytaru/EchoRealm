@@ -19,7 +19,7 @@ _Last audited: 12 November 2026, on branch `ui-neobrutalist-pass`._
 
 EchoRealm uses **Neo-Brutalism**: playful, tactile and deliberately loud.
 
-- Thick 3px outlines on cards, buttons and inputs
+- 2px outlines on cards, buttons and inputs, in a soft charcoal (light) or warm gray (dark) rather than pure black or white; dividers inside panels use a faint line
 - Hard offset shadows with no blur
 - Flat, saturated color with no gradients
 - Heavy type, mostly bold and extrabold
@@ -57,10 +57,11 @@ Tokens are defined in `client/src/app/globals.css`.
 | `--nb-link` | `#1D5FC4` | `#8FB8FF` | Blue text, such as links and mentions |
 | `--nb-accent-text` | `#6B2FD9` | `#D9B8FF` | Purple text |
 | `--nb-danger-text` | `#C62828` | `#FF9A9A` | Error and warning text |
-| `--nb-border-color` | `#000000` | `#FFF1DC` | Outlines |
+| `--nb-border-color` | `#3A3632` | `#9C9488` | Outlines |
+| `--nb-line` | outline at 22% | outline at 28% | Faint dividers inside panels: chat headers, composer strip, dialog footers |
 | `--nb-shadow-color` | `#000000` | `#FFD43B` | Shadows |
 
-Text never sits directly on the saturated fills. It uses `--on-color` (dark) there, and colored text uses the `-text` variants, which pass 4.5:1 on cards. Light mode is "paper": a warm paper page with off-white cards, so white never fills the screen and the brand colors read as stickers on paper. Dark mode is "true black": a deep neutral black page with warm cream text and outlines, taken from the logo's sticker plate, and a thin brand-yellow hard shadow. Dark-mode shadows are smaller than light-mode ones (4px default, 3px small, 5px large, 1px pressed) so the yellow doesn't overwhelm the page. Both themes set `color-scheme`, so native scrollbars, autofill and form controls match.
+Text never sits directly on the saturated fills. It uses `--on-color` (dark) there, and colored text uses the `-text` variants, which pass 4.5:1 on cards. Light mode is "paper": a warm paper page with off-white cards, so white never fills the screen and the brand colors read as stickers on paper. Dark mode is "true black": a deep neutral black page with warm cream text and warm gray outlines, taken from the logo's sticker plate, and a thin brand-yellow hard shadow. Dark-mode shadows are smaller than light-mode ones (4px default, 3px small, 5px large, 1px pressed) so the yellow doesn't overwhelm the page. Both themes set `color-scheme`, so native scrollbars, autofill and form controls match.
 
 ### Typography
 
@@ -77,7 +78,7 @@ Text never sits directly on the saturated fills. It uses `--on-color` (dark) the
 | Token | Value |
 |---|---|
 | Radius | `1rem`; `rounded-xl` for controls, `rounded-2xl` for panels |
-| Border | 3px standard, 2px on small elements |
+| Border | 2px everywhere; inner dividers use the faint `--nb-line`; the keyboard focus ring stays 3px |
 | Shadow small / default | `4px 4px 0` / `6px 6px 0` (dark: `3px` / `4px`) |
 | Shadow large and hover | `8px 8px 0` |
 | Shadow pressed | `2px 2px 0` |
@@ -108,7 +109,7 @@ A sticky 64px header sits above a content area capped at 1280px. Every signed-in
 ### Desktop header (768px and up)
 
 - **Left:** the EchoRealm wordmark, slightly tilted (it straightens on hover), linking to EchoLink.
-- **Center, the sticker dock:** one outlined track with **EchoLink**, **EchoShout** and **EchoMumble**. A pill in the section's color (yellow, blue or purple) slides to the active one. On Profile pages, no pill shows.
+- **Center, the sticker dock:** one filled track (no outline) with **EchoLink**, **EchoShout** and **EchoMumble**. A pill in the section's color (yellow, blue or purple) slides to the active one. On Profile pages, no pill shows.
 - **Right:** the theme switch and an **avatar menu** (avatar, @username, chevron). The menu shows your name and email, then My profile, Pinned Mumbles, Friends (with a "new" count for requests), Find people and Settings, then **Log out**. The chip turns purple on Profile pages.
 
 There is no separate Profile tab; the avatar menu replaces it.

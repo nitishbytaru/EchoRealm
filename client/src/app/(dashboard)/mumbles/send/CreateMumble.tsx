@@ -112,13 +112,13 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
       <PageHeader as="h2" title="Send a" sticker="Mumble" stickerFill="bg-nb-accent" description="A short, quiet note for one person. Up to 55 characters." />
 
       <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_19rem]">
-      <div className="overflow-visible rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">
+      <div className="overflow-visible rounded-2xl border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow)]">
         {/* To */}
         <section className="relative p-5 sm:p-6">
           <SectionLabel icon={AtSign} label="To" fill="bg-secondary" htmlFor={selectedUser ? undefined : "mumble-recipient"} />
           {selectedUser ? (
-            <div className="nb-sticker-in mt-3 flex items-center gap-3 rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-muted/60 p-3 shadow-[var(--nb-shadow-sm)]" style={{ ["--tilt" as string]: "-0.6deg" }}>
-              <Avatar className="size-12 border-[3px]">
+            <div className="nb-sticker-in mt-3 flex items-center gap-3 rounded-2xl border-2 border-[var(--nb-border-color)] bg-muted/60 p-3 shadow-[var(--nb-shadow-sm)]" style={{ ["--tilt" as string]: "-0.6deg" }}>
+              <Avatar className="size-12 border-2">
                 <AvatarImage src={selectedUser?.avatar?.url} alt="" className="object-cover" />
                 <AvatarFallback className="bg-secondary text-base font-extrabold text-on-color">
                   {selectedUser.username.slice(0, 2).toUpperCase()}
@@ -151,7 +151,7 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
                 className="h-12 w-full pl-11 text-base"
               />
               {search.value && (
-                <ul className="absolute top-full right-0 left-0 z-50 mt-2 max-h-64 space-y-1 overflow-y-auto rounded-xl border-[3px] border-[var(--nb-border-color)] bg-popover p-1.5 shadow-[var(--nb-shadow)]">
+                <ul className="absolute top-full right-0 left-0 z-50 mt-2 max-h-64 space-y-1 overflow-y-auto rounded-xl border-2 border-[var(--nb-border-color)] bg-popover p-1.5 shadow-[var(--nb-shadow)]">
                   {recipients.length > 0 ? (
                     recipients.map((candidate: any) => (
                       <li key={candidate._id}>
@@ -184,7 +184,7 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
           )}
         </section>
 
-        <hr className="mx-5 border-0 border-t-[2px] border-dashed border-[var(--nb-border-color)] opacity-30 sm:mx-6" />
+        <hr className="mx-5 border-0 border-t-2 border-dashed border-[var(--nb-line)] sm:mx-6" />
 
         {/* From */}
         <fieldset className="p-5 sm:p-6">
@@ -198,7 +198,7 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
                 <label
                   key={String(value)}
                   className={cn(
-                    "relative flex cursor-pointer items-center gap-3 rounded-2xl border-[3px] p-3 transition-[rotate,background-color,box-shadow] duration-200 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-foreground",
+                    "relative flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3 transition-[rotate,background-color,box-shadow] duration-200 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-foreground",
                     selected
                       ? "border-[var(--nb-border-color)] bg-nb-accent text-on-color shadow-[var(--nb-shadow-sm)]"
                       : cn("border-dashed border-[var(--nb-border-color)]/50 bg-card text-foreground hover:bg-muted", value ? "rotate-[0.6deg]" : "-rotate-[0.6deg]")
@@ -212,11 +212,11 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
                     className="sr-only"
                   />
                   {value ? (
-                    <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-full border-[3px] border-dashed border-[var(--nb-border-color)]", selected ? "bg-card text-foreground" : "bg-nb-accent text-on-color")}>
+                    <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-[var(--nb-border-color)]", selected ? "bg-card text-foreground" : "bg-nb-accent text-on-color")}>
                       <HatGlasses className="size-5" aria-hidden="true" />
                     </span>
                   ) : (
-                    <Avatar className="size-11 border-[3px]">
+                    <Avatar className="size-11 border-2">
                       <AvatarImage src={user?.avatar?.url} alt="" className="object-cover" />
                       <AvatarFallback className="bg-primary text-sm font-extrabold text-on-color">
                         {user?.username?.slice(0, 2).toUpperCase()}
@@ -238,7 +238,7 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
           </div>
         </fieldset>
 
-        <hr className="mx-5 border-0 border-t-[2px] border-dashed border-[var(--nb-border-color)] opacity-30 sm:mx-6" />
+        <hr className="mx-5 border-0 border-t-2 border-dashed border-[var(--nb-line)] sm:mx-6" />
 
         {/* Note */}
         <section className={cn("p-5 sm:p-6", !selectedUser && "opacity-60")}>
@@ -248,7 +248,7 @@ export const CreateMumble: React.FC<CreateMumbleProps> = ({ mumbleTo }) => {
             rows={3}
             aria-invalid={isOverLimit || undefined}
             aria-describedby="mumble-count"
-            className="nb-ruled nb-note-input mt-3 block w-full resize-none rounded-2xl border-[3px] border-[var(--nb-border-color)] bg-card px-4 py-2 text-lg font-bold leading-7 text-foreground placeholder:font-semibold placeholder:text-muted-foreground disabled:cursor-not-allowed"
+            className="nb-ruled nb-note-input mt-3 block w-full resize-none rounded-2xl border-2 border-[var(--nb-border-color)] bg-card px-4 py-2 text-lg font-bold leading-7 text-foreground placeholder:font-semibold placeholder:text-muted-foreground disabled:cursor-not-allowed"
             placeholder={selectedUser ? `Something nice for @${selectedUser.username}…` : "Pick who it's for first"}
             onChange={(e) => message.setValue(e.target.value)}
             value={message.value}

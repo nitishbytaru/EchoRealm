@@ -30,7 +30,7 @@ export function Toaster() {
           <Toast key={id} variant={variant} duration={duration} {...props}>
             <span
               aria-hidden="true"
-              className={`nb-toast-badge flex size-10 shrink-0 items-center justify-center rounded-[10px] border-[3px] border-[var(--nb-border-color)] text-on-color shadow-[var(--nb-shadow-sm)] ${badge.className}`}
+              className={`nb-toast-badge flex size-10 shrink-0 items-center justify-center rounded-[10px] border-2 border-[var(--nb-border-color)] text-on-color shadow-[var(--nb-shadow-sm)] ${badge.className}`}
             >
               <badge.Icon className="size-5" strokeWidth={3} />
             </span>
