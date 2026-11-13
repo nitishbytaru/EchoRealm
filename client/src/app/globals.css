@@ -1071,6 +1071,51 @@
   to { opacity: 1; translate: 0 0; scale: 1; }
 }
 
+/* ─── Landing page ─── */
+
+.lp-pop { animation: nbPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s backwards; }
+.lp-word { animation: nbEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.lp-fade { animation: nbEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.lp-word-active { box-shadow: 6px 6px 0 var(--nb-shadow-color); translate: -2px -2px; }
+.nb-sticker-word { transition: box-shadow 0.25s ease, translate 0.25s ease; }
+
+/* Hero stage: the window rises in tilted, floating stickers follow the pointer. */
+.lp-window { animation: lpWindowIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards; rotate: 1.5deg; transition: rotate 0.4s ease; }
+.lp-stage:hover .lp-window { rotate: 0deg; }
+.lp-float {
+  translate: calc(var(--px, 0) * var(--depth, 20) * 1px) calc(var(--py, 0) * var(--depth, 20) * 1px);
+  transition: translate 0.25s ease-out;
+  animation: lpBob 3.2s ease-in-out infinite alternate;
+}
+.lp-progress { animation: lpProgress 3.8s linear forwards; }
+.lp-cta { animation: lpNudge 2.8s ease-in-out 2s infinite; }
+
+/* Ticker */
+.lp-marquee { animation: lpMarquee 32s linear infinite; }
+.lp-marquee:hover { animation-play-state: paused; }
+
+/* Scroll reveals */
+.lp-reveal { opacity: 0; translate: 0 30px; transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), translate 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+.lp-reveal.lp-from-side { translate: calc(var(--side, 1) * 50px) 0; }
+.lp-reveal.lp-tilt-card { translate: calc(var(--side, 1) * 60px) 30px; rotate: calc(var(--side, 1) * 4deg); transition-property: opacity, translate, rotate; }
+.lp-reveal.is-in { opacity: 1; translate: 0 0; rotate: 0deg; }
+.lp-tile { transition: opacity 0.7s ease, translate 0.7s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease; }
+.lp-tile:hover { box-shadow: var(--nb-shadow); }
+
+/* Demos */
+.lp-bubble { animation: nbEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+.lp-shake { animation: toastShake 0.4s ease-in-out; }
+.lp-note { rotate: -2deg; transition: rotate 0.3s ease, border-style 0.2s; }
+.lp-note:hover { rotate: 0deg; }
+.lp-pin { animation: nbPinDrop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.lp-swap { animation: nbPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+@keyframes lpWindowIn { from { opacity: 0; translate: 0 60px; rotate: 8deg; scale: 0.92; } }
+@keyframes lpBob { from { margin-top: 0; } to { margin-top: -10px; } }
+@keyframes lpProgress { from { width: 0; } to { width: 100%; } }
+@keyframes lpNudge { 0%, 90%, 100% { rotate: 0deg; } 93% { rotate: -3deg; } 96% { rotate: 3deg; } }
+@keyframes lpMarquee { to { transform: translateX(-50%); } }
+
 /* ─── Sign-in page: logo stage and decoration ─── */
 
 .auth-grid,
@@ -1293,6 +1338,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .lp-pop, .lp-word, .lp-fade, .lp-window, .lp-float, .lp-cta, .lp-marquee, .lp-bubble, .lp-pin, .lp-swap {
+    animation: none !important;
+  }
+  .lp-reveal {
+    opacity: 1 !important;
+    translate: none !important;
+    rotate: none !important;
+  }
   .nb-search,
   .nb-search-input {
     transition: none !important;

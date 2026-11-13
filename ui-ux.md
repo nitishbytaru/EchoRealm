@@ -142,7 +142,23 @@ Each badge has screen-reader text, such as "3 pending friend requests", and its 
 
 ## Screens
 
-### Sign in (`/`)
+### Landing page (`/`)
+
+The public home page (`components/landing/Landing.tsx`), using real screenshots of the app saved in `public/landing/`.
+
+- **Top bar:** wordmark, section links (Spaces, Try it, Details), theme switch, **Log in** and **Join free** ("Open app" when signed in). It gains a blurred background once you scroll.
+- **Hero:** "Chat **close.** Shout **loud.** Mumble **quietly.**" with each sticker word clickable, beside a tilted app window that cycles through EchoLink, EchoShout and EchoMumble screenshots (tabs, progress bar, pauses on hover). The logo mark, typing bubble, sparkle and shout lines float around it and drift with the pointer.
+- **Ticker:** a tilted strip of colored feature stickers scrolling sideways (pauses on hover).
+- **Three spaces:** each space with its icon, tagline and description beside a screenshot on a colored offset card; they slide in from alternating sides on scroll and zoom on hover.
+- **Try it (EchoShout demo):** a working mini shout room. Type up to 55 characters and press Enter; your shout appears and someone "replies" a moment later. Too long shakes the box.
+- **Write a Mumble demo:** edit a live note, toggle Anonymous (the avatar swaps for a disguise and the border goes dashed), pin it (a pushpin drops in) and like it.
+- **The little things:** a bento grid (friends, anonymity, pins, light & dark, privacy controls, likes) with screenshots and large tilted icon stickers.
+- **Final call to action** on a yellow panel, then a footer.
+- Everything reveals on scroll; with reduced motion it all appears without movement.
+
+### Sign in (`/login`)
+
+`/login?mode=register` opens the Register tab. A **Home** button (top left) returns to the landing page. Signing out, or visiting the app while signed out, lands here.
 
 Built from the two logos, which load through Cloudinary's `e_trim` so their empty margins don't shrink them.
 

@@ -33,7 +33,7 @@ export default function DashboardLayout({
       // Check if we are allowed to fetch (e.g. have logged in before)
       const allowFetch = localStorage.getItem("allowFetch") === "true";
       if (!allowFetch) {
-        router.push("/");
+        router.push("/login");
         return;
       }
 
@@ -44,11 +44,11 @@ export default function DashboardLayout({
           dispatch(setIsLoggedIn(true));
           setLoading(false);
         } else {
-          router.push("/");
+          router.push("/login");
         }
       } catch (error) {
         console.error("Dashboard auth check failed:", error);
-        router.push("/");
+        router.push("/login");
       }
     };
 

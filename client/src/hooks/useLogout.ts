@@ -21,7 +21,7 @@ export function useLogout() {
       dispatch(setUser(null));
       dispatch(setIsLoggedIn(false));
       localStorage.setItem("allowFetch", "false");
-      router.push("/");
+      router.push("/login");
     } catch (error) {
       console.error("Error during logout:", error);
       toast.error("Failed to log out. Please try again.");
