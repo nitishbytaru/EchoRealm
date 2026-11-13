@@ -5,7 +5,11 @@ import PageHeader from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { Search, UserPlus, UserCheck, Eye } from "lucide-react";
+import Link from "next/link";
+import { Search, UserPlus, UserCheck, Eye, MessageSquare, Clock, Send, SearchX } from "lucide-react";
+import PersonCard, { PeopleEmpty } from "@/components/people/PersonCard";
+import { TypingBubble } from "@/components/brand/BrandMarks";
+import { cn } from "@/lib/utils";
 
 import socket from "@/sockets/socket";
 import { sendFriendRequestApi } from "@/api/friends.api";
@@ -18,10 +22,7 @@ import {
 } from "@/store/slices/user.slice";
 import { RootState } from "@/store/store";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export default function FindUsersPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function FindUsersPage() {
 
   const search = useInputValidation("");
   const searchResults = useDebouncedSearchResults(search.value);
-  const [isPending, setIsPending] = useState(false);
+  const [sendingId, setSendingId] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(setResultOfSearchedUsers(searchResults));
@@ -39,7 +40,7 @@ export default function FindUsersPage() {
 
   const addFriendFunc = async (selectedUser: any) => {
     try {
-      setIsPending(true);
+      setSendingId(selectedUser?._id);
       const response = await sendFriendRequestApi(selectedUser?._id);
       if (response?.data?.myFriendRequests) {
         dispatch(updateResultOfSearchedUsers(response?.data?.myFriendRequests));
@@ -58,9 +59,9 @@ export default function FindUsersPage() {
       toast.success(response?.data?.message || "Friend request sent!");
     } catch (error) {
       console.error("Error adding friend:", error);
-      toast.error("Failed to send friend request.");
+      toast.error("Couldn't send that request. Try again.");
     } finally {
-      setIsPending(false);
+      setSendingId(null);
     }
   };
 
@@ -79,110 +80,97 @@ export default function FindUsersPage() {
         description="Search by username, then send a friend request."
         />
 
-      {/* Search Input Bar */}
-      <div className="relative max-w-xs">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      {/* Big search */}
+      <div className="relative max-w-xl">
+        <Search className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
         <Input
-          type="text"
-          placeholder="Search members by username..."
+          type="search"
+          aria-label="Search people by username"
+          placeholder="Search people by username"
           value={search.value}
           onChange={search.changeHandler}
-          className="pl-9 bg-muted text-foreground placeholder:text-muted-foreground rounded-lg h-9 w-full text-xs"
+          onKeyDown={(e) => e.key === "Escape" && search.clear()}
+          className="h-12 pl-12 text-base"
         />
       </div>
 
-      {isPending ? (
-        <div className="nb-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 [--nb-stagger-start:260ms]">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i} className="overflow-hidden shadow-[var(--nb-shadow-sm)]">
-              <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
-                <Skeleton className="h-14 w-14 rounded-full" />
-                <div className="space-y-2 w-full flex flex-col items-center">
-                  <Skeleton className="h-4 w-24 rounded-md" />
-                  <Skeleton className="h-3 w-32 rounded-md" />
-                </div>
-                <div className="flex flex-col gap-2 w-full pt-2">
-                  <Skeleton className="h-8 w-full rounded-lg" />
-                  <Skeleton className="h-8 w-full rounded-lg" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : search.value ? (
+      {search.value ? (
         resultOfSearchedUsers?.length > 0 ? (
-          <div className="nb-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 [--nb-stagger-start:260ms]">
+          <ul className="grid grid-cols-1 gap-6 pt-2 sm:grid-cols-2 xl:grid-cols-3">
             {resultOfSearchedUsers.map((currUser: any, index: number) => {
+              const person = currUser?.user;
+              if (!person?.username) return null;
+              const isMe = person._id === user?._id;
               const isFriend = currUser?.userFriendData?.friends?.includes(user?._id);
               const hasSentRequest = currUser?.userFriendData?.pendingFriendRequests?.includes(user?._id);
-
+              const status = isMe ? "That's you" : isFriend ? "Friends" : hasSentRequest ? "Request sent" : null;
               return (
-                <Card key={index} className="overflow-hidden shadow-[var(--nb-shadow-sm)] card-interactive">
-                  <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
-                    <Avatar className="h-14 w-14 border">
-                      <AvatarImage src={currUser?.user?.avatar?.url} />
-                      <AvatarFallback className="bg-card text-nb-accent-text text-sm border">
-                        {currUser?.user?.username?.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div>
-                      <h4 className="text-xs font-semibold text-foreground">@{currUser?.user?.username}</h4>
-                    </div>
-
-                    <div className="flex flex-col gap-2 w-full pt-2">
-                      {isFriend ? (
-                        <Button
-                          disabled
-                          variant="outline"
-                          className="w-full text-xs  flex items-center justify-center gap-2"
-                        >
-                          <UserCheck className="h-4 w-4" />
-                          Already Friends
-                        </Button>
-                      ) : hasSentRequest ? (
-                        <Button
-                          disabled
-                          variant="outline"
-                          className="w-full text-nb-accent-text/80 text-xs  flex items-center justify-center gap-2"
-                        >
-                          <UserCheck className="h-4 w-4" />
-                          Request Sent
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() => addFriendFunc(currUser.user)}
-                          className="w-full text-xs  flex items-center justify-center gap-2 tap-interactive"
-                        >
-                          <UserPlus className="h-4 w-4" />
-                          Add Friend
-                        </Button>
-                      )}
-
-                      <Button
-                        onClick={() => viewProfileFunc(currUser.user._id)}
-                        variant="outline"
-                        className="w-full text-muted-foreground hover:text-foreground text-xs  flex items-center justify-center gap-2 tap-interactive"
+                <PersonCard
+                  key={person._id || index}
+                  index={index}
+                  name={person.username}
+                  avatarUrl={person?.avatar?.url}
+                  stamp={
+                    status ? (
+                      <span
+                        key={status}
+                        className={cn(
+                          "nb-pop inline-flex items-center gap-1 -rotate-6 rounded-md border-2 border-[var(--nb-border-color)] px-1.5 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wide text-on-color shadow-[2px_2px_0_var(--nb-shadow-color)]",
+                          isFriend ? "bg-nb-success" : isMe ? "bg-primary" : "bg-nb-warning"
+                        )}
                       >
-                        <Eye className="h-4 w-4" />
-                        View Profile
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                        {isFriend ? <UserCheck className="size-3" aria-hidden="true" /> : hasSentRequest ? <Send className="size-3" aria-hidden="true" /> : null}
+                        {status}
+                      </span>
+                    ) : undefined
+                  }
+                  corner={
+                    <Button variant="outline" size="icon-sm" className="bg-card" aria-label={`View @${person.username}'s profile`} title="View profile" onClick={() => viewProfileFunc(person._id)}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  }
+                >
+                  {isMe ? null : isFriend ? (
+                    <Link href={`/links/${person._id}`} className={cn(buttonVariants({}), "h-11 w-full")}>
+                      <MessageSquare className="h-4 w-4" aria-hidden="true" />
+                      Message
+                    </Link>
+                  ) : hasSentRequest ? (
+                    <Button variant="outline" className="h-11 w-full" disabled>
+                      <Clock className="h-4 w-4" aria-hidden="true" />
+                      Waiting for a reply
+                    </Button>
+                  ) : (
+                    <Button className="h-11 w-full bg-secondary text-on-color" loading={sendingId === person._id} onClick={() => addFriendFunc(person)}>
+                      <UserPlus className="h-4 w-4" aria-hidden="true" />
+                      Add friend
+                    </Button>
+                  )}
+                </PersonCard>
               );
             })}
-          </div>
+          </ul>
         ) : (
-          <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-2 border-[var(--nb-border-color)] rounded-2xl min-h-[200px] animate-fade-in">
-            <p className="text-muted-foreground text-xs">No member found with username &quot;{search.value}&quot;</p>
-          </div>
+          <PeopleEmpty
+            icon={<SearchX className="size-7" />}
+            fill="bg-muted"
+            title="No one by that name"
+            text={`Nobody's called "${search.value}". Check the spelling or try part of the name.`}
+          />
         )
       ) : (
-        <div className="flex flex-col justify-center items-center text-center p-8 bg-muted/40 border-2 border-[var(--nb-border-color)] rounded-2xl min-h-[200px]">
-          <p className="text-foreground text-sm font-bold">Find someone to talk to</p>
-          <p className="text-sm text-muted-foreground font-medium mt-1">Type a username above to see who&apos;s here.</p>
-        </div>
+        <PeopleEmpty
+          icon={<Search className="size-7" />}
+          fill="bg-secondary"
+          title="Find someone to talk to"
+          text="Type a username above to see who's on EchoRealm."
+          decor={
+            <>
+              <TypingBubble className="absolute -top-4 -left-3 -rotate-6" />
+              <TypingBubble tone="primary" className="absolute -right-3 -bottom-4 rotate-6" />
+            </>
+          }
+        />
       )}
     </div>
   );
