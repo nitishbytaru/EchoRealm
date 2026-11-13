@@ -156,9 +156,9 @@ Built from the two logos, which load through Cloudinary's `e_trim` so their empt
 
 ### Chat list (`/links`)
 
-- **Header:** "Your **chats.**" with a conversation and unread count, plus two sticker buttons: new chat (yellow) and new group.
-- **Search:** searches your friends. Escape clears it.
-- **Filters:** All, Unread (with a red count) and Groups.
+- **Header:** "Your **chats.**" with a conversation count and a red unread count, and one yellow **+** sticker that opens a menu (New chat, New group); its + turns into an × while open.
+- **Search:** a round search button sits to the left of the filter switch. Hovering it, clicking it or typing unrolls it left to right over the filters into a full search field; it stays open while it has text or focus, and folds back about a quarter-second after the pointer leaves. Escape clears it and closes it. Results drop down below.
+- **Filters:** All, Unread (with a red count) and Groups as a segmented switch with a sliding pill.
 - **Rows:**
   - an avatar in a brand color, with a green group badge for group chats;
   - the name and the time of the last message (a time for today, a weekday this week, a date before that);
@@ -170,7 +170,7 @@ Built from the two logos, which load through Cloudinary's `e_trim` so their empt
 
 ### Conversation (`/links/[id]`)
 
-- A header with avatar, a larger @name, "Private chat · only you two", and a three-dot menu.
+- A header with the person's avatar in their color ring and their @name (both open their profile; the avatar tips on hover), then a purple **Send a Mumble** button and the ⋮ menu. No subtitle.
 - Messages sit on a faint dot grid and use the shared message layout (see Interaction patterns). Group chats show each sender's avatar and name; one-to-one chats don't.
 - The composer (attach, text field, character counter, send) stays pinned to the bottom.
 

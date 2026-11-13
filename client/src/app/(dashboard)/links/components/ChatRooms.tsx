@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Handle from "@/components/Handle";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import moment from "moment";
-import { Search, MessageSquare, MessageSquarePlus, UserPlus, Users } from "lucide-react";
+import { Search, MessageSquare, MessageSquarePlus, UserPlus, Users, Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LoadError from "@/components/LoadError";
 
 import socket from "@/sockets/socket";
@@ -30,13 +32,9 @@ import {
 } from "@/store/slices/echo_link.slice";
 import { createUniquechatRoom, markAsRead } from "@/utils/helpers/micro_funcs";
 import { RootState } from "@/store/store";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const CHIP_COLORS = ["bg-primary", "bg-secondary", "bg-nb-accent", "bg-nb-success", "bg-nb-warning"];
-const chipColor = (name?: string) =>
-  CHIP_COLORS[[...(name || "?")].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % CHIP_COLORS.length];
+import { chipColor } from "@/lib/chipColor";
 
 /** "14:05" today, "Mon" this week, "12 Nov" otherwise. */
 const shortTime = (iso: string) => {
@@ -56,6 +54,11 @@ export const ChatRooms: React.FC = () => {
   const { myPrivateChatRooms } = useSelector((state: RootState) => state.echoLink);
 
   const [search, setSearch] = useState("");
+  const [searchHover, setSearchHover] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchExpanded = searchHover || searchFocused || search.length > 0;
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
   const isSearching = Boolean(search) && searchResults === null;
 
@@ -218,112 +221,148 @@ export const ChatRooms: React.FC = () => {
   return (
     <div className="nb-stagger flex h-full flex-col gap-4 [--nb-stagger-start:80ms]">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-2xl font-extrabold leading-tight tracking-tight text-foreground">
             Your <span className="nb-sticker-word bg-primary">chats.</span>
           </h2>
           <p className="mt-1 text-sm font-medium text-muted-foreground">
             {rooms.length === 1 ? "1 conversation" : `${rooms.length} conversations`}
-            {unreadCount > 0 && ` · ${unreadCount} unread`}
+            {unreadCount > 0 && <span className="font-bold text-nb-danger-text"> · {unreadCount} unread</span>}
           </p>
         </div>
-        <div className="flex shrink-0 gap-2">
-          <Link
-            href="/profile/friends/list"
-            title="New chat"
-            aria-label="Start a new chat"
-            className="flex size-10 items-center justify-center rounded-xl border-2 border-[var(--nb-border-color)] bg-primary text-on-color shadow-[var(--nb-shadow-sm)] tap-interactive"
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            openOnHover={false}
+            render={
+              <button
+                type="button"
+                aria-label="Start something new"
+                className="nb-plus flex size-11 shrink-0 items-center justify-center rounded-2xl border-2 border-[var(--nb-border-color)] bg-primary text-on-color shadow-[var(--nb-shadow-sm)] tap-interactive"
+              />
+            }
           >
-            <MessageSquare className="h-5 w-5" aria-hidden="true" />
-          </Link>
-          <Button
-            size="icon"
-            onClick={() => setOpenCreateGroup(true)}
-            className="size-10 shrink-0 rounded-xl border-2 border-[var(--nb-border-color)] bg-card text-foreground shadow-[var(--nb-shadow-sm)] tap-interactive"
-            title="Create a group"
-            aria-label="Create a group"
-          >
-            <MessageSquarePlus className="h-5 w-5" />
-          </Button>
-        </div>
+            <Plus className="size-6" strokeWidth={3} aria-hidden="true" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuItem onClick={() => router.push("/profile/friends/list")}>
+              <MessageSquare />
+              New chat
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setOpenCreateGroup(true)}>
+              <MessageSquarePlus />
+              New group
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-        <Input
-          type="text"
-          placeholder="Search friends"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setSearchResults(null);
+      {/* Search (a round button that unrolls over the filters) + filters */}
+      <div className="relative flex items-center">
+        <div
+          className={cn("nb-search absolute top-0 left-0 z-20 h-full", searchExpanded && "is-open")}
+          onMouseEnter={() => {
+            if (collapseTimer.current) clearTimeout(collapseTimer.current);
+            setSearchHover(true);
           }}
-          onKeyDown={(e) => e.key === "Escape" && setSearch("")}
-          aria-label="Search your friends"
-          className="pl-10 text-base md:text-sm"
-        />
-
-        {search && (
-          <div className="absolute top-full right-0 left-0 z-50 mt-2 max-h-60 space-y-1 overflow-y-auto rounded-xl border-2 border-[var(--nb-border-color)] bg-card p-2 shadow-[var(--nb-shadow)]">
-            {isSearching ? (
-              <p className="p-3 text-center text-sm font-medium text-muted-foreground">Searching…</p>
-            ) : searchResults && searchResults.length > 0 ? (
-              searchResults.map((searchUser) => (
-                <button
-                  type="button"
-                  key={searchUser._id}
-                  onClick={() => {
-                    openRoom(searchUser);
-                    setSearch("");
-                  }}
-                  className="flex w-full items-center gap-2 rounded-lg p-2 text-left font-medium transition-colors hover:bg-muted"
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={searchUser?.avatar?.url} alt="" />
-                    <AvatarFallback className={`text-xs font-bold text-on-color ${chipColor(searchUser.username)}`}>
-                      {searchUser.username.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm font-bold text-foreground">@{searchUser.username}</span>
-                </button>
-              ))
-            ) : (
-              <div className="flex flex-col items-center gap-2 p-3 text-center text-sm text-muted-foreground">
-                <span className="font-medium">No friends match that name.</span>
-                <Link href="/profile/find-users" className="font-bold underline underline-offset-2">
-                  Find new people
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Filters */}
-      <div role="group" aria-label="Filter chats" className="flex gap-2">
-        {filters.map((f) => {
-          const isActive = filter === f.key;
-          return (
+          onMouseLeave={() => {
+            collapseTimer.current = setTimeout(() => setSearchHover(false), 250);
+          }}
+        >
+          <div className="flex h-full items-center overflow-hidden rounded-full border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow-sm)]">
             <button
-              key={f.key}
               type="button"
-              aria-pressed={isActive}
-              onClick={() => setFilter(f.key)}
-              className={`flex h-9 items-center gap-1.5 rounded-lg border-[2px] px-3 text-sm font-bold transition-colors ${
-                isActive
-                  ? "border-[var(--nb-border-color)] bg-foreground text-background"
-                  : "border-[var(--nb-border-color)] bg-card text-muted-foreground hover:text-foreground"
-              }`}
+              aria-label="Search your friends"
+              onClick={() => searchInputRef.current?.focus()}
+              className="flex h-full w-10 shrink-0 items-center justify-center text-foreground"
             >
-              {f.label}
-              {f.count ? (
-                <span className="rounded-md bg-destructive px-1.5 text-xs font-extrabold text-on-color">{f.count}</span>
-              ) : null}
+              <Search className="h-5 w-5" aria-hidden="true" />
             </button>
-          );
-        })}
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search friends"
+              value={search}
+              tabIndex={searchExpanded ? 0 : -1}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setSearchResults(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setSearch("");
+                  searchInputRef.current?.blur();
+                }
+              }}
+              aria-label="Search your friends"
+              className="nb-search-input h-full min-w-0 flex-1 bg-transparent pr-4 text-base font-medium text-foreground outline-none placeholder:text-muted-foreground md:text-sm"
+            />
+          </div>
+
+          {search && (
+            <div className="absolute top-full right-0 left-0 z-50 mt-2 max-h-60 space-y-1 overflow-y-auto rounded-xl border-2 border-[var(--nb-border-color)] bg-card p-2 shadow-[var(--nb-shadow)]">
+              {isSearching ? (
+                <p className="p-3 text-center text-sm font-medium text-muted-foreground">Searching…</p>
+              ) : searchResults && searchResults.length > 0 ? (
+                searchResults.map((searchUser) => (
+                  <button
+                    type="button"
+                    key={searchUser._id}
+                    onClick={() => {
+                      openRoom(searchUser);
+                      setSearch("");
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg p-2 text-left font-medium transition-colors hover:bg-muted"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={searchUser?.avatar?.url} alt="" />
+                      <AvatarFallback className={`text-xs font-bold text-on-color ${chipColor(searchUser.username)}`}>
+                        {searchUser.username.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-bold text-foreground">@{searchUser.username}</span>
+                  </button>
+                ))
+              ) : (
+                <div className="flex flex-col items-center gap-2 p-3 text-center text-sm text-muted-foreground">
+                  <span className="font-medium">No friends match that name.</span>
+                  <Link href="/profile/find-users" className="font-bold underline underline-offset-2">
+                    Find new people
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+      {/* Filters: segmented switch with a sliding pill */}
+        <div role="group" aria-label="Filter chats" className="relative ml-[3.25rem] grid flex-1 grid-cols-3 rounded-xl bg-muted p-1">
+          <span
+            aria-hidden="true"
+            className="nb-pill absolute inset-y-1 left-1 w-[calc((100%-0.5rem)/3)] rounded-lg border-2 border-[var(--nb-border-color)] bg-card shadow-[var(--nb-shadow-active)]"
+            style={{ transform: `translateX(${filters.findIndex((f) => f.key === filter) * 100}%)` }}
+          />
+          {filters.map((f) => {
+            const isActive = filter === f.key;
+            return (
+              <button
+                key={f.key}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => setFilter(f.key)}
+                className={cn(
+                  "relative z-10 flex h-9 items-center justify-center gap-1.5 rounded-lg text-sm font-bold transition-colors",
+                  isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {f.label}
+                {f.count ? <span className="rounded-md bg-destructive px-1.5 text-xs font-extrabold text-on-color">{f.count}</span> : null}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <CreateGroupDialog
@@ -374,7 +413,7 @@ export const ChatRooms: React.FC = () => {
                 <span className="relative shrink-0">
                   <Avatar className="size-11">
                     <AvatarImage src={receiver?.avatar?.url || receiver?.groupProfile?.url} />
-                    <AvatarFallback className={`text-sm font-extrabold text-on-color ${chipColor(name)}`}>
+                    <AvatarFallback className={`text-sm font-extrabold text-on-color ${chipColor(receiver?.username || receiver?.groupName)}`}>
                       {(receiver?.username || receiver?.groupName)?.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>

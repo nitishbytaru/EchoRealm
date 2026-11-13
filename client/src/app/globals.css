@@ -956,6 +956,41 @@
   70% { translate: 0 1px; rotate: 3deg; }
 }
 
+/* ─── EchoLink: the + menu button ─── */
+
+/* Search: a round button that unrolls from left to right over the filters. */
+.nb-search {
+  width: 2.75rem;
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nb-search.is-open {
+  width: 100%;
+}
+.nb-search-input {
+  opacity: 0;
+  translate: -8px 0;
+  transition: opacity 0.2s ease-out, translate 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* The pill shows focus with a deeper shadow; the field inside draws no outline. */
+.nb-search .nb-search-input:focus-visible {
+  outline: none;
+}
+.nb-search:focus-within > div {
+  box-shadow: var(--nb-shadow);
+}
+.nb-search.is-open .nb-search-input {
+  opacity: 1;
+  translate: 0 0;
+  transition-delay: 0.12s;
+}
+
+.nb-plus svg {
+  transition: rotate 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nb-plus[data-popup-open] svg {
+  rotate: 135deg;
+}
+
 /* ─── Hover card that wipes open from left to right (EchoShout identity) ─── */
 
 .nb-reveal-x {
@@ -1273,6 +1308,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .nb-search,
+  .nb-search-input {
+    transition: none !important;
+  }
   .nb-card-out,
   .nb-card-crumple {
     animation: nbFadeOut 0.15s ease-out 0.4s forwards !important;
