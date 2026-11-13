@@ -43,7 +43,6 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
 export default function ListenMumblesPage() {
-  const isFirstRender = useRef(true);
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -91,27 +90,24 @@ export default function ListenMumblesPage() {
     fetchMumblesAndBlocked();
   }, [dispatch, user]);
 
-  // useEffect for marking the unread mumbles as read
+  // Mark new Mumbles as read when you leave the inbox (not every time the list changes,
+  // e.g. after pinning or deleting one), and only if there's something unread.
+  const unreadOnPage = useRef(0);
   useEffect(() => {
-    const setAllMumblesAsReadApiFunc = async () => {
-      try {
-        await setMumblesAsReadApi();
-        dispatch(setUnReadMumbles(0));
-      } catch (err) {
-        console.error("Error marking read:", err);
-      }
-    };
+    unreadOnPage.current = Mumbles.filter((m: any) => m?.mumbleStatus === "sent").length;
+  }, [Mumbles]);
 
+  useEffect(() => {
     return () => {
-      if (isFirstRender.current) {
-        isFirstRender.current = false;
-      } else {
-        if (Mumbles.length > 0) {
-          setAllMumblesAsReadApiFunc();
-        }
-      }
+      if (unreadOnPage.current === 0) return;
+      setMumblesAsReadApi()
+        .then(() => dispatch(setUnReadMumbles(0)))
+        .catch((err) => {
+          // Not shown to the user: the Mumbles stay unread and are marked next time.
+          console.warn("Couldn't mark Mumbles as read; will try again next visit.", err);
+        });
     };
-  }, [Mumbles, dispatch]);
+  }, [dispatch]);
 
   const confirmDeleteMumbleApiFunc = async (mumbleId: string) => {
     try {

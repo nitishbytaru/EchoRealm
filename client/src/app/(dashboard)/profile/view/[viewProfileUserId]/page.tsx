@@ -1,6 +1,7 @@
 "use client";
 
 import React, { use, useEffect, useState } from "react";
+import { useUserAvatars } from "@/hooks/useUserAvatars";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
@@ -48,6 +49,11 @@ export default function ViewProfilePage({ params }: PageProps) {
   const [relationship, setRelationship] = useState<"none" | "friend" | "requested">("none");
   const isSelf = user?._id === viewProfileUserId;
   const router = useRouter();
+  // Mumbles don't include the sender's picture, so look senders up (cached across the app).
+  const avatars = useUserAvatars([
+    splMumble?.sender?.senderId,
+    ...((viewingProfileUserDetails?.selectedUserProfileMumbles ?? []) as any[]).map((m: any) => m?.sender?.senderId),
+  ]);
 
   useEffect(() => {
     getMyFriendsListApi()
@@ -301,6 +307,7 @@ export default function ViewProfilePage({ params }: PageProps) {
               isPinned
               message={splMumble.message}
               sender={splMumble?.sender?.senderId ? splMumble?.sender?.username : null}
+              avatarUrl={avatars[splMumble?.sender?.senderId]}
               time={splMumble?.createdAt}
               likes={splMumble?.likeCount ?? splMumble?.likes?.length ?? 0}
             />
@@ -332,6 +339,7 @@ export default function ViewProfilePage({ params }: PageProps) {
                   isPinned
                   message={mumble?.message}
                   sender={mumble?.sender?.senderId ? mumble?.sender?.username : null}
+                  avatarUrl={avatars[mumble?.sender?.senderId]}
                   time={mumble?.createdAt}
                   likes={mumble?.likes?.length || 0}
                   action={<LikeButton mumble={mumble} />}
