@@ -332,102 +332,55 @@
   scrollbar-color: var(--muted-foreground) transparent;
 }
 
-/* ─── Neo-Brutalism Loading Animation ─── */
+/* ─── App loader: three speech-bubble stickers pop up in turn ─── */
+/* One 1.8s cycle: each bubble rises, wiggles and "types" during its third of the loop. */
 
-.loader-wrapper {
-  width: 200px;
-  height: 60px;
-  position: relative;
-  z-index: 1;
+.nb-loader-bubble {
+  animation: nbLoaderPop 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
+.nb-loader-bubble:nth-child(2) { animation-delay: 0.6s; }
+.nb-loader-bubble:nth-child(3) { animation-delay: 1.2s; }
 
-.loader-wrapper .circle {
-  width: 24px;
-  height: 24px;
-  position: absolute;
-  border-radius: 50%;
-  border: 2px solid var(--nb-border-color);
-  left: 15%;
-  transform-origin: 50%;
-  animation: circle7124 0.5s alternate infinite ease;
+.nb-loader-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--on-color);
+  opacity: 0.35;
+  animation: nbLoaderDot 1.8s ease-in-out infinite;
 }
 
-.loader-wrapper .circle:nth-child(1) {
-  background-color: #FFD43B;
+.nb-loader-label {
+  animation: nbLoaderLabel 1.8s ease-in-out infinite;
 }
-.loader-wrapper .circle:nth-child(2) {
-  background-color: #4D96FF;
-}
-.loader-wrapper .circle:nth-child(3) {
-  background-color: #FF6B6B;
-}
-
-@keyframes circle7124 {
-  0% {
-    top: 60px;
-    height: 5px;
-    border-radius: 50px 50px 25px 25px;
-    transform: scaleX(1.7);
-  }
-  40% {
-    height: 24px;
-    border-radius: 50%;
-    transform: scaleX(1);
-  }
-  100% {
-    top: 0%;
-  }
+.nb-loader-ellipsis::after {
+  content: "";
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+  animation: nbEllipsis 1.8s steps(4, end) infinite;
 }
 
-.loader-wrapper .circle:nth-child(2) {
-  left: 45%;
-  animation-delay: 0.2s;
+@keyframes nbLoaderPop {
+  0%, 40%, 100% { translate: 0 0; rotate: 0deg; box-shadow: var(--nb-shadow-sm); }
+  12% { translate: 0 -16px; rotate: -6deg; box-shadow: 4px 12px 0 var(--nb-shadow-color); }
+  22% { translate: 0 -12px; rotate: 4deg; }
+  32% { translate: 0 2px; rotate: 0deg; box-shadow: var(--nb-shadow-active); }
 }
-
-.loader-wrapper .circle:nth-child(3) {
-  left: auto;
-  right: 15%;
-  animation-delay: 0.3s;
+@keyframes nbLoaderDot {
+  0%, 40%, 100% { opacity: 0.35; translate: 0 0; }
+  10% { opacity: 1; translate: 0 -3px; }
+  20% { opacity: 1; translate: 0 0; }
 }
-
-.loader-wrapper .shadow {
-  width: 24px;
-  height: 4px;
-  border-radius: 50%;
-  background-color: var(--nb-border-color);
-  position: absolute;
-  top: 62px;
-  transform-origin: 50%;
-  z-index: -1;
-  left: 15%;
-  filter: blur(1px);
-  animation: shadow046 0.5s alternate infinite ease;
-  opacity: 0.3;
+@keyframes nbLoaderLabel {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
-
-@keyframes shadow046 {
-  0% {
-    transform: scaleX(1.5);
-  }
-  40% {
-    transform: scaleX(1);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scaleX(0.2);
-    opacity: 0.4;
-  }
-}
-
-.loader-wrapper .shadow:nth-child(4) {
-  left: 45%;
-  animation-delay: 0.2s;
-}
-
-.loader-wrapper .shadow:nth-child(5) {
-  left: auto;
-  right: 15%;
-  animation-delay: 0.3s;
+@keyframes nbEllipsis {
+  0% { content: ""; }
+  25% { content: "."; }
+  50% { content: ".."; }
+  75%, 100% { content: "..."; }
 }
 
 /* ─── Browser surfaces and accessibility ─── */
@@ -1359,13 +1312,12 @@
     transform: none !important;
   }
 
-  .loader-wrapper .circle {
-    top: 30px !important;
-    animation: nbPulse 0.9s ease-in-out infinite alternate !important;
+  .nb-loader-bubble,
+  .nb-loader-dot {
+    animation: none !important;
   }
-
-  .loader-wrapper .shadow {
-    display: none;
+  .nb-loader {
+    animation: nbPulse 0.9s ease-in-out infinite alternate;
   }
 
   .auth-submit[data-pending]::before,

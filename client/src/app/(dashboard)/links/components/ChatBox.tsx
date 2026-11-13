@@ -160,7 +160,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
     getMessages();
   }, [dispatch, recieverId, user]);
 
-  if (isPendingGetMessage) return <Loading />;
+  if (isPendingGetMessage) return <Loading label="Opening chat" />;
   if (isPendingOperation) {
     return (
       <div className="h-full flex flex-col justify-center items-center gap-3 p-8">
