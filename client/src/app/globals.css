@@ -806,6 +806,59 @@
   outline-offset: 2px;
 }
 
+/* ─── Edit Profile: sticker switch, polaroid, toggle scenes ─── */
+
+.nb-switch-knob {
+  transition: translate 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nb-switch:active .nb-switch-knob {
+  scale: 1.12 0.9;
+}
+.nb-switch-icon {
+  animation: nbSwitchIcon 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* A freshly picked photo develops like a polaroid. */
+.nb-develop {
+  animation: nbDevelop 1.1s ease-out;
+}
+/* The disguise lands from above with a bounce. */
+.nb-disguise-drop {
+  animation: nbDisguiseDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* A note flies into the open mailbox. */
+.nb-note-fly {
+  animation: nbNoteFly 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* The "closed" sign swings onto the mailbox. */
+.nb-sign-swing {
+  transform-origin: top right;
+  animation: nbSignSwing 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nb-savebar {
+  animation: nbEnter 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes nbSwitchIcon {
+  from { rotate: -120deg; scale: 0.4; }
+  to { rotate: 0deg; scale: 1; }
+}
+@keyframes nbDevelop {
+  0% { filter: brightness(2.2) saturate(0); }
+  100% { filter: none; }
+}
+@keyframes nbDisguiseDrop {
+  0% { translate: 0 -26px; opacity: 0; rotate: -20deg; }
+  100% { translate: 0 0; opacity: 1; rotate: 0deg; }
+}
+@keyframes nbNoteFly {
+  0% { translate: 22px -22px; rotate: 25deg; opacity: 0; }
+  100% { translate: 0 0; rotate: 0deg; opacity: 1; }
+}
+@keyframes nbSignSwing {
+  0% { rotate: -40deg; opacity: 0; }
+  60% { rotate: 12deg; opacity: 1; }
+  100% { rotate: -4deg; }
+}
+
 /* ─── Hover card that wipes open from left to right (EchoShout identity) ─── */
 
 .nb-reveal-x {
@@ -1237,6 +1290,7 @@
   }
 
   .nb-note-input:focus,
+  .nb-switch-knob,
   .nb-avatar-trigger:hover,
   .nb-composer:focus-within,
   .nb-send:not(:disabled):hover,
@@ -1250,6 +1304,12 @@
     transition: opacity 0.15s ease-out;
   }
 
+  .nb-switch-icon,
+  .nb-develop,
+  .nb-disguise-drop,
+  .nb-note-fly,
+  .nb-sign-swing,
+  .nb-savebar,
   .nb-dock-up,
   .nb-enter,
   .nb-stagger > * {
