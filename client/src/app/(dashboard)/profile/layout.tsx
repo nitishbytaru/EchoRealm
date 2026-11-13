@@ -15,6 +15,7 @@ import {
   Settings,
   Eye,
   Pencil,
+  LogOut,
   Mail,
   Heart,
   HatGlasses,
@@ -25,7 +26,8 @@ import {
 import { fetchMostLikedMumbleWithLikesAndFriendsApi } from "@/api/user.api";
 import { RootState } from "@/store/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { useLogout } from "@/hooks/useLogout";
 import { Sparkle, TypingBubble } from "@/components/brand/BrandMarks";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +44,7 @@ interface Tab {
 
 export default function ProfileLayout({ children }: ProfileLayoutProps) {
   const pathname = usePathname();
+  const { logout, isLoggingOut } = useLogout();
   const { user } = useSelector((state: RootState) => state.auth);
   const { badgeOfPendingRequests } = useSelector((state: RootState) => state.user);
   const [stats, setStats] = useState<{ friends: number; likes: number } | null>(null);
@@ -190,6 +193,10 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
                   Public view
                 </Link>
               )}
+              <Button variant="ghost" onClick={logout} loading={isLoggingOut} className="text-muted-foreground hover:text-foreground">
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+                Log out
+              </Button>
             </div>
           </div>
 
