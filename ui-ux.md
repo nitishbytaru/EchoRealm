@@ -205,7 +205,10 @@ Mumbles are treated as small paper notes.
   - Actions (pin, message, delete, block) sit in each note's menu.
   - **First load:** the Mumble mark bobs while its dots breathe and its whisper waves ripple, above "Collecting your quiet notes…". The side card's stats stay hidden until there are Mumbles to count.
   - **Empty state:** a tilted dashed note, "It's quiet in here", with a **Send a Mumble** button.
-- **Send:** the form in one card (recipient search, Send as yourself or Anonymous, message), with a **live preview** beside it that updates as you type and matches the identity you chose.
+- **Send:** "Send a **Mumble**" header, then one card in three labeled parts, each headed by a small colored icon tile, with dashed dividers between them. The live preview sits beside it on wide screens and below it on phones.
+  - **To:** a large search field. Once you pick someone, they appear as a tilted sticker card with their picture, @handle and a **Change** button.
+  - **From:** two choice cards, "As @you" (your picture) or "Anonymous" (dashed disguise avatar), each with a one-line hint. The chosen card turns purple with a yellow check sticker.
+  - **Note:** a three-line ruled-paper field in the same bold type as the notes. It lifts when focused instead of drawing an outline, and stays dimmed until you pick a recipient. Below it, a purple progress bar fills toward the 55-character limit (red past it), next to a full **Send Mumble** button. Enter sends.
 
 ### Profile area
 

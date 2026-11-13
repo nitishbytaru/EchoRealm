@@ -772,6 +772,19 @@
   box-shadow: var(--nb-shadow-active);
 }
 
+/* Send Mumble note field: ruled lines line up with its 8px top padding; focus lifts it instead of drawing an outline. */
+.nb-note-input {
+  background-position: 0 8px;
+  box-shadow: 2px 2px 0 var(--nb-shadow-color);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nb-note-input:focus,
+.nb-note-input:focus-visible {
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: var(--nb-shadow-sm);
+}
+
 /* ─── Hover card that wipes open from left to right (EchoShout identity) ─── */
 
 .nb-reveal-x {
@@ -1165,6 +1178,7 @@
     animation-name: fadeIn;
   }
 
+  .nb-note-input:focus,
   .nb-composer:focus-within,
   .nb-send:not(:disabled):hover,
   .nb-send:not(:disabled):active {
